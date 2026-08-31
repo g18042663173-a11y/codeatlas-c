@@ -1,0 +1,531 @@
+- id: auto-sym-netif_invoke_ext_callback
+  type: 符号定位
+  q: netif_invoke_ext_callback 这个函数定义在哪里，做什么用的
+  gold:
+  - code:dd744fc322cc9db7eba0
+  auto: true
+- id: auto-sym-etharp_find_entry
+  type: 符号定位
+  q: etharp_find_entry 这个函数定义在哪里，做什么用的
+  gold:
+  - code:253bc01c90ef00493645
+  auto: true
+- id: auto-sym-smtp_free
+  type: 符号定位
+  q: smtp_free 这个函数定义在哪里，做什么用的
+  gold:
+  - code:647162db259b0c3e630b
+  auto: true
+- id: auto-sym-memp_init_pool
+  type: 符号定位
+  q: memp_init_pool 这个函数定义在哪里，做什么用的
+  gold:
+  - code:00701b0258ce9915cf24
+  auto: true
+- id: auto-sym-mqtt_output_append_string
+  type: 符号定位
+  q: mqtt_output_append_string 这个函数定义在哪里，做什么用的
+  gold:
+  - code:c6b76ea87705eb2d80f7
+  auto: true
+- id: auto-sym-mqtt_output_send
+  type: 符号定位
+  q: mqtt_output_send 这个函数定义在哪里，做什么用的
+  gold:
+  - code:0145758a173d3bfc418a
+  auto: true
+- id: auto-sym-smtp_base64_encode
+  type: 符号定位
+  q: smtp_base64_encode 这个函数定义在哪里，做什么用的
+  gold:
+  - code:f4840fbbe4f37ea4b21e
+  auto: true
+- id: auto-sym-http_close_conn
+  type: 符号定位
+  q: http_close_conn 这个函数定义在哪里，做什么用的
+  gold:
+  - code:96c971cdec7566adc4e5
+  auto: true
+- id: auto-sym-igmp_send
+  type: 符号定位
+  q: igmp_send 这个函数定义在哪里，做什么用的
+  gold:
+  - code:94357ddb6d732cf98c64
+  auto: true
+- id: auto-sym-pppos_output_append
+  type: 符号定位
+  q: pppos_output_append 这个函数定义在哪里，做什么用的
+  gold:
+  - code:cfc366e0a8bc6b600963
+  auto: true
+- id: auto-sym-ip6_select_source_address
+  type: 符号定位
+  q: ip6_select_source_address 这个函数定义在哪里，做什么用的
+  gold:
+  - code:1101294d09016a9451e5
+  auto: true
+- id: auto-sym-dns_call_found
+  type: 符号定位
+  q: dns_call_found 这个函数定义在哪里，做什么用的
+  gold:
+  - code:4aed2acb29dfa5afc2bf
+  auto: true
+- id: auto-caller-netif_invoke_ext_callback
+  type: 调用链
+  q: 有哪些函数调用了 netif_invoke_ext_callback
+  gold:
+  - code:23611820c7e760e846f7
+  - code:6d39a862cc996ef3cd54
+  - code:36b8b016f3a391ce30c1
+  - code:d4bf31e14a6a8376b985
+  - code:926cb5de36b3043af419
+  - code:329166bf65296057d51a
+  - code:8a4834309dc11670cba3
+  - code:580616aefdfcfb431b91
+  - code:cd9d16a992c0958daa32
+  - code:aa774334c40cc76f4b5b
+  - code:d1c968406d91eb68a9fe
+  - code:a0cf013b6a3434817898
+  auto: true
+- id: auto-caller-etharp_find_entry
+  type: 调用链
+  q: 有哪些函数调用了 etharp_find_entry
+  gold:
+  - code:c5a3202bf4a39f4c220c
+  - code:37938c0f08ca88d8e224
+  - code:c1bdc62d5015b71a1267
+  - code:ff87ab8f6ea083021ba0
+  auto: true
+- id: auto-caller-smtp_free
+  type: 调用链
+  q: 有哪些函数调用了 smtp_free
+  gold:
+  - code:59ccce20dfd043c7671d
+  - code:9ecf7c0d0e0a5e1abb15
+  - code:7a04b739cc7b046a2191
+  auto: true
+- id: auto-caller-memp_init_pool
+  type: 调用链
+  q: 有哪些函数调用了 memp_init_pool
+  gold:
+  - code:2fee383b9bc5570ce952
+  - code:beac7e774428794119c0
+  auto: true
+- id: auto-caller-mqtt_output_append_string
+  type: 调用链
+  q: 有哪些函数调用了 mqtt_output_append_string
+  gold:
+  - code:3a5b145bd65deab18866
+  - code:f4d33f1b7971311fc736
+  - code:d72dc188a52fc671cc04
+  auto: true
+- id: auto-caller-mqtt_output_send
+  type: 调用链
+  q: 有哪些函数调用了 mqtt_output_send
+  gold:
+  - code:8017798d622c98ead753
+  - code:7106aa35ec74d17e9c9e
+  - code:158e191d373ac1842a9a
+  - code:0127015116eb60bb73ff
+  - code:3a5b145bd65deab18866
+  - code:f4d33f1b7971311fc736
+  auto: true
+- id: auto-caller-smtp_base64_encode
+  type: 调用链
+  q: 有哪些函数调用了 smtp_base64_encode
+  gold:
+  - code:044bc93f4deedc4ef9f8
+  - code:daf200ee0b33ea847cb0
+  - code:ae715f475d72f4dbcd5b
+  auto: true
+- id: auto-caller-http_close_conn
+  type: 调用链
+  q: 有哪些函数调用了 http_close_conn
+  gold:
+  - code:4c94aaf103f2f09ecc9c
+  - code:856c414b1eda1d7bda2c
+  - code:2c052136fb1978e27548
+  auto: true
+- id: auto-caller-pppos_output_append
+  type: 调用链
+  q: 有哪些函数调用了 pppos_output_append
+  gold:
+  - code:37cc0f7f154fd812d26c
+  - code:7a9bfee34371bd6b2009
+  - code:515cad1eb28c68ac4c0e
+  auto: true
+- id: auto-caller-ip6_select_source_address
+  type: 调用链
+  q: 有哪些函数调用了 ip6_select_source_address
+  gold:
+  - code:4194d8c24e44a19a818d
+  - code:fabfbf02b5396f6ccd54
+  - code:9118c2e9c1a395235cfb
+  auto: true
+- id: auto-caller-dns_call_found
+  type: 调用链
+  q: 有哪些函数调用了 dns_call_found
+  gold:
+  - code:6fe254655a9c5d045251
+  - code:aab6792792a1c611e495
+  - code:e205f1bf4a584c4cc074
+  - code:c059ce6c6cd1602991b5
+  auto: true
+- id: auto-caller-http_send
+  type: 调用链
+  q: 有哪些函数调用了 http_send
+  gold:
+  - code:7305be8847f3b6938e01
+  - code:856c414b1eda1d7bda2c
+  - code:2c052136fb1978e27548
+  auto: true
+- id: auto-callee-mqtt_output_send
+  type: 被调关系
+  q: mqtt_output_send 内部依赖了哪些函数
+  gold:
+  - code:79f513688b8ad947b8dd
+  - code:98726795443db37c5ea9
+  - code:db09d7eb1da5a77ccb23
+  auto: true
+- id: auto-callee-http_send
+  type: 被调关系
+  q: http_send 内部依赖了哪些函数
+  gold:
+  - code:280428860a4daf2ba54b
+  - code:4c94aaf103f2f09ecc9c
+  - code:5690218b793037992c94
+  - code:66dd1c4930975a337abb
+  auto: true
+- id: auto-callee-dhcp_release_and_stop
+  type: 被调关系
+  q: dhcp_release_and_stop 内部依赖了哪些函数
+  gold:
+  - code:03769121d666ca1a72f8
+  - code:0c5944dbdb2fea6cd2bb
+  - code:33f177673026e71c8117
+  - code:5c5bda5937a3dc88d31a
+  - code:6841cf90dc1afe4efdd1
+  - code:74feeb575180720447f9
+  - code:7fe16f8f04a71e1a6772
+  - code:926cb5de36b3043af419
+  - code:9b67847b6c7607fc1e3a
+  auto: true
+- id: auto-callee-netconn_recv_data
+  type: 被调关系
+  q: netconn_recv_data 内部依赖了哪些函数
+  gold:
+  - code:4d6b14a1731c5a82c8ed
+  - code:62e54458a1d7cf61c74a
+  - code:bf1bcea96e79710d7642
+  auto: true
+- id: auto-callee-dhcp_discover
+  type: 被调关系
+  q: dhcp_discover 内部依赖了哪些函数
+  gold:
+  - code:0c5944dbdb2fea6cd2bb
+  - code:300f14dedffb6b111146
+  - code:5c5bda5937a3dc88d31a
+  - code:7fe16f8f04a71e1a6772
+  - code:9b67847b6c7607fc1e3a
+  - code:9c356a48bbfab0273058
+  - code:c616fca252e744e8bcf8
+  auto: true
+- id: auto-callee-netif_set_link_up
+  type: 被调关系
+  q: netif_set_link_up 内部依赖了哪些函数
+  gold:
+  - code:5f802575f263e364a35c
+  - code:dd744fc322cc9db7eba0
+  - code:f48717e55617fea94f90
+  auto: true
+- id: auto-callee-netif_set_addr
+  type: 被调关系
+  q: netif_set_addr 内部依赖了哪些函数
+  gold:
+  - code:08202f2f688dbe663b12
+  - code:9a133db959b1824eea1e
+  - code:dd744fc322cc9db7eba0
+  - code:f861f0ce2d57fb996cd1
+  auto: true
+- id: auto-callee-mdns_send_outpacket
+  type: 被调关系
+  q: mdns_send_outpacket 内部依赖了哪些函数
+  gold:
+  - code:74feeb575180720447f9
+  - code:9279f8990c73692b86d7
+  - code:be9733d5e127e4211c1a
+  auto: true
+- id: auto-callee-netif_ip6_addr_set_state
+  type: 被调关系
+  q: netif_ip6_addr_set_state 内部依赖了哪些函数
+  gold:
+  - code:dd744fc322cc9db7eba0
+  - code:f48717e55617fea94f90
+  - code:f6db2aeac7247de15f43
+  auto: true
+- id: auto-callee-smtp_process
+  type: 被调关系
+  q: smtp_process 内部依赖了哪些函数
+  gold:
+  - code:044bc93f4deedc4ef9f8
+  - code:4d71f805c1c0060f50f2
+  - code:59ccce20dfd043c7671d
+  - code:647162db259b0c3e630b
+  - code:853afaab5570bd548058
+  - code:901809a6e8082244d652
+  - code:9b8342af55a94125f590
+  - code:9c04d2fd9d4089de1671
+  - code:ae715f475d72f4dbcd5b
+  - code:b2a4b0a53116ba87af29
+  - code:b91ffc125a42dd5b6bef
+  - code:bfcaa81266c6c0a52296
+  auto: true
+- id: auto-hop2-netif_invoke_ext_callback
+  type: 间接影响(2跳)
+  q: netif_invoke_ext_callback 出问题会间接波及哪些上层函数
+  gold:
+  - code:23d10364318d0eada1d5
+  - code:2c766c67691a39065e6a
+  - code:3c092915c454858a279b
+  - code:41c1e50562ca5d7ffaa7
+  - code:5911fabb63668e9e07ff
+  - code:656baaa68da30763426d
+  - code:a391b02d3339a057c4a0
+  auto: true
+- id: auto-hop2-etharp_find_entry
+  type: 间接影响(2跳)
+  q: etharp_find_entry 出问题会间接波及哪些上层函数
+  gold:
+  - code:3bcc3a6e8ca58c6eb7cf
+  - code:dc8e4aa90632b355dcbf
+  - code:e1989070098d6ba61fca
+  auto: true
+- id: auto-hop2-smtp_free
+  type: 间接影响(2跳)
+  q: smtp_free 出问题会间接波及哪些上层函数
+  gold:
+  - code:002d859cae495a7be53e
+  - code:300e11033aaf36c723a3
+  - code:46cfe2f3bcafe968afbf
+  - code:b5d0be21710add6250db
+  - code:bc5e6891d47d95e1f6e2
+  auto: true
+- id: auto-hop2-http_close_conn
+  type: 间接影响(2跳)
+  q: http_close_conn 出问题会间接波及哪些上层函数
+  gold:
+  - code:280428860a4daf2ba54b
+  - code:6eef054bdc4d7595f15e
+  auto: true
+- id: auto-hop2-igmp_send
+  type: 间接影响(2跳)
+  q: igmp_send 出问题会间接波及哪些上层函数
+  gold:
+  - code:0fa4deed590118f68d82
+  - code:ab29d79a2ae2b5153933
+  - code:e00b05b26c8f4cb830c4
+  auto: true
+- id: auto-hop2-ip6_select_source_address
+  type: 间接影响(2跳)
+  q: ip6_select_source_address 出问题会间接波及哪些上层函数
+  gold:
+  - code:0145758a173d3bfc418a
+  - code:11802ea33004198c034a
+  - code:238aff0c09b6b828dd1d
+  - code:2acc5d2af8230374051a
+  - code:34945db06867706e970d
+  - code:46cfe2f3bcafe968afbf
+  auto: true
+- id: auto-hop2-dns_call_found
+  type: 间接影响(2跳)
+  q: dns_call_found 出问题会间接波及哪些上层函数
+  gold:
+  - code:c48c1e5bfe99052e3a3c
+  - code:dd95001735490f1ddf15
+  auto: true
+- id: auto-hop2-ppp_logit
+  type: 间接影响(2跳)
+  q: ppp_logit 出问题会间接波及哪些上层函数
+  gold:
+  - code:0757da6e657a3beb8afb
+  - code:0f3d56e736314b4606bf
+  - code:19aac6eb90c26d09cf0b
+  - code:21f5a599d8380e455110
+  - code:276e77a1b30d4eac31dd
+  - code:30c84c90b6ff61a23b32
+  - code:4270b1e4238a440ad323
+  - code:4face88effacb4f44466
+  - code:8be098776e7d3621902e
+  - code:8cc699d557fafe884c50
+  - code:95c1477752f0397cab35
+  auto: true
+- id: auto-hop2-udp_sendto
+  type: 间接影响(2跳)
+  q: udp_sendto 出问题会间接波及哪些上层函数
+  gold:
+  - code:0c87a9d42a9520e81660
+  - code:0cdae17d2467ccf61986
+  - code:2d27e2658765b22c8782
+  - code:aab6792792a1c611e495
+  - code:cbf30c1dfa0ea4c6ee23
+  - code:ef4cf0bb1b7ece7919db
+  - code:fe733121c687a27a2b43
+  auto: true
+- id: auto-hop2-etharp_raw
+  type: 间接影响(2跳)
+  q: etharp_raw 出问题会间接波及哪些上层函数
+  gold:
+  - code:2f09e33b977a9520fd29
+  - code:b68177d674c0304d3451
+  - code:fe01c2b79e8f8e456158
+  auto: true
+- id: auto-hop2-mld6_delayed_report
+  type: 间接影响(2跳)
+  q: mld6_delayed_report 出问题会间接波及哪些上层函数
+  gold:
+  - code:0fa4deed590118f68d82
+  - code:33158508b4a176047825
+  - code:ab29d79a2ae2b5153933
+  - code:f48717e55617fea94f90
+  auto: true
+- id: auto-hop2-netconn_recv_data
+  type: 间接影响(2跳)
+  q: netconn_recv_data 出问题会间接波及哪些上层函数
+  gold:
+  - code:1c741ffb81a365750590
+  - code:315dda2248c5b6eb3bed
+  - code:bef75ff61ea41ac9622a
+  auto: true
+- id: auto-impact-netif_invoke_ext_callback
+  type: 影响面
+  q: 修改 netif_invoke_ext_callback 会影响到哪些代码
+  gold:
+  - code:23611820c7e760e846f7
+  - code:329166bf65296057d51a
+  - code:36b8b016f3a391ce30c1
+  - code:580616aefdfcfb431b91
+  - code:6d39a862cc996ef3cd54
+  - code:8a4834309dc11670cba3
+  - code:926cb5de36b3043af419
+  - code:a0cf013b6a3434817898
+  - code:aa774334c40cc76f4b5b
+  - code:cd9d16a992c0958daa32
+  - code:d1c968406d91eb68a9fe
+  - code:d4bf31e14a6a8376b985
+  - code:23d10364318d0eada1d5
+  - code:2c766c67691a39065e6a
+  - code:3c092915c454858a279b
+  auto: true
+- id: auto-impact-etharp_find_entry
+  type: 影响面
+  q: 修改 etharp_find_entry 会影响到哪些代码
+  gold:
+  - code:37938c0f08ca88d8e224
+  - code:c1bdc62d5015b71a1267
+  - code:c5a3202bf4a39f4c220c
+  - code:ff87ab8f6ea083021ba0
+  - code:3bcc3a6e8ca58c6eb7cf
+  - code:dc8e4aa90632b355dcbf
+  - code:e1989070098d6ba61fca
+  auto: true
+- id: auto-impact-smtp_free
+  type: 影响面
+  q: 修改 smtp_free 会影响到哪些代码
+  gold:
+  - code:59ccce20dfd043c7671d
+  - code:7a04b739cc7b046a2191
+  - code:9ecf7c0d0e0a5e1abb15
+  - code:002d859cae495a7be53e
+  - code:300e11033aaf36c723a3
+  - code:46cfe2f3bcafe968afbf
+  - code:b5d0be21710add6250db
+  - code:bc5e6891d47d95e1f6e2
+  auto: true
+- id: auto-impact-memp_init_pool
+  type: 影响面
+  q: 修改 memp_init_pool 会影响到哪些代码
+  gold:
+  - code:2fee383b9bc5570ce952
+  - code:beac7e774428794119c0
+  - code:0f57436305bbbc678c44
+  auto: true
+- id: auto-impact-mqtt_output_append_string
+  type: 影响面
+  q: 修改 mqtt_output_append_string 会影响到哪些代码
+  gold:
+  - code:3a5b145bd65deab18866
+  - code:d72dc188a52fc671cc04
+  - code:f4d33f1b7971311fc736
+  auto: true
+- id: auto-impact-mqtt_output_send
+  type: 影响面
+  q: 修改 mqtt_output_send 会影响到哪些代码
+  gold:
+  - code:0127015116eb60bb73ff
+  - code:158e191d373ac1842a9a
+  - code:3a5b145bd65deab18866
+  - code:7106aa35ec74d17e9c9e
+  - code:8017798d622c98ead753
+  - code:f4d33f1b7971311fc736
+  - code:7a4b9337cb596df60fd9
+  auto: true
+- id: auto-impact-smtp_base64_encode
+  type: 影响面
+  q: 修改 smtp_base64_encode 会影响到哪些代码
+  gold:
+  - code:044bc93f4deedc4ef9f8
+  - code:ae715f475d72f4dbcd5b
+  - code:daf200ee0b33ea847cb0
+  - code:7a04b739cc7b046a2191
+  auto: true
+- id: auto-impact-http_close_conn
+  type: 影响面
+  q: 修改 http_close_conn 会影响到哪些代码
+  gold:
+  - code:2c052136fb1978e27548
+  - code:4c94aaf103f2f09ecc9c
+  - code:856c414b1eda1d7bda2c
+  - code:280428860a4daf2ba54b
+  - code:6eef054bdc4d7595f15e
+  auto: true
+- id: auto-impact-igmp_send
+  type: 影响面
+  q: 修改 igmp_send 会影响到哪些代码
+  gold:
+  - code:6ba50639b7c9da18b698
+  - code:0fa4deed590118f68d82
+  - code:ab29d79a2ae2b5153933
+  - code:e00b05b26c8f4cb830c4
+  auto: true
+- id: auto-impact-pppos_output_append
+  type: 影响面
+  q: 修改 pppos_output_append 会影响到哪些代码
+  gold:
+  - code:37cc0f7f154fd812d26c
+  - code:515cad1eb28c68ac4c0e
+  - code:7a9bfee34371bd6b2009
+  auto: true
+- id: auto-impact-ip6_select_source_address
+  type: 影响面
+  q: 修改 ip6_select_source_address 会影响到哪些代码
+  gold:
+  - code:4194d8c24e44a19a818d
+  - code:9118c2e9c1a395235cfb
+  - code:fabfbf02b5396f6ccd54
+  - code:0145758a173d3bfc418a
+  - code:11802ea33004198c034a
+  - code:238aff0c09b6b828dd1d
+  - code:2acc5d2af8230374051a
+  - code:34945db06867706e970d
+  auto: true
+- id: auto-impact-dns_call_found
+  type: 影响面
+  q: 修改 dns_call_found 会影响到哪些代码
+  gold:
+  - code:6fe254655a9c5d045251
+  - code:aab6792792a1c611e495
+  - code:c059ce6c6cd1602991b5
+  - code:e205f1bf4a584c4cc074
+  - code:c48c1e5bfe99052e3a3c
+  - code:dd95001735490f1ddf15
+  auto: true

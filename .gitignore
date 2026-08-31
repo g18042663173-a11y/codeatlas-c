@@ -1,0 +1,11 @@
+data/
+corpus/
+.venv/
+kb/
+.coverage
+htmlcov/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+*.db
+*.npy

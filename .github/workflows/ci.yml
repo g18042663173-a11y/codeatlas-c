@@ -1,0 +1,30 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install Clang
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq clang
+      - name: Install project
+        run: python -m pip install -e ".[dev]"
+      - name: Run offline tests
+        env:
+          OPENAI_API_KEY: ""
+          LLM_API_KEY: ""
+        run: pytest -q

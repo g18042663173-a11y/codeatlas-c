@@ -1,0 +1,519 @@
+- id: sem-01
+  type: 语义理解
+  q: JSON 文本是怎么被解析成对象树的
+  gold:
+  - parse_value
+  - parse_object
+  - parse_string
+- id: sem-02
+  type: 语义理解
+  q: 对象序列化成字符串的流程
+  gold:
+  - print_value
+  - print_object
+  - print_string
+- id: sem-03
+  type: 语义理解
+  q: 内存是怎么分配和释放的
+  gold:
+  - cJSON_malloc
+  - cJSON_free
+  - cJSON_Delete
+- id: sem-04
+  type: 语义理解
+  q: 数组元素是怎么组织的，链表还是数组
+  gold:
+  - add_item_to_array
+  - cJSON_GetArrayItem
+- id: sem-05
+  type: 语义理解
+  q: 字符串转义是怎么处理的
+  gold:
+  - parse_string
+  - print_string_ptr
+- id: sem-06
+  type: 语义理解
+  q: 数字类型的解析和精度处理
+  gold:
+  - parse_number
+  - print_number
+- id: sem-07
+  type: 语义理解
+  q: 输出缓冲区不够的时候怎么扩容
+  gold:
+  - ensure
+  - print_value
+- id: sem-08
+  type: 语义理解
+  q: JSON Pointer 是怎么定位到具体节点的
+  gold:
+  - get_item_from_pointer
+  - cJSONUtils_GetPointer
+- id: sem-09
+  type: 语义理解
+  q: 两个 JSON 对象怎么比较是否相等
+  gold:
+  - cJSON_Compare
+  - compare_json
+- id: sem-10
+  type: 语义理解
+  q: 注释和 UTF-8 BOM 是怎么跳过的
+  gold:
+  - skip_oneline_comment
+  - skip_utf8_bom
+- id: auto-sym-cJSON_AddItemToObject
+  type: 符号定位
+  q: cJSON_AddItemToObject 这个函数定义在哪里，做什么用的
+  gold:
+  - code:e042d12555e94cfd86b3
+  auto: true
+- id: auto-sym-parse_value
+  type: 符号定位
+  q: parse_value 这个函数定义在哪里，做什么用的
+  gold:
+  - code:f27ebf730d29a5c8a694
+  auto: true
+- id: auto-sym-get_object_item
+  type: 符号定位
+  q: get_object_item 这个函数定义在哪里，做什么用的
+  gold:
+  - code:3cf5faa5098f90b8e317
+  auto: true
+- id: auto-sym-cJSON_CreateArray
+  type: 符号定位
+  q: cJSON_CreateArray 这个函数定义在哪里，做什么用的
+  gold:
+  - code:e8b28eba2a7ef0c4bba0
+  auto: true
+- id: auto-sym-cJSON_DetachItemFromObject
+  type: 符号定位
+  q: cJSON_DetachItemFromObject 这个函数定义在哪里，做什么用的
+  gold:
+  - code:2b8befb34600e0c40e61
+  auto: true
+- id: auto-sym-compare_double
+  type: 符号定位
+  q: compare_double 这个函数定义在哪里，做什么用的
+  gold:
+  - code:43ef6b7f45a6572bed4a
+  auto: true
+- id: auto-sym-get_item_from_pointer
+  type: 符号定位
+  q: get_item_from_pointer 这个函数定义在哪里，做什么用的
+  gold:
+  - code:9bc5aafaab0c6cf5a2f3
+  auto: true
+- id: auto-sym-parse_string
+  type: 符号定位
+  q: parse_string 这个函数定义在哪里，做什么用的
+  gold:
+  - code:b08ed6fe74de28c159d2
+  auto: true
+- id: auto-sym-cJSON_IsString
+  type: 符号定位
+  q: cJSON_IsString 这个函数定义在哪里，做什么用的
+  gold:
+  - code:bc370eb4af4a3bcbd65d
+  auto: true
+- id: auto-sym-sort_object
+  type: 符号定位
+  q: sort_object 这个函数定义在哪里，做什么用的
+  gold:
+  - code:9f942ef6e4fc48b35a1e
+  auto: true
+- id: auto-caller-cJSON_AddItemToObject
+  type: 调用链
+  q: 有哪些函数调用了 cJSON_AddItemToObject
+  gold:
+  - code:0b11a043df196aa2d4ee
+  - code:91c0ef94e01a72c5b461
+  - code:87746ad7e0580cee104d
+  - code:839ef2c1dab2bce9788c
+  - code:44ba64eb279d3217fa06
+  auto: true
+- id: auto-caller-parse_value
+  type: 调用链
+  q: 有哪些函数调用了 parse_value
+  gold:
+  - code:c25a8c98058eab69325a
+  - code:981c9a2d2999ecd470bc
+  - code:c685946b0397a9617a5a
+  auto: true
+- id: auto-caller-get_object_item
+  type: 调用链
+  q: 有哪些函数调用了 get_object_item
+  gold:
+  - code:e3c8b722939e96d8cdb3
+  - code:0cdcf5b68fde24da34af
+  - code:640716abac61da6671c2
+  auto: true
+- id: auto-caller-cJSON_CreateArray
+  type: 调用链
+  q: 有哪些函数调用了 cJSON_CreateArray
+  gold:
+  - code:6e263fa684eaead4ef61
+  - code:2a19aa49387c849da225
+  - code:635ed7d829428d962d6e
+  - code:08fcd1699a912512f1f2
+  - code:98b1a8a630080c09eb5f
+  - code:539c9a659ba4c42006f9
+  - code:8f2b8f58bd9af179bbf6
+  - code:44ba64eb279d3217fa06
+  auto: true
+- id: auto-caller-cJSON_DetachItemFromObject
+  type: 调用链
+  q: 有哪些函数调用了 cJSON_DetachItemFromObject
+  gold:
+  - code:ecac347d76cce0446140
+  - code:1bb761a82cd039292743
+  - code:87746ad7e0580cee104d
+  auto: true
+- id: auto-caller-compare_double
+  type: 调用链
+  q: 有哪些函数调用了 compare_double
+  gold:
+  - code:6cd88d83903caea945c4
+  - code:f5cc80a06de2e38f3920
+  auto: true
+- id: auto-caller-get_item_from_pointer
+  type: 调用链
+  q: 有哪些函数调用了 get_item_from_pointer
+  gold:
+  - code:8467f065cf961a8190a3
+  - code:63f486f9b937294d1ffb
+  - code:1bb761a82cd039292743
+  - code:0b11a043df196aa2d4ee
+  auto: true
+- id: auto-caller-parse_string
+  type: 调用链
+  q: 有哪些函数调用了 parse_string
+  gold:
+  - code:f27ebf730d29a5c8a694
+  - code:c685946b0397a9617a5a
+  auto: true
+- id: auto-caller-cJSON_IsString
+  type: 调用链
+  q: 有哪些函数调用了 cJSON_IsString
+  gold:
+  - code:338af5765c05526bb464
+  - code:404a231a4513499eaa38
+  - code:0b11a043df196aa2d4ee
+  auto: true
+- id: auto-caller-sort_object
+  type: 调用链
+  q: 有哪些函数调用了 sort_object
+  gold:
+  - code:1748305d3c9ca9a297d4
+  - code:9675f3a0e6fde6c4003f
+  - code:74954b0d2279a3c7df14
+  - code:ccff30e530f3f38cb844
+  - code:839ef2c1dab2bce9788c
+  auto: true
+- id: auto-callee-parse_value
+  type: 被调关系
+  q: parse_value 内部依赖了哪些函数
+  gold:
+  - code:38c9b246f5bcf263a909
+  - code:981c9a2d2999ecd470bc
+  - code:b08ed6fe74de28c159d2
+  - code:c685946b0397a9617a5a
+  auto: true
+- id: auto-callee-replace_item_in_object
+  type: 被调关系
+  q: replace_item_in_object 内部依赖了哪些函数
+  gold:
+  - code:0c3b2b31df0f19e6ecd3
+  - code:36a58ae63ec5a0f14883
+  - code:3cf5faa5098f90b8e317
+  - code:5d66ce180fa370ae4cbd
+  auto: true
+- id: auto-callee-merge_patch
+  type: 被调关系
+  q: merge_patch 内部依赖了哪些函数
+  gold:
+  - code:13ec712e176608384ee5
+  - code:292d9782ff905f2f37b7
+  - code:2b8befb34600e0c40e61
+  - code:5381a1da9bef9eafa862
+  - code:65861f4164ddf389f7b0
+  - code:87746ad7e0580cee104d
+  - code:9cbf6901195e81140f8f
+  - code:c62dc1a80bbb2ca51876
+  - code:d10bc9b285ccef52eccd
+  - code:e042d12555e94cfd86b3
+  - code:ecac347d76cce0446140
+  auto: true
+- id: auto-callee-print_value
+  type: 被调关系
+  q: print_value 内部依赖了哪些函数
+  gold:
+  - code:12c86e381e78a9057463
+  - code:6cd88d83903caea945c4
+  - code:77d78ff5e9731222ec37
+  - code:f7f7616703049b34ca8b
+  auto: true
+- id: auto-callee-apply_patch
+  type: 被调关系
+  q: apply_patch 内部依赖了哪些函数
+  gold:
+  - code:13e4756cabfab119d42d
+  - code:13ec712e176608384ee5
+  - code:1748305d3c9ca9a297d4
+  - code:1bb761a82cd039292743
+  - code:1d330c09d1d916451602
+  - code:404a231a4513499eaa38
+  - code:42e0898f22b9d85c9dd8
+  - code:49cba0629e025605dd90
+  - code:5381a1da9bef9eafa862
+  - code:5d66ce180fa370ae4cbd
+  - code:65861f4164ddf389f7b0
+  - code:99da42f0ff7cb489aa7d
+  auto: true
+- id: auto-callee-cJSON_CreateString
+  type: 被调关系
+  q: cJSON_CreateString 内部依赖了哪些函数
+  gold:
+  - code:36a58ae63ec5a0f14883
+  - code:5381a1da9bef9eafa862
+  - code:fe9a63281d874f266fa4
+  auto: true
+- id: auto-callee-generate_merge_patch
+  type: 被调关系
+  q: generate_merge_patch 内部依赖了哪些函数
+  gold:
+  - code:13ec712e176608384ee5
+  - code:1748305d3c9ca9a297d4
+  - code:5381a1da9bef9eafa862
+  - code:59503d948e07d212787f
+  - code:9cbf6901195e81140f8f
+  - code:9f942ef6e4fc48b35a1e
+  - code:a6e67f3dbbe8e73262af
+  - code:d10bc9b285ccef52eccd
+  - code:e042d12555e94cfd86b3
+  auto: true
+- id: auto-callee-add_item_to_object
+  type: 被调关系
+  q: add_item_to_object 内部依赖了哪些函数
+  gold:
+  - code:36a58ae63ec5a0f14883
+  - code:574b8d2ae2de6489a343
+  - code:7a338af0703f514ec0bf
+  auto: true
+- id: auto-callee-create_patches
+  type: 被调关系
+  q: create_patches 内部依赖了哪些函数
+  gold:
+  - code:5d66ce180fa370ae4cbd
+  - code:91c0ef94e01a72c5b461
+  - code:9675f3a0e6fde6c4003f
+  - code:9f942ef6e4fc48b35a1e
+  - code:b6c907439189e435b7df
+  - code:ec5eead3ce91b4135cdc
+  auto: true
+- id: auto-hop2-cJSON_AddItemToObject
+  type: 间接影响(2跳)
+  q: cJSON_AddItemToObject 出问题会间接波及哪些上层函数
+  gold:
+  - code:06371c6419b6629f17f8
+  - code:079e77be3ff1fd72718b
+  - code:292c91078e940c7371b4
+  - code:805a65dc647789cf5b80
+  - code:9675f3a0e6fde6c4003f
+  - code:a6e67f3dbbe8e73262af
+  - code:cc80a5558b3fc7a8ed30
+  - code:dfc2a643d257642e316c
+  auto: true
+- id: auto-hop2-get_object_item
+  type: 间接影响(2跳)
+  q: get_object_item 出问题会间接波及哪些上层函数
+  gold:
+  - code:227ac96ec82b1b62d804
+  - code:2b8befb34600e0c40e61
+  - code:57b3a7299965611a99d0
+  - code:5b3796d3f2a0cf802d82
+  - code:99da42f0ff7cb489aa7d
+  - code:c62dc1a80bbb2ca51876
+  auto: true
+- id: auto-hop2-cJSON_DetachItemFromObject
+  type: 间接影响(2跳)
+  q: cJSON_DetachItemFromObject 出问题会间接波及哪些上层函数
+  gold:
+  - code:0b11a043df196aa2d4ee
+  - code:805a65dc647789cf5b80
+  - code:cc80a5558b3fc7a8ed30
+  auto: true
+- id: auto-hop2-get_item_from_pointer
+  type: 间接影响(2跳)
+  q: get_item_from_pointer 出问题会间接波及哪些上层函数
+  gold:
+  - code:292c91078e940c7371b4
+  - code:dfc2a643d257642e316c
+  auto: true
+- id: auto-hop2-parse_string
+  type: 间接影响(2跳)
+  q: parse_string 出问题会间接波及哪些上层函数
+  gold:
+  - code:981c9a2d2999ecd470bc
+  - code:c25a8c98058eab69325a
+  auto: true
+- id: auto-hop2-cJSON_IsString
+  type: 间接影响(2跳)
+  q: cJSON_IsString 出问题会间接波及哪些上层函数
+  gold:
+  - code:292c91078e940c7371b4
+  - code:dfc2a643d257642e316c
+  auto: true
+- id: auto-hop2-sort_object
+  type: 间接影响(2跳)
+  q: sort_object 出问题会间接波及哪些上层函数
+  gold:
+  - code:079e77be3ff1fd72718b
+  - code:0b11a043df196aa2d4ee
+  - code:539c9a659ba4c42006f9
+  - code:8f2b8f58bd9af179bbf6
+  - code:a6e67f3dbbe8e73262af
+  auto: true
+- id: auto-hop2-decode_pointer_inplace
+  type: 间接影响(2跳)
+  q: decode_pointer_inplace 出问题会间接波及哪些上层函数
+  gold:
+  - code:292c91078e940c7371b4
+  - code:dfc2a643d257642e316c
+  auto: true
+- id: auto-hop2-cJSON_DetachItemViaPointer
+  type: 间接影响(2跳)
+  q: cJSON_DetachItemViaPointer 出问题会间接波及哪些上层函数
+  gold:
+  - code:1bb761a82cd039292743
+  - code:65861f4164ddf389f7b0
+  - code:87746ad7e0580cee104d
+  - code:ecac347d76cce0446140
+  auto: true
+- id: auto-hop2-cJSON_GetObjectItemCaseSensitive
+  type: 间接影响(2跳)
+  q: cJSON_GetObjectItemCaseSensitive 出问题会间接波及哪些上层函数
+  gold:
+  - code:0b11a043df196aa2d4ee
+  - code:404a231a4513499eaa38
+  - code:65861f4164ddf389f7b0
+  - code:87746ad7e0580cee104d
+  auto: true
+- id: auto-impact-cJSON_AddItemToObject
+  type: 影响面
+  q: 修改 cJSON_AddItemToObject 会影响到哪些代码
+  gold:
+  - code:0b11a043df196aa2d4ee
+  - code:44ba64eb279d3217fa06
+  - code:839ef2c1dab2bce9788c
+  - code:87746ad7e0580cee104d
+  - code:91c0ef94e01a72c5b461
+  - code:06371c6419b6629f17f8
+  - code:079e77be3ff1fd72718b
+  - code:292c91078e940c7371b4
+  - code:805a65dc647789cf5b80
+  - code:9675f3a0e6fde6c4003f
+  - code:a6e67f3dbbe8e73262af
+  - code:cc80a5558b3fc7a8ed30
+  - code:dfc2a643d257642e316c
+  auto: true
+- id: auto-impact-parse_value
+  type: 影响面
+  q: 修改 parse_value 会影响到哪些代码
+  gold:
+  - code:981c9a2d2999ecd470bc
+  - code:c25a8c98058eab69325a
+  - code:c685946b0397a9617a5a
+  - code:f27ebf730d29a5c8a694
+  auto: true
+- id: auto-impact-get_object_item
+  type: 影响面
+  q: 修改 get_object_item 会影响到哪些代码
+  gold:
+  - code:0cdcf5b68fde24da34af
+  - code:640716abac61da6671c2
+  - code:e3c8b722939e96d8cdb3
+  - code:227ac96ec82b1b62d804
+  - code:2b8befb34600e0c40e61
+  - code:57b3a7299965611a99d0
+  - code:5b3796d3f2a0cf802d82
+  - code:99da42f0ff7cb489aa7d
+  - code:c62dc1a80bbb2ca51876
+  auto: true
+- id: auto-impact-cJSON_CreateArray
+  type: 影响面
+  q: 修改 cJSON_CreateArray 会影响到哪些代码
+  gold:
+  - code:08fcd1699a912512f1f2
+  - code:2a19aa49387c849da225
+  - code:44ba64eb279d3217fa06
+  - code:539c9a659ba4c42006f9
+  - code:635ed7d829428d962d6e
+  - code:6e263fa684eaead4ef61
+  - code:8f2b8f58bd9af179bbf6
+  - code:98b1a8a630080c09eb5f
+  - code:06371c6419b6629f17f8
+  auto: true
+- id: auto-impact-cJSON_DetachItemFromObject
+  type: 影响面
+  q: 修改 cJSON_DetachItemFromObject 会影响到哪些代码
+  gold:
+  - code:1bb761a82cd039292743
+  - code:87746ad7e0580cee104d
+  - code:ecac347d76cce0446140
+  - code:0b11a043df196aa2d4ee
+  - code:805a65dc647789cf5b80
+  - code:cc80a5558b3fc7a8ed30
+  auto: true
+- id: auto-impact-compare_double
+  type: 影响面
+  q: 修改 compare_double 会影响到哪些代码
+  gold:
+  - code:6cd88d83903caea945c4
+  - code:f5cc80a06de2e38f3920
+  - code:ad62de2b33537ab550e4
+  auto: true
+- id: auto-impact-get_item_from_pointer
+  type: 影响面
+  q: 修改 get_item_from_pointer 会影响到哪些代码
+  gold:
+  - code:0b11a043df196aa2d4ee
+  - code:1bb761a82cd039292743
+  - code:63f486f9b937294d1ffb
+  - code:8467f065cf961a8190a3
+  - code:292c91078e940c7371b4
+  - code:dfc2a643d257642e316c
+  auto: true
+- id: auto-impact-parse_string
+  type: 影响面
+  q: 修改 parse_string 会影响到哪些代码
+  gold:
+  - code:c685946b0397a9617a5a
+  - code:f27ebf730d29a5c8a694
+  - code:981c9a2d2999ecd470bc
+  - code:c25a8c98058eab69325a
+  auto: true
+- id: auto-impact-cJSON_IsString
+  type: 影响面
+  q: 修改 cJSON_IsString 会影响到哪些代码
+  gold:
+  - code:0b11a043df196aa2d4ee
+  - code:338af5765c05526bb464
+  - code:404a231a4513499eaa38
+  - code:292c91078e940c7371b4
+  - code:dfc2a643d257642e316c
+  auto: true
+- id: auto-impact-sort_object
+  type: 影响面
+  q: 修改 sort_object 会影响到哪些代码
+  gold:
+  - code:1748305d3c9ca9a297d4
+  - code:74954b0d2279a3c7df14
+  - code:839ef2c1dab2bce9788c
+  - code:9675f3a0e6fde6c4003f
+  - code:ccff30e530f3f38cb844
+  - code:079e77be3ff1fd72718b
+  - code:0b11a043df196aa2d4ee
+  - code:539c9a659ba4c42006f9
+  - code:8f2b8f58bd9af179bbf6
+  - code:a6e67f3dbbe8e73262af
+  auto: true
