@@ -173,7 +173,12 @@ class FeatureReranker:
             contrib = {k: self.w.get(k, 0.0) * v for k, v in feats.items()}
             out.append(Scored(citation=c, score=sum(contrib.values()),
                               features=contrib))
-        out.sort(key=lambda s: -s.score)
+        out.sort(
+            key=lambda s: (
+                -s.score,
+                str(s.citation.get("uid") or s.citation.get("title") or ""),
+            )
+        )
         return out
 
 
@@ -204,7 +209,12 @@ class CrossEncoderReranker:
         scores = self.model.predict([(q, t) for t in texts])
         out = [Scored(citation=c, score=float(s), features={"cross_encoder": float(s)})
                for c, s in zip(citations, scores)]
-        out.sort(key=lambda s: -s.score)
+        out.sort(
+            key=lambda s: (
+                -s.score,
+                str(s.citation.get("uid") or s.citation.get("title") or ""),
+            )
+        )
         return out
 
 

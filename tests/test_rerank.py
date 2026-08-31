@@ -12,6 +12,14 @@ import pytest
 from codeatlas.retrieve import engine, rerank
 
 
+# ==================== 可复现排序 ====================
+
+def test_rrf_uses_document_id_as_deterministic_tie_break():
+    """同分文档必须按稳定 ID 排序，不能依赖 set/hash 的遍历顺序。"""
+    ranked = engine.rrf([[2], [1]])
+    assert [doc_id for doc_id, _ in ranked] == [1, 2]
+
+
 # ==================== 意图路由（核心不变量）====================
 
 @pytest.mark.parametrize("q", [

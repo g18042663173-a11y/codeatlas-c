@@ -1,6 +1,6 @@
 # 进度
 
-## 已完成（可运行 + 有测试，75 项全绿）
+## 已完成（可运行 + 有测试，76 项全绿）
 
 | 阶段 | 内容 | 关键验收 |
 |---|---|---|
@@ -8,7 +8,7 @@
 | M1 | libclang 解析，certain/candidate 双置信度，USR 去重，三级降级 | lwIP 124 TU / 5 诊断错误 |
 | M2 | 递归 CTE 多跳 + 影响分析，candidate 隔离 | 遍历绝不走 candidate（有测试） |
 | M3 | 定长摘要头 ≤200 token，规则版全量 + LLM 增强钩子 | 平均 62 token，最大 171 |
-| M4 | 四路召回 + RRF + 图扩展 + 证据分级 + 拒答 | lwIP Recall@10 64.6% → 76.7% |
+| M4 | 四路召回 + RRF + 图扩展 + 证据分级 + 拒答 | lwIP Recall@10 64.6% → 73.5% |
 | M5 | 经验库：schema 校验 + pending 闸门 + 审核同步 | 审核前命中为 0（有测试） |
 | M6 | 分层文档生成 + gen_task 断点续写 + 章节校验 | 中断可续 |
 | M7 | 评测：lwIP 58 题、cJSON 59 题 + 六组消融 | docs/EVAL-LWIP.md / docs/EVAL-CJSON.md |

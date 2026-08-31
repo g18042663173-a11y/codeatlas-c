@@ -4,8 +4,8 @@
 
 | 语料 | 题目 | BM25 Recall@10 | 完整方案 Recall@10 | MRR@10 变化 | 自动生成报告 |
 |---|---:|---:|---:|---:|---|
-| lwIP（约 13.5 万行） | 58 | 64.6% | 76.7% | 0.472 → 0.461 | [EVAL-LWIP.md](EVAL-LWIP.md) |
-| cJSON（约 3.5 千行） | 59 | 56.8% | 68.7% | 0.454 → 0.464 | [EVAL-CJSON.md](EVAL-CJSON.md) |
+| lwIP（约 13.5 万行） | 58 | 64.6% | 73.5% | 0.472 → 0.457 | [EVAL-LWIP.md](EVAL-LWIP.md) |
+| cJSON（约 3.5 千行） | 59 | 56.8% | 67.0% | 0.454 → 0.461 | [EVAL-CJSON.md](EVAL-CJSON.md) |
 
 ## 可以公开引用的结论
 

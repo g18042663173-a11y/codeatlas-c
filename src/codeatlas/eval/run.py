@@ -393,10 +393,11 @@ def _render_md(qs, by_type, rows, embedder_kind, bt_rows=None) -> str:
         dctx = (head["ctx"] / body["ctx"] - 1) * 100 if body["ctx"] else 0
         dmrr = final["mrr10"] - base["mrr10"]
         ctx_word = "增加" if dctx >= 0 else "下降"
+        mrr_word = "提升" if dmrr >= 0 else "下降"
         L += ["", "## 结论", "",
               f"1. 相比仅 BM25，完整方案 Recall@10 提升 **{dr:+.1f} 个百分点**"
               f"（{base['recall']}% → {final['recall']}%），"
-              f"MRR@10 提升 **{dmrr:+.3f}**（{base['mrr10']} → {final['mrr10']}）。",
+              f"MRR@10 {mrr_word} **{abs(dmrr):.3f}**（{base['mrr10']} → {final['mrr10']}）。",
               f"2. 图多跳扩展改用摘要头后，平均上下文从 {body['ctx']} token 变为 "
               f"{head['ctx']} token（**{ctx_word} {abs(dctx):.1f}%**），"
               f"而 Recall@10 为 {head['recall']}%（全量函数体方案 {body['recall']}%）。",

@@ -57,21 +57,21 @@ def recall_symbol(conn: sqlite3.Connection, q: str, limit: int = 30) -> list[int
         return []
 
     out: list[int] = []
-    for n in list(names)[:8]:
+    for n in sorted(names)[:8]:
         rows = conn.execute(
             """SELECT c.rowid FROM node nd JOIN chunk c ON c.node_id = nd.id
                 WHERE nd.name = ? AND c.visible = 1
-                ORDER BY nd.is_definition DESC LIMIT ?""", (n, limit)).fetchall()
+                ORDER BY nd.is_definition DESC, c.rowid LIMIT ?""", (n, limit)).fetchall()
         if not rows:   # 退化为前缀匹配
             rows = conn.execute(
                 """SELECT c.rowid FROM node nd JOIN chunk c ON c.node_id = nd.id
-                    WHERE nd.name LIKE ? AND c.visible = 1 LIMIT ?""",
+                    WHERE nd.name LIKE ? AND c.visible = 1 ORDER BY c.rowid LIMIT ?""",
                 (n + "%", limit)).fetchall()
         out.extend(r["rowid"] for r in rows)
-    for f in files:
+    for f in sorted(files):
         rows = conn.execute(
             """SELECT c.rowid FROM node nd JOIN chunk c ON c.node_id = nd.id
-                WHERE nd.path LIKE ? AND c.visible = 1 LIMIT ?""",
+                WHERE nd.path LIKE ? AND c.visible = 1 ORDER BY c.rowid LIMIT ?""",
             ("%" + f, limit)).fetchall()
         out.extend(r["rowid"] for r in rows)
 
@@ -90,7 +90,7 @@ def recall_bm25(conn: sqlite3.Connection, q: str, limit: int = 30) -> list[int]:
     try:
         rows = conn.execute(
             """SELECT rowid FROM chunk_fts WHERE chunk_fts MATCH ?
-                ORDER BY bm25(chunk_fts) LIMIT ?""", (m, limit)).fetchall()
+                ORDER BY bm25(chunk_fts), rowid LIMIT ?""", (m, limit)).fetchall()
     except sqlite3.OperationalError as e:
         log.warning("FTS 查询失败: %s", e)
         return []
@@ -112,7 +112,7 @@ def recall_vector(conn: sqlite3.Connection, q: str, embedder, *,
         if qv is None:
             return []
         sims = mat @ qv[0]
-        top = np.argsort(-sims)[:limit]
+        top = np.lexsort((np.asarray(ids), -sims))[:limit]
         return [ids[i] for i in top if i < len(ids)]
     except Exception as e:
         log.warning("向量召回失败: %s", e)
@@ -133,7 +133,7 @@ def rrf(rank_lists: list[list[int]], weights: list[float] | None = None,
     for w, lst in zip(ws, rank_lists):
         for rank, doc in enumerate(lst, start=1):
             scores[doc] += w / (k + rank)
-    return sorted(scores.items(), key=lambda kv: -kv[1])
+    return sorted(scores.items(), key=lambda kv: (-kv[1], kv[0]))
 
 
 # ------------------------------------------------------------------ 图扩展
@@ -180,7 +180,7 @@ def graph_expand(conn: sqlite3.Connection, seeds: list, *,
                 out[nid_] = dict(node_id=nid_, hop=hop, score=score,
                                  name=h["name"], path=h["path"],
                                  text=text, tokens=tokens)
-    return sorted(out.values(), key=lambda d: -d["score"])[:limit]
+    return sorted(out.values(), key=lambda d: (-d["score"], d["node_id"]))[:limit]
 
 
 # ------------------------------------------------------------------ 证据拼装
@@ -244,7 +244,9 @@ def assemble(conn: sqlite3.Connection, fused: list[tuple[int, float]],
     # ★ 统一按分数排序后再编号。之前是按桶顺序追加，
     #   图扩展的摘要头永远排在所有代码块之后，评测里直接被 top-10 截掉，
     #   导致"开不开图扩展指标几乎一样"的假象。
-    citations.sort(key=lambda c: -c["score"])
+    citations.sort(
+        key=lambda c: (-c["score"], str(c.get("uid") or c.get("title") or ""))
+    )
     counter2 = defaultdict(int)
     remap: dict[str, str] = {}
     for c in citations:
