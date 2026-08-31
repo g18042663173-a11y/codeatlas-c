@@ -5,11 +5,31 @@
 #   bash demo.sh            主语料 lwIP（135k 行协议栈，约 1 分钟）
 #   bash demo.sh cjson      小语料 cJSON（3.5k 行，约 15 秒，适合快速验证）
 set -e
+export PYTHONHASHSEED=1
 
 CORPUS=${1:-lwip}
+CJSON_COMMIT=fb16e5cf358798aabb049655975cde8427101056
+LWIP_COMMIT=3d896ba0a37ff3ce73270ca5e230707fe47f60e3
+
+clone_at_commit() {
+  local url=$1 dir=$2 commit=$3
+  if [ ! -d "$dir/.git" ]; then
+    git init -q "$dir"
+    git -C "$dir" remote add origin "$url"
+    git -C "$dir" fetch -q --depth 1 origin "$commit"
+    git -C "$dir" checkout -q --detach FETCH_HEAD
+  fi
+  local actual
+  actual=$(git -C "$dir" rev-parse HEAD)
+  if [ "$actual" != "$commit" ]; then
+    echo "[ERROR] $dir 当前为 $actual，期望固定语料提交 $commit" >&2
+    echo "请移走该目录后重新运行；脚本不会覆盖已有语料。" >&2
+    exit 2
+  fi
+}
 
 setup_lwip() {
-  [ -d corpus/lwip ] || git clone --depth 1 -q https://github.com/lwip-tcpip/lwip corpus/lwip
+  clone_at_commit https://github.com/lwip-tcpip/lwip corpus/lwip "$LWIP_COMMIT"
   # lwIP 没有现成的 compile_commands.json，用它自带的 unix port 配置生成一份
   python3 - <<'PY'
 import json, os, glob
@@ -30,7 +50,7 @@ PY
 }
 
 setup_cjson() {
-  [ -d corpus/cJSON ] || git clone --depth 1 -q https://github.com/DaveGamble/cJSON corpus/cJSON
+  clone_at_commit https://github.com/DaveGamble/cJSON corpus/cJSON "$CJSON_COMMIT"
   REPO=corpus/cJSON; DB=data/kb.db; DATA=data; SYMBOL=cJSON_Delete
   QUESTIONS=eval/questions.yaml
   REPORT=docs/EVAL-CJSON.md
@@ -38,7 +58,7 @@ setup_cjson() {
 }
 
 # 测试固件跑在 cJSON 上（小、秒级），无论主语料选哪个都拉一份，保证 pytest 不跳过
-[ -d corpus/cJSON ] || git clone --depth 1 -q https://github.com/DaveGamble/cJSON corpus/cJSON
+clone_at_commit https://github.com/DaveGamble/cJSON corpus/cJSON "$CJSON_COMMIT"
 
 [ "$CORPUS" = "cjson" ] && setup_cjson || setup_lwip
 
@@ -49,8 +69,8 @@ echo "▶ 2/7 增量验证（无变更，应秒回）"
 codeatlas parse $REPO $PARSE_ARGS --db $DB
 
 echo "▶ 3/7 摘要头";   codeatlas summary --db $DB
-echo "▶ 4/7 索引";     codeatlas index  --db $DB --data-dir $DATA --embedder tfidf
-echo "▶ 5/7 分层文档"; codeatlas wiki   --db $DB
+echo "▶ 4/7 分层文档"; codeatlas wiki   --db $DB
+echo "▶ 5/7 索引";     codeatlas index  --db $DB --data-dir $DATA --embedder tfidf
 echo "▶ 6/7 影响分析"; codeatlas impact $SYMBOL --db $DB --depth 3
 echo "▶ 7/7 消融实验"; codeatlas eval --db $DB --questions $QUESTIONS --data-dir $DATA --out $REPORT
 
