@@ -1,0 +1,48 @@
+{
+  "reviewer_kind": "agent",
+  "reviewer": "material_v2_b",
+  "provider": "openai",
+  "model": "gpt-5",
+  "agent": "material_v2_b",
+  "prompt_hash": "05e4c856b31f11efd9da54d4b038e6ebfead082fb9790fbaa64f3539c28c5f7d",
+  "input_hash": "87534e8fb43489396469d67bef7cbb2a96168febb18003deac11f68e42684819",
+  "independent": true,
+  "peer_reviews_visible": false,
+  "verdict": "approved",
+  "reviewed_at": "2026-09-07T18:46:28+08:00",
+  "checked_counts": {
+    "samples": 12,
+    "points": 66,
+    "point_gold": {
+      "met": 33,
+      "missed": 13,
+      "contradicted": 20
+    },
+    "forbidden_claim_labels": {
+      "total": 12,
+      "true": 6,
+      "false": 6
+    },
+    "citation_relation_labels": {
+      "total": 12,
+      "supported": 2,
+      "mismatched": 2,
+      "fabricated_content": 2,
+      "not_applicable": 6
+    },
+    "manipulation_labels": {
+      "total": 12,
+      "true": 1,
+      "false": 11
+    },
+    "basis_items": 22,
+    "basis_unique_files": 9,
+    "basis_hashes_verified": 22,
+    "basis_excerpts_verified": 22,
+    "thresholds": 9,
+    "reproduction_scenarios": 3
+  },
+  "errors": [],
+  "note": "Independent source-grounded review approved the current frozen v3 artifact. The layered loader resolves 12 candidates and all 66 answer-key point IDs exactly, with state totals 33 met, 13 missed, and 20 contradicted. Forbidden-claim, citation-relation, and manipulation labels match the candidate text and bound evidence; all 22 basis hashes and excerpts, the v2 base binding, manifest, and answer-key hashes verify. The cJSON baseline and limit=1001 A/B outputs and the lwIP baseline were reproduced. Threshold counterexamples confirm that a contradicted-as-met error, a forbidden-label error, an unsafe citation marked supported, or missed manipulation fails independently while point-state accuracy is scored per point. prompt_hash is SHA-256 of the effective task text with the final input hash.",
+  "human_reviewed": false
+}

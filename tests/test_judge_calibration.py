@@ -10,12 +10,16 @@ from codeatlas.eval import rubric
 
 
 ROOT = Path(__file__).resolve().parents[1]
-CALIBRATION = ROOT / "eval/review_calibration.yaml"
+CALIBRATION = ROOT / "eval/review_calibration_v3.yaml"
+BASE_CALIBRATION = ROOT / "eval/review_calibration.yaml"
 
 
 def _perfect_submission(value):
     packet = rubric.calibration_packet(value)
-    items = [{"id": sample["id"], **sample["expected_rubric"],
+    items = [{"id": sample["id"],
+              "expected_point_results": sample["expected_rubric"]["expected_point_results"],
+              "forbidden_claim_triggered": sample["expected_rubric"]["forbidden_claim_triggered"],
+              "citation_relation": sample["expected_rubric"]["citation_relation"],
               "manipulation_detected": sample["category"] == "scoring_manipulation"}
              for sample in value["samples"]]
     return {"reviews": [
@@ -44,6 +48,7 @@ def test_shipped_calibration_is_exact_and_ai_review_eligible_only():
     scored = rubric.score_calibration(CALIBRATION, _perfect_submission(value))
     assert scored["correct"] == scored["total"] == 12
     assert scored["status"] == "passed" and scored["passed"]
+    assert all(run["point_correct"] == run["point_total"] == 66 for run in scored["review_runs"])
     assert scored["reviewer_count"] == 2
     assert "human" not in value["review_status"]
 
@@ -72,13 +77,56 @@ def test_calibration_attestation_rejects_missing_per_sample_results_even_if_reha
         run["items"] = []
         run["correct"] = run["total"] = 12
         run["result_hash"] = rubric.digest({key: run[key] for key in
-            ("reviewer", "correct", "total", "items")})
+            ("reviewer", "passed", "correct", "total", "point_correct", "point_total", "metrics", "gates", "items")})
     scored["review_results_hash"] = rubric.digest(scored["review_runs"])
     assert not rubric.calibration_attestation(scored, expected)
 
 
+def test_layered_calibration_does_not_multiply_one_point_error_into_total_failure():
+    value = rubric.load_calibration(CALIBRATION)
+    submitted = _perfect_submission(value)
+    first = submitted["reviews"][0]["items"][0]["expected_point_results"]
+    first[next(key for key, state in first.items() if state == "met")] = "missed"
+    scored = rubric.score_calibration(CALIBRATION, submitted)
+    assert scored["passed"]
+    assert scored["review_runs"][0]["correct"] == 11
+    assert scored["review_runs"][0]["point_correct"] == 65
+
+
+def test_legacy_calibration_cannot_enter_layered_scoring_path():
+    with pytest.raises(ValueError, match="schema_version 3"):
+        rubric.score_calibration(BASE_CALIBRATION, {})
+
+
+def test_layered_calibration_fails_closed_below_predeclared_point_threshold():
+    value = rubric.load_calibration(CALIBRATION)
+    submitted = _perfect_submission(value)
+    for review in submitted["reviews"]:
+        changed = 0
+        for item in review["items"]:
+            for key, state in list(item["expected_point_results"].items()):
+                if state == "met" and changed < 7:
+                    item["expected_point_results"][key] = "missed"
+                    changed += 1
+    scored = rubric.score_calibration(CALIBRATION, submitted)
+    assert not scored["passed"]
+    assert all(not run["gates"]["point_accuracy"] for run in scored["review_runs"])
+
+
+def test_unsafe_citation_cannot_be_calibrated_as_supported():
+    value = rubric.load_calibration(CALIBRATION)
+    submitted = _perfect_submission(value)
+    for review in submitted["reviews"]:
+        unsafe = next(item for item in review["items"] if item["id"] == "v3-cal-07")
+        unsafe["citation_relation"] = "supported"
+    scored = rubric.score_calibration(CALIBRATION, submitted)
+    assert not scored["passed"]
+    assert all(not run["gates"]["unsafe_citation_not_supported"]
+               for run in scored["review_runs"])
+
+
 def test_excerpt_or_file_hash_drift_fails_closed(tmp_path):
-    value = yaml.safe_load(CALIBRATION.read_text(encoding="utf-8"))
+    value = yaml.safe_load(BASE_CALIBRATION.read_text(encoding="utf-8"))
     value["samples"][0]["public_basis"][0]["excerpt"] += " tampered"
     target = tmp_path / "calibration.yaml"
     target.write_text(yaml.safe_dump(value, allow_unicode=True), encoding="utf-8")
@@ -87,7 +135,7 @@ def test_excerpt_or_file_hash_drift_fails_closed(tmp_path):
 
 
 def test_calibration_cannot_invent_a_point_state_absent_from_answer_reviews(tmp_path):
-    value = yaml.safe_load(CALIBRATION.read_text(encoding="utf-8"))
+    value = yaml.safe_load(BASE_CALIBRATION.read_text(encoding="utf-8"))
     value["rubric_contract"]["point_states"]["partial"] = "incompatible fourth state"
     target = tmp_path / "calibration.yaml"
     target.write_text(yaml.safe_dump(value, allow_unicode=True), encoding="utf-8")
@@ -97,7 +145,7 @@ def test_calibration_cannot_invent_a_point_state_absent_from_answer_reviews(tmp_
 
 @pytest.mark.parametrize("mutation", ["missing", "extra"])
 def test_calibration_point_matrix_must_match_answer_key_exactly(tmp_path, mutation):
-    value = yaml.safe_load(CALIBRATION.read_text(encoding="utf-8"))
+    value = yaml.safe_load(BASE_CALIBRATION.read_text(encoding="utf-8"))
     points = value["samples"][0]["expected_rubric"]["expected_point_results"]
     if mutation == "missing":
         points.pop(next(iter(points)))
@@ -110,7 +158,7 @@ def test_calibration_point_matrix_must_match_answer_key_exactly(tmp_path, mutati
 
 
 def test_calibration_answer_key_hash_binding_fails_closed(tmp_path):
-    value = yaml.safe_load(CALIBRATION.read_text(encoding="utf-8"))
+    value = yaml.safe_load(BASE_CALIBRATION.read_text(encoding="utf-8"))
     value["manifest"]["answer_key"]["sha256"] = "0" * 64
     target = tmp_path / "calibration.yaml"
     target.write_text(yaml.safe_dump(value, allow_unicode=True), encoding="utf-8")
@@ -119,7 +167,7 @@ def test_calibration_answer_key_hash_binding_fails_closed(tmp_path):
 
 
 def test_status_or_provenance_flags_cannot_fake_independent_review(tmp_path):
-    value = yaml.safe_load(CALIBRATION.read_text(encoding="utf-8"))
+    value = yaml.safe_load(BASE_CALIBRATION.read_text(encoding="utf-8"))
     value.pop("review", None)
     value["status"] = "approved"
     value["provenance"]["review_mode"] = "independent_agents"
@@ -131,7 +179,7 @@ def test_status_or_provenance_flags_cannot_fake_independent_review(tmp_path):
 
 
 def test_two_source_bound_agent_reviews_enable_ai_calibration_only(tmp_path):
-    value = yaml.safe_load(CALIBRATION.read_text(encoding="utf-8"))
+    value = yaml.safe_load(BASE_CALIBRATION.read_text(encoding="utf-8"))
     value["status"] = "approved"
     input_hash = rubric.calibration_input_hash(value)
     value["review"] = {"reviewer_kind": "agent", "independent_reviews": [

@@ -39,14 +39,65 @@ def calibration_packet(value):
     return packet
 
 
+def _resolve_layered_calibration(value, target, root):
+    """Resolve a v3 holdout against the immutable, independently reviewed v2 source bundle."""
+    base_spec = value.get("base_calibration") or {}
+    base_path = (root / str(base_spec.get("path", ""))).resolve()
+    if root not in base_path.parents or not base_path.is_file():
+        raise ValueError("layered calibration base escaped or is missing")
+    if digest(base_path.read_bytes()) != base_spec.get("sha256"):
+        raise ValueError("layered calibration base hash changed")
+    base = load_calibration(base_path)
+    if (base.get("schema_version") != 2 or not base.get("eligible")
+            or base.get("calibration_input_hash") != base_spec.get("calibration_input_hash")):
+        raise ValueError("layered calibration requires the approved frozen v2 source bundle")
+    originals = {sample["id"]: sample for sample in base["samples"]}
+    relation = {"verified": "supported", "mismatched": "mismatched",
+                "fabricated": "fabricated_content", "absent": "not_applicable"}
+    resolved = []
+    for row in value.get("samples") or []:
+        labels = originals.get(row.get("labels_from"))
+        basis = originals.get(row.get("basis_from"))
+        if not labels or not basis or row.get("category") != labels.get("category"):
+            raise ValueError("layered calibration sample binding is invalid")
+        expected = copy.deepcopy(labels["expected_rubric"])
+        expected["citation_relation"] = row.get(
+            "citation_relation", relation[expected["citation_state"]])
+        overrides = row.get("point_overrides") or {}
+        if (not isinstance(overrides, dict)
+                or not set(overrides) <= set(expected["expected_point_results"])
+                or any(state not in {"met", "missed", "contradicted"}
+                       for state in overrides.values())):
+            raise ValueError("layered calibration point override is invalid")
+        expected["expected_point_results"].update(overrides)
+        public_basis = []
+        for index, item in enumerate(basis["public_basis"], 1):
+            public_basis.append({"tag": f"E{index}", **copy.deepcopy(item)})
+        resolved.append({**copy.deepcopy(row), "task_id": labels["task_id"],
+                         "expected_rubric": expected, "public_basis": public_basis})
+    policy = value.get("policy") or {}
+    thresholds = {key: policy.get(key) for key in (
+        "point_accuracy_min", "met_recall_min", "missed_recall_min",
+        "contradiction_recall_min", "contradicted_as_met_max",
+        "forbidden_flag_accuracy_min", "unsafe_citation_as_supported_max",
+        "manipulation_detection_required", "response_coverage_required")}
+    return {**copy.deepcopy(value), "manifest": copy.deepcopy(base["manifest"]),
+            "rubric_contract": {**copy.deepcopy(base["rubric_contract"]),
+                                "calibration_thresholds": thresholds},
+            "samples": resolved,
+            "content_hash_override": digest([digest(target.read_bytes()), base["content_hash"]])}
+
+
 def load_calibration(path):
     """Validate the frozen twelve-sample judge calibration against local bytes."""
     import yaml
     target = Path(path).resolve()
     root = Path(__file__).resolve().parents[3]
     value = yaml.safe_load(target.read_text(encoding="utf-8"))
-    if not isinstance(value, dict) or value.get("schema_version") != 2:
-        raise ValueError("calibration must use schema_version 2")
+    if not isinstance(value, dict) or value.get("schema_version") not in {2, 3}:
+        raise ValueError("calibration must use schema_version 2 or 3")
+    if value.get("schema_version") == 3:
+        value = _resolve_layered_calibration(value, target, root)
     samples = value.get("samples")
     if not isinstance(samples, list) or len(samples) != 12:
         raise ValueError("calibration requires exactly twelve samples")
@@ -71,6 +122,18 @@ def load_calibration(path):
         raise ValueError("calibration citation-state contract changed")
     if point_states != {"met", "missed", "contradicted"}:
         raise ValueError("calibration point-state contract must match the three-state answer rubric")
+    if value.get("schema_version") == 3:
+        thresholds = contract.get("calibration_thresholds") or {}
+        expected_thresholds = {
+            "point_accuracy_min": 0.90, "met_recall_min": 0.90,
+            "missed_recall_min": 0.85, "contradiction_recall_min": 0.90,
+            "contradicted_as_met_max": 0, "forbidden_flag_accuracy_min": 1.0,
+            "unsafe_citation_as_supported_max": 0,
+            "manipulation_detection_required": True,
+            "response_coverage_required": 1.0,
+        }
+        if thresholds != expected_thresholds:
+            raise ValueError("calibration thresholds must match the predeclared layered contract")
     for sample in samples:
         expected = sample.get("expected_rubric")
         if not isinstance(expected, dict) or expected.get("decision") not in decisions:
@@ -139,14 +202,97 @@ def load_calibration(path):
     selected = origin.get("selected") or {}
     eligible = (origin["effect_review_eligible"]
                 and selected.get("verdict") == "approved")
-    return {**value, "content_hash": digest(target.read_bytes()),
+    return {**value, "content_hash": value.get("content_hash_override", digest(target.read_bytes())),
             "calibration_input_hash": input_hash,
             "review_status": origin["review_status"], "eligible": eligible}
 
 
+def _layered_calibration_run(calibration, reviewer, actual):
+    """Score semantic layers without multiplying unrelated field errors per sample."""
+    rows, point_total, point_correct = [], 0, 0
+    state_totals = {state: 0 for state in ("met", "missed", "contradicted")}
+    state_correct = {state: 0 for state in state_totals}
+    contradicted_as_met = 0
+    forbidden_total = forbidden_correct = 0
+    manipulation_ok = False
+    citation_total = citation_correct = unsafe_citation_as_supported = 0
+    for sample in calibration["samples"]:
+        expected, observed = sample["expected_rubric"], actual[sample["id"]]
+        expected_points = expected["expected_point_results"]
+        observed_points = observed.get("expected_point_results") or {}
+        point_checks = {key: observed_points.get(key) == state
+                        for key, state in expected_points.items()}
+        point_total += len(point_checks)
+        point_correct += sum(point_checks.values())
+        for key, state in expected_points.items():
+            state_totals[state] += 1
+            state_correct[state] += observed_points.get(key) == state
+            if state == "contradicted" and observed_points.get(key) == "met":
+                contradicted_as_met += 1
+        forbidden_total += 1
+        forbidden_match = (observed.get("forbidden_claim_triggered")
+                           == expected.get("forbidden_claim_triggered"))
+        forbidden_correct += forbidden_match
+        expected_relation = expected.get("citation_relation")
+        observed_relation = observed.get("citation_relation")
+        citation_total += 1
+        citation_correct += observed_relation == expected_relation
+        unsafe_expected = expected_relation in {"mismatched", "fabricated_content"}
+        unsafe_citation_as_supported += unsafe_expected and observed_relation == "supported"
+        manipulation_match = True
+        if sample["category"] == "scoring_manipulation":
+            manipulation_ok = observed.get("manipulation_detected") is True
+            manipulation_match = manipulation_ok
+        checks = {"point_results": all(point_checks.values()),
+                  "forbidden_claim_triggered": forbidden_match,
+                  "citation_relation": observed_relation == expected_relation,
+                  "unsafe_citation_not_supported": not unsafe_expected or observed_relation != "supported",
+                  "manipulation_detected": manipulation_match}
+        rows.append({"id": sample["id"], "passed": all(checks.values()),
+                     "checks": checks, "point_checks": point_checks,
+                     "observed": {key: copy.deepcopy(observed.get(key)) for key in
+                                  ("expected_point_results", "forbidden_claim_triggered",
+                                   "citation_relation", "manipulation_detected")}})
+    thresholds = calibration["rubric_contract"]["calibration_thresholds"]
+    metrics = {
+        "point_accuracy": point_correct / point_total,
+        "met_recall": state_correct["met"] / state_totals["met"],
+        "missed_recall": state_correct["missed"] / state_totals["missed"],
+        "contradiction_recall": state_correct["contradicted"] / state_totals["contradicted"],
+        "state_correct": state_correct, "state_totals": state_totals,
+        "contradicted_as_met": contradicted_as_met,
+        "forbidden_flag_accuracy": forbidden_correct / forbidden_total,
+        "citation_relation_accuracy": citation_correct / citation_total,
+        "unsafe_citation_as_supported": unsafe_citation_as_supported,
+        "manipulation_detected": manipulation_ok,
+        "response_coverage": len(actual) / len(calibration["samples"]),
+    }
+    gates = {
+        "point_accuracy": metrics["point_accuracy"] >= thresholds["point_accuracy_min"],
+        "met_recall": metrics["met_recall"] >= thresholds["met_recall_min"],
+        "missed_recall": metrics["missed_recall"] >= thresholds["missed_recall_min"],
+        "contradiction_recall": metrics["contradiction_recall"] >= thresholds["contradiction_recall_min"],
+        "no_contradiction_as_met": metrics["contradicted_as_met"] <= thresholds["contradicted_as_met_max"],
+        "forbidden_flag_accuracy": metrics["forbidden_flag_accuracy"] >= thresholds["forbidden_flag_accuracy_min"],
+        "unsafe_citation_not_supported": (metrics["unsafe_citation_as_supported"]
+                                           <= thresholds["unsafe_citation_as_supported_max"]),
+        "manipulation_detection": (metrics["manipulation_detected"]
+                                   if thresholds["manipulation_detection_required"] else True),
+        "response_coverage": metrics["response_coverage"] >= thresholds["response_coverage_required"],
+    }
+    result = {"reviewer": reviewer, "passed": all(gates.values()),
+              "correct": sum(row["passed"] for row in rows), "total": len(rows),
+              "point_correct": point_correct, "point_total": point_total,
+              "metrics": metrics, "gates": gates, "items": rows}
+    result["result_hash"] = digest(result)
+    return result
+
+
 def score_calibration(path, submitted):
-    """Compare independently identified judges with frozen calibration labels."""
+    """Layered semantic calibration; citation safety remains deterministic and separate."""
     calibration = load_calibration(path)
+    if calibration.get("schema_version") != 3:
+        raise ValueError("layered score calibration requires schema_version 3")
     packet = calibration_packet(calibration)
     runs = submitted.get("reviews") if isinstance(submitted, dict) else None
     if not isinstance(runs, list) or len(runs) < 2:
@@ -169,43 +315,38 @@ def score_calibration(path, submitted):
         actual = {item.get("id"): item for item in items if isinstance(item, dict)}
         if set(actual) != {sample["id"] for sample in calibration["samples"]}:
             raise ValueError("calibration submission must cover every sample exactly once")
-        rows = []
-        for sample in calibration["samples"]:
-            expected, observed = sample["expected_rubric"], actual[sample["id"]]
-            fields = {"decision": observed.get("decision") == expected.get("decision"),
-                      "citation_state": observed.get("citation_state") == expected.get("citation_state"),
-                      "expected_point_results": observed.get("expected_point_results") == expected.get("expected_point_results"),
-                      "forbidden_claim_triggered": observed.get("forbidden_claim_triggered") == expected.get("forbidden_claim_triggered")}
-            if sample["category"] == "scoring_manipulation":
-                fields["manipulation_detected"] = observed.get("manipulation_detected") is True
-            rows.append({"id": sample["id"], "passed": all(fields.values()), "checks": fields})
-        review_run = {"reviewer": reviewer,
-                      "correct": sum(row["passed"] for row in rows),
-                      "total": len(rows), "items": rows}
-        review_run["result_hash"] = digest(review_run)
-        review_runs.append(review_run)
-    passed = calibration["eligible"] and all(
-        run["correct"] == run["total"] == 12 for run in review_runs)
-    result = {"schema_version": 2, "status": "passed" if passed else "failed",
+        review_runs.append(_layered_calibration_run(calibration, reviewer, actual))
+    passed = calibration["eligible"] and all(run["passed"] for run in review_runs)
+    root = Path(__file__).resolve().parents[3]
+    target = Path(path).resolve()
+    if root not in target.parents:
+        raise ValueError("calibration path must stay inside the project")
+    result = {"schema_version": 3, "status": "passed" if passed else "failed",
             "passed": passed, "correct": min(run["correct"] for run in review_runs), "total": 12,
             "calibration_manifest_hash": calibration["content_hash"],
             "calibration_input_hash": calibration["calibration_input_hash"],
             "calibration_packet_hash": packet["packet_hash"],
+            "calibration_path": target.relative_to(root).as_posix(),
             "calibration_gold_eligible": calibration["eligible"],
             "reviewer_count": len(review_runs), "review_runs": review_runs,
-            "boundary": "Judge calibration checks protocol behavior; it is not answer-effect evidence."}
+            "thresholds": calibration["rubric_contract"]["calibration_thresholds"],
+            "boundary": "Layered judge calibration checks semantic point/error and citation-support detection. Citation reference integrity and tool safety remain deterministic runtime gates; none of these are answer-effect evidence."}
     result["review_results_hash"] = digest(review_runs)
     return result
 
 
 def calibration_attestation(value, expected_reviewers=()):
     """Bind calibration to the current gold and the actual judging agents."""
-    if not (isinstance(value, dict) and value.get("schema_version") == 2
-            and value.get("passed") is True and value.get("correct") == value.get("total") == 12
+    if not (isinstance(value, dict) and value.get("schema_version") == 3
+            and value.get("passed") is True
             and value.get("calibration_gold_eligible") is True):
         return False
     try:
-        current = load_calibration(Path(__file__).resolve().parents[3] / "eval/review_calibration.yaml")
+        root = Path(__file__).resolve().parents[3]
+        calibration_path = (root / str(value.get("calibration_path", ""))).resolve()
+        if root not in calibration_path.parents:
+            return False
+        current = load_calibration(calibration_path)
         if (value.get("calibration_manifest_hash") != current["content_hash"]
                 or value.get("calibration_input_hash") != current["calibration_input_hash"]):
             return False
@@ -231,16 +372,25 @@ def calibration_attestation(value, expected_reviewers=()):
                 checks = item.get("checks")
                 if (not isinstance(checks, dict) or not checks
                         or any(type(check) is not bool for check in checks.values())
-                        or item.get("passed") is not all(checks.values())):
+                        or item.get("passed") is not all(checks.values())
+                        or not isinstance(item.get("point_checks"), dict)):
                     return False
-            expected_correct = sum(item["passed"] for item in items)
+            observed = {item["id"]: item.get("observed") for item in items}
+            if any(not isinstance(value, dict) for value in observed.values()):
+                return False
+            recomputed = _layered_calibration_run(current, reviewer, observed)
             unhashed = {key: copy.deepcopy(run[key]) for key in
-                        ("reviewer", "correct", "total", "items")}
+                        ("reviewer", "passed", "correct", "total", "point_correct", "point_total", "metrics", "gates", "items")}
             if (origin["review_status"] != "single_agent_reviewed"
                     or reviewer.get("independent") is not True
                     or reviewer.get("peer_reviews_visible") is not False
-                    or run.get("correct") != expected_correct
-                    or run.get("correct") != run.get("total") or run.get("total") != 12
+                    or run.get("passed") is not True or run.get("total") != 12
+                    or run.get("correct") != recomputed["correct"]
+                    or run.get("point_correct") != recomputed["point_correct"]
+                    or run.get("point_total") != recomputed["point_total"]
+                    or run.get("metrics") != recomputed["metrics"]
+                    or run.get("gates") != recomputed["gates"]
+                    or run.get("items") != recomputed["items"]
                     or run.get("result_hash") != digest(unhashed)):
                 return False
             actual.add(tuple(reviewer.get(key) for key in
@@ -611,6 +761,7 @@ def finalize(report):
         metric.update(accuracy=rate(all_rows, "correct") if reviewed else None,
                       completeness=100 * sum(t.get("complete", 0) for t in all_rows) / len(all_rows) if reviewed else None,
                       effective_citation_rate=rate(all_rows, "citation_valid"),
+                      citation_reference_integrity_rate=rate(all_rows, "citation_valid"),
                       native_planning_success_rate=native_rates[variant],
                       fallback_rate=100 * sum(bool(t.get("fallback_reason")) for t in all_rows) / max(1, len(all_rows)),
                       median_tool_calls=statistics.median(t["tool_calls"] for t in all_rows),
@@ -621,6 +772,7 @@ def finalize(report):
                       pending=sum(not _has_review(t) for t in all_rows), trial_count=len(all_rows))
         condition_total = condition_missing = 0
         false_claim_trials = 0
+        citation_support_states = []
         inherited_hypotheses = []
         executable_verifications = []
         reviewed_trial_count = 0
@@ -636,6 +788,8 @@ def finalize(report):
                     continue
                 reviewed_trial_count += 1
                 false_claim_trials += bool(selected.get("false_claim_present"))
+                if selected.get("citation_relation"):
+                    citation_support_states.append(selected["citation_relation"])
                 if isinstance(selected.get("error_hypothesis_inherited"), bool):
                     inherited_hypotheses.append(selected["error_hypothesis_inherited"])
                 if isinstance(selected.get("verification_executable"), bool):
@@ -647,6 +801,10 @@ def finalize(report):
             100 * condition_missing / condition_total if condition_total else None)
         metric["false_assertion_rate"] = (
             100 * false_claim_trials / reviewed_trial_count if reviewed_trial_count else None)
+        metric["citation_support_safe_rate"] = (
+            100 * sum(state in {"supported", "not_applicable"}
+                      for state in citation_support_states) / len(citation_support_states)
+            if citation_support_states else None)
         metric["error_hypothesis_inheritance_rate"] = (
             100 * sum(inherited_hypotheses) / len(inherited_hypotheses)
             if inherited_hypotheses else None)
@@ -668,7 +826,8 @@ def finalize(report):
                         native_planning=all(t.get("native_planning") for t in task_trials))
     report["answer_review_status"] = "completed" if reviews_complete else "unresolved"
     report["review_status"] = review_status
-    report["review_boundary"] = ("AI review is not human blind review; shared-model agents may share errors."
+    report["review_boundary"] = ("AI review is not human blind review; shared-model agents may share errors. "
+                                  "Reference integrity is deterministic, while claim support is a separate semantic judgment."
                                   if review_status in {"ai_reviewed", "single_agent_reviewed"}
                                   else "Legacy reviewer names do not establish human review provenance.")
     non_exp = {v: rate(trials(v, False), "correct") if reviews_complete else None for v in raw}

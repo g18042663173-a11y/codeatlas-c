@@ -114,14 +114,14 @@ def campaign_report(directory: str, out: str | None = None, job: str | None = No
 @campaign_app.command("review")
 def campaign_review(directory: str, resume: bool = False, out: str | None = None,
                     attempt: str | None = None, workers: int = 1,
-                    judge_model: str | None = None):
+                    judge_model: str | None = None, calibration_only: bool = False):
     """先校准两个 V4 Flash 独立 judge，再盲审；分歧由已校准第三 agent 仲裁。"""
     from .eval.campaign_review import review
     if out:
         from .eval.protocol import ensure_new_outputs
         ensure_new_outputs(out)
     result = review(directory, resume=resume, attempt_id=attempt, workers=workers,
-                    judge_model=judge_model)
+                    judge_model=judge_model, calibration_only=calibration_only)
     if out:
         from .publication import atomic_text
         atomic_text(Path(out), json.dumps(result, ensure_ascii=False, indent=2))
@@ -172,9 +172,11 @@ def proof_review(campaign_dir: str = typer.Option(..., "--campaign"),
                  out: str | None = None,
                  attempt: str | None = typer.Option(None, "--attempt"),
                  workers: int = typer.Option(1, "--workers"),
-                 judge_model: str | None = typer.Option(None, "--judge-model")):
+                 judge_model: str | None = typer.Option(None, "--judge-model"),
+                 calibration_only: bool = typer.Option(False, "--calibration-only")):
     """校准并运行双 Agent 盲审；结果始终标记为 AI review。"""
-    return campaign_review(campaign_dir, resume, out, attempt, workers, judge_model)
+    return campaign_review(campaign_dir, resume, out, attempt, workers, judge_model,
+                           calibration_only)
 
 
 @proof_app.command("report")

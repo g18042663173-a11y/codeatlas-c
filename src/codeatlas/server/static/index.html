@@ -144,7 +144,7 @@ function renderEvaluation(e){
   if(e.workflow){const m=e.workflow.metrics;h+='<h4>Agent / 知识治理 6 场景</h4>'+facts([['Wiki-first',m.wiki_first_order_rate+'%'],['工具合法率',m.tool_trace_legal_rate+'%'],['A 级锚点',m.a_anchor_complete_rate+'%'],['卡片门禁',m.card_gate_correct_rate+'%'],['Markdown 重建',m.markdown_rebuild_consistency_rate+'%'],['原始会话入索引',m.raw_session_indexed_count]]);}
   if(e.model_abc){const gate=e.model_abc.acceptance||{};h+='<h4>真实模型 A/B/C · '+esc(e.model_abc.model)+' · 每题 '+esc(e.model_abc.runs_per_task)+' 次 · '+(gate.passed?'达到发布门槛':'未达到发布门槛')+'</h4><div class="fact-grid">';['A','B','C'].forEach(k=>{const v=e.model_abc.variants[k],m=v.metrics;h+='<div><span class="subtle">'+esc(k+' · '+v.name)+'</span><strong>'+esc(m.accuracy+'% / 引用 '+m.effective_citation_rate+'%')+'</strong></div>';});h+='</div>';}
   else if(e.model_eval){const m=e.model_eval.metrics;h+='<div class="callout"><strong>真实模型协议评测 · '+esc(e.model_eval.model)+'</strong><br>原生规划 '+esc(m.native_planning_success_rate)+'% · 安全门禁 '+esc(m.final_safety_gate_rate)+'%</div>';}
-  else h+='<div class="callout warn"><strong>真实模型 A/B/C 尚未运行</strong><br>没有 Key 时不以规则结果替代模型数字。</div>';
+  else h+='<div class="callout warn"><strong>真实模型效果报告尚不可用</strong><br>可能尚未运行，或答案已采集但评分校准未通过；不会用规则结果或未审答案替代效果数字。</div>';
   $('#evaluation').innerHTML=h;
 };
 </script>

@@ -11,6 +11,7 @@ from typer.testing import CliRunner
 
 from codeatlas.contracts import digest
 from codeatlas.eval import campaign_review as review, proof_campaign as campaign, protocol, rubric
+from codeatlas.eval.task_eval import REFUSAL_TYPE
 from codeatlas.llm.client import OpenAICompatClient, GO_MODEL
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -32,11 +33,15 @@ def factory(**kwargs):
 
 @pytest.fixture
 def fake_http(monkeypatch):
-    golden = yaml.safe_load((ROOT / "eval/review_calibration.yaml").read_text())["samples"]
-    expected = {sample["id"]: {**sample["expected_rubric"],
+    golden = rubric.load_calibration(ROOT / "eval/review_calibration_v3.yaml")["samples"]
+    expected = {sample["id"]: {
+                "expected_point_results": sample["expected_rubric"]["expected_point_results"],
+                "forbidden_claim_triggered": sample["expected_rubric"]["forbidden_claim_triggered"],
+                "citation_relation": sample["expected_rubric"]["citation_relation"],
                 "manipulation_detected": sample["category"] == "scoring_manipulation",
                 "note": "Synthetic fixture labels; not a real source review."} for sample in golden}
-    state = {"requests": [], "mode": "agree", "changed": False, "interrupt_after": None}
+    state = {"requests": [], "mode": "agree", "changed": False,
+             "change_events": set(), "interrupt_after": None}
 
     class Response:
         def __init__(self, content):
@@ -70,29 +75,41 @@ def fake_http(monkeypatch):
             state["interrupt_after"] = None
             raise KeyboardInterrupt()
         if kind == "calibration":
-            if state["mode"] == "calibration_transport_once" and not state["changed"]:
+            if (state["mode"] == "calibration_transport_once"
+                    and "calibration_transport_once" not in state["change_events"]):
                 from urllib.error import URLError
+                state["change_events"].add("calibration_transport_once")
                 state["changed"] = True
                 raise URLError("synthetic one-batch transport failure")
             score = copy.deepcopy(expected[item["id"]])
-            if state["mode"] == "calibration_fail" and role == "judge-b" and item["id"] == "cal-01":
-                score["decision"] = "fail"
-            if state["mode"] == "arbiter_calibration_fail" and role == "arbiter" and item["id"] == "cal-01":
-                score["decision"] = "fail"
+            if state["mode"] == "calibration_fail" and role == "judge-b" and item["id"] == "v3-cal-01":
+                score["forbidden_claim_triggered"] = True
+            if state["mode"] == "arbiter_calibration_fail" and role == "arbiter" and item["id"] == "v3-cal-01":
+                score["forbidden_claim_triggered"] = True
             return Response(json.dumps(score))
-        score = {"verdict": "correct", "completeness": 1,
-                 "point_reviews": {point["id"]: "met" for point in item["answer_key"]["expected_points"]},
-                 "false_claim_present": False, "citation_state": "verified",
+        score = {"point_reviews": {point["id"]: "met" for point in item["answer_key"]["expected_points"]},
+                 "false_claim_present": False, "citation_relation": "supported",
                  "note": "Synthetic scoring fixture; does not prove this answer is correct."}
-        if state["mode"] == "malformed" and role == "judge-a" and not state["changed"]:
+        if (state["mode"] == "malformed" and role == "judge-a"
+                and "malformed" not in state["change_events"]):
+            state["change_events"].add("malformed")
             state["changed"] = True
             return Response("explanation before JSON " + json.dumps(score))
-        if state["mode"] in {"disagree", "arbiter_calibration_fail", "arbiter_unresolved"} and role == "judge-b" and not state["changed"]:
+        if (state["mode"] in {"disagree", "arbiter_calibration_fail", "arbiter_unresolved"}
+                and role == "judge-b" and state["mode"] not in state["change_events"]):
+            state["change_events"].add(state["mode"])
             state["changed"] = True
-            score.update(verdict="incorrect", completeness=0, false_claim_present=True,
+            score.update(false_claim_present=True,
                          point_reviews={key: "wrong" for key in score["point_reviews"]})
+        if (state["mode"] == "citation_disagree" and role == "judge-b"
+                and "citation_disagree" not in state["change_events"]):
+            state["change_events"].add("citation_disagree")
+            state["changed"] = True
+            score["citation_relation"] = "mismatched"
         if state["mode"] == "arbiter_unresolved" and role == "arbiter":
-            score.update(verdict="unresolved", completeness=None, point_reviews={}, false_claim_present=None)
+            score.update(point_reviews={key: "unresolved" for key in score["point_reviews"]},
+                         false_claim_present=None, citation_relation="unresolved",
+                         unresolved_reason="Synthetic arbiter cannot resolve the source.")
         return Response(json.dumps(score))
     monkeypatch.setattr("urllib.request.urlopen", send)
     return state
@@ -143,6 +160,19 @@ def test_failed_calibration_stops_before_answer_scoring(tmp_path, fake_http):
     assert result["ledger"]["requests"] == 18 + 24
 
 
+def test_calibration_only_can_resume_same_batch_without_repeating_calls(tmp_path, fake_http):
+    directory = collected(tmp_path)
+    calibrated = review.review(directory, client_factory=factory, attempt_id="layered-check",
+                               calibration_only=True)
+    assert calibrated["status"] == "calibrated"
+    assert not any(row["kind"] == "review" for row in fake_http["requests"])
+    count = len(fake_http["requests"])
+    completed = review.review(directory, client_factory=factory, attempt_id="layered-check",
+                              resume=True)
+    assert completed["status"] == "completed"
+    assert len([row for row in fake_http["requests"][count:] if row["kind"] == "calibration"]) == 0
+
+
 def test_new_versioned_review_attempt_preserves_failed_batch_and_raw_answers(tmp_path, fake_http):
     directory = collected(tmp_path)
     before = campaign.report(directory)["reports"]["reuse"]["run_hash"]
@@ -153,7 +183,7 @@ def test_new_versioned_review_attempt_preserves_failed_batch_and_raw_answers(tmp
                               attempt_id="transport-recovery-1", workers=2,
                               judge_model="fixture-judge")
     assert completed["status"] == "completed"
-    assert completed["binding"]["version"] == "campaign-review-v2"
+    assert completed["binding"]["version"] == "campaign-review-v3-layered"
     assert completed["binding"]["attempt_id"] == "transport-recovery-1"
     assert completed["binding"]["review_workers"] == 2
     assert completed["binding"]["judge_model"] == "fixture-judge"
@@ -232,6 +262,50 @@ def test_review_strict_json_accepts_one_lossless_fence():
     }
     with pytest.raises(ValueError):
         review._strict_json('{"verdict":"correct"}{"verdict":"incorrect"}')
+
+
+def test_answer_outcome_is_derived_from_points_not_model_summary_label():
+    item = {"task_type": "语义检索", "refused": False,
+            "answer_key": {"expected_points": [{"id": "p1"}, {"id": "p2"}]}}
+    raw = {"point_reviews": {"p1": "met", "p2": "wrong"},
+           "false_claim_present": False, "citation_relation": "supported", "note": "fixture"}
+    scored = review._validate(raw, item)
+    assert scored["verdict"] == "incorrect" and scored["completeness"] == 0.5
+    assert scored["outcome_source"] == "deterministic_point_projection"
+
+    raw.update(point_reviews={"p1": "met", "p2": "met"})
+    assert review._validate(raw, item)["verdict"] == "correct"
+    raw["citation_relation"] = "mismatched"
+    assert review._validate(raw, item)["verdict"] == "incorrect"
+    with pytest.raises(ValueError, match="schema keys differ"):
+        review._validate({**raw, "verdict": "unresolved", "completeness": None}, item)
+
+
+def test_refusal_mode_mismatch_is_deterministically_incorrect():
+    item = {"task_type": REFUSAL_TYPE, "refused": False,
+            "answer_key": {"expected_points": [{"id": "boundary"}]}}
+    raw = {"point_reviews": {"boundary": "met"}, "false_claim_present": False,
+           "citation_relation": "not_applicable", "note": "fixture"}
+    assert review._validate(raw, item)["verdict"] == "incorrect"
+
+
+def test_calibration_rejects_unknown_citation_relation():
+    calibration = rubric.load_calibration(ROOT / "eval/review_calibration_v3.yaml")
+    item = calibration["samples"][0]
+    raw = {"expected_point_results": item["expected_rubric"]["expected_point_results"],
+           "forbidden_claim_triggered": item["expected_rubric"]["forbidden_claim_triggered"],
+           "citation_relation": "looks_supported", "manipulation_detected": False,
+           "note": "fixture"}
+    with pytest.raises(ValueError, match="citation relation"):
+        review._validate(raw, item, calibration=True)
+
+
+def test_citation_support_disagreement_reaches_arbiter(tmp_path, fake_http):
+    directory = collected(tmp_path)
+    fake_http["mode"] = "citation_disagree"
+    result = review.review(directory, client_factory=factory)
+    assert result["status"] == "completed" and result["disagreement_count"] == 1
+    assert sum(row["kind"] == "arbitration" for row in fake_http["requests"]) == 1
 
 
 def test_keyless_review_and_cli_entry_do_not_call_model(tmp_path, fake_http):

@@ -9,8 +9,8 @@
     "markdown_rebuild_consistency_rate": 100.0,
     "refusal_accuracy": 100.0,
     "raw_session_indexed_count": 0,
-    "p50_ms": 25,
-    "p95_ms": 62
+    "p50_ms": 57,
+    "p95_ms": 132
   },
   "cases": [
     {
@@ -45,5 +45,5 @@
     }
   ],
   "review_mode": "synthetic_test_review",
-  "generated_at": "2026-09-05T07:01:28+00:00"
+  "generated_at": "2026-09-07T11:16:43+00:00"
 }

@@ -1,0 +1,62 @@
+{
+  "reviewer_kind": "agent",
+  "reviewer": "holdout-source-validator-v3-a",
+  "provider": "OpenAI",
+  "model": "GPT-5",
+  "agent": "/root/material_v2_a",
+  "prompt_hash": "b4474b57db9145a0cfffbf5783fcf309bcfa0694ec37f342db9bb59d8e2e1f39",
+  "input_hash": "87534e8fb43489396469d67bef7cbb2a96168febb18003deac11f68e42684819",
+  "independent": true,
+  "peer_reviews_visible": false,
+  "verdict": "approved",
+  "reviewed_at": "2026-09-07T10:40:52Z",
+  "checked_counts": {
+    "samples": 12,
+    "tasks": 6,
+    "decision_labels": 12,
+    "decision_label_errors": 0,
+    "point_labels": 66,
+    "point_state_totals": {
+      "met": 33,
+      "missed": 13,
+      "contradicted": 20
+    },
+    "point_label_errors": 0,
+    "forbidden_labels": 12,
+    "forbidden_positive": 6,
+    "forbidden_label_errors": 0,
+    "citation_relation_labels": 12,
+    "citation_relation_totals": {
+      "supported": 2,
+      "mismatched": 2,
+      "fabricated_content": 2,
+      "not_applicable": 6
+    },
+    "citation_relation_errors": 0,
+    "citation_tokens": 7,
+    "intentionally_fabricated_citation_tokens": 2,
+    "unexpected_unresolved_citation_tokens": 0,
+    "manipulation_labels": 1,
+    "manipulation_label_errors": 0,
+    "sample_basis_bindings": 22,
+    "answer_key_basis_bindings": 45,
+    "evidence_bindings_checked": 67,
+    "evidence_hash_mismatches": 0,
+    "evidence_excerpt_mismatches": 0,
+    "binding_hashes_checked": 5,
+    "binding_hash_errors": 0,
+    "thresholds_checked": 9,
+    "threshold_errors": 0,
+    "derived_minimum_correct_counts": {
+      "all_points": 60,
+      "met": 30,
+      "missed": 12,
+      "contradicted": 18
+    },
+    "reproduction_commands_run": 2,
+    "reproduction_commands_passed": 2
+  },
+  "errors": [],
+  "note": "Independent source-grounded agent review only; no human review is claimed. All 12 corrected holdout candidates, 66 point labels, decisions, forbidden flags, citation relations, manipulation label, layered thresholds, base/manifest/answer-key bindings, 67 evidence hash/excerpt bindings, and two public reproductions passed. The two unresolved E9 tokens are the intentional fabricated-citation negatives in v3-cal-09 and v3-cal-10.",
+  "human_reviewed": false
+}

@@ -678,7 +678,7 @@
           "hit": true,
           "mrr": 0.25,
           "evidence_complete": true,
-          "latency_ms": 9.0,
+          "latency_ms": 18.2,
           "context_tokens": 4047,
           "errors": [],
           "matched_tag": "A4",
@@ -688,7 +688,7 @@
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 2.5,
+          "latency_ms": 8.6,
           "context_tokens": 4093,
           "errors": [],
           "matched_tag": "A1",
@@ -698,7 +698,7 @@
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 29.8,
+          "latency_ms": 68.5,
           "context_tokens": 4057,
           "errors": [],
           "matched_tag": "A1",
@@ -708,7 +708,7 @@
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 9.5,
+          "latency_ms": 11.4,
           "context_tokens": 5055,
           "errors": [],
           "matched_tag": "A1",
@@ -718,7 +718,7 @@
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 6.6,
+          "latency_ms": 13.1,
           "context_tokens": 5055,
           "errors": [],
           "matched_tag": "A1",
@@ -749,7 +749,7 @@
           "hit": false,
           "mrr": 0.0,
           "evidence_complete": false,
-          "latency_ms": 1.3,
+          "latency_ms": 2.7,
           "context_tokens": 4044,
           "errors": [
             "top-10 未命中预期代码锚点"
@@ -761,7 +761,7 @@
           "hit": true,
           "mrr": 0.25,
           "evidence_complete": true,
-          "latency_ms": 1.8,
+          "latency_ms": 5.2,
           "context_tokens": 4108,
           "errors": [],
           "matched_tag": "A4",
@@ -771,7 +771,7 @@
           "hit": true,
           "mrr": 0.25,
           "evidence_complete": true,
-          "latency_ms": 3.0,
+          "latency_ms": 6.6,
           "context_tokens": 4087,
           "errors": [],
           "matched_tag": "A4",
@@ -781,7 +781,7 @@
           "hit": false,
           "mrr": 0.0,
           "evidence_complete": false,
-          "latency_ms": 6.9,
+          "latency_ms": 15.7,
           "context_tokens": 5725,
           "errors": [
             "top-10 未命中预期代码锚点"
@@ -793,7 +793,7 @@
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 6.3,
+          "latency_ms": 17.9,
           "context_tokens": 5725,
           "errors": [],
           "matched_tag": "A1",
@@ -834,7 +834,7 @@
           "hit": true,
           "mrr": 0.2,
           "evidence_complete": true,
-          "latency_ms": 1.3,
+          "latency_ms": 2.3,
           "context_tokens": 3315,
           "errors": [],
           "matched_tag": "A4",
@@ -844,7 +844,7 @@
           "hit": true,
           "mrr": 0.1,
           "evidence_complete": true,
-          "latency_ms": 1.9,
+          "latency_ms": 4.9,
           "context_tokens": 3816,
           "errors": [],
           "matched_tag": "A10",
@@ -854,8 +854,8 @@
           "hit": true,
           "mrr": 0.1,
           "evidence_complete": true,
-          "latency_ms": 3.4,
-          "context_tokens": 3952,
+          "latency_ms": 6.4,
+          "context_tokens": 3809,
           "errors": [],
           "matched_tag": "A10",
           "refused": false
@@ -864,8 +864,8 @@
           "hit": true,
           "mrr": 0.333,
           "evidence_complete": true,
-          "latency_ms": 3.0,
-          "context_tokens": 4121,
+          "latency_ms": 7.3,
+          "context_tokens": 3978,
           "errors": [],
           "matched_tag": "A3",
           "refused": false
@@ -874,8 +874,8 @@
           "hit": true,
           "mrr": 0.333,
           "evidence_complete": true,
-          "latency_ms": 2.6,
-          "context_tokens": 4121,
+          "latency_ms": 7.4,
+          "context_tokens": 3978,
           "errors": [],
           "matched_tag": "A3",
           "refused": false
@@ -910,7 +910,7 @@
           "hit": true,
           "mrr": 0.143,
           "evidence_complete": true,
-          "latency_ms": 1.2,
+          "latency_ms": 1.9,
           "context_tokens": 3995,
           "errors": [],
           "matched_tag": "A7",
@@ -920,7 +920,7 @@
           "hit": false,
           "mrr": 0.0,
           "evidence_complete": false,
-          "latency_ms": 1.7,
+          "latency_ms": 5.4,
           "context_tokens": 4152,
           "errors": [
             "top-10 未命中预期代码锚点"
@@ -932,7 +932,7 @@
           "hit": false,
           "mrr": 0.0,
           "evidence_complete": false,
-          "latency_ms": 2.6,
+          "latency_ms": 6.1,
           "context_tokens": 4182,
           "errors": [
             "top-10 未命中预期代码锚点"
@@ -944,7 +944,7 @@
           "hit": true,
           "mrr": 0.333,
           "evidence_complete": true,
-          "latency_ms": 2.7,
+          "latency_ms": 7.2,
           "context_tokens": 5129,
           "errors": [],
           "matched_tag": "A3",
@@ -954,7 +954,7 @@
           "hit": true,
           "mrr": 0.167,
           "evidence_complete": true,
-          "latency_ms": 3.9,
+          "latency_ms": 8.3,
           "context_tokens": 5129,
           "errors": [],
           "matched_tag": "A6",
@@ -995,7 +995,7 @@
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 1.5,
+          "latency_ms": 3.2,
           "context_tokens": 3752,
           "errors": [],
           "matched_tag": "A1",
@@ -1005,7 +1005,7 @@
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 2.5,
+          "latency_ms": 6.7,
           "context_tokens": 3703,
           "errors": [],
           "matched_tag": "A1",
@@ -1015,7 +1015,7 @@
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 2.9,
+          "latency_ms": 8.5,
           "context_tokens": 3706,
           "errors": [],
           "matched_tag": "A1",
@@ -1025,7 +1025,7 @@
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 4.8,
+          "latency_ms": 11.0,
           "context_tokens": 4859,
           "errors": [],
           "matched_tag": "A1",
@@ -1035,7 +1035,7 @@
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 5.4,
+          "latency_ms": 12.6,
           "context_tokens": 4859,
           "errors": [],
           "matched_tag": "A1",
@@ -1076,7 +1076,7 @@
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 1.6,
+          "latency_ms": 3.6,
           "context_tokens": 3787,
           "errors": [],
           "matched_tag": "A1",
@@ -1086,7 +1086,7 @@
           "hit": false,
           "mrr": 0.0,
           "evidence_complete": false,
-          "latency_ms": 2.8,
+          "latency_ms": 7.7,
           "context_tokens": 3786,
           "errors": [
             "top-10 未命中预期代码锚点"
@@ -1098,7 +1098,7 @@
           "hit": false,
           "mrr": 0.0,
           "evidence_complete": false,
-          "latency_ms": 3.6,
+          "latency_ms": 8.9,
           "context_tokens": 3814,
           "errors": [
             "top-10 未命中预期代码锚点"
@@ -1110,7 +1110,7 @@
           "hit": true,
           "mrr": 0.111,
           "evidence_complete": true,
-          "latency_ms": 5.4,
+          "latency_ms": 11.9,
           "context_tokens": 4716,
           "errors": [],
           "matched_tag": "A9",
@@ -1120,7 +1120,7 @@
           "hit": true,
           "mrr": 0.111,
           "evidence_complete": true,
-          "latency_ms": 5.8,
+          "latency_ms": 14.0,
           "context_tokens": 4716,
           "errors": [],
           "matched_tag": "A9",
@@ -1151,7 +1151,7 @@
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 1.3,
+          "latency_ms": 2.5,
           "context_tokens": 4042,
           "errors": [],
           "matched_tag": "A1",
@@ -1161,7 +1161,7 @@
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 3.2,
+          "latency_ms": 4.8,
           "context_tokens": 4094,
           "errors": [],
           "matched_tag": "A1",
@@ -1171,7 +1171,7 @@
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 3.6,
+          "latency_ms": 6.4,
           "context_tokens": 4094,
           "errors": [],
           "matched_tag": "A1",
@@ -1181,7 +1181,7 @@
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 4.1,
+          "latency_ms": 10.0,
           "context_tokens": 5092,
           "errors": [],
           "matched_tag": "A1",
@@ -1191,7 +1191,7 @@
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 6.2,
+          "latency_ms": 11.9,
           "context_tokens": 5092,
           "errors": [],
           "matched_tag": "A1",
@@ -1222,7 +1222,7 @@
           "hit": true,
           "mrr": 0.5,
           "evidence_complete": true,
-          "latency_ms": 2.1,
+          "latency_ms": 2.2,
           "context_tokens": 4300,
           "errors": [],
           "matched_tag": "A2",
@@ -1232,7 +1232,7 @@
           "hit": true,
           "mrr": 0.5,
           "evidence_complete": true,
-          "latency_ms": 2.0,
+          "latency_ms": 4.7,
           "context_tokens": 4356,
           "errors": [],
           "matched_tag": "A2",
@@ -1242,7 +1242,7 @@
           "hit": true,
           "mrr": 0.333,
           "evidence_complete": true,
-          "latency_ms": 3.7,
+          "latency_ms": 6.3,
           "context_tokens": 4356,
           "errors": [],
           "matched_tag": "A3",
@@ -1252,7 +1252,7 @@
           "hit": true,
           "mrr": 0.333,
           "evidence_complete": true,
-          "latency_ms": 6.2,
+          "latency_ms": 9.5,
           "context_tokens": 5778,
           "errors": [],
           "matched_tag": "A3",
@@ -1262,7 +1262,7 @@
           "hit": true,
           "mrr": 0.5,
           "evidence_complete": true,
-          "latency_ms": 8.8,
+          "latency_ms": 11.5,
           "context_tokens": 5778,
           "errors": [],
           "matched_tag": "A2",
@@ -1293,7 +1293,7 @@
           "hit": true,
           "mrr": 0.167,
           "evidence_complete": true,
-          "latency_ms": 2.5,
+          "latency_ms": 2.9,
           "context_tokens": 4004,
           "errors": [],
           "matched_tag": "A6",
@@ -1303,7 +1303,7 @@
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 2.5,
+          "latency_ms": 3.4,
           "context_tokens": 4040,
           "errors": [],
           "matched_tag": "A1",
@@ -1313,7 +1313,7 @@
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 2.5,
+          "latency_ms": 5.8,
           "context_tokens": 4343,
           "errors": [],
           "matched_tag": "A1",
@@ -1323,7 +1323,7 @@
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 4.6,
+          "latency_ms": 9.2,
           "context_tokens": 5652,
           "errors": [],
           "matched_tag": "A1",
@@ -1333,7 +1333,7 @@
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 5.7,
+          "latency_ms": 9.1,
           "context_tokens": 5652,
           "errors": [],
           "matched_tag": "A1",
@@ -1362,19 +1362,19 @@
       "attempts": {
         "仅 BM25": {
           "hit": true,
-          "mrr": 0.125,
+          "mrr": 0.143,
           "evidence_complete": true,
-          "latency_ms": 1.6,
+          "latency_ms": 2.1,
           "context_tokens": 4280,
           "errors": [],
-          "matched_tag": "A7",
+          "matched_tag": "A6",
           "refused": false
         },
         "BM25 + 符号": {
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 1.9,
+          "latency_ms": 4.8,
           "context_tokens": 4383,
           "errors": [],
           "matched_tag": "A1",
@@ -1384,7 +1384,7 @@
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 2.7,
+          "latency_ms": 6.4,
           "context_tokens": 4383,
           "errors": [],
           "matched_tag": "A1",
@@ -1394,7 +1394,7 @@
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 4.3,
+          "latency_ms": 8.1,
           "context_tokens": 5805,
           "errors": [],
           "matched_tag": "A1",
@@ -1404,7 +1404,7 @@
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 5.6,
+          "latency_ms": 8.8,
           "context_tokens": 5805,
           "errors": [],
           "matched_tag": "A1",
@@ -1575,7 +1575,7 @@
       "precision": 1.0,
       "recall": 1.0,
       "f1": 1.0,
-      "latency_ms": 1.3,
+      "latency_ms": 1.2,
       "depth": 2,
       "predicted_count": 28,
       "candidate_count": 0,
@@ -1752,7 +1752,7 @@
       "precision": 1.0,
       "recall": 1.0,
       "f1": 1.0,
-      "latency_ms": 0.3,
+      "latency_ms": 0.8,
       "depth": 2,
       "predicted_count": 30,
       "candidate_count": 0,
@@ -1773,7 +1773,7 @@
       "rationale": "Kubernetes 运维知识不属于 cJSON 公开源码范围，不能用无关 A 级片段拼凑答案。",
       "refused": true,
       "ab_evidence": 0,
-      "latency_ms": 3.0,
+      "latency_ms": 7.3,
       "context_tokens": 0,
       "passed": true,
       "errors": []
@@ -1789,7 +1789,7 @@
       "rationale": "数据库排障知识不属于 cJSON 代码事实或已审核经验，系统应明确拒答。",
       "refused": true,
       "ab_evidence": 0,
-      "latency_ms": 2.8,
+      "latency_ms": 5.8,
       "context_tokens": 0,
       "passed": true,
       "errors": []
@@ -1805,7 +1805,7 @@
       "rationale": "分布式缓存排障不属于 cJSON 代码与已审核经验边界。",
       "refused": true,
       "ab_evidence": 0,
-      "latency_ms": 2.6,
+      "latency_ms": 4.8,
       "context_tokens": 0,
       "passed": true,
       "errors": []
@@ -1832,8 +1832,8 @@
           "hit": false,
           "mrr": 0.0,
           "evidence_complete": false,
-          "latency_ms": 1.0,
-          "context_tokens": 3941,
+          "latency_ms": 1.6,
+          "context_tokens": 3798,
           "errors": [
             "未命中当前 approved B 卡或主锚点 provenance 不完整"
           ]
@@ -1842,8 +1842,8 @@
           "hit": false,
           "mrr": 0.0,
           "evidence_complete": false,
-          "latency_ms": 0.7,
-          "context_tokens": 3941,
+          "latency_ms": 1.5,
+          "context_tokens": 3798,
           "errors": [
             "未命中当前 approved B 卡或主锚点 provenance 不完整"
           ]
@@ -1852,8 +1852,8 @@
           "hit": false,
           "mrr": 0.0,
           "evidence_complete": false,
-          "latency_ms": 1.7,
-          "context_tokens": 3947,
+          "latency_ms": 2.6,
+          "context_tokens": 3759,
           "errors": [
             "未命中当前 approved B 卡或主锚点 provenance 不完整"
           ]
@@ -1862,8 +1862,8 @@
           "hit": false,
           "mrr": 0.0,
           "evidence_complete": false,
-          "latency_ms": 3.9,
-          "context_tokens": 5158,
+          "latency_ms": 6.8,
+          "context_tokens": 4970,
           "errors": [
             "未命中当前 approved B 卡或主锚点 provenance 不完整"
           ]
@@ -1872,8 +1872,8 @@
           "hit": false,
           "mrr": 0.0,
           "evidence_complete": false,
-          "latency_ms": 4.5,
-          "context_tokens": 5158,
+          "latency_ms": 8.1,
+          "context_tokens": 4970,
           "errors": [
             "未命中当前 approved B 卡或主锚点 provenance 不完整"
           ]
@@ -1905,7 +1905,7 @@
           "hit": false,
           "mrr": 0.0,
           "evidence_complete": false,
-          "latency_ms": 0.6,
+          "latency_ms": 1.4,
           "context_tokens": 3190,
           "errors": [
             "未命中当前 approved B 卡或主锚点 provenance 不完整"
@@ -1915,7 +1915,7 @@
           "hit": false,
           "mrr": 0.0,
           "evidence_complete": false,
-          "latency_ms": 0.5,
+          "latency_ms": 1.7,
           "context_tokens": 3190,
           "errors": [
             "未命中当前 approved B 卡或主锚点 provenance 不完整"
@@ -1925,7 +1925,7 @@
           "hit": false,
           "mrr": 0.0,
           "evidence_complete": false,
-          "latency_ms": 1.0,
+          "latency_ms": 2.4,
           "context_tokens": 3161,
           "errors": [
             "未命中当前 approved B 卡或主锚点 provenance 不完整"
@@ -1935,7 +1935,7 @@
           "hit": false,
           "mrr": 0.0,
           "evidence_complete": false,
-          "latency_ms": 2.0,
+          "latency_ms": 4.7,
           "context_tokens": 4543,
           "errors": [
             "未命中当前 approved B 卡或主锚点 provenance 不完整"
@@ -1945,7 +1945,7 @@
           "hit": false,
           "mrr": 0.0,
           "evidence_complete": false,
-          "latency_ms": 2.7,
+          "latency_ms": 6.7,
           "context_tokens": 4543,
           "errors": [
             "未命中当前 approved B 卡或主锚点 provenance 不完整"
@@ -1978,7 +1978,7 @@
           "hit": false,
           "mrr": 0.0,
           "evidence_complete": false,
-          "latency_ms": 0.3,
+          "latency_ms": 0.7,
           "context_tokens": 1598,
           "errors": [
             "未命中当前 approved B 卡或主锚点 provenance 不完整"
@@ -1988,7 +1988,7 @@
           "hit": false,
           "mrr": 0.0,
           "evidence_complete": false,
-          "latency_ms": 1.4,
+          "latency_ms": 2.8,
           "context_tokens": 1598,
           "errors": [
             "未命中当前 approved B 卡或主锚点 provenance 不完整"
@@ -1998,8 +1998,8 @@
           "hit": false,
           "mrr": 0.0,
           "evidence_complete": false,
-          "latency_ms": 2.7,
-          "context_tokens": 4319,
+          "latency_ms": 4.2,
+          "context_tokens": 4176,
           "errors": [
             "未命中当前 approved B 卡或主锚点 provenance 不完整"
           ]
@@ -2008,8 +2008,8 @@
           "hit": false,
           "mrr": 0.0,
           "evidence_complete": false,
-          "latency_ms": 6.4,
-          "context_tokens": 5828,
+          "latency_ms": 12.7,
+          "context_tokens": 5685,
           "errors": [
             "未命中当前 approved B 卡或主锚点 provenance 不完整"
           ]
@@ -2018,8 +2018,8 @@
           "hit": false,
           "mrr": 0.0,
           "evidence_complete": false,
-          "latency_ms": 6.2,
-          "context_tokens": 5828,
+          "latency_ms": 15.3,
+          "context_tokens": 5685,
           "errors": [
             "未命中当前 approved B 卡或主锚点 provenance 不完整"
           ]
@@ -2051,7 +2051,7 @@
           "hit": false,
           "mrr": 0.0,
           "evidence_complete": false,
-          "latency_ms": 0.2,
+          "latency_ms": 0.5,
           "context_tokens": 0,
           "errors": [
             "未命中当前 approved B 卡或主锚点 provenance 不完整"
@@ -2061,7 +2061,7 @@
           "hit": false,
           "mrr": 0.0,
           "evidence_complete": false,
-          "latency_ms": 0.1,
+          "latency_ms": 0.6,
           "context_tokens": 0,
           "errors": [
             "未命中当前 approved B 卡或主锚点 provenance 不完整"
@@ -2071,7 +2071,7 @@
           "hit": false,
           "mrr": 0.0,
           "evidence_complete": false,
-          "latency_ms": 0.8,
+          "latency_ms": 1.5,
           "context_tokens": 0,
           "errors": [
             "未命中当前 approved B 卡或主锚点 provenance 不完整"
@@ -2081,7 +2081,7 @@
           "hit": false,
           "mrr": 0.0,
           "evidence_complete": false,
-          "latency_ms": 0.5,
+          "latency_ms": 1.2,
           "context_tokens": 0,
           "errors": [
             "未命中当前 approved B 卡或主锚点 provenance 不完整"
@@ -2091,7 +2091,7 @@
           "hit": false,
           "mrr": 0.0,
           "evidence_complete": false,
-          "latency_ms": 0.4,
+          "latency_ms": 1.1,
           "context_tokens": 0,
           "errors": [
             "未命中当前 approved B 卡或主锚点 provenance 不完整"
@@ -2124,7 +2124,7 @@
           "hit": false,
           "mrr": 0.0,
           "evidence_complete": false,
-          "latency_ms": 0.6,
+          "latency_ms": 1.5,
           "context_tokens": 3151,
           "errors": [
             "未命中当前 approved B 卡或主锚点 provenance 不完整"
@@ -2134,7 +2134,7 @@
           "hit": false,
           "mrr": 0.0,
           "evidence_complete": false,
-          "latency_ms": 0.6,
+          "latency_ms": 1.4,
           "context_tokens": 3151,
           "errors": [
             "未命中当前 approved B 卡或主锚点 provenance 不完整"
@@ -2144,7 +2144,7 @@
           "hit": false,
           "mrr": 0.0,
           "evidence_complete": false,
-          "latency_ms": 1.3,
+          "latency_ms": 3.0,
           "context_tokens": 3151,
           "errors": [
             "未命中当前 approved B 卡或主锚点 provenance 不完整"
@@ -2154,7 +2154,7 @@
           "hit": false,
           "mrr": 0.0,
           "evidence_complete": false,
-          "latency_ms": 3.8,
+          "latency_ms": 5.3,
           "context_tokens": 4533,
           "errors": [
             "未命中当前 approved B 卡或主锚点 provenance 不完整"
@@ -2164,7 +2164,7 @@
           "hit": false,
           "mrr": 0.0,
           "evidence_complete": false,
-          "latency_ms": 2.8,
+          "latency_ms": 6.0,
           "context_tokens": 4533,
           "errors": [
             "未命中当前 approved B 卡或主锚点 provenance 不完整"
@@ -2180,11 +2180,11 @@
   ],
   "acceptance": {
     "recall_gain_pt": 10.0,
-    "mrr_delta": 0.272,
+    "mrr_delta": 0.271,
     "passed": true
   },
   "out": "docs/TASK-EVAL-CJSON.md",
-  "generated_at": "2026-09-06T14:26:49+00:00",
+  "generated_at": "2026-09-07T11:11:30+00:00",
   "reproducibility": {
     "task_manifest_sha256": "2758b81110f499690b3ab5acb03b8bbc598d72bef2cbc7250ffabe2c51a3142c",
     "build_config_hash": "4003a287a2796fa9c7f1a6cde60f1e7d2766f73e86961abe170c2ecf73122a7a",
@@ -2195,55 +2195,55 @@
       "tu_ok": 28
     },
     "codeatlas": {
-      "revision": "1b1f1d8bd66bf05fc15f1f62d7a97715e77fc3b4",
+      "revision": "1d51dbd16d9e71e92c8470ede8fa01cc4b9c5b88",
       "branch": "feat/portfolio-core-evidence",
       "dirty": true,
-      "dirty_entries": 402,
+      "dirty_entries": 18,
       "origin": "https://github.com/g18042663173-a11y/codeatlas-c.git",
-      "implementation_hash": "1b0add1cb8912dd557ae4c228cf9ba23563067fedd336ad483ae642d611a84d8"
+      "implementation_hash": "ce2322be05ce8dd4e8d3dc848fa81fe9dd8519309a53f1163e1935ae476e044c"
     }
   },
   "summary": {
     "baseline": {
       "n": 10,
       "recall": 90.0,
-      "mrr": 0.439,
+      "mrr": 0.44,
       "evidence": 90.0,
       "context": 3957,
-      "p50": 1.5,
-      "p95": 9.0
+      "p50": 2.5,
+      "p95": 18.2
     },
     "full": {
       "n": 10,
       "recall": 100.0,
       "mrr": 0.711,
       "evidence": 100.0,
-      "context": 5193,
-      "p50": 5.7,
-      "p95": 8.8
+      "context": 5179,
+      "p50": 11.5,
+      "p95": 17.9
     },
     "impact": {
       "n": 2,
       "precision": 1.0,
       "recall": 1.0,
       "f1": 1.0,
-      "p50": 0.3,
-      "p95": 1.3
+      "p50": 0.8,
+      "p95": 1.2
     },
     "refusal": {
       "n": 3,
       "accuracy": 100.0,
-      "p50": 2.8,
-      "p95": 3.0
+      "p50": 5.8,
+      "p95": 7.3
     },
     "experience": {
       "n": 5,
       "recall": 0.0,
       "mrr": 0.0,
       "evidence": 0.0,
-      "context": 4012,
-      "p50": 2.8,
-      "p95": 6.2
+      "context": 3946,
+      "p50": 6.7,
+      "p95": 15.3
     },
     "passed_tasks": 15,
     "total_tasks": 20,
@@ -2294,9 +2294,9 @@
     ]
   },
   "json_report": "docs/TASK-EVAL-CJSON.json",
-  "knowledge_set_id": "ks-2745704368ee44e0",
+  "knowledge_set_id": "ks-842545da28c647f9",
   "source_content_hash": "c0768c6d97c74ac4ead077841a6488b180e7d323be84db3c5fc0881c5ee01fe8",
   "build_config_hash": "4003a287a2796fa9c7f1a6cde60f1e7d2766f73e86961abe170c2ecf73122a7a",
   "revision": "fb16e5cf358798aabb049655975cde8427101056",
-  "implementation_hash": "35d47419bb08861719bbeb775520acd1c26271c3721c5cb3750ee00b4b3b3e48"
+  "implementation_hash": "aee461eb6731074a3830038b6c50945b3cd66ec5687e5f3dabf381f3f0adcc08"
 }

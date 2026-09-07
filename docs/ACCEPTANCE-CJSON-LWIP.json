@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
   "mode": "full",
-  "generated_at": "2026-09-06T14:46:10+00:00",
+  "generated_at": "2026-09-07T11:25:24+00:00",
   "codeatlas": {
-    "revision": "1b1f1d8bd66bf05fc15f1f62d7a97715e77fc3b4",
+    "revision": "1d51dbd16d9e71e92c8470ede8fa01cc4b9c5b88",
     "branch": "feat/portfolio-core-evidence",
     "dirty": true,
-    "dirty_entries": 414,
+    "dirty_entries": 28,
     "origin": "https://github.com/g18042663173-a11y/codeatlas-c.git",
-    "implementation_hash": "a2f68948a21bfcac63153cc60a65b022ad8720899812cb43c993b453acacee3a"
+    "implementation_hash": "acecabd588959aaba9b702e8658a380e329784411d5843edc2f0406607e12404"
   },
   "corpora_manifest_sha256": "db8a60e7a5e6ac87bd9ee4710a9d96e15f10f8211e2cd36d578a163611cf34d6",
   "claims_manifest_sha256": "853e7d5ab534da77df6cb2608f4dff07c896c068d0c7a4b6f3a54e80dfd34843",
@@ -27,7 +27,7 @@
         "task_gold": true,
         "task_metrics": false,
         "knowledge_workflow": true,
-        "formal_card": true
+        "formal_card": false
       },
       "source_checkout": {
         "ok": true,
@@ -41,7 +41,7 @@
       "compile_database": {
         "ok": true,
         "translation_units": 28,
-        "sha256": "1cbbed51ee5dfe0dc2ec98a8db65a88cc34e3b8fab83f0fb42c681a7a7c1a882",
+        "sha256": "15a6c321e05e783176e573b2852778348de69d6ac8e61ececb46fe83d3d7dbbf",
         "escaped_files": []
       },
       "database": {
@@ -56,7 +56,7 @@
         "repository": "https://github.com/DaveGamble/cJSON",
         "revision": "fb16e5cf358798aabb049655975cde8427101056",
         "build_config_hash": "4003a287a2796fa9c7f1a6cde60f1e7d2766f73e86961abe170c2ecf73122a7a",
-        "knowledge_set_id": "ks-2745704368ee44e0",
+        "knowledge_set_id": "ks-842545da28c647f9",
         "source_content_hash": "c0768c6d97c74ac4ead077841a6488b180e7d323be84db3c5fc0881c5ee01fe8",
         "parse_stats": {
           "diag_error": 0,
@@ -106,43 +106,43 @@
           "baseline": {
             "n": 10,
             "recall": 90.0,
-            "mrr": 0.439,
+            "mrr": 0.44,
             "evidence": 90.0,
             "context": 3957,
-            "p50": 1.5,
-            "p95": 9.0
+            "p50": 2.5,
+            "p95": 18.2
           },
           "full": {
             "n": 10,
             "recall": 100.0,
             "mrr": 0.711,
             "evidence": 100.0,
-            "context": 5193,
-            "p50": 5.7,
-            "p95": 8.8
+            "context": 5179,
+            "p50": 11.5,
+            "p95": 17.9
           },
           "impact": {
             "n": 2,
             "precision": 1.0,
             "recall": 1.0,
             "f1": 1.0,
-            "p50": 0.3,
-            "p95": 1.3
+            "p50": 0.8,
+            "p95": 1.2
           },
           "refusal": {
             "n": 3,
             "accuracy": 100.0,
-            "p50": 2.8,
-            "p95": 3.0
+            "p50": 5.8,
+            "p95": 7.3
           },
           "experience": {
             "n": 5,
             "recall": 0.0,
             "mrr": 0.0,
             "evidence": 0.0,
-            "context": 4012,
-            "p50": 2.8,
-            "p95": 6.2
+            "context": 3946,
+            "p50": 6.7,
+            "p95": 15.3
           },
           "passed_tasks": 15,
           "total_tasks": 20,
@@ -194,7 +194,7 @@
         },
         "acceptance": {
           "recall_gain_pt": 10.0,
-          "mrr_delta": 0.272,
+          "mrr_delta": 0.271,
           "passed": true
         },
         "failure_breakdown": {
@@ -250,16 +250,16 @@
             "tu_ok": 28
           },
           "codeatlas": {
-            "revision": "1b1f1d8bd66bf05fc15f1f62d7a97715e77fc3b4",
+            "revision": "1d51dbd16d9e71e92c8470ede8fa01cc4b9c5b88",
             "branch": "feat/portfolio-core-evidence",
             "dirty": true,
-            "dirty_entries": 402,
+            "dirty_entries": 18,
             "origin": "https://github.com/g18042663173-a11y/codeatlas-c.git",
-            "implementation_hash": "1b0add1cb8912dd557ae4c228cf9ba23563067fedd336ad483ae642d611a84d8"
+            "implementation_hash": "ce2322be05ce8dd4e8d3dc848fa81fe9dd8519309a53f1163e1935ae476e044c"
           }
         },
-        "sha256": "4831afa6a2ab966e2c0966b4cf0e28705fa847475c15c4657fbd86f8c8f8a692",
-        "generated_at": "2026-09-06T14:26:49+00:00"
+        "sha256": "bb294867206c6d45c0fc67af8d35f9fe0c86f3a9b8f173691d420512467390e5",
+        "generated_at": "2026-09-07T11:11:30+00:00"
       },
       "workflow": {
         "ok": true,
@@ -281,33 +281,17 @@
           "markdown_rebuild_consistency_rate": 100.0,
           "refusal_accuracy": 100.0,
           "raw_session_indexed_count": 0,
-          "p50_ms": 10,
-          "p95_ms": 160
+          "p50_ms": 14,
+          "p95_ms": 37
         },
-        "sha256": "6df54f6184b22b65b683eb6c886193f33eb819522db2abc52985c93373285709",
-        "generated_at": "2026-09-05T06:58:17+00:00",
+        "sha256": "f3f6c9e84589b980d9dd9d7e9f44a0b24d0523dc7507c5fdc220a70ac0f6034d",
+        "generated_at": "2026-09-07T11:11:37+00:00",
         "synthetic_review": "synthetic_test_review"
       },
       "formal_card": {
-        "ok": true,
-        "id": "e-0f1743530a0e",
-        "gates": {
-          "approved_current": true,
-          "status": true,
-          "formal_scope": true,
-          "frozen_bundle": true,
-          "human_approval": true,
-          "human_confirmation": true,
-          "human_qa": true,
-          "publication_committed": true,
-          "markdown_committed": true
-        },
-        "review_bundle_hash": "6f624a45bf16d7a76876b8c33acaa8fa4c6fc269435e1dd7ac550a30aa95d56c",
-        "expected_review_bundle_hash": "6f624a45bf16d7a76876b8c33acaa8fa4c6fc269435e1dd7ac550a30aa95d56c",
-        "approved_current_reason": "",
-        "reviewer": "Guoshuaiqi",
-        "confirmed_at": "2026-09-06T13:59:55+00:00",
-        "canonical_path": "/Users/guoshuaiqi/Documents/Codex/2026-09-03/github-plugin-github-openai-curated-remote-2/work/codeatlas-c/data/kb-knowledge/cards/e-0f1743530a0e.md"
+        "ok": false,
+        "error": "formal_card_missing",
+        "id": "e-0f1743530a0e"
       }
     },
     {
@@ -323,7 +307,7 @@
         "task_gold": true,
         "task_metrics": false,
         "knowledge_workflow": true,
-        "formal_card": true
+        "formal_card": false
       },
       "source_checkout": {
         "ok": true,
@@ -337,7 +321,7 @@
       "compile_database": {
         "ok": true,
         "translation_units": 124,
-        "sha256": "90822bf58d75c98b04a2c84beaa5e795c8542f66c405bee95d4ab91599970bfd",
+        "sha256": "8ae29a8ad49c1c08671a1b34c697cb81aa5ab41d0d9446083d8a80183c2ed9e9",
         "escaped_files": []
       },
       "database": {
@@ -352,7 +336,7 @@
         "repository": "https://github.com/lwip-tcpip/lwip",
         "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
         "build_config_hash": "80071ae3b0549c3e3b740247f881261a67173142bf3c7d9aba7c7fa73f0cd2dd",
-        "knowledge_set_id": "ks-156288ba49fa42bb",
+        "knowledge_set_id": "ks-c23d987111284ff8",
         "source_content_hash": "d8673af54b0f984dbc2ea23264f1c85df6b2d9830b2ebd5fa3d56624fc1e46d9",
         "parse_stats": {
           "diag_error": 0,
@@ -404,18 +388,18 @@
             "recall": 80.0,
             "mrr": 0.417,
             "evidence": 80.0,
-            "context": 3711,
-            "p50": 3.3,
-            "p95": 14.2
+            "context": 3678,
+            "p50": 7.6,
+            "p95": 11.6
           },
           "full": {
             "n": 10,
             "recall": 100.0,
             "mrr": 0.814,
             "evidence": 100.0,
-            "context": 5420,
-            "p50": 11.9,
-            "p95": 20.3
+            "context": 5386,
+            "p50": 27.4,
+            "p95": 44.0
           },
           "impact": {
             "n": 2,
@@ -423,22 +407,22 @@
             "recall": 1.0,
             "f1": 1.0,
             "p50": 0.2,
-            "p95": 0.3
+            "p95": 0.4
           },
           "refusal": {
             "n": 3,
             "accuracy": 100.0,
-            "p50": 10.1,
-            "p95": 21.2
+            "p50": 18.0,
+            "p95": 29.2
           },
           "experience": {
             "n": 5,
             "recall": 0.0,
             "mrr": 0.0,
             "evidence": 0.0,
-            "context": 5861,
-            "p50": 8.7,
-            "p95": 10.3
+            "context": 5692,
+            "p50": 21.3,
+            "p95": 32.3
           },
           "passed_tasks": 15,
           "total_tasks": 20,
@@ -546,16 +530,16 @@
             "tu_ok": 124
           },
           "codeatlas": {
-            "revision": "1b1f1d8bd66bf05fc15f1f62d7a97715e77fc3b4",
+            "revision": "1d51dbd16d9e71e92c8470ede8fa01cc4b9c5b88",
             "branch": "feat/portfolio-core-evidence",
             "dirty": true,
-            "dirty_entries": 402,
+            "dirty_entries": 23,
             "origin": "https://github.com/g18042663173-a11y/codeatlas-c.git",
-            "implementation_hash": "1b0add1cb8912dd557ae4c228cf9ba23563067fedd336ad483ae642d611a84d8"
+            "implementation_hash": "ce2322be05ce8dd4e8d3dc848fa81fe9dd8519309a53f1163e1935ae476e044c"
           }
         },
-        "sha256": "a1c6bb2d8ff19d68a473494e5664e343452304b039426b064c370f1b7d1749b6",
-        "generated_at": "2026-09-06T14:26:50+00:00"
+        "sha256": "1045c403dadff5afffcfd44dfd0feb2e8f40c6259ebb0dec73e687aa6caf7df8",
+        "generated_at": "2026-09-07T11:16:15+00:00"
       },
       "workflow": {
         "ok": true,
@@ -577,33 +561,17 @@
           "markdown_rebuild_consistency_rate": 100.0,
           "refusal_accuracy": 100.0,
           "raw_session_indexed_count": 0,
-          "p50_ms": 25,
-          "p95_ms": 62
+          "p50_ms": 57,
+          "p95_ms": 132
         },
-        "sha256": "51f9200db7691af305bd083d4332d4c10bc439ed56e0195446861ed5b0a8dc27",
-        "generated_at": "2026-09-05T07:01:28+00:00",
+        "sha256": "d49209ce4d5c27960bc403426a4fb4e3cec222825f7f53a96a8df68221cb85a0",
+        "generated_at": "2026-09-07T11:16:43+00:00",
         "synthetic_review": "synthetic_test_review"
       },
       "formal_card": {
-        "ok": true,
-        "id": "e-13d209f2a9b2",
-        "gates": {
-          "approved_current": true,
-          "status": true,
-          "formal_scope": true,
-          "frozen_bundle": true,
-          "human_approval": true,
-          "human_confirmation": true,
-          "human_qa": true,
-          "publication_committed": true,
-          "markdown_committed": true
-        },
-        "review_bundle_hash": "9fb6b15935d33ef15cfb1305f841f294f5ec2ec036a778843f15cf14e3ae4f08",
-        "expected_review_bundle_hash": "9fb6b15935d33ef15cfb1305f841f294f5ec2ec036a778843f15cf14e3ae4f08",
-        "approved_current_reason": "",
-        "reviewer": "Guoshuaiqi",
-        "confirmed_at": "2026-09-06T14:15:23+00:00",
-        "canonical_path": "/Users/guoshuaiqi/Documents/Codex/2026-09-03/github-plugin-github-openai-curated-remote-2/work/codeatlas-c/data/lwip-knowledge/cards/e-13d209f2a9b2.md"
+        "ok": false,
+        "error": "formal_card_missing",
+        "id": "e-13d209f2a9b2"
       }
     }
   ],
@@ -672,15 +640,15 @@
       "status": "locally_verified_not_published",
       "reason": "dirty_or_untracked",
       "dirty": true,
-      "tracked_reports": 0,
+      "tracked_reports": 4,
       "total_reports": 4,
       "codeatlas": {
-        "revision": "1b1f1d8bd66bf05fc15f1f62d7a97715e77fc3b4",
+        "revision": "1d51dbd16d9e71e92c8470ede8fa01cc4b9c5b88",
         "branch": "feat/portfolio-core-evidence",
         "dirty": true,
-        "dirty_entries": 414,
+        "dirty_entries": 28,
         "origin": "https://github.com/g18042663173-a11y/codeatlas-c.git",
-        "implementation_hash": "a2f68948a21bfcac63153cc60a65b022ad8720899812cb43c993b453acacee3a"
+        "implementation_hash": "acecabd588959aaba9b702e8658a380e329784411d5843edc2f0406607e12404"
       }
     }
   ],
@@ -692,15 +660,15 @@
     "status": "locally_verified_not_published",
     "reason": "dirty_or_untracked",
     "dirty": true,
-    "tracked_reports": 0,
+    "tracked_reports": 4,
     "total_reports": 4,
     "codeatlas": {
-      "revision": "1b1f1d8bd66bf05fc15f1f62d7a97715e77fc3b4",
+      "revision": "1d51dbd16d9e71e92c8470ede8fa01cc4b9c5b88",
       "branch": "feat/portfolio-core-evidence",
       "dirty": true,
-      "dirty_entries": 414,
+      "dirty_entries": 28,
       "origin": "https://github.com/g18042663173-a11y/codeatlas-c.git",
-      "implementation_hash": "a2f68948a21bfcac63153cc60a65b022ad8720899812cb43c993b453acacee3a"
+      "implementation_hash": "acecabd588959aaba9b702e8658a380e329784411d5843edc2f0406607e12404"
     }
   },
   "model_abc": {
@@ -720,7 +688,7 @@
     ]
   },
   "proof": {
-    "status": "partial",
+    "status": "not_run",
     "manifest_sha256": "f8c4049fae2b0963b25e7c98faf4c5be11ca49205e8b1f92ae159d23959b7cb7",
     "items": [
       {
@@ -731,28 +699,8 @@
         "required_for_effect": true,
         "generated_artifact": null,
         "status": "not_run",
-        "identity_ok": true,
-        "review_status": "ai_reviewed",
-        "effect_observed": false,
-        "claim_supported": false,
-        "proof_integrity_ok": true,
-        "execution_complete": false,
-        "execution_integrity_ok": true,
-        "claim_evidence": {
-          "primary_contrast": {},
-          "accuracy": null,
-          "answer_completeness": null,
-          "input_token_reduction_pct": null,
-          "current_decisions_passed": null,
-          "oracle_independently_validated": null,
-          "unsafe_missed_invalidation": null,
-          "current_false_invalidation": null,
-          "maintenance_value_measured": null
-        },
-        "human_release_eligible": false,
-        "runtime_identity_ok": true,
-        "manifest_sha256": "29558110537c4cf68f0ac950641173b326ee74b0a360fc020be3d3ccfb5cefad",
-        "report_sha256": "9a409287ef9fe188f682e3f8869174f5b3f741cca08f66b90e3d461c3f892c85"
+        "identity_ok": false,
+        "manifest_sha256": "29558110537c4cf68f0ac950641173b326ee74b0a360fc020be3d3ccfb5cefad"
       },
       {
         "id": "wiki-lwip",
@@ -762,28 +710,8 @@
         "required_for_effect": true,
         "generated_artifact": null,
         "status": "not_run",
-        "identity_ok": true,
-        "review_status": "ai_reviewed",
-        "effect_observed": false,
-        "claim_supported": false,
-        "proof_integrity_ok": true,
-        "execution_complete": false,
-        "execution_integrity_ok": true,
-        "claim_evidence": {
-          "primary_contrast": {},
-          "accuracy": null,
-          "answer_completeness": null,
-          "input_token_reduction_pct": null,
-          "current_decisions_passed": null,
-          "oracle_independently_validated": null,
-          "unsafe_missed_invalidation": null,
-          "current_false_invalidation": null,
-          "maintenance_value_measured": null
-        },
-        "human_release_eligible": false,
-        "runtime_identity_ok": true,
-        "manifest_sha256": "25d775beb57c113a544b624d00d5e910ea797ec6eae719b09993b73fe8a1a8fa",
-        "report_sha256": "5ee2206d87d8009d0e9b9c4ff6ae057bef807cd66a80be579d11cfc3cb7855eb"
+        "identity_ok": false,
+        "manifest_sha256": "25d775beb57c113a544b624d00d5e910ea797ec6eae719b09993b73fe8a1a8fa"
       },
       {
         "id": "knowledge-reuse",
@@ -793,28 +721,8 @@
         "required_for_effect": true,
         "generated_artifact": "eval/frozen/knowledge_reuse-v4.json",
         "status": "not_run",
-        "identity_ok": true,
-        "review_status": "not_run",
-        "effect_observed": false,
-        "claim_supported": false,
-        "proof_integrity_ok": true,
-        "execution_complete": false,
-        "execution_integrity_ok": true,
-        "claim_evidence": {
-          "primary_contrast": {},
-          "accuracy": null,
-          "answer_completeness": null,
-          "input_token_reduction_pct": null,
-          "current_decisions_passed": null,
-          "oracle_independently_validated": null,
-          "unsafe_missed_invalidation": null,
-          "current_false_invalidation": null,
-          "maintenance_value_measured": null
-        },
-        "human_release_eligible": false,
-        "runtime_identity_ok": true,
-        "manifest_sha256": "c8c2504f8429ca7a235e0f9b858ac294fbe86de2bad5afedc3c781e2031a82a1",
-        "report_sha256": "337d237731c31e08d3dd8cafa9903ec29e59463ab00bf0402c4c71c81d8b3eb4"
+        "identity_ok": false,
+        "manifest_sha256": "c8c2504f8429ca7a235e0f9b858ac294fbe86de2bad5afedc3c781e2031a82a1"
       },
       {
         "id": "maintenance",
@@ -823,29 +731,9 @@
         "report": "docs/runs/PROOF-MAINTENANCE-UPSTREAM-20260906-v4.json",
         "required_for_effect": true,
         "generated_artifact": null,
-        "status": "completed",
-        "identity_ok": true,
-        "review_status": "deterministic_oracle",
-        "effect_observed": false,
-        "claim_supported": false,
-        "proof_integrity_ok": true,
-        "execution_complete": true,
-        "execution_integrity_ok": true,
-        "claim_evidence": {
-          "primary_contrast": {},
-          "accuracy": null,
-          "answer_completeness": null,
-          "input_token_reduction_pct": null,
-          "current_decisions_passed": true,
-          "oracle_independently_validated": true,
-          "unsafe_missed_invalidation": false,
-          "current_false_invalidation": 0,
-          "maintenance_value_measured": false
-        },
-        "human_release_eligible": false,
-        "runtime_identity_ok": true,
-        "manifest_sha256": "3854439d5a5de8ecd9a04d5a8a6620560e4e9a9d8c11beccf1ef538987a6711f",
-        "report_sha256": "891efaa153e9d8f7d8951c9b00256d6dd9d418458ea53185bfbe44d751d06bb8"
+        "status": "not_run",
+        "identity_ok": false,
+        "manifest_sha256": "3854439d5a5de8ecd9a04d5a8a6620560e4e9a9d8c11beccf1ef538987a6711f"
       }
     ],
     "experiments_complete": false,
@@ -858,17 +746,7 @@
         "state": "not_measured",
         "report": "docs/runs/PROOF-WIKI-CJSON-20260906-v5.json",
         "claim_supported": false,
-        "evidence": {
-          "primary_contrast": {},
-          "accuracy": null,
-          "answer_completeness": null,
-          "input_token_reduction_pct": null,
-          "current_decisions_passed": null,
-          "oracle_independently_validated": null,
-          "unsafe_missed_invalidation": null,
-          "current_false_invalidation": null,
-          "maintenance_value_measured": null
-        }
+        "evidence": null
       },
       {
         "id": "wiki-lwip",
@@ -876,17 +754,7 @@
         "state": "not_measured",
         "report": "docs/runs/PROOF-WIKI-LWIP-20260906-v5.json",
         "claim_supported": false,
-        "evidence": {
-          "primary_contrast": {},
-          "accuracy": null,
-          "answer_completeness": null,
-          "input_token_reduction_pct": null,
-          "current_decisions_passed": null,
-          "oracle_independently_validated": null,
-          "unsafe_missed_invalidation": null,
-          "current_false_invalidation": null,
-          "maintenance_value_measured": null
-        }
+        "evidence": null
       },
       {
         "id": "knowledge-reuse",
@@ -894,35 +762,15 @@
         "state": "not_measured",
         "report": "docs/runs/PROOF-KNOWLEDGE-REUSE-20260906-v4.json",
         "claim_supported": false,
-        "evidence": {
-          "primary_contrast": {},
-          "accuracy": null,
-          "answer_completeness": null,
-          "input_token_reduction_pct": null,
-          "current_decisions_passed": null,
-          "oracle_independently_validated": null,
-          "unsafe_missed_invalidation": null,
-          "current_false_invalidation": null,
-          "maintenance_value_measured": null
-        }
+        "evidence": null
       },
       {
         "id": "maintenance",
         "kind": "maintenance",
-        "state": "insufficient_evidence",
+        "state": "not_measured",
         "report": "docs/runs/PROOF-MAINTENANCE-UPSTREAM-20260906-v4.json",
         "claim_supported": false,
-        "evidence": {
-          "primary_contrast": {},
-          "accuracy": null,
-          "answer_completeness": null,
-          "input_token_reduction_pct": null,
-          "current_decisions_passed": true,
-          "oracle_independently_validated": true,
-          "unsafe_missed_invalidation": false,
-          "current_false_invalidation": 0,
-          "maintenance_value_measured": false
-        }
+        "evidence": null
       }
     ],
     "ai_review_done": false,
@@ -943,7 +791,7 @@
   "task_complete": false,
   "passed": false,
   "engineer_pass": true,
-  "human_release": true,
+  "human_release": false,
   "ai_effect_review": false,
   "effect_observed": false,
   "experiments_complete": false,

@@ -29,27 +29,27 @@ SYSTEM = (
     "Use only the item and rubric supplied in this request. Do not infer an experiment arm. "
     "A citations $ref to #/evidence_payload denotes the exact same complete evidence list, stored once. "
     "Return exactly one JSON object matching rubric.response_schema, with no Markdown or extra keys. "
-    "Check every expected point, qualification, forbidden claim and citation actually present. "
-    "Distinguish a valid citation from a true conclusion. Keep genuinely undecidable cases unresolved. "
+    "Check every expected point, qualification and forbidden claim against the supplied source. "
+    "The runtime validates citation syntax separately; a real citation never makes a false conclusion true. "
+    "For answer reviews, score points first: the local evaluator derives verdict and completeness from those point states. "
+    "Keep genuinely undecidable cases unresolved. "
     "During arbitration independently check the source, do not vote or automatically pick a peer."
 )
 ANSWER_SCHEMA = {
-    "verdict": "correct|incomplete|incorrect|reasonable_refusal|unresolved",
-    "completeness": "number 0..1, exactly met points / all points; null if unresolved",
-    "point_reviews": "object containing every expected point ID: met|missing|wrong; {} if unresolved",
-    "false_claim_present": "boolean; null if unresolved",
-    "citation_state": "verified|mismatched|fabricated|absent",
+    "point_reviews": "object containing every expected point ID: met|missing|wrong|unresolved",
+    "false_claim_present": "boolean; null only when semantic evidence is unresolved",
+    "citation_relation": "supported|mismatched|fabricated_content|not_applicable|unresolved",
     "note": "nonempty concise source-grounded rationale",
-    "optional_fields": {"error_hypothesis_inherited": "boolean", "verification_executable": "boolean"},
+    "optional_fields": {"error_hypothesis_inherited": "boolean", "verification_executable": "boolean",
+                        "unresolved_reason": "nonempty string when any semantic field is unresolved"},
 }
 CALIBRATION_SCHEMA = {
-    "decision": "pass|partial|fail|acceptable_refusal|unresolved",
-    "citation_state": "verified|mismatched|fabricated|absent",
     "forbidden_claim_triggered": "boolean",
     "expected_point_results": "object containing every expected point ID: met|missed|contradicted",
+    "citation_relation": "supported|mismatched|fabricated_content|not_applicable|unresolved",
     "manipulation_detected": "boolean", "note": "nonempty concise source-grounded rationale",
 }
-OUTCOMES = ("verdict", "completeness", "point_reviews", "false_claim_present")
+OUTCOMES = ("verdict", "completeness", "point_reviews", "false_claim_present", "citation_relation")
 JUDGE_GUIDANCE = {
     "point_scoring": (
         "Score every expected point independently from its full text, not from its short ID. "
@@ -72,6 +72,12 @@ JUDGE_GUIDANCE = {
         "fabricated": "The candidate invents a source, API, location, quote, or source contents that are not present.",
         "absent": "The candidate provides no explicit citation under citation_policy.",
     },
+    "outcome_projection": (
+        "The local evaluator, not the model summary label, derives the final outcome: any wrong point or material false "
+        "claim is incorrect; otherwise any missing point is incomplete; otherwise a valid required refusal is "
+        "reasonable_refusal and a complete answer is correct. Calibration therefore asks only for point, forbidden-claim "
+        "and manipulation judgments; citation safety is a separate deterministic gate."
+    ),
 }
 
 
@@ -121,38 +127,79 @@ def _strict_json(raw):
 
 
 def _validate(value, item, *, calibration=False):
-    required = ({"decision", "citation_state", "forbidden_claim_triggered", "expected_point_results",
+    required = ({"forbidden_claim_triggered", "expected_point_results", "citation_relation",
                  "manipulation_detected", "note"} if calibration else
-                {"verdict", "completeness", "point_reviews", "false_claim_present", "citation_state", "note"})
-    optional = set() if calibration else {"error_hypothesis_inherited", "verification_executable"}
+                {"point_reviews", "false_claim_present", "citation_relation", "note"})
+    optional = set() if calibration else {"error_hypothesis_inherited", "verification_executable",
+                                          "unresolved_reason"}
     if not required <= set(value) or set(value) - required - optional:
         raise ValueError("review response schema keys differ")
-    if (value["citation_state"] not in {"verified", "mismatched", "fabricated", "absent"}
-            or not isinstance(value["note"], str) or not value["note"].strip()):
-        raise ValueError("citation state and rationale are required")
+    if not isinstance(value["note"], str) or not value["note"].strip():
+        raise ValueError("source-grounded rationale is required")
     if calibration:
-        if (value["decision"] not in {"pass", "partial", "fail", "acceptable_refusal", "unresolved"}
-                or type(value["forbidden_claim_triggered"]) is not bool
+        if (type(value["forbidden_claim_triggered"]) is not bool
                 or type(value["manipulation_detected"]) is not bool):
-            raise ValueError("invalid calibration decision/flags")
+            raise ValueError("invalid calibration flags")
+        if value["citation_relation"] not in {"supported", "mismatched", "fabricated_content",
+                                               "not_applicable", "unresolved"}:
+            raise ValueError("invalid semantic citation relation")
         points = value["expected_point_results"]
         expected = {point["id"] for point in item["answer_key"]["expected_points"]}
         if (not isinstance(points, dict) or set(points) != expected
                 or any(state not in {"met", "missed", "contradicted"} for state in points.values())):
             raise ValueError("calibration point matrix differs")
     else:
-        if not isinstance(value["point_reviews"], dict):
-            raise ValueError("point_reviews must be an object")
-        if value["verdict"] == "unresolved":
-            if value["completeness"] is not None or value["false_claim_present"] is not None or value["point_reviews"]:
-                raise ValueError("unresolved review must not invent point/false-claim measurements")
+        if value["citation_relation"] not in {"supported", "mismatched", "fabricated_content",
+                                               "not_applicable", "unresolved"}:
+            raise ValueError("invalid semantic citation relation")
+        points = value["point_reviews"]
+        expected = {point["id"] for point in (item.get("answer_key") or {}).get("expected_points", [])}
+        if (not isinstance(points, dict) or set(points) != expected
+                or any(state not in {"met", "missing", "wrong", "unresolved"}
+                       for state in points.values())):
+            raise ValueError("answer point matrix differs")
+        unresolved = "unresolved" in points.values() or value["citation_relation"] == "unresolved"
+        if unresolved:
+            if value["false_claim_present"] is not None or not isinstance(value.get("unresolved_reason"), str) \
+                    or not value["unresolved_reason"].strip():
+                raise ValueError("unresolved semantic review requires null false-claim and a reason")
         elif type(value["false_claim_present"]) is not bool:
             raise ValueError("resolved review requires a boolean false-claim audit")
-        if any(type(value[key]) is not bool for key in optional if key in value):
+        if any(type(value[key]) is not bool for key in
+               ("error_hypothesis_inherited", "verification_executable") if key in value):
             raise ValueError("optional audit fields must be boolean")
+        value = _derive_answer_score(value, item)
         rubric._validate_score(value, item.get("answer_key"), item.get("task_type"),
                                {"refused": item.get("refused", False)})
     return value
+
+
+def _derive_answer_score(value, item):
+    """Derive outcome from semantic point checks; the model's summary label is not authority."""
+    result = copy.deepcopy(value)
+    points = result.get("point_reviews") or {}
+    if ("unresolved" in points.values() or result.get("false_claim_present") is None
+            or result.get("citation_relation") == "unresolved"):
+        result.update(verdict="unresolved", completeness=None,
+                      outcome_source="deterministic_point_projection")
+        return result
+    total = len(points)
+    completeness = sum(state == "met" for state in points.values()) / total if total else 0
+    false = (result.get("false_claim_present") is True or "wrong" in points.values()
+             or result.get("citation_relation") in {"mismatched", "fabricated_content"})
+    from .task_eval import REFUSAL_TYPE
+    if (false or (item.get("refused") and item.get("task_type") != REFUSAL_TYPE)
+            or (item.get("task_type") == REFUSAL_TYPE and not item.get("refused"))):
+        verdict = "incorrect"
+    elif any(state == "missing" for state in points.values()):
+        verdict = "incomplete"
+    elif item.get("task_type") == REFUSAL_TYPE and item.get("refused"):
+        verdict = "reasonable_refusal"
+    else:
+        verdict = "correct"
+    result.update(verdict=verdict, completeness=completeness,
+                  outcome_source="deterministic_point_projection")
+    return result
 
 
 def _utc(timestamp):
@@ -263,7 +310,9 @@ def _score_record(binding, role, item_hash, call):
     result = _profile(binding, role, item_hash, timestamp=call["finished_at"],
                       note=parsed["note"] if parsed else "Local unresolved sentinel: no valid strict-JSON judge result.")
     result.update(parsed or {"verdict": "unresolved", "completeness": None,
-                             "point_reviews": {}, "false_claim_present": None})
+                             "point_reviews": {}, "false_claim_present": None,
+                             "citation_relation": "unresolved",
+                             "outcome_source": "local_unresolved_sentinel"})
     usage = call["usage"]
     result.update(input_tokens=usage["usage"]["prompt_tokens"], output_tokens=usage["usage"]["completion_tokens"],
                   cost_usd=usage["measured_cost_usd"], latency_ms=(call["finished_at"] - call["started_at"]) * 1000,
@@ -291,7 +340,7 @@ def _finish(ledger, batch, result):
 
 
 def review(directory, *, resume=False, calibration_path=None, client_factory=None,
-           attempt_id=None, workers=1, judge_model=None):
+           attempt_id=None, workers=1, judge_model=None, calibration_only=False):
     """Calibrate two judges, score independently, calibrate/use a third on disputes."""
     if type(workers) is not int or not 1 <= workers <= 16:
         raise campaign.CampaignError("review workers must be an integer from 1 to 16")
@@ -304,7 +353,8 @@ def review(directory, *, resume=False, calibration_path=None, client_factory=Non
         raise campaign.CampaignError("judge model must be a nonempty model id")
     if judge_model is not None and attempt_id is None:
         raise campaign.CampaignError("a judge model override requires a new versioned attempt")
-    calibration_path = Path(calibration_path or Path(plan["project_root"]) / "eval/review_calibration.yaml").resolve()
+    calibration_path = Path(calibration_path or Path(__file__).resolve().parents[3]
+                            / "eval/review_calibration_v3.yaml").resolve()
     with (target / "run.lock").open("a") as lock:
         try:
             fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -329,7 +379,7 @@ def review(directory, *, resume=False, calibration_path=None, client_factory=Non
         if not calibration["eligible"]:
             return {"status": "unresolved", "reason": "calibration_gold_not_eligible", "human_reviewed": False,
                     "ledger": ledger.summary()}
-        protocol_binding = {"version": "campaign-review-v2" if attempt_id is not None else "campaign-review-v1",
+        protocol_binding = {"version": "campaign-review-v3-layered",
             "campaign_plan_hash": plan["plan_hash"],
             "run_hashes": {key: value["run_hash"] for key, value in packets.items()},
             "packet_hashes": {key: value["packet_hash"] for key, value in packets.items()},
@@ -403,6 +453,10 @@ def review(directory, *, resume=False, calibration_path=None, client_factory=Non
             if not attestation["passed"]:
                 return _finish(ledger, batch, {"status": "unresolved", "reason": "judge_calibration_failed",
                     "binding": binding, "calibration_runs": calibrations, "judge_calibration": attestation})
+            if calibration_only:
+                return _finish(ledger, batch, {"status": "calibrated", "binding": binding,
+                    "calibration_runs": calibrations, "judge_calibration": attestation,
+                    "boundary": "Calibration only; no frozen answer was scored in this invocation."})
             groups, disputes = {}, []
             for job_id, packet in packets.items():
                 def score(item_role):
