@@ -1,0 +1,20 @@
+--- a/cJSON.c
++++ b/cJSON.c
+@@ -1499,7 +1499,7 @@ static cJSON_bool parse_array(cJSON * const item, parse_buffer * const input_buff
+     cJSON *head = NULL; /* head of the linked list */
+     cJSON *current_item = NULL;
+ 
+-    if (input_buffer->depth >= CJSON_NESTING_LIMIT)
++    if (input_buffer->depth > CJSON_NESTING_LIMIT)
+     {
+         return false; /* to deeply nested */
+     }
+@@ -1664,7 +1664,7 @@ static cJSON_bool parse_object(cJSON * const item, parse_buffer * const input_buf
+     cJSON *head = NULL; /* linked list head */
+     cJSON *current_item = NULL;
+ 
+-    if (input_buffer->depth >= CJSON_NESTING_LIMIT)
++    if (input_buffer->depth > CJSON_NESTING_LIMIT)
+     {
+         return false; /* to deeply nested */
+     }

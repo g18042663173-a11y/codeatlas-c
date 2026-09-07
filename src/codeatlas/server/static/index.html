@@ -1,188 +1,153 @@
-<!DOCTYPE html>
-<html lang="zh">
+<!doctype html>
+<html lang="zh-CN">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>CodeAtlas</title>
-<style>
-:root{--bg:#0f1115;--panel:#171a21;--line:#262b36;--fg:#d8dee9;--dim:#7c8798;
-      --a:#7fd6a0;--b:#7fb8ff;--c:#c9a3f5;--warn:#e8b366;--acc:#5eead4}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);
-     font:14px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
-header{padding:14px 20px;border-bottom:1px solid var(--line);display:flex;
-       gap:18px;align-items:baseline;flex-wrap:wrap}
-h1{font-size:16px;margin:0;letter-spacing:.5px}
-h1 span{color:var(--acc)}
-#stats{color:var(--dim);font-size:12px}
-nav{display:flex;gap:4px;padding:0 20px;border-bottom:1px solid var(--line)}
-nav button{background:none;border:0;color:var(--dim);padding:10px 16px;cursor:pointer;
-           font:inherit;border-bottom:2px solid transparent}
-nav button.on{color:var(--fg);border-bottom-color:var(--acc)}
-main{padding:20px;max-width:1100px}
-.row{display:flex;gap:8px;margin-bottom:16px}
-input,select{flex:1;background:var(--panel);border:1px solid var(--line);color:var(--fg);
-             padding:10px 12px;border-radius:6px;font:inherit}
-button.go{background:var(--acc);color:#0f1115;border:0;padding:10px 20px;
-          border-radius:6px;cursor:pointer;font:inherit;font-weight:600}
-button.go:disabled{opacity:.4;cursor:default}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;
-      padding:14px 16px;margin-bottom:12px}
-.meta{color:var(--dim);font-size:12px;margin-bottom:12px}
-.tag{display:inline-block;padding:1px 7px;border-radius:4px;font-size:11px;
-     font-weight:700;margin-right:8px}
-.A{background:rgba(127,214,160,.16);color:var(--a)}
-.B{background:rgba(127,184,255,.16);color:var(--b)}
-.C{background:rgba(201,163,245,.16);color:var(--c)}
-.ref{color:var(--dim);font-size:12px}
-.warn{color:var(--warn)}
-.hop{color:var(--dim);font-size:12px;margin:10px 0 4px}
-code{background:#0b0d11;padding:1px 5px;border-radius:3px;color:var(--acc)}
-pre{background:#0b0d11;padding:12px;border-radius:6px;overflow:auto;
-    max-height:340px;font-size:12px;white-space:pre-wrap}
-.empty{color:var(--dim);padding:30px;text-align:center}
-.pill{border:1px solid var(--line);border-radius:999px;padding:2px 10px;
-      font-size:12px;color:var(--dim);margin-right:6px}
-label.ck{color:var(--dim);font-size:12px;display:flex;align-items:center;gap:5px}
-.act{display:flex;gap:8px;margin-top:10px}
-.act button{border:1px solid var(--line);background:none;color:var(--fg);
-            padding:6px 14px;border-radius:6px;cursor:pointer;font:inherit;font-size:12px}
-.act button.ok:hover{border-color:var(--a);color:var(--a)}
-.act button.no:hover{border-color:#e57373;color:#e57373}
-</style></head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CodeAtlas · C 代码证据工具</title>
+<link rel="stylesheet" href="/static/workspace.css">
+</head>
 <body>
-<header>
-  <h1>Code<span>Atlas</span></h1>
-  <div id="stats">加载中…</div>
-</header>
-<nav>
-  <button class="on" data-t="ask">问答</button>
-  <button data-t="impact">影响分析</button>
-  <button data-t="review">审核队列</button>
+<a class="skip-link" href="#main">跳到主内容</a>
+<aside class="sidebar" id="sidebar" aria-label="CodeAtlas 工作区"><button class="close-navigation" id="closeNavigation" aria-label="收起导航"><img src="/static/icons/x.svg" alt=""></button>
+<a class="brand" href="#dashboard" data-page="dashboard" aria-label="CodeAtlas 工作台">Code<span>Atlas</span></a>
+<details class="repo-card"><summary><span class="repo-title"><img class="icon" src="/static/icons/folder.svg" alt=""><span id="repoName">当前仓库</span></span><code id="repoRevision">读取版本中</code><img class="chevron" src="/static/icons/chevron-down.svg" alt=""></summary><div class="repo-info" id="repoInfo">当前服务固定一个仓库，版本信息正在读取。</div></details>
+<div class="model-badge"><img src="/static/icons/check-circle.svg" alt=""><span id="modelBadge">正在检查模型配置…</span></div>
+<nav aria-label="作品集导航">
+<button class="on" data-tab="dashboard" aria-current="page"><img src="/static/icons/home.svg" alt="">工作台</button>
+<button data-tab="wiki"><img src="/static/icons/book-open.svg" alt="">分层 Wiki</button>
+<button data-tab="ask"><img src="/static/icons/search.svg" alt="">证据检索</button>
+<button data-tab="agent"><img src="/static/icons/message-square.svg" alt="">Agent 诊断</button>
+<button data-tab="impact"><img src="/static/icons/activity.svg" alt="">影响分析</button>
+<button data-tab="curation"><img src="/static/icons/file-text.svg" alt="">会话沉淀</button>
+<button data-tab="review"><img src="/static/icons/shield.svg" alt="">知识卡审核</button>
 </nav>
-<main>
-
-<section id="ask">
-  <div class="row">
-    <input id="q" placeholder="提问，例如：cJSON_Delete 做什么 / 解析嵌套对象的流程">
-    <button class="go" onclick="doAsk()">检索</button>
-  </div>
-  <div class="row" style="gap:18px">
-    <label class="ck"><input type="checkbox" id="g" checked>图多跳扩展</label>
-    <label class="ck"><input type="checkbox" id="v" checked>向量召回</label>
-  </div>
-  <div id="askOut"></div>
+<div class="sidebar-footer"><strong><img class="icon" src="/static/icons/monitor.svg" alt="">本地工作区</strong><p id="localModeNote">代码与知识保存在本机</p><p class="subtle">可信 AI 研发辅助原型</p></div>
+</aside>
+<div class="app-shell">
+<header class="topbar">
+<div class="breadcrumb"><button class="menu-toggle" id="menuToggle" aria-label="打开导航" aria-expanded="false" aria-controls="sidebar"><img src="/static/icons/menu.svg" alt=""></button><span id="pageName">工作台</span><span aria-hidden="true">/</span><span id="breadcrumbRepo">当前仓库</span></div>
+<div class="top-meta" id="snapshot">正在读取本地知识库快照…</div>
+</header>
+<main id="main" tabindex="-1">
+<section id="dashboard" aria-label="问答工作台">
+<div class="workspace-intro"><h2>从一个代码问题开始</h2><p>定位实现、理解调用关系，再回到源码核对。</p></div>
+<form class="composer" id="workspaceForm">
+<div class="composer-row"><textarea id="workspaceQ" aria-label="工作台诊断问题" placeholder="例如：cJSON_Delete 会释放引用节点的 child 吗？">cJSON_Delete 会释放引用节点的 child 吗？</textarea><button type="submit" class="primary" id="workspaceRun">开始诊断<img src="/static/icons/chevron-right.svg" alt=""></button></div>
+<div class="mode-note"><img class="icon" src="/static/icons/shield.svg" alt=""><span id="workspaceMode">正在检查模型配置…</span></div>
+<div id="workspaceError" role="status" aria-live="polite"></div>
+</form>
+<div class="suggestions"><p>试试这些问题</p><div class="suggestion-links" id="suggestionLinks"></div></div>
+<div class="recent-section"><h3><img class="icon" src="/static/icons/clock.svg" alt="">最近一次诊断</h3><div id="recentRun" aria-live="polite"></div><div id="recentSource" class="recent-source"></div></div>
+<details class="workspace-details" id="projectDetails"><summary>查看仓库事实、公开示例与评测结果</summary>
+<div id="dashboardStats" class="grid"></div>
+<div id="versionStatus" class="panel" style="margin-top:14px">正在读取知识版本…</div>
+<div class="grid two" style="margin-top:14px"><div class="panel"><h3>公开演示入口</h3><p class="subtle">网页只能导入仓库白名单内的 CC0 合成会话；原始会话不写入检索索引。</p><div id="examples" class="example-grid"></div></div><div class="panel"><h3>可复现评测与失败案例</h3><div id="evaluation"><div class="empty">正在检查受控本地报告…</div></div></div></div>
+</details>
 </section>
-
-<section id="impact" hidden>
-  <div class="row">
-    <input id="sym" placeholder="符号名，例如：cJSON_Delete">
-    <select id="depth"><option>1</option><option>2</option>
-      <option selected>3</option><option>4</option></select>
-    <button class="go" onclick="doImpact()">分析</button>
-  </div>
-  <div id="impOut"></div>
-</section>
-
-<section id="review" hidden>
-  <div class="meta">LLM 抽取的经验条目在这里审核。<b>审核通过前，检索中完全不可见。</b></div>
-  <div id="revOut"></div>
-</section>
-
+<section id="wiki" class="hidden"><div class="report-bar">代码知识</div><div class="section-heading"><div><div class="kicker">Layered wiki</div><h2>浏览分层 Wiki</h2></div><p>Wiki 是固定版本代码事实的可重建视图；stale 页面不进入正式检索。页面内的 A 级源码范围可继续下钻核对。</p></div><div class="split"><div id="wikiTree" class="panel nav-list"><div class="empty">正在读取 Wiki 目录…</div></div><div><div id="wikiPage" class="panel"><div class="empty">从左侧选择一页。</div></div><div id="wikiSource"></div></div></div></section>
+<section id="ask" class="hidden"><div class="report-bar">代码检索</div><div class="section-heading"><div><div class="kicker">Evidence workbench</div><h2>查找代码证据</h2></div><p>没有 A/B 级证据就拒答；候选关系只作为单列线索，不混入确定结论。</p></div><div class="control"><div class="row"><input id="q" aria-label="检索问题" placeholder="例如：cJSON_Delete 做什么？"><button class="primary" onclick="doAsk()">检索证据</button></div><div class="row"><label><input type="checkbox" id="g" checked> certain 图扩展</label><label><input type="checkbox" id="v" checked> 向量召回</label></div></div><div id="askOut" class="out"></div></section>
+<section id="agent" class="hidden"><div class="report-bar">代码诊断</div><div class="section-heading"><div><h2>先看证据，再下结论</h2></div><p>诊断固定一个代码快照，工具只读。模型不可用时明确降级，不会自动保存或批准知识卡。</p></div><div class="control"><div class="row"><input id="agentQ" aria-label="Agent 诊断问题" placeholder="例如：cJSON_Delete 如何处理引用节点？"><button id="agentRun" class="primary" onclick="doAgent()">运行 Agent</button></div><details class="advanced-options" id="agentOptions"><summary>诊断选项与知识卡草稿</summary><div class="row"><label for="agentMode">执行模式</label><select id="agentMode" aria-label="Agent 执行模式"><option value="auto">auto · 模型优先</option><option value="model">model · 强制尝试</option><option value="rule">rule · 确定性</option></select></div><div class="row"><input id="agentSession" aria-label="公开会话 ID" placeholder="可选：已有公开会话 ID"><button id="saveDraft" class="secondary" onclick="saveCurrentDraft()" disabled>保存当前草稿</button></div><div id="agentHint" class="subtle">未选择会话时只做诊断，不生成知识卡。可在工作台的公开示例中导入会话。</div></details></div><div id="agentOut" class="out" aria-live="polite"></div></section>
+<section id="impact" class="hidden"><div class="report-bar">变更分析</div><div class="section-heading"><div><div class="kicker">Compiler-backed impact</div><h2>查看函数的影响范围</h2></div><p>改动结论仅沿编译器确认的 certain 调用边传播；candidate 保留为待人工复核的独立信息。</p></div><div class="control"><div class="row"><input id="sym" aria-label="目标符号" placeholder="例如：cJSON_Delete"><select id="depth" aria-label="影响深度"><option>1</option><option>2</option><option selected>3</option><option>4</option></select><button class="primary" onclick="doImpact()">分析影响</button></div></div><div id="impOut" class="out"></div></section>
+<section id="curation" class="hidden"><div class="report-bar">经验整理</div><div class="section-heading"><div><div class="kicker">Conversation curation</div><h2>整理会话中的经验</h2></div><p>原始会话不进入检索；规则与模型只生成 AI-assisted 候选，缺少根因、修复或验证时不能生成待审卡。</p></div><div class="split"><div id="sessionList" class="panel nav-list"><div class="empty">正在读取公开会话…</div></div><div id="sessionDetail" class="panel"><div class="empty">从左侧选择会话，或先在工作台导入公开示例。</div></div></div></section>
+<section id="review" class="hidden"><div class="report-bar">知识审核</div><div class="section-heading"><div><div class="kicker">Knowledge card review</div><h2>审核知识卡</h2></div><p>批准前必须从 A 级代码事实中选取唯一 USR、完成精确绑定，并填写人工审核意见。只有批准后的当前版本才成为 B 级证据。</p></div><div id="revOut" class="out"></div></section>
 </main>
+</div>
 <script>
-const $=s=>document.querySelector(s), esc=s=>(s??'').toString()
-  .replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
-
-document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
-  document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x===b));
-  ['ask','impact','review'].forEach(t=>$('#'+t).hidden=(t!==b.dataset.t));
-  if(b.dataset.t==='review') loadReview();
-});
-
-fetch('/api/stats').then(r=>r.json()).then(s=>{
-  const ratio=s.edges?(s.edges_candidate/s.edges*100).toFixed(1):0;
-  $('#stats').innerHTML=
-    `${esc(s.repo||'').split('/').pop()} · 节点 ${s.nodes} · 关系 ${s.edges}`+
-    ` <span class="warn">(候选 ${s.edges_candidate}, ${ratio}%)</span>`+
-    ` · 摘要头均 ${s.head_avg_token}tok · Wiki ${s.wiki_pages}`+
-    ` · 待审 ${s.exp_pending} · LLM ${s.llm?'已配置':'未配置'}`;
-});
-
-async function doAsk(){
-  const q=$('#q').value.trim(); if(!q) return;
-  $('#askOut').innerHTML='<div class="empty">检索中…</div>';
-  const r=await(await fetch('/api/ask',{method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({q,use_graph:$('#g').checked,use_vector:$('#v').checked})})).json();
-  let h=`<div class="meta">模式 ${r.mode} · 召回 符号${r.recall.symbol}/BM25 ${r.recall.bm25}`
-       +`/向量${r.recall.vector} → 融合${r.recall.fused} · 图扩展摘要头 ${r.recall.graph_heads}`
-       +` · 上下文 ${r.context_tokens} token · A/B级证据 ${r.ab_evidence}</div>`;
-  if(r.refused){
-    h+=`<div class="card warn">${esc(r.answer).replace(/\n/g,'<br>')}</div>`;
-  }else{
-    h+=r.answer
-      ? `<div class="card">${esc(r.answer).replace(/\n/g,'<br>')}</div>`
-      : `<div class="card meta">未配置 LLM，以下为带引用的证据包（配置 LLM_API_KEY 后生成自然语言回答）</div>`;
-    h+='<div class="card"><b>证据引用</b><br><br>'+r.citations.map(c=>
-        `<div style="margin-bottom:7px"><span class="tag ${c.level}">${c.tag}</span>`
-        +`${esc(c.title)} <span class="ref">${esc(c.source_ref||'')}</span></div>`).join('')
-      +'</div>';
-  }
-  $('#askOut').innerHTML=h;
+const $=s=>document.querySelector(s);
+async function loadVersions(){try{const s=await request('/api/snapshot/status');let h='<h3>查询版本与构建记录</h3><div class="ref">当前：'+esc(s.active||'尚未启用快照')+' · 治理版本 '+s.governance_revision+'</div><p class="subtle">重建期间继续使用旧版本；一次 Agent 运行固定同一快照。新版本通过校验后才切换。</p>';s.sets.slice(0,5).forEach(x=>h+='<div class="status-line">'+label(x.state)+' '+esc(x.id)+' · '+esc(x.created_at)+(x.error?'<p>'+esc(x.error)+'</p>':'')+'</div>');if(s.invalidation?.mode)h+='<p class="subtle">本次重验证：'+esc(s.invalidation.mode)+' · 变化 '+(s.invalidation.changed_count||0)+' 项 · 影响 '+(s.invalidation.affected_count||0)+' 项</p>';if((s.recent_changes||[]).length){h+='<details><summary>查看最近失效原因与依赖路径</summary>';s.recent_changes.forEach(e=>h+='<div class="ref">'+esc(e.rule)+' · '+esc(e.target)+'<br>'+esc(e.dependency_path||'')+'<br>'+esc((e.before_hash||'').slice(0,12))+' → '+esc((e.after_hash||'').slice(0,12))+'</div>');h+='</details>';}$('#versionStatus').innerHTML=h;}catch(e){$('#versionStatus').textContent=e.message;}}
+const esc=s=>(s??'').toString().replace(/[<>&"']/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));
+const array=v=>{try{const r=typeof v==='string'?JSON.parse(v):v;return Array.isArray(r)?r:[]}catch(_){return []}};
+let stats=null,currentRun=null,selectedCard=null,selectedUsr='',selectedSession=null;
+async function request(url,options={}){const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),90000);try{const r=await fetch(url,{...options,signal:controller.signal});const data=await r.json();if(data&&typeof data==='object')Object.defineProperty(data,'__responseSet',{value:r.headers?.get('X-CodeAtlas-Knowledge-Set')||null});if(!r.ok)throw new Error(typeof data.detail==='string'?data.detail:JSON.stringify(data.detail||'请求失败'));return data;}catch(e){if(e.name==='AbortError')throw new Error('等待超时，服务端可能仍在处理');throw e;}finally{clearTimeout(timer);}}
+function show(tab){if(!document.getElementById(tab))return;document.querySelectorAll('nav button').forEach(x=>{x.classList.toggle('on',x.dataset.tab===tab);if(x.dataset.tab===tab)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current');});document.querySelectorAll('main>section').forEach(x=>x.classList.toggle('hidden',x.id!==tab));$('#pageName').textContent=({dashboard:'工作台',wiki:'分层 Wiki',ask:'证据检索',agent:'Agent 诊断',impact:'影响分析',curation:'会话沉淀',review:'知识卡审核'})[tab]||tab;closeNavigation();if(narrowWorkspace.matches)$('#main').focus();if(tab==='review')loadReview();if(tab==='wiki')loadWiki();if(tab==='curation')loadCuration();if(tab==='dashboard')loadDashboard();}
+document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>show(b.dataset.tab)));
+function label(s){return '<span class="label '+esc(s)+'">'+esc(s)+'</span>';}
+function cite(c,anchor){const p=c.provenance||{};let h='<div class="card"><div>'+label(c.level)+(c.tag?'<span class="ref evidence-tag">'+esc(c.tag)+'</span>':'')+'<strong>'+esc(c.title||'未命名证据')+'</strong></div><div class="ref">'+esc(p.source_type||c.source_type||'')+' · '+esc(p.repository||'')+'@'+esc(p.revision||'')+'</div><div class="ref">'+esc(p.symbol||'')+' · '+esc(p.usr||'')+' · '+esc(p.path||'')+(p.line_start?':'+esc(p.line_start)+'-'+esc(p.line_end||p.line_start):'')+'</div><div class="card-actions">';if(c.level==='A'&&p.path&&p.line_start)h+='<button class="plain" data-action="source" data-path="'+esc(p.path)+'" data-start="'+esc(p.line_start)+'" data-end="'+esc(p.line_end||p.line_start)+'" data-set="'+esc(p.knowledge_set_id||'')+'">查看当前源码</button>';if(anchor&&p.usr)h+='<button class="plain" data-action="anchor" data-id="'+esc(p.usr)+'">选作审核 USR</button>';return h+'</div></div>';}
+async function init(){try{stats=await request('/api/stats');renderSnapshot();await Promise.all([loadDashboard(),loadExamples()]);}catch(e){$('#snapshot').textContent='无法读取本地知识库：'+e.message;}}
+function renderSnapshot(){if(!stats)return;const repo=(stats.repository||stats.repo||'unversioned').split('/').pop(),m=stats.model_capability||{},rev=(stats.revision||'unversioned').slice(0,12);$('#repoName').textContent=repo;$('#breadcrumbRepo').textContent=repo;$('#repoRevision').textContent='rev: '+rev;$('#repoInfo').textContent='当前服务固定此仓库。快照 '+(stats.knowledge_set_id||'未就绪')+' · '+stats.nodes+' 节点 / '+stats.edges_certain+' 条 certain 关系 / '+stats.edges_candidate+' 条 candidate 线索。';$('#snapshot').innerHTML='<span>仓库：'+esc(repo)+'</span><span class="top-revision">rev: <code>'+esc(rev)+'</code></span><span>模型：'+esc(m.configured?m.model:'未配置')+'</span>';$('#modelBadge').textContent=m.configured?'已配置模型 · '+m.model:'模型未配置（本地模式）';$('#workspaceMode').textContent=m.configured?'模型辅助诊断 · 工具只读，回答可回溯源码':'确定性证据模式（优先源码证据，非模型推断）';$('#localModeNote').textContent=m.configured?'知识保存在本机；模型请求发送至已配置服务':'未配置模型，当前诊断在本机执行';renderWorkspace();}
+async function loadDashboard(){loadVersions();try{stats=await request('/api/stats');renderSnapshot();const c=stats.cards||{},m=stats.model_capability||{};$('#dashboardStats').innerHTML='<div class="panel stage"><div class="stage-no">01 · COMPILER FACTS</div><h3>编译器事实层</h3><div class="metric">'+stats.functions+'</div><p>函数定义 · '+stats.edges_certain+' 条 certain 关系</p><button class="plain" onclick="show(\'impact\')">查看图谱表达</button></div><div class="panel stage"><div class="stage-no">02 · LAYERED KNOWLEDGE</div><h3>分层代码知识</h3><div class="metric">'+stats.wiki_pages+'</div><p>当前 Wiki 页面 · '+stats.chunks_visible+' 条可见证据</p><button class="plain" onclick="show(\'ask\')">开始检索</button></div><div class="panel stage"><div class="stage-no">03 · MODEL-FIRST AGENT</div><h3>'+(m.configured?'模型诊断':'确定性降级')+'</h3><div class="metric">'+stats.agent_runs+'</div><p>'+(m.configured?esc(m.model)+' · 受限工具循环':'未配置 Key · 核心能力仍可运行')+'</p><button class="plain" onclick="show(\'agent\')">运行诊断</button></div><div class="panel stage"><div class="stage-no">04 · KNOWLEDGE</div><h3>知识卡审核</h3><div class="metric">'+stats.sessions+'</div><p>待审 '+(c.pending||0)+' · 已批 '+(c.approved||0)+' · stale '+(c.stale||0)+' · 已替代 '+(c.superseded||0)+'</p><button class="plain" onclick="show(\'review\')">打开审核队列</button></div>';renderEvaluation(await request('/api/evaluation/latest'));}catch(e){$('#dashboardStats').innerHTML='<div class="callout bad">无法加载仪表盘：'+esc(e.message)+'</div>';}}
+async function loadExamples(){try{const r=await request('/api/session/examples');let h='';r.items.forEach(x=>h+='<div class="example"><h4>'+esc(x.title)+'</h4><p>'+esc(x.description)+'</p><button class="plain" data-action="import" data-id="'+esc(x.id)+'">导入并预填</button></div>');$('#examples').innerHTML=h;}catch(e){$('#examples').innerHTML='<div class="subtle">示例读取失败：'+esc(e.message)+'</div>';}}
+async function importExample(id){try{const r=await request('/api/session/examples/'+encodeURIComponent(id)+'/import',{method:'POST'});$('#agentSession').value=r.id;$('#agentQ').value=r.question;$('#agentOptions').open=true;$('#agentHint').innerHTML='已选择公开会话 <strong>'+esc(r.id)+'</strong>。请运行 Agent，核对证据后再手动保存草稿。';show('agent');}catch(e){alert(e.message);}}
+async function doAsk(){const q=$('#q').value.trim();if(!q)return;$('#askOut').innerHTML='<div class="empty">正在构建证据包…</div>';try{const r=await request('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q:q,use_graph:$('#g').checked,use_vector:$('#v').checked})});let h='<div class="status-line">模式 '+esc(r.mode)+' · A/B 证据 '+r.ab_evidence+' · 上下文 '+r.context_tokens+' token · 符号 '+r.recall.symbol+' / BM25 '+r.recall.bm25+' / 向量 '+r.recall.vector+'</div>';if(r.refused)h+='<div class="callout bad"><strong>拒答：证据不足</strong><br>'+esc(r.answer).replace(/\n/g,'<br>')+'</div>';else{h+=r.answer?'<div class="callout good">'+esc(r.answer).replace(/\n/g,'<br>')+'</div>':'<div class="callout">默认无 API Key：以下输出为可复核证据包，而非模型生成结论。</div>';h+='<h3>版本化引用</h3>';r.citations.forEach(x=>h+=cite(x,false));}$('#askOut').innerHTML=h;}catch(e){$('#askOut').innerHTML='<div class="callout bad">'+esc(e.message)+'</div>';}}
+$('#q').addEventListener('keydown',e=>{if(e.key==='Enter')doAsk();});
+async function doAgent(){const q=$('#agentQ').value.trim();if(!q||agentInFlight)return;setAgentBusy(true);currentRun=null;$('#saveDraft').disabled=true;$('#agentOut').innerHTML='<div class="empty" role="status">正在查找证据并核对源码，请稍候…</div>';try{const r=await request('/api/agent/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q,session_id:$('#agentSession').value.trim()||null,save_draft:false,mode:$('#agentMode').value})});currentRun=r;lastRunQuestion=q;$('#saveDraft').disabled=!r.draft_preview;renderAgent(r);renderWorkspace();loadDashboard();}catch(e){$('#agentOut').innerHTML='<div class="callout bad" role="alert">诊断未完成：'+esc(e.message)+'。未自动重试，请核对后手动重试。</div>';}finally{setAgentBusy(false);}}
+function renderAgent(r){let h='<div class="status-line">运行 '+esc(r.id)+' · '+esc(r.execution_mode)+' · '+r.events.length+'/6 次工具调用 · '+esc(r.latency_ms)+' ms<br>固定快照 '+esc(r.knowledge_set_id||'未提供')+'</div>';if(r.fallback_reason)h+='<div class="callout warn"><strong>当前使用确定性证据模式</strong><br>'+esc(({model_not_configured:'尚未配置模型；以下展示真实工具结果和源码证据。',no_ab_evidence:'当前问题没有足够的源码或已审核经验支持，未调用模型。'})[r.fallback_reason]||r.fallback_reason)+'</div>';if(r.answer)h+='<div class="callout"><strong>模型回答 · 内容待复核</strong><p>'+esc(r.answer).replace(/\n/g,'<br>')+'</p><span class="subtle">引用合法不等于结论正确，请核对源码。</span></div>';if(r.evidence.refused)h+='<div class="callout bad"><strong>证据不足，暂不作答</strong><br>'+esc(r.evidence.answer||'没有找到当前问题的 A/B 级证据。')+'<p>本次不会生成知识卡。</p></div>';h+='<div class="card"><h3>本次查证过程</h3><div class="timeline">';r.events.forEach((x,i)=>{h+='<div class="event"><strong>'+label(({discover:'发现',understand:'理解',verify:'核验'})[x.phase]||x.phase)+(i+1)+'. '+esc(x.tool)+'</strong><div class="ref">'+esc(x.duration_ms)+' ms · 引用 '+esc((x.citation_tags||[]).join(', ')||'无')+'</div><details><summary>查看参数与工具返回</summary><pre>'+esc(JSON.stringify({arguments:x.arguments,result:x.result},null,2))+'</pre></details></div>';});h+='</div></div>';if(r.session_gate&&!r.session_gate.eligible)h+='<div class="callout warn"><strong>会话还不能提炼为知识卡</strong><br>'+esc((r.session_gate.reasons||[]).join('；'))+'</div>';if(!r.evidence.refused){h+='<h3>本次源码与知识证据</h3>';r.evidence_registry.slice(0,3).forEach(x=>h+=cite(x,Boolean(r.draft_id)));if(r.evidence_registry.length>3){h+='<details class="remaining-evidence"><summary>展开其余 '+(r.evidence_registry.length-3)+' 条证据</summary>';r.evidence_registry.slice(3).forEach(x=>h+=cite(x,Boolean(r.draft_id)));h+='</details>';}}if(r.draft_preview){h+='<div class="card"><h3>知识卡预览 '+(r.draft_id?label('pending'):'')+'</h3><p class="subtle">'+(r.draft_id?'已保存，仍需源码绑定、QA 和人工审核。':'尚未保存。点击“保存当前草稿”才会保存本次预览，不会重新运行 Agent。')+'</p><pre>'+esc(JSON.stringify(r.draft_preview,null,2))+'</pre>';if(r.card_warning)h+='<div class="callout warn">'+esc(r.card_warning)+'</div>';if(r.draft_id)h+='<button class="secondary" data-action="saved-card" data-id="'+esc(r.draft_id)+'">前往人工审核</button>';h+='</div>';}$('#agentOut').innerHTML=h+feedbackHtml(r);}
+async function saveCurrentDraft(){if(!currentRun||!currentRun.id)return;try{const r=await request('/api/agent/'+encodeURIComponent(currentRun.id)+'/draft',{method:'POST'});currentRun.draft_id=r.id;$('#saveDraft').disabled=true;renderAgent(currentRun);$('#agentHint').innerHTML='草稿 <strong>'+esc(r.id)+'</strong> 已保存为 pending；请在审核页绑定唯一 USR。';loadDashboard();}catch(e){alert(e.message);}}
+function prepareAnchor(usr){selectedUsr=usr;if(currentRun&&currentRun.draft_id)selectedCard=currentRun.draft_id;show('review');}
+function openSavedCard(id){selectedCard=id;show('review');}
+async function doImpact(){const s=$('#sym').value.trim();if(!s)return;$('#impOut').innerHTML='<div class="empty">正在计算 certain-only 影响面…</div>';try{const r=await request('/api/impact?symbol='+encodeURIComponent(s)+'&depth='+$('#depth').value),g=await request('/api/graph/callchain?symbol='+encodeURIComponent(s)+'&depth='+$('#depth').value);let h='<div class="card"><h3>'+esc(r.symbol.name)+' 的确定影响面</h3><div class="ref">'+esc(r.symbol.usr)+' · '+esc(r.symbol.path)+':'+esc(r.symbol.line_start)+' · definition hash '+esc((r.symbol.definition_hash||'').slice(0,12))+'</div>';Object.keys(r.by_hop).sort().forEach(k=>{h+='<div><strong>'+k+' 跳调用者（'+r.by_hop[k].length+'）</strong><br>';r.by_hop[k].forEach(x=>h+='<span class="pill">'+esc(x.name)+' · '+esc(x.path||'')+'</span>');h+='</div>';});h+='<div><strong>影响文件（'+r.affected_files.length+'）</strong><br>';r.affected_files.forEach(x=>h+='<span class="pill">'+esc(x)+'</span>');h+='</div></div><div class="card"><h3>调用层级（真实图数据面板）</h3><div class="fact-grid"><div><span class="subtle">符号节点</span><strong>'+g.nodes.length+'</strong></div><div><span class="subtle">确定调用边</span><strong>'+g.edges.filter(x=>x.confidence==='certain').length+'</strong></div><div><span class="subtle">candidate 边</span><strong>'+g.edges.filter(x=>x.confidence==='candidate').length+'</strong></div></div>';g.nodes.forEach(x=>h+='<span class="pill">H'+x.hop+' · '+esc(x.name)+' · '+esc(x.path||'')+'</span>');h+='</div>';if(r.candidate_impact.length){h+='<div class="callout warn"><strong>candidate 线索（不计入影响结论）</strong><br>';r.candidate_impact.forEach(x=>h+=esc(x.name)+' · '+esc(x.reason)+'<br>');h+='</div>';}$('#impOut').innerHTML=h;}catch(e){$('#impOut').innerHTML='<div class="callout bad">'+esc(e.message)+'</div>';}}
+$('#sym').addEventListener('keydown',e=>{if(e.key==='Enter')doImpact();});
+async function loadReview(){try{const r=await request('/api/cards');if(!r.items.length){$('#revOut').innerHTML='<div class="empty">暂无已保存的知识卡。请先从工作台导入示例并运行 Agent。</div>';return;}let h='';r.items.forEach(x=>h+=reviewHtml(x));$('#revOut').innerHTML=h;if(selectedCard){const n=$('#review-'+selectedCard);if(n)n.scrollIntoView({behavior:'smooth',block:'center'});}selectedCard=null;selectedUsr='';}catch(e){$('#revOut').innerHTML='<div class="callout bad">'+esc(e.message)+'</div>';}}
+function reviewHtml(x){
+  const anchors=x.anchors||[],active=anchors.find(a=>a.active),open=['pending','stale'].includes(x.status),experiments=array(x.experiment_manifest),defaultExperiment=String(x.source_ref||x.session_id||'').toLowerCase().includes('lwip')?'examples/reproductions/lwip-netif/result.txt':'examples/reproductions/cjson-nesting/result.txt';
+  let h='<div id="review-'+esc(x.id)+'" data-bundle="'+esc(x.current_review_bundle_hash||'')+'" class="card"><h3>'+label(x.status)+esc(x.title)+'</h3>';
+  h+='<p><strong>现象：</strong>'+esc(x.symptom)+'</p><p><strong>结论：</strong>'+esc(x.root_cause||'待补充')+'</p><p><strong>解决步骤：</strong>'+esc(x.fix_steps||'待补充')+'</p><p><strong>验证：</strong>'+esc(x.verification||'待补充')+'</p>';
+  h+='<div class="ref">当前材料版本 '+esc((x.current_review_bundle_hash||'').slice(0,16))+' · 已消费依赖 '+array(x.dependency_manifest).length+' 项 · 复现实验 '+experiments.length+' 项</div>';
+  if(x.stale_reason)h+='<div class="callout warn">'+esc(x.stale_reason)+'</div>';
+  h+='<div class="ref">'+(active?esc(active.usr)+' · '+esc(active.path)+':'+active.line_start+'-'+active.line_end+' · '+esc(active.definition_hash):'尚未绑定源码锚点')+'</div>';
+  h+='<h4>QA 核验</h4>';
+  (x.qas||[]).forEach(q=>{
+    h+='<div class="card">'+label(q.status)+' '+esc(q.question)+'<p>'+array(q.expected_points).map(esc).join('；')+'</p><div class="ref">'+esc(q.note||'待审核')+' · QA 材料版本 '+esc((q.bundle_hash||'').slice(0,16))+'</div>';
+    if(open)h+='<button class="secondary" data-action="qa-review" data-id="'+esc(q.id)+'" data-verdict="true">确认 QA 通过</button> <button class="plain" data-action="qa-review" data-id="'+esc(q.id)+'" data-verdict="false">QA 不通过</button>';
+    h+='</div>';
+  });
+  if(open)h+='<div class="review-note"><label>唯一函数 USR</label><input id="usr-'+esc(x.id)+'" value="'+esc(selectedCard===x.id?selectedUsr:(active?.usr||''))+'"><label>公开复现实验（仓库相对路径，逗号分隔）</label><input id="experiments-'+esc(x.id)+'" value="'+esc(experiments.map(v=>v.path).join(',')||defaultExperiment)+'"><label>审核身份</label><input id="reviewer-'+esc(x.id)+'" value="local-reviewer"><label>本次审核意见</label><textarea id="note-'+esc(x.id)+'"></textarea><div class="card-actions"><button class="secondary" data-action="bind" data-id="'+esc(x.id)+'">绑定锚点（QA 需复审）</button><button class="secondary" data-action="experiments" data-id="'+esc(x.id)+'">绑定复现实验（QA 需复审）</button><button class="secondary" data-action="add-qa" data-id="'+esc(x.id)+'">添加 QA</button><button class="primary" data-action="review" data-id="'+esc(x.id)+'" data-verdict="approve">确认并批准当前材料</button><button class="plain danger" data-action="review" data-id="'+esc(x.id)+'" data-verdict="reject">拒绝</button></div></div>';
+  h+='<details><summary>审核与失效历史</summary>'+esc(JSON.stringify(x.reviews||[],null,2))+'</details></div>';
+  return h;
 }
-$('#q').addEventListener('keydown',e=>{if(e.key==='Enter')doAsk()});
-
-async function doImpact(){
-  const s=$('#sym').value.trim(); if(!s) return;
-  $('#impOut').innerHTML='<div class="empty">分析中…</div>';
-  const res=await fetch(`/api/impact?symbol=${encodeURIComponent(s)}&depth=${$('#depth').value}`);
-  if(!res.ok){ $('#impOut').innerHTML='<div class="card warn">未找到该符号</div>'; return; }
-  const r=await res.json();
-  let h=`<div class="card"><b>改动 ${esc(r.symbol.name)}</b> `
-       +`<span class="ref">${esc(r.symbol.path)}:${r.symbol.line_start}</span>`;
-  const hops=Object.keys(r.by_hop).sort();
-  if(!hops.length) h+='<div class="hop">无确定调用者</div>';
-  for(const k of hops){
-    h+=`<div class="hop">${k==='1'?'直接调用者':k+' 跳影响'} (${r.by_hop[k].length})</div>`
-      +r.by_hop[k].map(x=>`<span class="pill">${esc(x.name)}</span>`).join('');
-  }
-  h+=`<div class="hop">受影响文件 (${r.affected_files.length}) · `
-    +`模块 (${r.affected_modules.length})</div>`
-    +r.affected_files.map(f=>`<span class="pill">${esc(f)}</span>`).join('')+'</div>';
-  if(r.candidate_impact.length)
-    h+=`<div class="card"><b class="warn">⚠ 潜在影响 (${r.candidate_impact.length})</b>`
-      +`<div class="meta">函数指针 / 未解析调用推断，未纳入上方结论，需人工确认</div>`
-      +r.candidate_impact.map(c=>
-        `<span class="pill">${esc(c.name)} · ${esc(c.reason)}</span>`).join('')+'</div>';
-  if(r.regression_hints.length)
-    h+='<div class="card"><b>回归建议</b><div class="meta">来自已审核经验</div>'
-      +r.regression_hints.map(x=>
-        `<div>· ${esc(x.title)}：${esc(x.verification||'')}</div>`).join('')+'</div>';
-  $('#impOut').innerHTML=h;
+async function approveCard(id){
+  const usr=$('#usr-'+id).value.trim();if(!usr){alert('请填写唯一 USR。');return;}
+  try{await request('/api/card/'+encodeURIComponent(id)+'/bind',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usr})});await loadReview();await loadDashboard();}catch(e){alert(e.message);}
 }
-$('#sym').addEventListener('keydown',e=>{if(e.key==='Enter')doImpact()});
-
-async function loadReview(){
-  const r=await(await fetch('/api/experience/pending')).json();
-  if(!r.items.length){ $('#revOut').innerHTML='<div class="empty">队列为空</div>'; return; }
-  $('#revOut').innerHTML=r.items.map(x=>{
-    const de=JSON.parse(x.dead_ends||'[]');
-    return `<div class="card"><b>${esc(x.title)}</b>
-      <span class="ref">${esc(x.source_ref||'')}</span>
-      <div class="hop">现象</div>${esc(x.symptom)}
-      ${x.root_cause?`<div class="hop">根因</div>${esc(x.root_cause)}`:''}
-      ${de.length?`<div class="hop">无效尝试</div>`
-        +de.map(d=>`· ${esc(d)}`).join('<br>'):''}
-      ${x.fix_steps?`<div class="hop">修复</div>${esc(x.fix_steps)}`:''}
-      <div class="act">
-        <button class="ok" onclick="rev('${x.id}','approve')">通过</button>
-        <button class="no" onclick="rev('${x.id}','reject')">拒绝</button>
-      </div></div>`}).join('');
+async function attachExperiments(id){
+  const paths=$('#experiments-'+id).value.split(/[,，]/).map(v=>v.trim()).filter(Boolean);if(!paths.length){alert('请填写至少一个仓库内公开复现实验文件。');return;}
+  try{await request('/api/card/'+encodeURIComponent(id)+'/experiments',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({paths})});await loadReview();}catch(e){alert(e.message);}
 }
-async function rev(id,action){
-  await fetch(`/api/experience/${id}/review`,{method:'POST',
-    headers:{'Content-Type':'application/json'},body:JSON.stringify({action})});
-  loadReview();
+async function reviewCard(id,action){
+  const note=$('#note-'+id).value.trim(),expected_bundle_hash=$('#review-'+id).dataset.bundle,reviewer=$('#reviewer-'+id).value.trim()||'local-reviewer';
+  if(!note){alert('请填写本次审核意见。');return;}
+  try{
+    if(action==='approve')await request('/api/card/'+encodeURIComponent(id)+'/confirm',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({bundle_hash:expected_bundle_hash,reviewer})});
+    await request('/api/experience/'+encodeURIComponent(id)+'/review',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,note,expected_bundle_hash,reviewer})});await loadReview();await loadDashboard();
+  }catch(e){alert(e.message);}
 }
+async function reviewQa(id,passed){
+  const note=prompt('记录核对的证据、结论及本次 QA 审核意见');if(!note)return;
+  try{await request('/api/card/qa/'+id+'/review',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({passed,note})});await loadReview();}catch(e){alert(e.message);}
+}
+async function addQa(id){
+  const question=prompt('QA 问题');if(!question)return;
+  const points=prompt('期望回答要点（以分号分隔）'),tags=prompt('来自本卡的 A/B 证据标签（逗号分隔）','A1');
+  if(!points||!tags)return;
+  try{await request('/api/card/'+encodeURIComponent(id)+'/qa',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question,expected_points:points.split(/[;；]/).filter(Boolean),evidence_tags:tags.split(/[,，]/).map(s=>s.trim()).filter(Boolean)})});await loadReview();}catch(e){alert(e.message);}
+}
+async function loadWiki(){try{const r=await request('/api/wiki/tree');if(!r.pages.length){$('#wikiTree').innerHTML='<div class="empty">当前快照尚未生成 Wiki。</div>';return;}let h='<h3>当前 Wiki（'+r.pages.length+'）</h3>';['repo','module','file'].forEach(level=>{const pages=r.pages.filter(x=>x.level===level);if(!pages.length)return;h+='<div class="subtle">'+esc(level.toUpperCase())+'</div>';pages.forEach(x=>h+='<button class="plain" data-action="wiki" data-id="'+esc(x.id)+'">'+label(x.status)+esc(x.title)+'</button>');});$('#wikiTree').innerHTML=h;}catch(e){$('#wikiTree').innerHTML='<div class="callout bad">'+esc(e.message)+'</div>';}}
+async function openWiki(id){try{const path=id.split('/').map(encodeURIComponent).join('/'),p=await request('/api/wiki/'+path),anchors=[...String(p.md||'').matchAll(/\[A:([^:\]]+):L(\d+)-L(\d+)\]/g)];let h='<div class="status-line">'+esc(p.level)+' · '+esc(p.repository)+'@'+esc(p.revision)+' · '+esc(p.status)+'</div><h3>'+esc(p.title)+'</h3>';if(p.status!=='ok')h+='<div class="callout warn">该页已失效或生成失败，不参与正式 C 级检索。</div>';if(anchors.length){h+='<div class="card-actions">';anchors.slice(0,20).forEach(a=>h+='<button class="plain" data-action="wiki-source" data-set="'+esc(p.__responseSet||'')+'" data-path="'+esc(a[1])+'" data-start="'+Number(a[2])+'" data-end="'+Number(a[3])+'">'+esc(a[1])+':'+esc(a[2])+'-'+esc(a[3])+'</button>');h+='</div>';}h+='<pre class="source-view">'+esc(p.md||'')+'</pre>';$('#wikiPage').innerHTML=h;$('#wikiSource').innerHTML='';}catch(e){$('#wikiPage').innerHTML='<div class="callout bad">'+esc(e.message)+'</div>';}}
+async function readWikiSource(path,start,end){try{const r=await request('/api/source/read',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({path:path,line_start:start,line_end:end})});$('#wikiSource').innerHTML='<div class="card"><h3>当前源码核验</h3><div class="ref">'+esc(path)+':'+esc(start)+'-'+esc(end)+'</div><pre class="source-view">'+esc(r.text||r.code||JSON.stringify(r,null,2))+'</pre></div>';}catch(e){$('#wikiSource').innerHTML='<div class="callout bad">'+esc(e.message)+'</div>';}}
+async function loadCuration(){try{const r=await request('/api/sessions');if(!r.items.length){$('#sessionList').innerHTML='<div class="empty">暂无会话。请先从工作台导入公开示例。</div>';return;}let h='<h3>公开会话（'+r.items.length+'）</h3>';r.items.forEach(x=>h+='<button class="plain" data-action="session" data-id="'+esc(x.id)+'">'+(x.eligible===1?'✓ ':x.eligible===0?'✕ ':'○ ')+esc(x.id)+'<br><span class="subtle">'+esc(x.message_count)+' 条消息 · '+esc(x.source_type)+'</span></button>');$('#sessionList').innerHTML=h;if(selectedSession)await openSession(selectedSession);}catch(e){$('#sessionList').innerHTML='<div class="callout bad">'+esc(e.message)+'</div>';}}
+function candidateHtml(c){const p=c.payload||{},missing=p.missing_fields||[];let h='<div class="card"><h3>'+esc(p.title||c.id)+' '+label(c.status)+'</h3><div class="ref">'+esc(p.review_status||'ai_assisted_draft')+' · 缺失字段 '+esc(missing.join(', ')||'无')+'</div><textarea id="candidate-'+esc(c.id)+'" style="width:100%;min-height:300px">'+esc(JSON.stringify(p,null,2))+'</textarea>';if(c.status==='proposed')h+='<div class="card-actions"><button class="primary" data-action="candidate" data-id="'+esc(c.id)+'" data-verdict="accept">accept → pending</button><button class="secondary" data-action="candidate" data-id="'+esc(c.id)+'" data-verdict="edit">edit → pending</button><button class="secondary" data-action="candidate" data-id="'+esc(c.id)+'" data-verdict="correct">correct → pending</button><button class="plain danger" data-action="candidate" data-id="'+esc(c.id)+'" data-verdict="skip">skip</button></div>';if(c.correction_diff)h+='<details><summary>纠正 diff</summary><pre>'+esc(c.correction_diff)+'</pre></details>';return h+'</div>';}
+async function openSession(id){selectedSession=id;try{const s=await request('/api/session/'+encodeURIComponent(id)),a=s.assessment,missing=s.knowledge_missing_fields||[];let h='<div class="status-line">'+esc(s.repository)+'@'+esc(s.revision)+' · '+esc(s.license)+'</div><h3>'+esc(s.id)+'</h3>';h+=a?'<div class="callout '+(a.eligible?'good':'warn')+'"><strong>质量评估：'+(a.eligible?'通过':'未通过')+'</strong><br>'+esc((a.reasons||[]).join('；')||'公开来源、固定版本、复现与敏感信息门禁均通过。')+'</div>':'<div class="callout warn">尚未运行质量评估。</div>';h+='<div class="callout '+(missing.length?'warn':'good')+'"><strong>知识字段：</strong>'+(missing.length?'仍缺 '+esc(missing.join(', ')):'root cause / fix / verification 已显式标注')+'</div>';s.messages.forEach(m=>h+='<div class="message"><div class="role">'+esc(m.ordinal)+' · '+esc(m.role)+(m.knowledge_role?' · '+esc(m.knowledge_role):' · 未标注知识角色')+'</div>'+esc(m.content)+'</div>');h+='<div class="control"><div class="row"><button class="secondary" onclick="assessSelected()">1. 质量评估</button><input id="curationGoal" value="'+esc(s.curation_goal||'沉淀一条可复现、可绑定源码的排障知识')+'"><button class="secondary" onclick="saveCurationGoal()">2. 保存目标</button><button class="primary" onclick="curateSelected()">3. 生成候选</button></div></div>';if((s.candidates||[]).length)s.candidates.forEach(c=>h+=candidateHtml(c));$('#sessionDetail').innerHTML=h;}catch(e){$('#sessionDetail').innerHTML='<div class="callout bad">'+esc(e.message)+'</div>';}}
+async function assessSelected(){if(!selectedSession)return;try{await request('/api/session/'+encodeURIComponent(selectedSession)+'/assess',{method:'POST'});await openSession(selectedSession);await loadCuration();}catch(e){alert(e.message);}}
+async function saveCurationGoal(){if(!selectedSession)return;const goal=$('#curationGoal').value.trim();try{await request('/api/session/'+encodeURIComponent(selectedSession)+'/goal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({goal:goal})});await openSession(selectedSession);}catch(e){alert(e.message);}}
+async function curateSelected(){if(!selectedSession)return;try{await request('/api/session/'+encodeURIComponent(selectedSession)+'/curate',{method:'POST'});await openSession(selectedSession);}catch(e){alert(e.message);}}
+async function decideCandidate(id,action){let payload=null,reason='';if(action==='edit'||action==='correct'){try{payload=JSON.parse($('#candidate-'+id).value);}catch(_){alert('候选 JSON 无效。');return;}}if(action==='skip'){reason=prompt('说明 skip 原因（重复 / 无价值 / 证据不足 / 错误）')||'';}try{const r=await request('/api/candidate/'+encodeURIComponent(id)+'/decide',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:action,payload:payload,reason:reason})});if(r.card_id){selectedCard=r.card_id;show('review');}else await openSession(selectedSession);await loadDashboard();}catch(e){alert(e.message);}}
+async function submitFeedback(verdict){if(!currentRun)return;const tag=$('#feedbackTag').value||null,comment=$('#feedbackComment').value.trim();try{await request('/api/agent/run/'+encodeURIComponent(currentRun.id)+'/feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({verdict:verdict,evidence_tag:tag,comment:comment})});$('#feedbackState').textContent='反馈已进入本地待处理队列；知识和索引未自动变化。';}catch(e){alert(e.message);}}
+// v2 review gate: an exact anchor and one explicitly reviewed QA are both required.
+function renderEvaluation(e){
+  if(!e.available){$('#evaluation').innerHTML='<div class="callout warn"><strong>'+((e.stale_reports||[]).length?'旧报告已过期':'尚未运行')+'</strong><br>'+esc(e.message)+'</div>';return;}
+  let h='<div class="status-line">'+esc(e.repository)+'@'+esc(e.revision)+'</div>';
+  if((e.stale_reports||[]).length)h+='<div class="callout warn">部分旧报告已过期，不参与当前结果：'+esc(e.stale_reports.join('；'))+'</div>';
+  const facts=(pairs)=>{let out='<div class="fact-grid">';pairs.forEach(x=>out+='<div><span class="subtle">'+esc(x[0])+'</span><strong>'+esc(x[1])+'</strong></div>');return out+'</div>';};
+  if(e.acceptance){const a=e.acceptance,p=a.publication||{},rows=(a.corpora||[]).map(x=>{const s=(x.tasks||{}).summary||{},b=(x.tasks||{}).failure_breakdown||{},card=(x.formal_card||{});return[x.id+' · 基础 '+(x.foundation_passed?'通过':'失败'),esc((s.passed_tasks??0)+' / '+(s.total_tasks??20))+' · 真实失败 '+esc(b.unexpected_count??0)+' · 冻结旧题阻塞 '+esc(b.blocked_count??0)+' · 正式卡 '+(card.ok?'已发布':'未完成')];});h+='<h4>cJSON / lwIP 双语料验收</h4>'+facts([['基础能力',a.foundation_passed?'通过':'失败'],['正式知识卡',a.human_release?'两张均已人工发布':'尚未全部发布'],['40 道旧回归',a.task_complete?'完成':'未完成'],['作品集',a.portfolio_ready?'就绪':'未就绪'],['公开状态',p.status||'unverifiable'],...rows]);const conflicts=(a.claims||[]).filter(x=>x.status==='contradicted'||x.status==='stale'||x.status==='unverifiable');if(conflicts.length){h+='<ul class="detail-list">';conflicts.forEach(x=>h+='<li>'+(x.status==='contradicted'?'↯':'✕')+' '+esc(x.id)+' · '+esc(x.status)+(x.actual!==undefined?' · 实际 '+esc(typeof x.actual==='object'?JSON.stringify(x.actual):x.actual):'')+'</li>');h+='</ul>';}}
+  if(e.acceptance&&e.acceptance.proof){const pr=e.acceptance.proof;h+='<h4>三类价值证明</h4>'+facts([['实验执行',pr.experiments_complete?'完成':'未完成'],['双审 / 独立真值',pr.reviews_complete?'完成':'未完成'],['主张终态',pr.claims_complete?'完整':'仍有未测或未决'],['正向收益',pr.effect_observed?'得到支持':'不作为完成门槛']]);h+='<ul class="detail-list">';(pr.items||[]).forEach(x=>h+='<li>'+(x.execution_complete?'✓':'○')+' '+esc(x.id)+' · '+esc(x.status)+' · '+esc(x.review_status||'not_reviewed')+'</li>');(pr.claims||[]).forEach(x=>h+='<li>主张 '+esc(x.id)+' · '+esc(x.state)+'</li>');h+='</ul>';}
+  if(e.task_eval){const t=e.task_eval,s=t.summary,a=t.acceptance||{};h+='<h4>'+esc(t.name||'40 题人工任务')+' · '+(a.passed?'检索门槛通过':'仍有检索缺口')+'</h4>'+facts([['任务通过',s.passed_tasks+' / '+s.total_tasks],['完整 Recall@10',s.full.recall+'%'],['BM25 Recall@10',s.baseline.recall+'%'],['相对 BM25',(a.recall_gain_pt>=0?'+':'')+a.recall_gain_pt+'pt'],['MRR@10',s.full.mrr],['拒答准确率',s.refusal.accuracy+'%']]);if(s.failures.length){h+='<ul class="detail-list">';s.failures.forEach(x=>h+='<li>✕ '+esc(x.id)+' · '+esc((x.errors||[]).join('；'))+'</li>');h+='</ul>';}}
+  if(e.workflow){const m=e.workflow.metrics;h+='<h4>Agent / 知识治理 6 场景</h4>'+facts([['Wiki-first',m.wiki_first_order_rate+'%'],['工具合法率',m.tool_trace_legal_rate+'%'],['A 级锚点',m.a_anchor_complete_rate+'%'],['卡片门禁',m.card_gate_correct_rate+'%'],['Markdown 重建',m.markdown_rebuild_consistency_rate+'%'],['原始会话入索引',m.raw_session_indexed_count]]);}
+  if(e.model_abc){const gate=e.model_abc.acceptance||{};h+='<h4>真实模型 A/B/C · '+esc(e.model_abc.model)+' · 每题 '+esc(e.model_abc.runs_per_task)+' 次 · '+(gate.passed?'达到发布门槛':'未达到发布门槛')+'</h4><div class="fact-grid">';['A','B','C'].forEach(k=>{const v=e.model_abc.variants[k],m=v.metrics;h+='<div><span class="subtle">'+esc(k+' · '+v.name)+'</span><strong>'+esc(m.accuracy+'% / 引用 '+m.effective_citation_rate+'%')+'</strong></div>';});h+='</div>';}
+  else if(e.model_eval){const m=e.model_eval.metrics;h+='<div class="callout"><strong>真实模型协议评测 · '+esc(e.model_eval.model)+'</strong><br>原生规划 '+esc(m.native_planning_success_rate)+'% · 安全门禁 '+esc(m.final_safety_gate_rate)+'%</div>';}
+  else h+='<div class="callout warn"><strong>真实模型 A/B/C 尚未运行</strong><br>没有 Key 时不以规则结果替代模型数字。</div>';
+  $('#evaluation').innerHTML=h;
+};
 </script>
-</body></html>
+<script src="/static/workspace.js"></script>
+</body>
+</html>

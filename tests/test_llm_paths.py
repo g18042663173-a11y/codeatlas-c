@@ -242,9 +242,15 @@ def test_client_strips_markdown_fence():
     from codeatlas.llm import client as cl
 
     raw = '```json\n{"title":"x","symptom":"y"}\n```'
-    cleaned = raw.replace("```json", "").replace("```", "").strip()
-    assert json.loads(cleaned)["title"] == "x"
-    assert hasattr(cl, "get_client")
+    assert cl.OpenAICompatClient._json(raw)["title"] == "x"
+    repeated = '{"action":"finish"}{"action":"finish"}'
+    assert cl.OpenAICompatClient._json(repeated) == {"action": "finish"}
+    with pytest.raises(json.JSONDecodeError):
+        cl.OpenAICompatClient._json('prefix {"title":"x"}')
+    with pytest.raises(json.JSONDecodeError):
+        cl.OpenAICompatClient._json('{"title":"x"} trailing')
+    with pytest.raises(json.JSONDecodeError):
+        cl.OpenAICompatClient._json('{"action":"finish"}{"action":"tool"}')
 
 
 def test_get_client_returns_none_without_key(monkeypatch):
@@ -252,6 +258,9 @@ def test_get_client_returns_none_without_key(monkeypatch):
     from codeatlas.llm import client as cl
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("LLM_API_KEY", raising=False)
+    assert cl.get_client() is None
+
+    monkeypatch.setenv("OPENAI_API_KEY", "unrelated-shell-key")
     assert cl.get_client() is None
 
     monkeypatch.setenv("LLM_API_KEY", "sk-fake")

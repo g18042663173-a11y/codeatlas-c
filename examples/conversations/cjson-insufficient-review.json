@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "cjson-insufficient-review",
+  "source_type": "public_synthetic",
+  "source_ref": "examples/conversations/cjson-insufficient-review.json",
+  "license": "CC0-1.0",
+  "repository": "https://github.com/DaveGamble/cJSON",
+  "revision": "fb16e5cf358798aabb049655975cde8427101056",
+  "messages": [
+    {"role": "user", "content": "公开合成会话：有人只说“解析偶尔出错”，没有函数名、输入样例或固定版本。"},
+    {"role": "developer", "content": "当前信息无法定位到源码锚点；不能把猜测性的排障建议沉淀为可检索知识。"},
+    {"role": "reviewer", "content": "审核结论：证据不足，拒绝生成可批准知识卡；请补充公开复现与明确符号。"}
+  ]
+}

@@ -1,0 +1,10 @@
+--- a/src/core/netif.c
++++ b/src/core/netif.c
+@@ -1351,7 +1351,7 @@ netif_alloc_client_data_id(void)
+ #endif
+   LWIP_ASSERT("Increase LWIP_NUM_NETIF_CLIENT_DATA in lwipopts.h", result < LWIP_NUM_NETIF_CLIENT_DATA);
+-  return (u8_t)(result + LWIP_NETIF_CLIENT_DATA_INDEX_MAX);
++  return (u8_t)(result + LWIP_NETIF_CLIENT_DATA_INDEX_MAX + 1);
+ }
+ #endif
+ 

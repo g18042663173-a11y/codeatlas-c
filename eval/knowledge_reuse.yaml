@@ -1,0 +1,119 @@
+schema_version: 1
+artifact_scope: isolated_experiment
+strip_knowledge_role: true
+description: 两例短公开合成会话的同源抽取式呈现先导，非独立留出或真实事故集。
+cases:
+  - id: cjson-nesting
+    repository: https://github.com/DaveGamble/cJSON
+    revision: fb16e5cf358798aabb049655975cde8427101056
+    session:
+      path: examples/conversations/cjson-nesting-review.json
+      sha256: 82d267a60b35e0172579dc26af61f912265119e3d38a6d20c4aeca500339a736
+    template:
+      path: eval/templates/knowledge_reuse_presentations.yaml
+      sha256: faeed3b3773d81a8f99e74686c8993d7094d1663d6c1dab3bd15ca0aad4ea507
+    attachments:
+      - path: corpus/cJSON/cJSON.h
+        sha256: 25b0145150d500498e4d209cec69c18c42cf818bffcc54690be3b895a2a16dee
+        line_start: 132
+        line_end: 139
+        kind: source
+      - path: corpus/cJSON/cJSON.c
+        sha256: 607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+        line_start: 1496
+        line_end: 1515
+        kind: source
+      - path: corpus/cJSON/cJSON.c
+        sha256: 607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+        line_start: 1663
+        line_end: 1678
+        kind: source
+      - path: corpus/cJSON/cJSON.c
+        sha256: 607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+        line_start: 1131
+        line_end: 1144
+        kind: source
+      - path: corpus/cJSON/cJSON.c
+        sha256: 607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+        line_start: 1200
+        line_end: 1223
+        kind: source
+      - path: examples/reproductions/cjson-nesting/reproduce.c
+        sha256: cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784
+        kind: harness
+      - path: examples/reproductions/cjson-nesting/run.sh
+        sha256: 529274dbbd63556db765061836196cc91af288bcff2d449fc03c3bf9843cf481
+        kind: command
+      - path: examples/reproductions/cjson-nesting/result.txt
+        sha256: ed76b1069221053876dd4995aaee6e228f4983ad8f97717d51bf1ff02be0b133
+        kind: observation
+  - id: lwip-netif
+    repository: https://github.com/lwip-tcpip/lwip
+    revision: 3d896ba0a37ff3ce73270ca5e230707fe47f60e3
+    session:
+      path: examples/conversations/lwip-netif-review.json
+      sha256: 154df7929e17e425d2f3bccd54feb70eee8287eab46c66ebe347b604284d3dc3
+    template:
+      path: eval/templates/knowledge_reuse_presentations.yaml
+      sha256: faeed3b3773d81a8f99e74686c8993d7094d1663d6c1dab3bd15ca0aad4ea507
+    attachments:
+      - path: corpus/lwip/src/core/netif.c
+        sha256: a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78
+        line_start: 286
+        line_end: 308
+        kind: source
+      - path: corpus/lwip/src/core/netif.c
+        sha256: a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78
+        line_start: 387
+        line_end: 392
+        kind: source
+      - path: corpus/lwip/src/core/netif.c
+        sha256: a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78
+        line_start: 424
+        line_end: 433
+        kind: source
+      - path: corpus/lwip/src/core/netif.c
+        sha256: a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78
+        line_start: 851
+        line_end: 865
+        kind: source
+      - path: corpus/lwip/src/include/lwip/netif.h
+        sha256: 6e958aa1bd23b7381c09a873f7af919323f87ec50a2d3055a46f75275c2a121b
+        line_start: 419
+        line_end: 427
+        kind: source
+      - path: examples/reproductions/lwip-netif/reproduce.c
+        sha256: cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a
+        kind: harness
+      - path: examples/reproductions/lwip-netif/run.sh
+        sha256: 82f26ccf13e73a3e8e19b12629a466c3b74045a3659203a0d414044f1fd34528
+        kind: command
+      - path: examples/reproductions/lwip-netif/include/lwipopts.h
+        sha256: 65426d6f6d1c1a97a74392bfe626d19e68faf00ee585f5990231edd5edf2ecf2
+        kind: configuration
+      - path: examples/reproductions/lwip-netif/result.txt
+        sha256: 8102733501276cd10303a81dc15877f7e5386b1dacb48c535f2960562f95414f
+        kind: observation
+provenance:
+  question_author: /root/holdout_task_author
+  materials_frozen_before_questions: true
+  frozen_presentation_template_read: false
+tasks:
+  - id: kr-v2-cjson-condition-limit-1001
+    case_id: cjson-nesting
+    question: "保持 reproduce.c 的 fixed_depths={999,1000,1001} 和 require_null_terminated=1 不变，仅在编译 cJSON.c 时定义 CJSON_NESTING_LIMIT=1001。根据 parse_array/parse_object 在 depth 自增前执行的 >= 检查，预测三行 result、parse_end 和 input_len 中哪些字段会相对当前 result.txt 变化，并解释边界为什么移动一层。"
+  - id: kr-v2-cjson-exclude-error-causes
+    case_id: cjson-nesting
+    question: "现有观测中 depth=1000 成功，depth=1001 则 result=NULL 且 parse_end=1000。结合 nested_array 的构造、require_null_terminated=1、深度守卫与失败位置记录代码，哪些“末尾非 NUL”、“括号本身不配对”、“命中嵌套上限”或“普通分配失败”解释可由当前证据排除、支持或仍须额外实验？逐项给出证据边界。"
+  - id: kr-v2-cjson-verify-limit-ab
+    case_id: cjson-nesting
+    question: "设计一个可立即执行的最小 A/B 验证：A 保持 run.sh 的默认编译，B 只为 cJSON.c 增加 -DCJSON_NESTING_LIMIT=1001，两者均运行同一 reproduce.c。写出具体编译/运行改动、预期区分两个假设的关键输出，以及哪种观测会否定“失败由固定嵌套上限触发”。"
+  - id: kr-v2-lwip-condition-second-init-fails
+    case_id: lwip-netif
+    question: "保持当前 lwipopts.h 与调用顺序不变，只把 test_init 改成第一次返回 ERR_OK、第二次返回 ERR_IF。根据 netif_add 调用 init 和把 netif 插入 netif_list 的先后顺序，预测 add_second 以及 after_second 的 list/default 输出，并说明为什么第一个接口的状态不应被第二次初始化失败改写。"
+  - id: kr-v2-lwip-exclude-default-alias
+    case_id: lwip-netif
+    question: "当前 result.txt 显示首次 netif_add 后 list=first 但 default=none，显式 netif_set_default(&first) 后 default=first，再添加 second 后 list=second 但 default=first。结合 which 的指针身份判定、链表头插代码和 netif_set_default，哪些“netif_add 会自动设默认”、“default 始终是链表头”、“第二次 add 未真正入链”解释可被逐一排除？说明每个结论依赖的观测。"
+  - id: kr-v2-lwip-verify-clear-default
+    case_id: lwip-netif
+    question: "为验证 netif_default 与 netif_list 是可独立改变的状态，在现有 harness 的 after_second 打印后插入 netif_set_default(NULL)，并立即用 which 再打印 list/default，其他操作不变。写出最小代码改动、预期新输出，以及若 list 也随之变为 none 将否定源码机制中的什么判断。"

@@ -1,0 +1,68 @@
+schema_version: 1
+artifact_scope: isolated_experiment
+status: draft
+split: short_synthetic_pilot
+review_actor_type: ai
+reviewer: null
+reviewed_at: null
+frozen_at: null
+task_set_hash: null
+materials_hash: null
+source_digests: {}
+effect_eligible: false
+boundary: 仅为待复核要点。反例 gold 须绑定新增 oracle 实测，不能把源会话陈述当独立验证。
+tasks:
+  reuse-cjson-observations:
+    expected_points:
+      - id: below-at-limit
+        text: 999/1000 层数组解析成功，停止偏移分别为 1999/2001。
+        evidence: [cjson-nesting:E8]
+      - id: above-limit
+        text: 1001 层返回 NULL，停止偏移为 1000，输入长度为 2003。
+        evidence: [cjson-nesting:E8]
+    forbidden_claims: []
+  reuse-cjson-explanation:
+    expected_points:
+      - id: active-boundary
+        text: 该记录将失败解释为编译期限制的主动深度检查，源码展示进入下一层前的检查。
+        evidence: [cjson-nesting:M1, cjson-nesting:E1, cjson-nesting:E2]
+      - id: stack-claim-scope
+        text: 增大栈不会改变编译期宏；这份 harness 没有实际改变栈大小进行对照。
+        evidence: [cjson-nesting:M1, cjson-nesting:E6, cjson-nesting:E7]
+    forbidden_claims: []
+  reuse-cjson-boundary:
+    expected_points:
+      - id: caller-action
+        text: 调用方校验输入并处理 NULL；调整限制需另做边界与资源验证。
+        evidence: [cjson-nesting:M1]
+      - id: untested-behavior
+        text: 已提供输出仅覆盖数组与返回位置，未建立对象、内存泄漏或其他失败原因的实验结论。
+        evidence: [cjson-nesting:E6, cjson-nesting:E8]
+    forbidden_claims: []
+  reuse-lwip-observations:
+    expected_points:
+      - id: first-interface
+        text: 首接口加入成功后 list=first、default=none。
+        evidence: [lwip-netif:E9]
+      - id: explicit-default
+        text: 显式设置后两者均为 first；第二接口加入成功后 list=second、default=first。
+        evidence: [lwip-netif:E9]
+    forbidden_claims: []
+  reuse-lwip-explanation:
+    expected_points:
+      - id: separate-operations
+        text: 本固定配置中加入链表与选择默认接口为独立操作。
+        evidence: [lwip-netif:M1, lwip-netif:E3, lwip-netif:E4]
+      - id: caller-selection
+        text: 添加成功后按路由策略显式选择默认接口，不能假定最后添加的接口自动覆盖既有选择。
+        evidence: [lwip-netif:M1, lwip-netif:E9]
+    forbidden_claims: []
+  reuse-lwip-boundary:
+    expected_points:
+      - id: pinned-scope
+        text: 结论限定公开最小多接口配置以及脚本中的操作序列。
+        evidence: [lwip-netif:E6, lwip-netif:E7, lwip-netif:E8]
+      - id: untested-behavior
+        text: 未执行实际数据包路由、并发或初始化失败对照，不能把它们报告为已经验证。
+        evidence: [lwip-netif:E6, lwip-netif:E9]
+    forbidden_claims: []

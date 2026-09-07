@@ -84,7 +84,10 @@ def impact(conn: sqlite3.Connection, node_id: str, max_hop: int = 3) -> dict:
         row = conn.execute("SELECT * FROM node WHERE id = ?", (nid_,)).fetchone()
         if row is None:
             continue
-        by_hop.setdefault(hop, []).append(dict(id=row["id"], name=row["name"], path=row["path"]))
+        by_hop.setdefault(hop, []).append(
+            dict(id=row["id"], name=row["name"], path=row["path"],
+                 line_start=row["line_start"], line_end=row["line_end"])
+        )
         if row["path"]:
             files.add(row["path"])
             modules.add(row["path"].rsplit("/", 1)[0] if "/" in row["path"] else ".")
@@ -105,7 +108,8 @@ def impact(conn: sqlite3.Connection, node_id: str, max_hop: int = 3) -> dict:
 
     # ⚠️ candidate 影响：单独一栏，永不混入上面的结论
     cand = conn.execute(
-        """SELECT n.name, n.path, e.reason FROM edge e JOIN node n ON n.id = e.src
+        """SELECT n.id, n.name, n.path, n.line_start, n.line_end, e.reason
+              FROM edge e JOIN node n ON n.id = e.src
             WHERE e.dst = ? AND e.kind='calls' AND e.confidence='candidate'""",
         (node_id,),
     ).fetchall()
@@ -114,7 +118,11 @@ def impact(conn: sqlite3.Connection, node_id: str, max_hop: int = 3) -> dict:
     exps = conn.execute(
         """SELECT ex.title, ex.verification FROM experience ex
             JOIN experience_link l ON l.exp_id = ex.id
-           WHERE l.node_id = ? AND ex.status = 'approved'""",
+           WHERE l.node_id = ? AND l.confidence='certain' AND ex.status = 'approved'
+             AND COALESCE(ex.artifact_scope,'formal')=COALESCE(
+               (SELECT value FROM meta WHERE key='evaluation_scope'),'formal')
+             AND EXISTS (SELECT 1 FROM experience_anchor a
+                          WHERE a.exp_id=ex.id AND a.active=1)""",
         (node_id,),
     ).fetchall()
 
@@ -124,7 +132,9 @@ def impact(conn: sqlite3.Connection, node_id: str, max_hop: int = 3) -> dict:
         "affected_files": sorted(files),
         "affected_modules": sorted(modules),
         "affected_headers": sorted(set(headers)),
-        "candidate_impact": [dict(name=c["name"], path=c["path"], reason=c["reason"])
+        "candidate_impact": [dict(id=c["id"], name=c["name"], path=c["path"],
+                                  line_start=c["line_start"], line_end=c["line_end"],
+                                  reason=c["reason"])
                              for c in cand],
         "regression_hints": [dict(title=e["title"], verification=e["verification"])
                              for e in exps],

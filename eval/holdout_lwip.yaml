@@ -1,0 +1,292 @@
+schema_version: 1
+name: lwip-held-out-mechanism-eval-v1
+repository: https://github.com/lwip-tcpip/lwip
+revision: 3d896ba0a37ff3ce73270ca5e230707fe47f60e3
+public_source: https://github.com/lwip-tcpip/lwip
+reviewer: holdout-author-agent
+reviewer_kind: agent
+review_status: ai_reviewed
+approval_scope: "approved 仅表示 AI 已核对题面格式、源码 revision 与 DB anchor；不表示人类复核或答案键可用于效果声明"
+reviewed_at: "2026-09-05"
+failure_policy: "代码题必须以固定 revision 源码解释机制并命中 expected_anchors；拒答题不得编造仓库外事实或代码 gold，应明确说明证据边界。"
+tasks:
+  - id: ho-lwip-flow-udp-send-pipeline
+    type: 语义检索
+    status: approved
+    mechanism_id: lwip-udp-send-pipeline
+    category: 跨函数流程
+    question: "已 connect 的 UDP PCB 调用 udp_send 后，数据怎样经过目的地址选择、路由/netif 选择、源地址选择、UDP 头与校验和生成，最终交给 IP 输出？"
+    rationale: "要求贯穿四层 UDP 发送入口及下层 IP 交付，而不是只定位 udp_send。"
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/udp.c#L466-L908
+    expected_anchors:
+      - {symbol: udp_send, path: src/core/udp.c, line_start: 466}
+      - {symbol: udp_sendto, path: src/core/udp.c, line_start: 519}
+      - {symbol: udp_sendto_if, path: src/core/udp.c, line_start: 623}
+      - {symbol: udp_sendto_if_src, path: src/core/udp.c, line_start: 698}
+
+  - id: ho-lwip-flow-dns-resolution
+    type: 语义检索
+    status: approved
+    mechanism_id: lwip-dns-resolution-state-machine
+    category: 跨函数流程
+    question: "dns_gethostbyname_addrtype 如何依次处理字面量、缓存命中和异步入队；新表项又如何由 dns_enqueue 立即进入 dns_check_entry 发送与重试状态机？"
+    rationale: "串联同步快路径、缓存、请求入队和定时状态推进。"
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/dns.c#L1393-L1655
+    expected_anchors:
+      - {symbol: dns_gethostbyname_addrtype, path: src/core/dns.c, line_start: 1569}
+      - {symbol: dns_lookup, path: src/core/dns.c, line_start: 617}
+      - {symbol: dns_enqueue, path: src/core/dns.c, line_start: 1393}
+      - {symbol: dns_check_entry, path: src/core/dns.c, line_start: 1065}
+
+  - id: ho-lwip-flow-ethernet-demux
+    type: 语义检索
+    status: approved
+    mechanism_id: lwip-ethernet-demux
+    category: 跨函数流程
+    question: "ethernet_input 如何校验基础/VLAN 头、标记二层组播广播、按 EtherType 去除头部并把包交给 IPv4、ARP、IPv6 或未知协议 hook？"
+    rationale: "覆盖从二层入口到多协议消费者的完整分派和丢包分支。"
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/netif/ethernet.c#L80-L253
+    expected_anchors:
+      - {symbol: ethernet_input, path: src/netif/ethernet.c, line_start: 80}
+
+  - id: ho-lwip-flow-dhcp-start-discover
+    type: 语义检索
+    status: approved
+    mechanism_id: lwip-dhcp-start-discover
+    category: 跨函数流程
+    question: "dhcp_start 在接口已 up 时怎样准备 DHCP 客户端与共享 PCB，并根据 link 状态等待或调用 dhcp_discover；discover 又怎样构造、发送、释放报文并安排退避？"
+    rationale: "串联客户端初始化、链路门控、报文构造、UDP 发送和重试计时。"
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/ipv4/dhcp.c#L806-L882
+    expected_anchors:
+      - {symbol: dhcp_start, path: src/core/ipv4/dhcp.c, line_start: 806}
+      - {symbol: dhcp_discover, path: src/core/ipv4/dhcp.c, line_start: 1019}
+      - {symbol: dhcp_create_msg, path: src/core/ipv4/dhcp.c, line_start: 1883}
+
+  - id: ho-lwip-flow-timeout-dispatch
+    type: 语义检索
+    status: approved
+    mechanism_id: lwip-timeout-dispatch
+    category: 跨函数流程
+    question: "sys_timeout 登记的一次性定时器如何按绝对时间排序，并由 sys_check_timeouts 摘链、先释放定时器节点再调用 handler，最后返回下一次睡眠时长？"
+    rationale: "覆盖登记、排序、到期摘链、资源释放与回调执行顺序。"
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/timeouts.c#L185-L220
+    expected_anchors:
+      - {symbol: sys_timeout, path: src/core/timeouts.c, line_start: 289}
+      - {symbol: sys_check_timeouts, path: src/core/timeouts.c, line_start: 354}
+
+  - id: ho-lwip-cond-udp-bind-conflict
+    type: 语义检索
+    status: approved
+    mechanism_id: lwip-udp-bind-conflicts
+    category: 必要条件与反例
+    question: "udp_bind 在显式端口上何时返回 ERR_USE？请比较完全相同地址、ANY 地址、不同 IP 类型，以及 SO_REUSE 开启但只有一方设置 REUSEADDR 的反例。"
+    rationale: "通过地址/端口/IP 类型/复用标志组合验证冲突判定。"
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/udp.c#L931-L1031
+    expected_anchors:
+      - {symbol: udp_bind, path: src/core/udp.c, line_start: 931}
+
+  - id: ho-lwip-cond-tcp-bind-state
+    type: 语义检索
+    status: approved
+    mechanism_id: lwip-tcp-bind-conflicts
+    category: 必要条件与反例
+    question: "tcp_bind 成功前要求 PCB 处于什么状态？端口 0、TIME_WAIT 列表和双方 SO_REUSEADDR 标志如何改变端口可用性检查？"
+    rationale: "核对 TCP 状态门槛、临时端口与跨 PCB 列表冲突规则。"
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/tcp.c#L661-L751
+    expected_anchors:
+      - {symbol: tcp_bind, path: src/core/tcp.c, line_start: 661}
+
+  - id: ho-lwip-cond-pbuf-header-force
+    type: 语义检索
+    status: approved
+    mechanism_id: lwip-pbuf-header-adjust
+    category: 必要条件与反例
+    question: "pbuf_header 与 pbuf_header_force 在增加 PBUF_REF/PBUF_ROM 头空间时有什么关键差异？哪些长度溢出、前界越界或删除过多头字节的反例仍会失败？"
+    rationale: "区分 force 仅绕过外部载荷类型限制，并未绕过全部安全检查。"
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/pbuf.c#L477-L664
+    expected_anchors:
+      - {symbol: pbuf_add_header_impl, path: src/core/pbuf.c, line_start: 477}
+      - {symbol: pbuf_header, path: src/core/pbuf.c, line_start: 650}
+      - {symbol: pbuf_header_force, path: src/core/pbuf.c, line_start: 660}
+
+  - id: ho-lwip-cond-dns-sync-result
+    type: 语义检索
+    status: approved
+    mechanism_id: lwip-dns-resolution-state-machine
+    category: 必要条件与反例
+    question: "dns_gethostbyname_addrtype 在哪些条件下同步返回 ERR_OK、ERR_ARG、ERR_VAL 或异步 ERR_INPROGRESS？末尾点、过长主机名、地址族不匹配，以及可绕过普通 DNS server 门槛的 mDNS 名称精确条件各是什么？"
+    rationale: "用返回码边界校验 DNS 快路径、异步路径及 LWIP_DNS_SUPPORT_MDNS_QUERIES 下的精确名称门控。"
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/dns.c#L1569-L1655
+    expected_anchors:
+      - {symbol: dns_gethostbyname_addrtype, path: src/core/dns.c, line_start: 1569}
+      - {symbol: dns_lookup, path: src/core/dns.c, line_start: 617}
+
+  - id: ho-lwip-cond-ip4-route-selection
+    type: 语义检索
+    status: approved
+    mechanism_id: lwip-ip4-route-selection
+    category: 必要条件与反例
+    question: "ip4_route 选择直连 netif、点到点网关、hook 或默认接口分别需要什么条件？默认接口已 up 但 link down，能否作为普通目的地址的兜底？"
+    rationale: "检验路由选择的状态条件和不可用默认接口反例。"
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/ipv4/ip4.c#L151-L228
+    expected_anchors:
+      - {symbol: ip4_route, path: src/core/ipv4/ip4.c, line_start: 151}
+
+  - id: ho-lwip-error-tcp-alloc-reclaim
+    type: 语义检索
+    status: approved
+    mechanism_id: lwip-tcp-pcb-allocation-reclaim
+    category: 资源/错误路径
+    question: "tcp_alloc 首次无法分配 TCP PCB 后，按什么顺序处理待发 FIN、回收 TIME_WAIT/LAST_ACK/CLOSING/低优先级活动 PCB 并重试？各类牺牲者如何选择和终止，所有重试失败后向调用者暴露什么？"
+    rationale: "要求精确重建内存池耗尽后的分级回收与重试路径，并区分 abort、无 RST abandon 和最终 NULL。"
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/tcp.c#L1709-L1935
+    expected_anchors:
+      - {symbol: tcp_alloc, path: src/core/tcp.c, line_start: 1837}
+      - {symbol: tcp_handle_closepend, path: src/core/tcp.c, line_start: 1814}
+      - {symbol: tcp_kill_timewait, path: src/core/tcp.c, line_start: 1787}
+      - {symbol: tcp_kill_state, path: src/core/tcp.c, line_start: 1755}
+      - {symbol: tcp_kill_prio, path: src/core/tcp.c, line_start: 1709}
+
+  - id: ho-lwip-error-dns-enqueue-capacity
+    type: 语义检索
+    status: approved
+    mechanism_id: lwip-dns-enqueue-capacity
+    category: 资源/错误路径
+    question: "dns_enqueue 在 DNS 表满、请求槽满或随机源端口 PCB 分配失败时分别怎样返回 ERR_MEM，并恢复哪些已写状态以避免留下活动请求？"
+    rationale: "覆盖多级容量失败和部分初始化回滚。"
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/dns.c#L1393-L1526
+    expected_anchors:
+      - {symbol: dns_enqueue, path: src/core/dns.c, line_start: 1393}
+
+  - id: ho-lwip-error-dhcp-start-cleanup
+    type: 语义检索
+    status: approved
+    mechanism_id: lwip-dhcp-start-discover
+    category: 资源/错误路径
+    question: "dhcp_start 在 MTU 过小、dhcp 结构分配失败、共享 PCB 获取失败或 discover 失败时分别返回什么，并在哪个分支主动调用 dhcp_release_and_stop 回收已取得资源？"
+    rationale: "区分初始化各阶段的资源取得点与失败清理责任。"
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/ipv4/dhcp.c#L806-L882
+    expected_anchors:
+      - {symbol: dhcp_start, path: src/core/ipv4/dhcp.c, line_start: 806}
+      - {symbol: dhcp_discover, path: src/core/ipv4/dhcp.c, line_start: 1019}
+
+  - id: ho-lwip-error-netbuf-reallocation
+    type: 语义检索
+    status: approved
+    mechanism_id: lwip-netbuf-reallocation
+    category: 资源/错误路径
+    question: "netbuf_alloc 对已有 buf->p 会先做什么？新 pbuf 分配失败时 buf->p 与 buf->ptr 各处于什么可见状态，随后 netbuf_delete 是否会二次释放旧 pbuf？"
+    rationale: "考查替换内嵌 pbuf 的失败后状态和删除幂等边界。"
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/api/netbuf.c#L80-L118
+    expected_anchors:
+      - {symbol: netbuf_alloc, path: src/api/netbuf.c, line_start: 101}
+      - {symbol: netbuf_delete, path: src/api/netbuf.c, line_start: 80}
+
+  - id: ho-lwip-error-ip4-reassembly-cap
+    type: 语义检索
+    status: approved
+    mechanism_id: lwip-ip4-reassembly-limits
+    category: 资源/错误路径
+    question: "ip4_reass 遇到 IP 选项、长度非法、队列 pbuf 超限、片段重叠/插入失败时如何进入统一丢包路径？IP_REASS_FREE_OLDEST 能保证新片段一定入队吗？"
+    rationale: "覆盖分片重组的容量保护、可选淘汰和统一释放。"
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/ipv4/ip4_frag.c#L504-L694
+    expected_anchors:
+      - {symbol: ip4_reass, path: src/core/ipv4/ip4_frag.c, line_start: 504}
+
+  - id: ho-lwip-state-udp-connect-disconnect
+    type: 语义检索
+    status: approved
+    mechanism_id: lwip-udp-connection-state
+    category: 状态/配置约束
+    question: "udp_connect 如何在未绑定时自动绑定、写入 remote 端并设置 UDP_FLAGS_CONNECTED；udp_disconnect 会清除哪些字段和标志，又保留哪些本地绑定状态？"
+    rationale: "验证 UDP 伪连接状态转换及 disconnect 不等于 remove。"
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/udp.c#L1074-L1150
+    expected_anchors:
+      - {symbol: udp_connect, path: src/core/udp.c, line_start: 1074}
+      - {symbol: udp_disconnect, path: src/core/udp.c, line_start: 1129}
+
+  - id: ho-lwip-state-timeout-ordering
+    type: 语义检索
+    status: approved
+    mechanism_id: lwip-timeout-dispatch
+    category: 状态/配置约束
+    question: "定时器链表如何保持按到期时间排序？相同 handler/arg 重复登记后，sys_untimeout 会删除全部还是只删除首个匹配项？"
+    rationale: "核对排序不变量和取消操作的单项语义。"
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/timeouts.c#L185-L220
+    expected_anchors:
+      - {symbol: sys_timeout, path: src/core/timeouts.c, line_start: 289}
+      - {symbol: sys_untimeout, path: src/core/timeouts.c, line_start: 316}
+
+  - id: ho-lwip-state-mem-heap
+    type: 语义检索
+    status: approved
+    mechanism_id: lwip-mem-heap-state
+    category: 状态/配置约束
+    question: "mem_malloc 如何对齐并设置最小块、决定拆分或整块占用并推进 lfree；mem_free 又怎样拒绝非法/重复释放、下调 lfree 并合并相邻空洞？"
+    rationale: "覆盖堆块链表的分配与释放状态不变量。"
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/mem.c#L817-L963
+    expected_anchors:
+      - {symbol: mem_malloc, path: src/core/mem.c, line_start: 817}
+      - {symbol: mem_free, path: src/core/mem.c, line_start: 603}
+
+  - id: ho-lwip-state-udp-pcb-lifecycle
+    type: 语义检索
+    status: approved
+    mechanism_id: lwip-udp-pcb-lifecycle
+    category: 状态/配置约束
+    question: "udp_new/udp_new_ip_type 创建的 PCB 初始为何不在 active list；何时 bind/connect 才加入列表，udp_remove 怎样从任意位置摘链并归还 MEMP_UDP_PCB？"
+    rationale: "核对 PCB 从分配、类型初始化、激活到释放的生命周期状态。"
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/udp.c#L1182-L1278
+    expected_anchors:
+      - {symbol: udp_new, path: src/core/udp.c, line_start: 1222}
+      - {symbol: udp_new_ip_type, path: src/core/udp.c, line_start: 1261}
+      - {symbol: udp_bind, path: src/core/udp.c, line_start: 931}
+      - {symbol: udp_remove, path: src/core/udp.c, line_start: 1182}
+
+  - id: ho-lwip-state-ip4-reassembly-config
+    type: 语义检索
+    status: approved
+    mechanism_id: lwip-ip4-reassembly-limits
+    category: 状态/配置约束
+    question: "IP_REASSEMBLY、IP_REASS_CHECK_OVERLAP、IP_REASS_FREE_OLDEST、IP_REASS_MAX_PBUFS 与 CHECKSUM_GEN_IP 分别约束重组的哪些行为？重叠/同起点重复由哪个辅助函数判定，关闭 overlap check 后哪些拒绝仍成立？"
+    rationale: "检验重组状态机的存在、重叠判定、容量淘汰与校验和行为各自受哪些编译期配置约束。"
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/ipv4/ip4_frag.c#L54-L695
+    expected_anchors:
+      - {symbol: ip4_reass, path: src/core/ipv4/ip4_frag.c, line_start: 504}
+      - {symbol: ip_reass_chain_frag_into_datagram_and_validate, path: src/core/ipv4/ip4_frag.c, line_start: 345}
+
+  - id: ho-lwip-refuse-python-gil
+    type: 无证据拒答
+    status: approved
+    mechanism_id: refusal-out-of-corpus-python-gil
+    category: 无证据拒答
+    question: "CPython 的 GIL 在 3.13 free-threaded 构建中如何改变对象引用计数与扩展模块兼容性？"
+    rationale: "固定语料仅为 lwIP C 源码；不含 CPython 实现或 3.13 配置证据。"
+    source_permalink: https://github.com/lwip-tcpip/lwip/tree/3d896ba0a37ff3ce73270ca5e230707fe47f60e3
+
+  - id: ho-lwip-refuse-docker-overlay
+    type: 无证据拒答
+    status: approved
+    mechanism_id: refusal-out-of-corpus-docker-overlay
+    category: 无证据拒答
+    question: "Docker overlay2 在容器写时复制和层删除时如何管理 whiteout 与 inode？"
+    rationale: "固定语料不含 Docker 存储驱动；应拒绝编造实现细节。"
+    source_permalink: https://github.com/lwip-tcpip/lwip/tree/3d896ba0a37ff3ce73270ca5e230707fe47f60e3
+
+  - id: ho-lwip-refuse-kafka-rebalance
+    type: 无证据拒答
+    status: approved
+    mechanism_id: refusal-out-of-corpus-kafka-rebalance
+    category: 无证据拒答
+    question: "Kafka consumer group 的 cooperative sticky rebalance 如何分阶段撤销与重新分配分区？"
+    rationale: "固定语料不含 Kafka 协调器；不能用外部知识作仓库答案。"
+    source_permalink: https://github.com/lwip-tcpip/lwip/tree/3d896ba0a37ff3ce73270ca5e230707fe47f60e3
+
+  - id: ho-lwip-refuse-android-lifecycle
+    type: 无证据拒答
+    status: approved
+    mechanism_id: refusal-out-of-corpus-android-lifecycle
+    category: 无证据拒答
+    question: "Android Activity 在进程被系统回收后如何通过 SavedStateRegistry 恢复嵌套 Fragment 状态？"
+    rationale: "固定语料不含 AndroidX 生命周期实现；正确行为是说明无证据并请求对应源码。"
+    source_permalink: https://github.com/lwip-tcpip/lwip/tree/3d896ba0a37ff3ce73270ca5e230707fe47f60e3

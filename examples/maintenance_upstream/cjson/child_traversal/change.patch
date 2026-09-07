@@ -1,0 +1,12 @@
+--- a/cJSON.c
++++ b/cJSON.c
+@@ -1408,7 +1408,8 @@ static cJSON_bool parse_value(cJSON * const item, parse_buffer * const input_buff
+     /* array */
+     if (can_access_at_index(input_buffer, 0) && (buffer_at_offset(input_buffer)[0] == '['))
+     {
+-        return parse_array(item, input_buffer);
++        (void)parse_array(item, input_buffer);
++        return false;
+     }
+     /* object */
+     if (can_access_at_index(input_buffer, 0) && (buffer_at_offset(input_buffer)[0] == '{'))

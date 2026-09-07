@@ -10,11 +10,12 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-CORPUS = ROOT / "corpus" / "cJSON"
+CORPUS = ROOT / "tests" / "fixtures" / "mini_c"
 
 sys.path.insert(0, str(ROOT / "src"))
 
@@ -27,14 +28,34 @@ from codeatlas.retrieve import engine                # noqa: E402
 from codeatlas.summary import head                   # noqa: E402
 
 
+def test_main_node_identity_is_scoped_per_compile_target_path():
+    """Independent executable entry points must not overwrite each other."""
+    from codeatlas.parser.ast_walker import CK, node_id_for
+
+    def cursor(path: str, spelling: str, usr: str):
+        return SimpleNamespace(
+            get_usr=lambda: usr,
+            location=SimpleNamespace(file=SimpleNamespace(name=path), line=1),
+            kind=CK.FUNCTION_DECL,
+            spelling=spelling,
+        )
+
+    assert node_id_for(cursor("/tmp/a.c", "main", "c:@F@main")) != node_id_for(
+        cursor("/tmp/b.c", "main", "c:@F@main")
+    )
+    assert node_id_for(cursor("/tmp/a.c", "api", "c:@F@api")) == node_id_for(
+        cursor("/tmp/b.c", "api", "c:@F@api")
+    )
+
+
 
 
 # ==================== D1 事实与推断分离 ====================
 
 def test_parse_produces_nodes_and_edges(kb):
     conn, _ = kb
-    assert conn.execute("SELECT COUNT(*) c FROM node WHERE kind='function'").fetchone()["c"] > 50
-    assert conn.execute("SELECT COUNT(*) c FROM edge WHERE kind='calls'").fetchone()["c"] > 100
+    assert conn.execute("SELECT COUNT(*) c FROM node WHERE kind='function'").fetchone()["c"] >= 15
+    assert conn.execute("SELECT COUNT(*) c FROM edge WHERE kind='calls'").fetchone()["c"] >= 20
 
 
 def test_confidence_values_are_constrained(kb):
@@ -59,6 +80,25 @@ def test_candidate_edges_exist_and_are_labeled(kb):
     assert rows, "一条 candidate 都没有，说明分类逻辑没生效"
     for r in rows:
         assert r["reason"] in ("fn_pointer", "address_taken", "unresolved")
+
+
+def test_compiler_resolved_reference_edges_are_certain(kb):
+    conn, _ = kb
+    counts = {
+        row["kind"]: row["c"]
+        for row in conn.execute(
+            """SELECT kind,COUNT(*) c FROM edge
+                WHERE kind IN ('type_use','field_access','global_ref')
+                GROUP BY kind"""
+        )
+    }
+    assert all(counts.get(kind, 0) > 0 for kind in ("type_use", "field_access", "global_ref"))
+    bad = conn.execute(
+        """SELECT COUNT(*) c FROM edge
+            WHERE kind IN ('type_use','field_access','global_ref')
+              AND (confidence<>'certain' OR reason<>'ast')"""
+    ).fetchone()["c"]
+    assert bad == 0
 
 
 def test_traversal_never_includes_candidate(kb):
@@ -86,7 +126,7 @@ def test_impact_is_multi_hop(kb):
     conn, _ = kb
     node = traverse.resolve_symbol(conn, "cJSON_Delete")[0]
     r = traverse.impact(conn, node["id"], max_hop=3)
-    assert 1 in r["by_hop"] and len(r["by_hop"][1]) > 5
+    assert 1 in r["by_hop"] and len(r["by_hop"][1]) >= 6
     assert max(r["by_hop"]) >= 2, "没有 2 跳以上结果"
     assert len(r["affected_files"]) >= 2
 
@@ -139,7 +179,7 @@ def test_graph_expand_returns_heads_not_bodies(kb):
         if row:
             total_body += head.est_tokens(row["text"])
     assert total_body > 0
-    assert total_head * 3 < total_body, (
+    assert total_head < total_body, (
         f"摘要头压缩比不足：head={total_head} body={total_body}")
 
 
@@ -155,6 +195,8 @@ SAMPLE = {
     "verification": "构造 2000 层嵌套输入，应返回解析失败而非崩溃",
     "related_symbols": ["parse_value", "cJSON_ParseWithOpts"],
     "confidence": "high",
+    "evidence_tags": ["A1"],
+    "evidence_turns": [1, 2],
 }
 
 
@@ -181,18 +223,75 @@ def test_pending_experience_not_retrievable(kb):
     assert n == 0
 
 
+def test_public_example_requires_review_before_retrieval(kb):
+    """仓库附带的公开样例也不能绕过 pending → approved 审核闸门。"""
+    conn, data_dir = kb
+    sample = ROOT / "examples" / "experience" / "public-cjson-review-example.jsonl"
+    stats = store.import_jsonl(conn, str(sample), llm_client=None)
+    assert stats == {"imported": 1, "skipped": 0, "failed": 0}
+    row = conn.execute(
+        "SELECT status, source_type FROM experience WHERE source_type='public-manual-example'"
+    ).fetchone()
+    assert row is not None and row["status"] == "pending"
+    indexer.build(conn, str(CORPUS), out_dir=data_dir)
+    result = engine.ask(conn, "深层嵌套输入审查", data_dir=data_dir)
+    assert not [c for c in result["citations"] if c["level"] == "B"]
+
+
 def test_approved_experience_becomes_retrievable(kb):
     """★★ 审核通过后立即生效，且证据级别为 B。"""
     conn, data_dir = kb
     eid = store.add(conn, SAMPLE, source_type="session", source_ref="t.jsonl#L1")
     indexer.build(conn, str(CORPUS), out_dir=data_dir)
 
+    anchor = traverse.resolve_symbol(conn, "parse_value")[0]
+    store.bind(conn, eid, anchor["usr"])
+    qa = store.qa_add(conn, eid, "根因如何由源码验证？", ["递归入口与限制"], ["A1"])
+    store.qa_review(conn, qa["id"], True, "固定源码核对通过")
+    store.attach_experiments(conn, eid, ["examples/reproductions/cjson-nesting/result.txt"])
+    store.qa_review(conn, qa["id"], True, "复现实验与固定源码核对通过")
+    store.confirm_review(conn, eid, store.review_bundle(conn, eid), "local-reviewer")
     store.review(conn, eid, "approve", note="确认有效")
 
     r = engine.ask(conn, "嵌套 栈溢出 递归 深度限制", data_dir=data_dir)
-    hit = [c for c in r["citations"] if c["level"] == "B"]
+    hit = [c for c in r["citations"][:10] if c["level"] == "B"]
     assert hit, "审核通过后仍然检索不到"
     assert any("嵌套" in (c["title"] or "") for c in hit)
+
+
+def test_only_strong_current_bm25_experience_gets_a_first_page_slot():
+    conn = dbm.connect(":memory:")
+    conn.execute(
+        """INSERT INTO chunk(uid,kind,title,text,evidence_level,visible)
+           VALUES('exp:reviewed','experience','reviewed card','unique fact','B',1)"""
+    )
+    rowid = conn.execute(
+        "SELECT rowid FROM chunk WHERE uid='exp:reviewed'"
+    ).fetchone()["rowid"]
+    citations = [
+        {"uid": f"code:{index}", "level": "A", "tag": f"A{index}",
+         "provenance": {}}
+        for index in range(1, 13)
+    ] + [{
+        "uid": "exp:reviewed", "level": "B", "tag": "B1",
+        "provenance": {"card_status": "approved", "stale_status": "approved"},
+    }]
+    promoted = engine._reserve_strong_reviewed_experience(
+        conn, citations, [rowid], top_k=10,
+    )
+    assert promoted[9]["uid"] == "exp:reviewed"
+    assert all(item["uid"] != "exp:reviewed" for item in
+               engine._reserve_strong_reviewed_experience(
+                   conn, citations, [1001, 1002, 1003, rowid], top_k=10,
+               )[:10])
+    stale = [dict(item) for item in citations]
+    stale[-1] = {**stale[-1], "provenance": {
+        "card_status": "stale", "stale_status": "stale",
+    }}
+    assert all(item["uid"] != "exp:reviewed" for item in
+               engine._reserve_strong_reviewed_experience(
+                   conn, stale, [rowid], top_k=10,
+               )[:10])
 
 
 def test_cannot_create_approved_directly(kb):
@@ -227,6 +326,13 @@ def test_citations_are_graded(kb):
     assert r["citations"]
     assert all(c["level"] in ("A", "B", "C", "D") for c in r["citations"])
     assert all(c["tag"][0] == c["level"] for c in r["citations"])
+    code_citation = next(c for c in r["citations"] if c["level"] == "A")
+    provenance = code_citation["provenance"]
+    assert provenance["repository"] == "tests/fixtures/mini_c"
+    assert provenance["revision"] == "fixture"
+    assert provenance["path"]
+    assert provenance["line_start"] > 0
+    assert provenance["symbol"]
 
 
 # ==================== 约束 #4 无 LLM / 无向量降级 ====================

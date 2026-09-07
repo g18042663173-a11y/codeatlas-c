@@ -10,6 +10,8 @@ from __future__ import annotations
 import json
 import logging
 import os
+import shutil
+import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -41,6 +43,20 @@ def builtin_include_args() -> list[str]:
     from clang import cindex
 
     cands: list[str] = []
+    # Ask the compiler driver first. This covers Apple Command Line Tools,
+    # Homebrew LLVM and ordinary Linux clang installations without hard-coding
+    # their versioned resource directory.
+    clang = shutil.which("clang") or shutil.which("cc")
+    if clang:
+        try:
+            resource = subprocess.run(
+                [clang, "-print-resource-dir"], check=True, capture_output=True,
+                text=True, timeout=5,
+            ).stdout.strip()
+            if resource:
+                cands.append(os.path.join(resource, "include"))
+        except (OSError, subprocess.SubprocessError):
+            pass
     try:
         base = os.path.dirname(cindex.conf.get_filename())
         cands += [os.path.join(base, "clang", "*", "include"),
@@ -50,12 +66,28 @@ def builtin_include_args() -> list[str]:
     cands += ["/usr/lib/llvm-*/lib/clang/*/include",
               "/usr/lib/clang/*/include",
               "/usr/local/lib/clang/*/include",
+              "/Library/Developer/CommandLineTools/usr/lib/clang/*/include",
               "/usr/lib/gcc/*/*/include"]
 
     for pat in cands:
         for hit in sorted(_glob.glob(pat)):
             if os.path.exists(os.path.join(hit, "stddef.h")):
-                return [f"-I{os.path.normpath(hit)}"]
+                result = [f"-I{os.path.normpath(hit)}"]
+                # libclang does not inherit the Apple SDK search path from the
+                # clang driver. Without an explicit sysroot every TU fails at
+                # headers such as sys/time.h while still yielding a partial AST.
+                xcrun = shutil.which("xcrun")
+                if xcrun:
+                    try:
+                        sdk = subprocess.run(
+                            [xcrun, "--show-sdk-path"], check=True,
+                            capture_output=True, text=True, timeout=5,
+                        ).stdout.strip()
+                        if sdk and os.path.isdir(sdk):
+                            result.extend(["-isysroot", sdk])
+                    except (OSError, subprocess.SubprocessError):
+                        pass
+                return result
     return []
 
 
@@ -143,7 +175,12 @@ def from_scan(repo: str | Path, includes: list[str] | None = None,
     units: list[CompileUnit] = []
     for p in sorted(root.rglob("*")):
         if p.suffix.lower() in _SOURCE_EXT and p.is_file():
-            if any(part in {"build", ".git", "test", "tests"} for part in p.parts):
+            # Judge ignored directories relative to the requested repository.  The old
+            # absolute-path check silently rejected a valid repo whenever the repo itself
+            # lived below a directory named `tests` (including our checked-in fixture).
+            # Nested test folders remain excluded for normal project scans.
+            relative_parts = p.relative_to(root).parts[:-1]
+            if any(part in {"build", ".git", "test", "tests"} for part in relative_parts):
                 continue
             units.append(CompileUnit(source=str(p),
                                      args=[*inc, *dfn, "-std=c11", *_BUILTIN],

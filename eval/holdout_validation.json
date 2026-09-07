@@ -1,0 +1,2194 @@
+{
+  "canonical_prompt_version": "canonical-holdout-release-review-v2",
+  "certifications": [
+    {
+      "agent_id": "/root/holdout_source_validator",
+      "answer_key": "eval/holdout_cjson.answers.yaml",
+      "answer_key_input_hash": "6f4894fb3fad572f95d3d843ed7819dc280d35ac31e12c17456e512a72d98be6",
+      "answer_key_sha256": "8206d8ab73b79ee7471cd700c0b27c57039a302a5d9673a9c1852104b4e9ae3b",
+      "human_reviewed": false,
+      "model": "GPT-5",
+      "protocol_effect_eligible": false,
+      "protocol_review_status": "unresolved",
+      "provider": "OpenAI",
+      "source_validation_scope_only": true,
+      "validation_report_path": "eval/holdout_validation.json",
+      "verdict": "approved"
+    },
+    {
+      "agent_id": "/root/holdout_source_validator",
+      "answer_key": "eval/holdout_lwip.answers.yaml",
+      "answer_key_input_hash": "91e97b7bb996bbd40f922c873e7134760d4eef72dcc03e06d85baf5e63628d32",
+      "answer_key_sha256": "ff29ad0b877442aab4029500bbc4a00836d596d1980f6ad71cebfc2ee9af1572",
+      "human_reviewed": false,
+      "model": "GPT-5",
+      "protocol_effect_eligible": false,
+      "protocol_review_status": "unresolved",
+      "provider": "OpenAI",
+      "source_validation_scope_only": true,
+      "validation_report_path": "eval/holdout_validation.json",
+      "verdict": "approved"
+    }
+  ],
+  "corrected_udp_disconnect_check": {
+    "finding": "The answer states the exact two branches: local_ip ANY-type selects IP_ANY_TYPE; otherwise the remote_ip's current IPv4/IPv6 type selects the corresponding ANY. It explicitly denies that this function enforces local/remote family compatibility.",
+    "source": "src/core/udp.c:1129-1150",
+    "task_id": "ho-lwip-state-udp-connect-disconnect",
+    "verdict": "pass"
+  },
+  "coverage": {
+    "category_balance": {
+      "cjson": {
+        "必要条件与反例": 5,
+        "无证据拒答": 4,
+        "状态/配置约束": 5,
+        "资源/错误路径": 5,
+        "跨函数流程": 5
+      },
+      "lwip": {
+        "必要条件与反例": 5,
+        "无证据拒答": 4,
+        "状态/配置约束": 5,
+        "资源/错误路径": 5,
+        "跨函数流程": 5
+      }
+    },
+    "code_task_count": 40,
+    "expected_anchor_count": 83,
+    "expected_atomic_point_count": 173,
+    "fail": 0,
+    "forbidden_claim_count": 101,
+    "mechanism_balance": {
+      "cjson": {
+        "counts": {
+          "cjson-allocator-hook-state": 1,
+          "cjson-array-insert-boundaries": 1,
+          "cjson-array-size-child-chain": 1,
+          "cjson-array-tail-invariant": 1,
+          "cjson-convenience-add-cleanup": 1,
+          "cjson-deep-duplicate-failure": 1,
+          "cjson-detach-list-rewire": 1,
+          "cjson-find-pointer-ownership": 1,
+          "cjson-generate-merge-patch-null-result": 1,
+          "cjson-json-pointer-walk": 2,
+          "cjson-minify-inplace": 1,
+          "cjson-number-dual-representation": 1,
+          "cjson-reference-alias-insertion": 1,
+          "cjson-replace-object-item": 1,
+          "cjson-rfc7396-merge": 1,
+          "cjson-set-valuestring-guards": 1,
+          "cjson-string-array-cleanup": 1,
+          "cjson-string-reference-ownership": 1,
+          "cjson-utils-sort-mutation": 1
+        },
+        "maximum_tasks_per_code_mechanism": 2,
+        "unique_code_mechanisms": 19
+      },
+      "lwip": {
+        "counts": {
+          "lwip-dhcp-start-discover": 2,
+          "lwip-dns-enqueue-capacity": 1,
+          "lwip-dns-resolution-state-machine": 2,
+          "lwip-ethernet-demux": 1,
+          "lwip-ip4-reassembly-limits": 2,
+          "lwip-ip4-route-selection": 1,
+          "lwip-mem-heap-state": 1,
+          "lwip-netbuf-reallocation": 1,
+          "lwip-pbuf-header-adjust": 1,
+          "lwip-tcp-bind-conflicts": 1,
+          "lwip-tcp-pcb-allocation-reclaim": 1,
+          "lwip-timeout-dispatch": 2,
+          "lwip-udp-bind-conflicts": 1,
+          "lwip-udp-connection-state": 1,
+          "lwip-udp-pcb-lifecycle": 1,
+          "lwip-udp-send-pipeline": 1
+        },
+        "maximum_tasks_per_code_mechanism": 2,
+        "unique_code_mechanisms": 16
+      }
+    },
+    "pass": 48,
+    "refusal_task_count": 8,
+    "task_count": 48,
+    "unresolved": 0
+  },
+  "development_overlap_audit": {
+    "code_tasks_compared": 40,
+    "comparison_unit": "underlying implementation mechanism, not task id",
+    "exact_question_overlap_count": 0,
+    "independent_holdout_code_task_count": 40,
+    "semantic_mechanism_overlap_count": 0,
+    "shared_anchor_is_semantic_overlap": false,
+    "shared_anchor_surface_count": 1,
+    "tasks": [
+      {
+        "agent_judgment": "Both transform JSON text, but development covers print-time output-buffer growth; holdout covers the in-place minifier scanner, comment removal, and quote/backslash boundary.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "cjson-minify-inplace",
+        "nearest_development_task_ids": [
+          "semantic-serialize"
+        ],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-cjson-flow-minify-inplace"
+      },
+      {
+        "agent_judgment": "No development-manifest task asks about this implementation mechanism; comparison of question, operation, state transition/error path, and source surface found no semantic reuse.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "cjson-json-pointer-walk",
+        "nearest_development_task_ids": [],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-cjson-flow-json-pointer-walk"
+      },
+      {
+        "agent_judgment": "No development-manifest task asks about this implementation mechanism; comparison of question, operation, state transition/error path, and source surface found no semantic reuse.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "cjson-detach-list-rewire",
+        "nearest_development_task_ids": [],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-cjson-flow-detach-list-rewire"
+      },
+      {
+        "agent_judgment": "No development-manifest task asks about this implementation mechanism; comparison of question, operation, state transition/error path, and source surface found no semantic reuse.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "cjson-replace-object-item",
+        "nearest_development_task_ids": [],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-cjson-flow-replace-object-item"
+      },
+      {
+        "agent_judgment": "No development-manifest task asks about this implementation mechanism; comparison of question, operation, state transition/error path, and source surface found no semantic reuse.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "cjson-rfc7396-merge",
+        "nearest_development_task_ids": [],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-cjson-flow-merge-patch"
+      },
+      {
+        "agent_judgment": "No development-manifest task asks about this implementation mechanism; comparison of question, operation, state transition/error path, and source surface found no semantic reuse.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "cjson-set-valuestring-guards",
+        "nearest_development_task_ids": [],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-cjson-cond-set-valuestring"
+      },
+      {
+        "agent_judgment": "No development-manifest task asks about this implementation mechanism; comparison of question, operation, state transition/error path, and source surface found no semantic reuse.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "cjson-array-insert-boundaries",
+        "nearest_development_task_ids": [],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-cjson-cond-array-insert-boundaries"
+      },
+      {
+        "agent_judgment": "No development-manifest task asks about this implementation mechanism; comparison of question, operation, state transition/error path, and source surface found no semantic reuse.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "cjson-json-pointer-walk",
+        "nearest_development_task_ids": [],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-cjson-cond-pointer-array-index"
+      },
+      {
+        "agent_judgment": "No development-manifest task asks about this implementation mechanism; comparison of question, operation, state transition/error path, and source surface found no semantic reuse.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "cjson-reference-alias-insertion",
+        "nearest_development_task_ids": [],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-cjson-cond-reference-alias"
+      },
+      {
+        "agent_judgment": "Both can traverse child links, but development covers recursive typed equality; holdout isolates the untyped structural child-count behavior and zero-result ambiguity.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "cjson-array-size-child-chain",
+        "nearest_development_task_ids": [
+          "semantic-compare-tree"
+        ],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-cjson-cond-array-size-structural"
+      },
+      {
+        "agent_judgment": "No development-manifest task asks about this implementation mechanism; comparison of question, operation, state transition/error path, and source surface found no semantic reuse.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "cjson-string-array-cleanup",
+        "nearest_development_task_ids": [],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-cjson-error-string-array-cleanup"
+      },
+      {
+        "agent_judgment": "Development experience tasks concern parse-time nesting behavior; holdout concerns recursive duplication, CJSON_CIRCULAR_LIMIT, and rollback of a partially built copy.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "cjson-deep-duplicate-failure",
+        "nearest_development_task_ids": [
+          "exp-cjson-symptom",
+          "exp-cjson-dead-end",
+          "exp-cjson-fix",
+          "exp-cjson-verify",
+          "exp-cjson-anchor"
+        ],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-cjson-error-duplicate-cleanup"
+      },
+      {
+        "agent_judgment": "No development-manifest task asks about this implementation mechanism; comparison of question, operation, state transition/error path, and source surface found no semantic reuse.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "cjson-generate-merge-patch-null-result",
+        "nearest_development_task_ids": [],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-cjson-error-generate-merge-null"
+      },
+      {
+        "agent_judgment": "Development asks call-graph/location questions; holdout asks ownership and cleanup after internal object insertion failure.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "cjson-convenience-add-cleanup",
+        "nearest_development_task_ids": [
+          "callers-add-item",
+          "locate-delete"
+        ],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-cjson-error-convenience-add"
+      },
+      {
+        "agent_judgment": "No development-manifest task asks about this implementation mechanism; comparison of question, operation, state transition/error path, and source surface found no semantic reuse.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "cjson-find-pointer-ownership",
+        "nearest_development_task_ids": [],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-cjson-error-find-pointer-ownership"
+      },
+      {
+        "agent_judgment": "No development-manifest task asks about this implementation mechanism; comparison of question, operation, state transition/error path, and source surface found no semantic reuse.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "cjson-allocator-hook-state",
+        "nearest_development_task_ids": [],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-cjson-state-hooks-realloc"
+      },
+      {
+        "agent_judgment": "No development-manifest task asks about this implementation mechanism; comparison of question, operation, state transition/error path, and source surface found no semantic reuse.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "cjson-array-tail-invariant",
+        "nearest_development_task_ids": [],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-cjson-state-list-tail-invariant"
+      },
+      {
+        "agent_judgment": "No development-manifest task asks about this implementation mechanism; comparison of question, operation, state transition/error path, and source surface found no semantic reuse.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "cjson-number-dual-representation",
+        "nearest_development_task_ids": [],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-cjson-state-number-saturation"
+      },
+      {
+        "agent_judgment": "Development locates the generic delete entry; holdout tests the external-string reference flag, non-copying ownership, and mutation rejection.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "cjson-string-reference-ownership",
+        "nearest_development_task_ids": [
+          "locate-delete"
+        ],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-cjson-state-string-reference"
+      },
+      {
+        "agent_judgment": "Development covers recursive JSON value equality; holdout covers object-child list mutation and case-sensitive/key comparison modes for sorting.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "cjson-utils-sort-mutation",
+        "nearest_development_task_ids": [
+          "semantic-compare-tree"
+        ],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-cjson-state-sort-mutation"
+      },
+      {
+        "agent_judgment": "Development covers TCP application-data enqueueing; holdout covers UDP destination/netif/source/header/checksum/IP-output flow.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "lwip-udp-send-pipeline",
+        "nearest_development_task_ids": [
+          "semantic-tcp-send-queue",
+          "locate-tcp-write"
+        ],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-lwip-flow-udp-send-pipeline"
+      },
+      {
+        "agent_judgment": "No development-manifest task asks about this implementation mechanism; comparison of question, operation, state transition/error path, and source surface found no semantic reuse.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "lwip-dns-resolution-state-machine",
+        "nearest_development_task_ids": [],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-lwip-flow-dns-resolution"
+      },
+      {
+        "agent_judgment": "The shared ethernet_input anchor is only a node in the development task's two-hop reverse impact closure into tcp_input. Holdout instead tests Ethernet/VLAN validation, link-layer flags, EtherType dispatch, hook behavior, and pbuf ownership.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "lwip-ethernet-demux",
+        "nearest_development_task_ids": [
+          "impact-tcp-input"
+        ],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [
+          {
+            "development_task_id": "impact-tcp-input",
+            "exact_question": false,
+            "shared_anchor_surfaces": [
+              [
+                "ethernet_input",
+                "src/netif/ethernet.c",
+                80
+              ]
+            ]
+          }
+        ],
+        "task_id": "ho-lwip-flow-ethernet-demux"
+      },
+      {
+        "agent_judgment": "No development-manifest task asks about this implementation mechanism; comparison of question, operation, state transition/error path, and source surface found no semantic reuse.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "lwip-dhcp-start-discover",
+        "nearest_development_task_ids": [],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-lwip-flow-dhcp-start-discover"
+      },
+      {
+        "agent_judgment": "No development-manifest task asks about this implementation mechanism; comparison of question, operation, state transition/error path, and source surface found no semantic reuse.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "lwip-timeout-dispatch",
+        "nearest_development_task_ids": [],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-lwip-flow-timeout-dispatch"
+      },
+      {
+        "agent_judgment": "No development-manifest task asks about this implementation mechanism; comparison of question, operation, state transition/error path, and source surface found no semantic reuse.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "lwip-udp-bind-conflicts",
+        "nearest_development_task_ids": [],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-lwip-cond-udp-bind-conflict"
+      },
+      {
+        "agent_judgment": "No development-manifest task asks about this implementation mechanism; comparison of question, operation, state transition/error path, and source surface found no semantic reuse.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "lwip-tcp-bind-conflicts",
+        "nearest_development_task_ids": [],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-lwip-cond-tcp-bind-state"
+      },
+      {
+        "agent_judgment": "Development covers reference-counted pbuf release/dechain; holdout covers payload-pointer header growth/removal boundaries and the narrow force exception.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "lwip-pbuf-header-adjust",
+        "nearest_development_task_ids": [
+          "semantic-pbuf-release",
+          "locate-pbuf-free"
+        ],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-lwip-cond-pbuf-header-force"
+      },
+      {
+        "agent_judgment": "No development-manifest task asks about this implementation mechanism; comparison of question, operation, state transition/error path, and source surface found no semantic reuse.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "lwip-dns-resolution-state-machine",
+        "nearest_development_task_ids": [],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-lwip-cond-dns-sync-result"
+      },
+      {
+        "agent_judgment": "Development covers mutating netif up/down/default state; holdout covers read-time IPv4 route precedence and usability gates.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "lwip-ip4-route-selection",
+        "nearest_development_task_ids": [
+          "semantic-netif-state",
+          "locate-netif-up"
+        ],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-lwip-cond-ip4-route-selection"
+      },
+      {
+        "agent_judgment": "Development covers tcp_write send-queue construction and limits; holdout covers MEMP_TCP_PCB allocation failure, ordered PCB victim selection, termination, retry, and statistics adjustment.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "lwip-tcp-pcb-allocation-reclaim",
+        "nearest_development_task_ids": [
+          "semantic-tcp-send-queue",
+          "locate-tcp-write"
+        ],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-lwip-error-tcp-alloc-reclaim"
+      },
+      {
+        "agent_judgment": "No development-manifest task asks about this implementation mechanism; comparison of question, operation, state transition/error path, and source surface found no semantic reuse.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "lwip-dns-enqueue-capacity",
+        "nearest_development_task_ids": [],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-lwip-error-dns-enqueue-capacity"
+      },
+      {
+        "agent_judgment": "No development-manifest task asks about this implementation mechanism; comparison of question, operation, state transition/error path, and source surface found no semantic reuse.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "lwip-dhcp-start-discover",
+        "nearest_development_task_ids": [],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-lwip-error-dhcp-start-cleanup"
+      },
+      {
+        "agent_judgment": "No development-manifest task asks about this implementation mechanism; comparison of question, operation, state transition/error path, and source surface found no semantic reuse.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "lwip-netbuf-reallocation",
+        "nearest_development_task_ids": [],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-lwip-error-netbuf-reallocation"
+      },
+      {
+        "agent_judgment": "No development-manifest task asks about this implementation mechanism; comparison of question, operation, state transition/error path, and source surface found no semantic reuse.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "lwip-ip4-reassembly-limits",
+        "nearest_development_task_ids": [],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-lwip-error-ip4-reassembly-cap"
+      },
+      {
+        "agent_judgment": "No development-manifest task asks about this implementation mechanism; comparison of question, operation, state transition/error path, and source surface found no semantic reuse.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "lwip-udp-connection-state",
+        "nearest_development_task_ids": [],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-lwip-state-udp-connect-disconnect"
+      },
+      {
+        "agent_judgment": "No development-manifest task asks about this implementation mechanism; comparison of question, operation, state transition/error path, and source surface found no semantic reuse.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "lwip-timeout-dispatch",
+        "nearest_development_task_ids": [],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-lwip-state-timeout-ordering"
+      },
+      {
+        "agent_judgment": "No development-manifest task asks about this implementation mechanism; comparison of question, operation, state transition/error path, and source surface found no semantic reuse.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "lwip-mem-heap-state",
+        "nearest_development_task_ids": [],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-lwip-state-mem-heap"
+      },
+      {
+        "agent_judgment": "No development-manifest task asks about this implementation mechanism; comparison of question, operation, state transition/error path, and source surface found no semantic reuse.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "lwip-udp-pcb-lifecycle",
+        "nearest_development_task_ids": [],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-lwip-state-udp-pcb-lifecycle"
+      },
+      {
+        "agent_judgment": "No development-manifest task asks about this implementation mechanism; comparison of question, operation, state transition/error path, and source surface found no semantic reuse.",
+        "exact_question_overlap": false,
+        "independent_holdout_code_mechanism": true,
+        "mechanism_id": "lwip-ip4-reassembly-limits",
+        "nearest_development_task_ids": [],
+        "semantic_mechanism_overlap": false,
+        "shared_surface_candidates": [],
+        "task_id": "ho-lwip-state-ip4-reassembly-config"
+      }
+    ]
+  },
+  "input_boundary": {
+    "candidate_task_or_answer_key_files_modified": false,
+    "development_answer_keys_read": false,
+    "development_manifests_used_only_for_semantic_overlap": true,
+    "existing_holdout_validation_read": false,
+    "peer_holdout_findings_used": false,
+    "wiki_docs_prompts_model_answers_scores_read": false
+  },
+  "inputs": {
+    "cjson": {
+      "answer_key_input_hash": "6f4894fb3fad572f95d3d843ed7819dc280d35ac31e12c17456e512a72d98be6",
+      "answer_key_path": "eval/holdout_cjson.answers.yaml",
+      "answer_key_sha256": "8206d8ab73b79ee7471cd700c0b27c57039a302a5d9673a9c1852104b4e9ae3b",
+      "corpus_head": "fb16e5cf358798aabb049655975cde8427101056",
+      "database_path": "data/kb.db",
+      "database_sha256": "c975f2b4eaf53b145253762436297137b6e2e142bf082a809ba14326091af37b",
+      "development_manifest_path": "eval/tasks_cjson.yaml",
+      "development_manifest_sha256": "2758b81110f499690b3ab5acb03b8bbc598d72bef2cbc7250ffabe2c51a3142c",
+      "manifest_path": "eval/holdout_cjson.yaml",
+      "manifest_sha256": "29558110537c4cf68f0ac950641173b326ee74b0a360fc020be3d3ccfb5cefad",
+      "revision": "fb16e5cf358798aabb049655975cde8427101056",
+      "tracked_source_clean": true
+    },
+    "lwip": {
+      "answer_key_input_hash": "91e97b7bb996bbd40f922c873e7134760d4eef72dcc03e06d85baf5e63628d32",
+      "answer_key_path": "eval/holdout_lwip.answers.yaml",
+      "answer_key_sha256": "ff29ad0b877442aab4029500bbc4a00836d596d1980f6ad71cebfc2ee9af1572",
+      "corpus_head": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+      "database_path": "data/lwip.db",
+      "database_sha256": "858049ec6b3ff0d58218df91d4b7550997d93448683776afc2856184bb33efdf",
+      "development_manifest_path": "eval/tasks_lwip.yaml",
+      "development_manifest_sha256": "39932189415eb5e65a4380f0af1df269d92a8aec9700680a1afa680d42d8874d",
+      "manifest_path": "eval/holdout_lwip.yaml",
+      "manifest_sha256": "25d775beb57c113a544b624d00d5e910ea797ec6eae719b09993b73fe8a1a8fa",
+      "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+      "tracked_source_clean": true
+    },
+    "validator_code": {
+      "protocol_path": "src/codeatlas/eval/protocol.py",
+      "protocol_sha256": "a2388257a059e95e03efaab9242659d5879202dd81d6e9b12b2ac0f936fd4331",
+      "task_eval_path": "src/codeatlas/eval/task_eval.py",
+      "task_eval_sha256": "cc839933d27aa7182f75f9108d0d47d69a349a3b35aed36fe236b3765ac7e6e0"
+    }
+  },
+  "refusal_boundary_audit": {
+    "code_mechanism_contribution": 0,
+    "refusal_tasks": 8,
+    "searches": [
+      {
+        "file_count": 99,
+        "inventory_sha256": "08e573ce7e96110816ac0620028853bfccc986a3c30d87a57cd66437d028983a",
+        "match_count": 0,
+        "query": "Polonius|borrow checker|rustc",
+        "search_evidence_sha256": "08e2a8537d045f6af514fb0bee0f01db4a7c4361a814727bc05db226bd310efd",
+        "status": "pass",
+        "task_id": "ho-cjson-refuse-rust-borrow"
+      },
+      {
+        "file_count": 99,
+        "inventory_sha256": "08e573ce7e96110816ac0620028853bfccc986a3c30d87a57cd66437d028983a",
+        "match_count": 0,
+        "query": "eBPF|verifier|BPF",
+        "search_evidence_sha256": "6549db0e32bd48916f500675e082797f902681417d666a6700ad9d6ecc0d2a51",
+        "status": "pass",
+        "task_id": "ho-cjson-refuse-ebpf-verifier"
+      },
+      {
+        "file_count": 99,
+        "inventory_sha256": "08e573ce7e96110816ac0620028853bfccc986a3c30d87a57cd66437d028983a",
+        "match_count": 0,
+        "query": "sqlite3WalCheckpoint|WAL_CHECKPOINT_PASSIVE|WAL_CHECKPOINT_RESTART",
+        "search_evidence_sha256": "d3526eb88c5cde1e8caaa15e0e876c3afc60e5416303c64d6e5486de5ce152ef",
+        "status": "pass",
+        "task_id": "ho-cjson-refuse-sqlite-wal"
+      },
+      {
+        "file_count": 99,
+        "inventory_sha256": "08e573ce7e96110816ac0620028853bfccc986a3c30d87a57cd66437d028983a",
+        "match_count": 0,
+        "query": "React|Fiber|lanes",
+        "search_evidence_sha256": "ed216b5faf9eeb00ba20f9b0260ed1066cb72909b67cda998fbfda9b8c52d3e9",
+        "status": "pass",
+        "task_id": "ho-cjson-refuse-react-concurrent"
+      },
+      {
+        "file_count": 478,
+        "inventory_sha256": "4573b880330c62e8dc31858570885dfaa21dd46fc894205dd94c6e4544780a13",
+        "match_count": 0,
+        "query": "GIL|free-threaded|PyObject",
+        "search_evidence_sha256": "4b447027cb2b686e113ee17b4d45cd2ec65f50a41ff2f11e2503e8b515504c27",
+        "status": "pass",
+        "task_id": "ho-lwip-refuse-python-gil"
+      },
+      {
+        "file_count": 478,
+        "inventory_sha256": "4573b880330c62e8dc31858570885dfaa21dd46fc894205dd94c6e4544780a13",
+        "match_count": 0,
+        "query": "overlay2|overlayfs|whiteout",
+        "search_evidence_sha256": "ba7717832af3b3c6d4da76240b56f4803e49cb2ef3bb63910f053727a5aacd4b",
+        "status": "pass",
+        "task_id": "ho-lwip-refuse-docker-overlay"
+      },
+      {
+        "file_count": 478,
+        "inventory_sha256": "4573b880330c62e8dc31858570885dfaa21dd46fc894205dd94c6e4544780a13",
+        "match_count": 0,
+        "query": "Kafka|rebalance|sticky assignor",
+        "search_evidence_sha256": "cc4c129245086d0e9a1029dd6289fe83ca52d8fe81fe458f0c757f2747579b78",
+        "status": "pass",
+        "task_id": "ho-lwip-refuse-kafka-rebalance"
+      },
+      {
+        "file_count": 478,
+        "inventory_sha256": "4573b880330c62e8dc31858570885dfaa21dd46fc894205dd94c6e4544780a13",
+        "match_count": 0,
+        "query": "SavedStateRegistry|FragmentManager|android.app.Activity",
+        "search_evidence_sha256": "137b1321dd34771011eddd57df8febfc8fdafa2d2ab9d8bb9f90627129542dd9",
+        "status": "pass",
+        "task_id": "ho-lwip-refuse-android-lifecycle"
+      }
+    ],
+    "shared_safety_invariant": "Refuse mechanism claims unsupported by the pinned repository and request a fixed authoritative evidence set."
+  },
+  "release_boundaries": {
+    "answer_key_protocol_review_status": {
+      "cjson": "unresolved",
+      "lwip": "unresolved"
+    },
+    "effect_claim_eligible": false,
+    "historical_no_exposure": "unprovable",
+    "historical_no_exposure_reason": "Current files and content hashes cannot establish that no author, reviewer, or model saw the material before freezing.",
+    "human_release_eligible": false,
+    "human_reviewed": false,
+    "qualification": "This agent certification approves source factuality and holdout mechanism separation only; it does not manufacture human review or prove historical non-exposure."
+  },
+  "schema_version": 3,
+  "scope": "agent source, evidence, anchor, balance, refusal-boundary, and development-manifest semantic-overlap validation",
+  "status": "pass",
+  "task_results": [
+    {
+      "anchor_evidence_sha256": "c45cda2700a1d9053ebc93acdd5703d8b25446c1da17e3b4e7a0db8310e23444",
+      "answer_record_sha256": "35b51f770f42fe4761d2a25f4dbce88ffcc594ed750ab59076702c6e0e741225",
+      "category": "跨函数流程",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 4,
+      "expected_point_ids": [
+        "scan-dispatch",
+        "comments-outside-string",
+        "quoted-region",
+        "termination"
+      ],
+      "expected_points_sha256": "65d1efd8341bfc18cbaab8db8b247f11db3e7af4a50a142f6d6623507f832d1b",
+      "forbidden_claim_count": 3,
+      "forbidden_claims_sha256": "7706f20a527238a7fb49c899489b457dae4c587e9e5a3f04bd30a96a50004679",
+      "mechanism_id": "cjson-minify-inplace",
+      "overlap_surface_candidates": [],
+      "question_sha256": "979ac2fce943c731877c7c0248cd541fb2abb5733e6abd316a807325d17295b5",
+      "source_evidence_sha256": "1211ff3d3bf212cdd569c23899359bfb02901802f5cdefee7367f4fef0e21d80",
+      "status": "pass",
+      "task_id": "ho-cjson-flow-minify-inplace",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "f85885d6013b5a316866396f316ac8cdb94dcd09509c97393ecd02c9337d0a5f",
+      "answer_record_sha256": "14a4a0b6b632a089da9f27f12ce7c6196f878e88735e0863d5af4247ae98debd",
+      "category": "跨函数流程",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 5,
+      "expected_point_ids": [
+        "entry",
+        "token-walk",
+        "empty-array-token",
+        "empty-and-nonslash",
+        "leaf-failure"
+      ],
+      "expected_points_sha256": "4b4faaf1b5ef60d3df77ee14ca1108933bf323e54b6498762e788d036b7425e7",
+      "forbidden_claim_count": 3,
+      "forbidden_claims_sha256": "7d64961359f3afae9befc625110e0b4609cb3cb114765566206a2d70098ee23f",
+      "mechanism_id": "cjson-json-pointer-walk",
+      "overlap_surface_candidates": [],
+      "question_sha256": "4973c9c53b863d28f7d82ecb484120a088ec2e4b98c46ccc05a0d59293f1a443",
+      "source_evidence_sha256": "f0229be47078a5baadd32936ef4febfe1b6ec43602bbb4b645654093b3212ad4",
+      "status": "pass",
+      "task_id": "ho-cjson-flow-json-pointer-walk",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "cb068f94a2c5409ea7a8e205034127556649b8840f258898575d53a7d620ea48",
+      "answer_record_sha256": "ff89fd866073e3da8280f369243172844e5096e8f64004eebe2a66c5094bfc83",
+      "category": "跨函数流程",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 4,
+      "expected_point_ids": [
+        "lookup",
+        "middle-links",
+        "head-tail",
+        "detached-state"
+      ],
+      "expected_points_sha256": "e1b2a36df8b4a4dbb99439c8743aa9e3697a86bf829eaa938fe7d72aff841094",
+      "forbidden_claim_count": 2,
+      "forbidden_claims_sha256": "48f75dfc4d61992c2ef26e52fe386eeff2cc9693727773d700a2a512a24abc05",
+      "mechanism_id": "cjson-detach-list-rewire",
+      "overlap_surface_candidates": [],
+      "question_sha256": "2b3fdb6a6e41cceff69202b30f9a6d8464f32ed15daec811cabbf580b1616693",
+      "source_evidence_sha256": "1691e64a70a03494e3b1d2b144f80e0c8bfd2dbae16f378d95d58f50df60d7bf",
+      "status": "pass",
+      "task_id": "ho-cjson-flow-detach-list-rewire",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "6ebf2501608eea8bfae3bebd96ff6fb82d06f8ae0b51921790e3fd2bee1323d8",
+      "answer_record_sha256": "b7a71d5cc7f5b36ba883d5f5be4facb07943d05a93585e2ad688fb4d5fcd952d",
+      "category": "跨函数流程",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 4,
+      "expected_point_ids": [
+        "wrapper-and-key",
+        "locate-and-splice",
+        "head-tail",
+        "old-disposal"
+      ],
+      "expected_points_sha256": "f0fcae0b53feec60f3d3ddf38f98c58c7f9cf67cd258b4e372791db6041c29a4",
+      "forbidden_claim_count": 2,
+      "forbidden_claims_sha256": "2512c09633c011ef844f85adb30e72b9cc5ba0d3bd2e6d2042fd78801695188a",
+      "mechanism_id": "cjson-replace-object-item",
+      "overlap_surface_candidates": [],
+      "question_sha256": "0330a241eaa2b4d489a6ddd327e60f26645746e71a6f592785055887a5b7a3d1",
+      "source_evidence_sha256": "1dce65b99901a1a9e38b8d8e63db06c59572a49a8f76ce3a7294bf0bec4b9668",
+      "status": "pass",
+      "task_id": "ho-cjson-flow-replace-object-item",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "f5c31319ed4a440fc49db43bc0833a3f8f6d04f809a79d01bffe5826e5ee6d79",
+      "answer_record_sha256": "b3dd1a6bb1232fbbf6005d91b0ef20a65a455713b180e783e8ed23493edb5ff4",
+      "category": "跨函数流程",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 4,
+      "expected_point_ids": [
+        "nonobject-patch",
+        "normalize-target",
+        "null-delete",
+        "recursive-replace"
+      ],
+      "expected_points_sha256": "801f74927d911d9dc826eb49c11bb147d85e64eda3b22cf929a8cacf3fe9d35f",
+      "forbidden_claim_count": 2,
+      "forbidden_claims_sha256": "44fcbbf0c320f3c65b11e5c4bd52fc9983aacb6a34d08f75eb04c0cb99628d81",
+      "mechanism_id": "cjson-rfc7396-merge",
+      "overlap_surface_candidates": [],
+      "question_sha256": "95d5bb9187798f7c48769413d035f7e37934bd2722d66697c509b597c1d16c17",
+      "source_evidence_sha256": "1e9b20f0c9db7dcdb50e980a02b6d1fb1413430cb00056a143c0733fdc4f240a",
+      "status": "pass",
+      "task_id": "ho-cjson-flow-merge-patch",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "3d7abc5838b53aa71e661f0f24ba7bf3c0b9fbab38fe8a96c2f027df9d5ca5eb",
+      "answer_record_sha256": "76827f91cfa24b3efb4a1122dcaf605cad11d132f08f0ce8cea4ab8975f8de00",
+      "category": "必要条件与反例",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 3,
+      "expected_point_ids": [
+        "guards",
+        "short-inplace",
+        "long-reallocate"
+      ],
+      "expected_points_sha256": "e2bec1a2bc87e4ff2941a7dc27d927ac5ccb14633d7878ef64b50dc4a0fdb93a",
+      "forbidden_claim_count": 2,
+      "forbidden_claims_sha256": "3842e85072c85021b0904713c5a62d3a8c30f2557b6c6a610e338d9f82d44443",
+      "mechanism_id": "cjson-set-valuestring-guards",
+      "overlap_surface_candidates": [],
+      "question_sha256": "d68a3ffa15c5aebd3f779be68009b5c808f82d1df230e1445e54184d34be95fb",
+      "source_evidence_sha256": "861f9b528439c729608c53403984eecb6c40fe1e0d3d1f2914c9ff5b851a26d1",
+      "status": "pass",
+      "task_id": "ho-cjson-cond-set-valuestring",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "b9e906759d97812970560d8c7862a0c4b87acedcf40770c8b04944272163f03a",
+      "answer_record_sha256": "4c0e90ba415ba354689a16dc9248e5d1b3f3ab59bcf6b2d4109cc28842a20e2d",
+      "category": "必要条件与反例",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 3,
+      "expected_point_ids": [
+        "explicit-failures",
+        "indexed-splice",
+        "positive-out-of-range"
+      ],
+      "expected_points_sha256": "4cc00aaacefa340b17757cbd748020c5dc3d5cc73125ba628874a6db24ac4c2a",
+      "forbidden_claim_count": 2,
+      "forbidden_claims_sha256": "171e24109305f948df15a08bf5ee75a5a30fb2f6af20bade6d1d817e240cfc35",
+      "mechanism_id": "cjson-array-insert-boundaries",
+      "overlap_surface_candidates": [],
+      "question_sha256": "d9efa486c2f6026eebf6f8f9ee1631b7a6776aa0c3d146aa70854d1355629ad2",
+      "source_evidence_sha256": "d0cb48923ce1fd82f282b0a0dfd745cebbf73c8d3b1f9b83d9760936fdbc5133",
+      "status": "pass",
+      "task_id": "ho-cjson-cond-array-insert-boundaries",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "e3b521fe58f919bec4cf6dd24436cafeaa365825f0ac97e197ef7ad7a381e68a",
+      "answer_record_sha256": "3a2e18f6cdef69a930f913db2e57a3b78c37c9e41581ec06ce697eb9da61fe53",
+      "category": "必要条件与反例",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 3,
+      "expected_point_ids": [
+        "leading-zero",
+        "digits-and-boundary",
+        "dash"
+      ],
+      "expected_points_sha256": "a8539051ed02bcab3a186d96bcab360153bf8bd4bee97bcd105ff1e6244a591b",
+      "forbidden_claim_count": 2,
+      "forbidden_claims_sha256": "330e157428641b5c9df03045807e078421a833d42fa181a8741e156a1b85fa83",
+      "mechanism_id": "cjson-json-pointer-walk",
+      "overlap_surface_candidates": [],
+      "question_sha256": "91a4bdecbe19f3ec0133590bec67de5d5b35f24f1ecea5cad291a31f53317917",
+      "source_evidence_sha256": "104252c83a3ed628805c1291770c9c8e019ce84df6c535cb2705404de9bf758e",
+      "status": "pass",
+      "task_id": "ho-cjson-cond-pointer-array-index",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "6d871acd39de1eeedd0bf6ba681bae8f658c3944a1130e532b1d9e6f03c2b452",
+      "answer_record_sha256": "ec3eff3e57197f14017df9152af72559066f226189ad2bdca5c006c010f4f0fc",
+      "category": "必要条件与反例",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 3,
+      "expected_point_ids": [
+        "shallow-copy",
+        "reference-shape",
+        "null-conditions"
+      ],
+      "expected_points_sha256": "86ee996205cbe1128ed74111b2c3fa989c7c29445925f9228b0cf962bc2f2c79",
+      "forbidden_claim_count": 2,
+      "forbidden_claims_sha256": "621440ccbe383b48292c0cc72c415e9c7c2237f1fca4a1e2921157ddacaf4b20",
+      "mechanism_id": "cjson-reference-alias-insertion",
+      "overlap_surface_candidates": [],
+      "question_sha256": "9ca97dd1767d49c4efa58f61e6dfe31e34c9d06e07e64c57a36e0834f6164bc7",
+      "source_evidence_sha256": "edf51cd0ae172f985e3146df92c196ceb52c2c6ab0c9de997046f6cf074a35f7",
+      "status": "pass",
+      "task_id": "ho-cjson-cond-reference-alias",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "940a77495f6d14d92fd3d72f39bcab5bd83078ef41f8af318c52ba56df1448ef",
+      "answer_record_sha256": "42e6ef02ea8f41ffb958bb6c7748a0c012600f32128a2cc40a9f01879f1f38f9",
+      "category": "必要条件与反例",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 6,
+      "expected_point_ids": [
+        "null-result",
+        "no-type-guard",
+        "chain-count",
+        "object-counterexample",
+        "zero-ambiguity",
+        "termination-and-range-boundary"
+      ],
+      "expected_points_sha256": "e9f973196245eaca13767f02ab258458996ced145998eb188e3f37d7aeecf08a",
+      "forbidden_claim_count": 4,
+      "forbidden_claims_sha256": "4ac692601a860fa7d2b3adc627b7d7d80e6061374c6ca682bcbe2b9ef0bb10de",
+      "mechanism_id": "cjson-array-size-child-chain",
+      "overlap_surface_candidates": [],
+      "question_sha256": "b1cee39030803cea68a0d725a5ea8408d3b8635bb0aa2dc495372dc55edf9c3a",
+      "source_evidence_sha256": "2c823fc62d97c2e56a10dbac3c7dbb476d51d80b653d17162b746cc65b80e6a3",
+      "status": "pass",
+      "task_id": "ho-cjson-cond-array-size-structural",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "cb05c2e87a45623861f6d84707f81f196a8393d35a02e80d02e189c704990fbe",
+      "answer_record_sha256": "1f79220c2535f4cbcee58c6cd6083d6bbee98f48fc960d5a59c1ff82f35e15ac",
+      "category": "资源/错误路径",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 3,
+      "expected_point_ids": [
+        "preconditions",
+        "partial-cleanup",
+        "tail-invariant"
+      ],
+      "expected_points_sha256": "4344a0f9fa4404244da52b25a2d6e21a1ee369fdd7b7e7502fbddbb16d232dee",
+      "forbidden_claim_count": 2,
+      "forbidden_claims_sha256": "ef35c6c8b109f0ef09644ca06e1cacb76a9f71277809e73400da03e756d64517",
+      "mechanism_id": "cjson-string-array-cleanup",
+      "overlap_surface_candidates": [],
+      "question_sha256": "c983a94936c94ec8651faf6f13ea7c861367642bb955524c3598091978e31da9",
+      "source_evidence_sha256": "2ffd4f604cab5ff5acf43ccc3e23140f996c95a49cb4699df942220640132d33",
+      "status": "pass",
+      "task_id": "ho-cjson-error-string-array-cleanup",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "7316e96194e1c630cc7dad744d8ca3b614e6a85e2ee6b6264109a601bc1dffa4",
+      "answer_record_sha256": "73332d7c81e6bb49b6c92ad1a8d39dbb3e1c4877e9a969b19ef67a3d7aab80e3",
+      "category": "资源/错误路径",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 4,
+      "expected_point_ids": [
+        "copied-fields",
+        "shallow-mode",
+        "recursive-links-and-limit",
+        "unified-fail"
+      ],
+      "expected_points_sha256": "4058c9ec6802dfd6ce5b77f018567568513245dbfab508861b7e5ee3f83a6790",
+      "forbidden_claim_count": 2,
+      "forbidden_claims_sha256": "dd1ebf89a792bf1954268d195be2d034f1d3481deed4ec96a03fb38009e008dc",
+      "mechanism_id": "cjson-deep-duplicate-failure",
+      "overlap_surface_candidates": [],
+      "question_sha256": "1488af816338e8604431c99d88c74f98e6562ac5b02c27860e8e20ff7fc535e1",
+      "source_evidence_sha256": "e1ceb237a500a888a5631809af55aa7deb5093177eeecafb020a270d9794e445",
+      "status": "pass",
+      "task_id": "ho-cjson-error-duplicate-cleanup",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "0b76c2b9ee52156bd815418a341c654bef7d371e3a67b451272a5ce43ce23b61",
+      "answer_record_sha256": "ccb90746be4beb49ee4899154bd1c8eebe9ad2dbffb5cfa59ae0d38302f61686",
+      "category": "资源/错误路径",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 5,
+      "expected_point_ids": [
+        "delete-target-patch",
+        "replacement-copy",
+        "object-container-failure",
+        "no-change-null",
+        "public-null-ambiguity"
+      ],
+      "expected_points_sha256": "79d3d789782aa18faf20f51d24c194ab23282485f1e8f30d585139f857000e3f",
+      "forbidden_claim_count": 4,
+      "forbidden_claims_sha256": "8cd52f9ebfde3ab02809ab8ed0d00966f0a218610632b8be71114be29e6f7f58",
+      "mechanism_id": "cjson-generate-merge-patch-null-result",
+      "overlap_surface_candidates": [],
+      "question_sha256": "f888feab700a78d122d86578fe891a394dadc9a0f2cf6969141a27ff3b662404",
+      "source_evidence_sha256": "f87bfd8688152781eca0d29a123c0774ec6673e474551f6f9c038c0fbd7a85fe",
+      "status": "pass",
+      "task_id": "ho-cjson-error-generate-merge-null",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "fbeeba1ecc9de2c88c80b24c5908bd09e5614e3e15cebfea6196fc37ed16d425",
+      "answer_record_sha256": "8a0b58b2f4fc3fe406ecc03003be23435e2fd4dc0d053204b78ef13e68ce6976",
+      "category": "资源/错误路径",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 3,
+      "expected_point_ids": [
+        "create-then-attach",
+        "success",
+        "failure-cleanup"
+      ],
+      "expected_points_sha256": "7ba6f79dc8684b1e6cfb1867e41d08036ecf4b90940de3919f87770cc4ba8c5e",
+      "forbidden_claim_count": 2,
+      "forbidden_claims_sha256": "b6145b9c0606933b4b878398cba5bc1acaf89010c416b52645fae93a587a77f2",
+      "mechanism_id": "cjson-convenience-add-cleanup",
+      "overlap_surface_candidates": [],
+      "question_sha256": "f186fd78bd6dc53f5b2a14d329f1d369ebd534c57ad5aad453557295427d80af",
+      "source_evidence_sha256": "7643ec825810d71b18f2d0f5580248799d1149c06f1d838afc4eb41a3cf96a8c",
+      "status": "pass",
+      "task_id": "ho-cjson-error-convenience-add",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "79a0548048252e196a5d4361cf5f60563a8e4c70db395cebdc5d943613e1bc57",
+      "answer_record_sha256": "a122125b32c5686eb738cb1c943475ba2134aa7e4d0741eecc137e5ed718da28",
+      "category": "资源/错误路径",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 4,
+      "expected_point_ids": [
+        "base-result",
+        "ownership-transfer",
+        "visible-oom-gap",
+        "not-found"
+      ],
+      "expected_points_sha256": "d33142b7aea8fc64c285994cacc05b0c9644d151cb9dc156cbb04f15c532919d",
+      "forbidden_claim_count": 2,
+      "forbidden_claims_sha256": "47ec45d724310d35b00a22b449b96e36e2ac51378ee16e1e01be2d90d2d9991a",
+      "mechanism_id": "cjson-find-pointer-ownership",
+      "overlap_surface_candidates": [],
+      "question_sha256": "3256bf7f793211c283fb996c3b11686e5ac198972b27a54ed24bc4dd932504de",
+      "source_evidence_sha256": "684934292501ff0f7f1ba160d77862e4e32a4cdce4d84401e7c52965c9cd15d1",
+      "status": "pass",
+      "task_id": "ho-cjson-error-find-pointer-ownership",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "9ba5da6436ed32eeee3f77f0387ce5445b93fee780604c2264c7d1610f2a9ef5",
+      "answer_record_sha256": "79e55c611fd1528ef4ffcc9d31e3406f6166ffa22b7a05d6ee1f8967110a4ff9",
+      "category": "状态/配置约束",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 3,
+      "expected_point_ids": [
+        "reset",
+        "partial-hooks",
+        "realloc-gate"
+      ],
+      "expected_points_sha256": "ca9e5291ff3d11bbb537135f6272bc5a3f9a45678916890b6240b26b02ed1c4a",
+      "forbidden_claim_count": 2,
+      "forbidden_claims_sha256": "7fd7181e6b5a6c6283f978b4b7ce8a3aea83c8fbae8f0014132c389bb6cbcc4b",
+      "mechanism_id": "cjson-allocator-hook-state",
+      "overlap_surface_candidates": [],
+      "question_sha256": "ab059f1d7b045b80faec35bde7755adc119cb7639d2b9c44dbff0791391a7676",
+      "source_evidence_sha256": "e6a79a9e224aa305cd98af17f10a78abd4b30e064fdb7cd16bc3207d0b4cb012",
+      "status": "pass",
+      "task_id": "ho-cjson-state-hooks-realloc",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "f596d4558a9e7805a334070fdaf6cfd011361aab09ab1f5b940496aa27528ef3",
+      "answer_record_sha256": "060859b7aee107cdfd32b0b0bc435653c0a4d9d61ee38c33c3c4d4def0ff751d",
+      "category": "状态/配置约束",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 3,
+      "expected_point_ids": [
+        "empty",
+        "append",
+        "invariants"
+      ],
+      "expected_points_sha256": "48826c9f2b51085d62531d6ddfdf6dd3921b524af4a9dce6e52d52dbaaad1070",
+      "forbidden_claim_count": 2,
+      "forbidden_claims_sha256": "9df9cdbfc22724e2a74f42926c9918b918d6870e720e637aa0d6b96ccc6975cd",
+      "mechanism_id": "cjson-array-tail-invariant",
+      "overlap_surface_candidates": [],
+      "question_sha256": "6a4a1b62192380bdaefa1c5cf0ae38bb33a4d88802731496faf1c8437407f2fa",
+      "source_evidence_sha256": "3ce1b3a8bc7e42177f378752eaaa2610161a39f9b2719fa8f7eb234285412c50",
+      "status": "pass",
+      "task_id": "ho-cjson-state-list-tail-invariant",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "1943f032e243ee86be1bc76f12473fd1152585593f1963a4ec3ccd490261db78",
+      "answer_record_sha256": "285f6bae8332143fa7a84f41208136144bd503131a08224f63b066c43ad52218",
+      "category": "状态/配置约束",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 3,
+      "expected_point_ids": [
+        "null-object",
+        "integer-view",
+        "double-view"
+      ],
+      "expected_points_sha256": "084375bb1a79968a9b10fdd48ddfc77f41ee652f450fe683dfcbbe1666539cfe",
+      "forbidden_claim_count": 2,
+      "forbidden_claims_sha256": "18169d622ddc30acd9423cf2af484e8bb4aaa7b9a4f7e60318ca92b6698bb85d",
+      "mechanism_id": "cjson-number-dual-representation",
+      "overlap_surface_candidates": [],
+      "question_sha256": "2e5a6bfeec16ad093c03c7b246bbe062c61e4aaaf74b6a0e3ac3f882020b19b0",
+      "source_evidence_sha256": "0189e7414577b0d9cebb1b2e9c7345d3885df049e2442bfb0f8367ab8e2f2d43",
+      "status": "pass",
+      "task_id": "ho-cjson-state-number-saturation",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "c57ecdf429d9036fd1349feed0f13c2486f1a19f2e162110c3a04cec6c7db26f",
+      "answer_record_sha256": "b50e85d855fd864175520b987b230786222bbacd46925406667e325440358cde",
+      "category": "状态/配置约束",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 3,
+      "expected_point_ids": [
+        "construction",
+        "no-copy",
+        "mutation-guard"
+      ],
+      "expected_points_sha256": "db5fa91fd6a1e48cc1ac4d24003521dfceb4eaeebf620fee8e73b5effd06b500",
+      "forbidden_claim_count": 2,
+      "forbidden_claims_sha256": "0743c9b708e597f1ff5a3b05616f01e3a22edb8a1397db5ba95f14be3a6df2fa",
+      "mechanism_id": "cjson-string-reference-ownership",
+      "overlap_surface_candidates": [],
+      "question_sha256": "2f22fd6b9a239f97b57a361bb5db24d46e1beedde7bd94a8e4ce2cedc9028f70",
+      "source_evidence_sha256": "ba2c70d4152737e38ce4833a7375af96fa94a623c7f24c7ad0acbab0215dba3c",
+      "status": "pass",
+      "task_id": "ho-cjson-state-string-reference",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "e4b901fc8a72a6dbb6fcbc9b7af5bd2931cd45b2fba3514d55488336165713be",
+      "answer_record_sha256": "a36dc0dc94519ed22c94f4b9f0bf283c0d297688c41d1de3764b9ffb3e156524",
+      "category": "状态/配置约束",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 3,
+      "expected_point_ids": [
+        "inplace",
+        "mode",
+        "null-object"
+      ],
+      "expected_points_sha256": "457aba84df22ad98661a136fb45a39f97ea05192d5a083a8d4eadb00c9e6441e",
+      "forbidden_claim_count": 2,
+      "forbidden_claims_sha256": "a93d81135c8eff15bd3fdb19a4c53a1cbb450d358e8604a911e89e2e04eb89cc",
+      "mechanism_id": "cjson-utils-sort-mutation",
+      "overlap_surface_candidates": [],
+      "question_sha256": "248a015398fe2fc2b505f4362c013bbfe5b11816f367ca7b3827f047d35aeeae",
+      "source_evidence_sha256": "cce38f18bbd5bf5b84cfe40b0b6910c7ec6963c2b0bcb867b21727d2898f7a5f",
+      "status": "pass",
+      "task_id": "ho-cjson-state-sort-mutation",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": null,
+      "answer_record_sha256": "9e47b0e39fdf94714331920b95284971c55019b9acba8bce66c89311dece9e2f",
+      "category": "无证据拒答",
+      "checks": {
+        "db_anchors": "not_applicable",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 2,
+      "expected_point_ids": [
+        "boundary",
+        "response"
+      ],
+      "expected_points_sha256": "3cd3a3589a5e200158972f24b832b463c02f2d735c14ff4023815e7e1b9268f1",
+      "forbidden_claim_count": 1,
+      "forbidden_claims_sha256": "59852931d8fa0ca277681429a0e6e350234ef70e15093d00b3ba925d47fbaad1",
+      "mechanism_id": "refusal-out-of-corpus-rust-borrow",
+      "question_sha256": "c32808a798b5c8047004ff95697b4a58273a2afb0f9834c7e8fd13c503b413f7",
+      "source_evidence_sha256": "08e2a8537d045f6af514fb0bee0f01db4a7c4361a814727bc05db226bd310efd",
+      "status": "pass",
+      "task_id": "ho-cjson-refuse-rust-borrow",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": null,
+      "answer_record_sha256": "d34dc26748120eacacee3aa635183067343a1c8b8d5a9c13607423e5dedf5b6a",
+      "category": "无证据拒答",
+      "checks": {
+        "db_anchors": "not_applicable",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 2,
+      "expected_point_ids": [
+        "boundary",
+        "response"
+      ],
+      "expected_points_sha256": "cf3a7f0cb6195a075182300795976ac7a0fb532ac42fc1cde7e31b2e771edc09",
+      "forbidden_claim_count": 1,
+      "forbidden_claims_sha256": "041ad90a3e067a85a05738406add0470414e9c01a2b01bf38f47658fb641bb65",
+      "mechanism_id": "refusal-out-of-corpus-ebpf-verifier",
+      "question_sha256": "801cd4e8768c5b72978c2bf4681bb1a1026db09aac64241edaaffde83fc1268c",
+      "source_evidence_sha256": "6549db0e32bd48916f500675e082797f902681417d666a6700ad9d6ecc0d2a51",
+      "status": "pass",
+      "task_id": "ho-cjson-refuse-ebpf-verifier",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": null,
+      "answer_record_sha256": "8a52b0ccc7ceb0a4439291b32b9ef9145e5f6101330dee70e44ccd4a6ec590c2",
+      "category": "无证据拒答",
+      "checks": {
+        "db_anchors": "not_applicable",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 2,
+      "expected_point_ids": [
+        "boundary",
+        "response"
+      ],
+      "expected_points_sha256": "4c2896a5ce15a5cfd105da340b4f3a66fd17d538a2e585e82b0e0ea94b7c98d2",
+      "forbidden_claim_count": 1,
+      "forbidden_claims_sha256": "3d3b57ee2b01a3a8406100aedb8372dce7e7cad6253cf33aa288ea7ad6a18271",
+      "mechanism_id": "refusal-out-of-corpus-sqlite-wal",
+      "question_sha256": "8b49abdbd1e6ce646d04a4dbf9b63739506dd4ca274b6cc7567b6e0d18927580",
+      "source_evidence_sha256": "d3526eb88c5cde1e8caaa15e0e876c3afc60e5416303c64d6e5486de5ce152ef",
+      "status": "pass",
+      "task_id": "ho-cjson-refuse-sqlite-wal",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": null,
+      "answer_record_sha256": "6ee5b6d93c8547eb9784b46728839c06773a0deee1c8781f12b8ad72ec48c420",
+      "category": "无证据拒答",
+      "checks": {
+        "db_anchors": "not_applicable",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 2,
+      "expected_point_ids": [
+        "boundary",
+        "response"
+      ],
+      "expected_points_sha256": "be9085524b08acbd37c9a05b1da1b7b902858dad2e444f85e4dff89ef19ad841",
+      "forbidden_claim_count": 1,
+      "forbidden_claims_sha256": "e73320eee611dc0f867d39a5687c0c2f1b2476b8a81c91c932214c60ffe25b0b",
+      "mechanism_id": "refusal-out-of-corpus-react-concurrent",
+      "question_sha256": "552efef4ce2fbcd2db85f92de4718b558d53c19dd27f6b0190238129fd79e8e2",
+      "source_evidence_sha256": "ed216b5faf9eeb00ba20f9b0260ed1066cb72909b67cda998fbfda9b8c52d3e9",
+      "status": "pass",
+      "task_id": "ho-cjson-refuse-react-concurrent",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "bac9a82ad0292f60d1a17f931d34d2230ea1c1080b94d41b3e06331e67ffc473",
+      "answer_record_sha256": "bf60bc56d480e20b41e4fe38268abf22ca6d5143732d56044e32f31c9e4e5fc7",
+      "category": "跨函数流程",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 4,
+      "expected_point_ids": [
+        "connected-destination",
+        "route",
+        "source",
+        "transport-to-ip"
+      ],
+      "expected_points_sha256": "0587a5cf246bf38965d410a52790d4c1ab7cb2a87eb456d881b5b078dd9abc87",
+      "forbidden_claim_count": 2,
+      "forbidden_claims_sha256": "d0ac1483c11b26a53c4543cffbc72f828ac8f7904e9b9f4dd9c738b78c04f6d1",
+      "mechanism_id": "lwip-udp-send-pipeline",
+      "overlap_surface_candidates": [],
+      "question_sha256": "eb7bc856c838ebe9231806d4bbc0b049ee3a726177e56c8d29cf087573741d51",
+      "source_evidence_sha256": "e681bb28d7f73ac52c4e8b1a8063a2f654ce9fa6594ed32ca27215cc0a5e3b23",
+      "status": "pass",
+      "task_id": "ho-lwip-flow-udp-send-pipeline",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "7a75fa3a87f595baca2cf43e3a25e77e722af0ef8c7acb4b1a5daf9a01899a0d",
+      "answer_record_sha256": "0198932a4b49477fb9b44f5bdb1f435faf89e813a197f125098e5b8c39b715a9",
+      "category": "跨函数流程",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 4,
+      "expected_point_ids": [
+        "synchronous-fast-paths",
+        "server-gate",
+        "enqueue",
+        "state-machine"
+      ],
+      "expected_points_sha256": "9e8f547fa872b3272d5e186f1081f88354c71ec22ea867fd9ca958a69c80d899",
+      "forbidden_claim_count": 2,
+      "forbidden_claims_sha256": "e116c1a8bd3a9fc9c7fdccc0d2ce183b1e8666d93db6732e9bdb0c492025ebf5",
+      "mechanism_id": "lwip-dns-resolution-state-machine",
+      "overlap_surface_candidates": [],
+      "question_sha256": "069f2b30dfe1015236b61fa4baf08f2ab58eb1e2ddf5df8cdf1c22a477e2ac7c",
+      "source_evidence_sha256": "c04c82f91d358f1680f4e5d60eca09c6a0b83249a8dc4a6f8288507144f9b76a",
+      "status": "pass",
+      "task_id": "ho-lwip-flow-dns-resolution",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "81891ca207fbce72435b216911648e05853084b5d471b46001862b3f74cd3ee7",
+      "answer_record_sha256": "8f2f87fe0026361b3087f86103a65de9c993a6f6971d232ba708de3dc8da8434",
+      "category": "跨函数流程",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 4,
+      "expected_point_ids": [
+        "header-validation",
+        "metadata",
+        "dispatch",
+        "unknown-and-ownership"
+      ],
+      "expected_points_sha256": "cb2a5c97c552eca2642d5fab86d59c2c93f5526eb4823bb16d29b33761506c2e",
+      "forbidden_claim_count": 2,
+      "forbidden_claims_sha256": "29c68d67f233d5509065125091c7fb35a67ee96ac2deefe34a2e8158c729b607",
+      "mechanism_id": "lwip-ethernet-demux",
+      "overlap_surface_candidates": [
+        {
+          "development_task_id": "impact-tcp-input",
+          "exact_question": false,
+          "shared_anchor_surfaces": [
+            [
+              "ethernet_input",
+              "src/netif/ethernet.c",
+              80
+            ]
+          ]
+        }
+      ],
+      "question_sha256": "e841beefb85a12f42815b12aaea3a91ff31fe5a05c655f8f8384db51629d8dca",
+      "source_evidence_sha256": "60ae6b6aa5d76d3cc6c64cf3c0cb5efbc25977190319708a92c2acfd113f0d96",
+      "status": "pass",
+      "task_id": "ho-lwip-flow-ethernet-demux",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "73b533804c2fb6fea8099f04325480953ffb5330812f687116c87d5d09e7e1da",
+      "answer_record_sha256": "5b73eef0e979834fa6dc45ff3f7a22428820151121a03515fdf72c98252ac25a",
+      "category": "跨函数流程",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 4,
+      "expected_point_ids": [
+        "client-and-pcb",
+        "link-gate",
+        "discover-message",
+        "send-and-backoff"
+      ],
+      "expected_points_sha256": "83823d5ca8139a08f4fa03de3dd45caa48853a816d3439ef767bd706fefb6033",
+      "forbidden_claim_count": 2,
+      "forbidden_claims_sha256": "14f9f9a195f5912b1c6d6ea507115b2a91c549acd89b8b189237dad8d46fdf9a",
+      "mechanism_id": "lwip-dhcp-start-discover",
+      "overlap_surface_candidates": [],
+      "question_sha256": "6e2f70c110988e627e8db55176f010b18e26aeb7587b78ee5e6c3cbb47323904",
+      "source_evidence_sha256": "f5f9f42dead60eeed61969b628f5b7580504216774a85412ec688a6b7c6828bb",
+      "status": "pass",
+      "task_id": "ho-lwip-flow-dhcp-start-discover",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "bdfbb74b3d8b762c7df27224183555984c2bc73c2634c3f2a78bd529091b6150",
+      "answer_record_sha256": "2920ffccd8a57d3b31c00d2de7b0b61eaee6ff8fe943fdcb53e400032d8f0051",
+      "category": "跨函数流程",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 4,
+      "expected_point_ids": [
+        "absolute-registration",
+        "ordered-list",
+        "dispatch-order",
+        "sleep-result"
+      ],
+      "expected_points_sha256": "652089b68e55e1473ca8763aecb198c5b6c62795e5a36420b6b836a546e5a7d3",
+      "forbidden_claim_count": 2,
+      "forbidden_claims_sha256": "47ca03f9e0fd4e73d25b039324fff587a495ca5c10bb6a9aa6794120865e782b",
+      "mechanism_id": "lwip-timeout-dispatch",
+      "overlap_surface_candidates": [],
+      "question_sha256": "d5bec7f274be6d0f344550c516fd0c8350e009312c20a4c5531f6f4f0cf3dad5",
+      "source_evidence_sha256": "4824dc479199c4b15121e9627fed32c71566c6fa775c2ed562fa115d27d8f6ed",
+      "status": "pass",
+      "task_id": "ho-lwip-flow-timeout-dispatch",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "276df019b6acb2020a5698add260596403a00485d09302eec1a4d0ea6931d66b",
+      "answer_record_sha256": "eaeede217235a254065494069ebb81912695d53f4b6bbabba21beb55e426dea1",
+      "category": "必要条件与反例",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 4,
+      "expected_point_ids": [
+        "ephemeral",
+        "conflict-shape",
+        "reuse",
+        "activation"
+      ],
+      "expected_points_sha256": "339c4afbdca8bfa89521f1dbd2cb0bc35a31693724b60a32c9bbc515a13e615d",
+      "forbidden_claim_count": 2,
+      "forbidden_claims_sha256": "8a853a0fa8adae9833ce915cf6e30be4d0f2ca2b939c0872f6275cca42dceaa1",
+      "mechanism_id": "lwip-udp-bind-conflicts",
+      "overlap_surface_candidates": [],
+      "question_sha256": "29c241310513447df10ca97a67d46da0667908228222b8b43bc032e5c2f55d4d",
+      "source_evidence_sha256": "ab021b620dab186563ea35cb0a63f61f40ab311f6b5cfe880683725cbf6c6ed7",
+      "status": "pass",
+      "task_id": "ho-lwip-cond-udp-bind-conflict",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "ab9b8e7cd1bcabb950c3a9e676c45ad9d828bcb8cd53a2db512deb59e0a93d8d",
+      "answer_record_sha256": "d5789b387cb6894681f0bb785e96a7d2e540a3f67faae26dae2acbe23ca73a47",
+      "category": "必要条件与反例",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 4,
+      "expected_point_ids": [
+        "state",
+        "ephemeral",
+        "lists-and-timewait",
+        "reuse-conflict"
+      ],
+      "expected_points_sha256": "257c416336846ed373992a63691388ef54a0c757947ef5bf646a9a038ba4feda",
+      "forbidden_claim_count": 2,
+      "forbidden_claims_sha256": "3865c8170930a81328d7fbb7ced8f7138e5408ce6c2ffde0542f48d807605834",
+      "mechanism_id": "lwip-tcp-bind-conflicts",
+      "overlap_surface_candidates": [],
+      "question_sha256": "f8091251200d90b02ee7af49c035d4908ec553bd36d496160b14e6ee951fbc80",
+      "source_evidence_sha256": "284386e309ebd0caba64b38c1c0f781cbfd8d091c23eb124bd4c84fb6eb6d0e1",
+      "status": "pass",
+      "task_id": "ho-lwip-cond-tcp-bind-state",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "1309d3d2df8f481dc5762a9bf5154c052983a7246e97db971178c5c79ddc379d",
+      "answer_record_sha256": "282ec667329f99cc75f31fceafccd07b88d11c6517cd7c48b6ce6588526f3813",
+      "category": "必要条件与反例",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 4,
+      "expected_point_ids": [
+        "wrapper-force-bit",
+        "external-payload",
+        "remaining-guards",
+        "remove-guard"
+      ],
+      "expected_points_sha256": "b6c184822a04092619ea05d6f0adf8d7c8c8e9ab0d78c3ee45ef514479f51491",
+      "forbidden_claim_count": 2,
+      "forbidden_claims_sha256": "8dacd72a278d902520861fe2a4ca7dbdd4377adf3b9f84d073ca83efec668abe",
+      "mechanism_id": "lwip-pbuf-header-adjust",
+      "overlap_surface_candidates": [],
+      "question_sha256": "48ac5a5c407343edc7a5698c32fd9d90db685616ebef8214928f5003f04881f3",
+      "source_evidence_sha256": "e1522e5a005009273c2753f85477b4c7339414cf692a31de66df4e8294942c23",
+      "status": "pass",
+      "task_id": "ho-lwip-cond-pbuf-header-force",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "e8b7226db2221282a9e17fc1471e26c60ee759975718f12dd8891bd3c82bfa92",
+      "answer_record_sha256": "6460f250891ab800c6a4ea0d503c0c6ece654d1ab1539fd5ec7add6356713156",
+      "category": "必要条件与反例",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 5,
+      "expected_point_ids": [
+        "argument-errors",
+        "terminal-dot-and-literal",
+        "cache",
+        "async-or-no-server",
+        "mdns-server-bypass"
+      ],
+      "expected_points_sha256": "b083e93fee7d8da50357d6c64a6ef9cfee5206f8d62f78b51073ef43c34f81fe",
+      "forbidden_claim_count": 4,
+      "forbidden_claims_sha256": "40897e7c879b163a5022fb7032cdb55dfd48546270a6cad6468ab5fe72dffed6",
+      "mechanism_id": "lwip-dns-resolution-state-machine",
+      "overlap_surface_candidates": [],
+      "question_sha256": "1d684f12bab40cef89bb451f9b0d33202d0ad793045ac2de0b1256be1ca9bae6",
+      "source_evidence_sha256": "042df68573dd9ca5787713564ef463b764d87ec3405585810e0e7542c1fbaf2d",
+      "status": "pass",
+      "task_id": "ho-lwip-cond-dns-sync-result",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "d775215b0cf7ea2f6016e343ace7022bc221eca8668362e0962c1c2e7d536961",
+      "answer_record_sha256": "e7f9a66d20da9c5011c96e33cb1f4b012569213094179ddfce40a009928e25bc",
+      "category": "必要条件与反例",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 4,
+      "expected_point_ids": [
+        "direct",
+        "point-to-point",
+        "hooks",
+        "default"
+      ],
+      "expected_points_sha256": "425644a7a304a498277cd6aefc35fb5676250f4e91cc87aa1eff10a57bd84de6",
+      "forbidden_claim_count": 2,
+      "forbidden_claims_sha256": "a1875e5847f16f6fdc6998e99d9b92605887c4021208af24431594530d9b54e0",
+      "mechanism_id": "lwip-ip4-route-selection",
+      "overlap_surface_candidates": [],
+      "question_sha256": "c5b8473dc708d9384ec84f0a3a7c5837f524e52d73003abafbf30d553d567daa",
+      "source_evidence_sha256": "ec756458675b7fa199096927ba1255950b2823118c669974c38184aece82b998",
+      "status": "pass",
+      "task_id": "ho-lwip-cond-ip4-route-selection",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "c8681cd437bc86ded2009afc9e0fab058d97bbf7dc0b3ac7e28d9e601172df32",
+      "answer_record_sha256": "db0d725baba564c7dd219a3bdeaf9362dd7013c9300865cee5a2d1af01f75b96",
+      "category": "资源/错误路径",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 8,
+      "expected_point_ids": [
+        "initial-allocation",
+        "closepend-first",
+        "ordered-retries",
+        "timewait-victim",
+        "closing-state-victim",
+        "priority-victim",
+        "error-stat-adjustment",
+        "final-result"
+      ],
+      "expected_points_sha256": "593c6099760bf8bead3e27a6558103c777f0eb3916ea082d350ca19a1d75a0ff",
+      "forbidden_claim_count": 4,
+      "forbidden_claims_sha256": "20fd3168726047234c9ca8ca295160380c9b41c6a3f66c4153b1674acd846c88",
+      "mechanism_id": "lwip-tcp-pcb-allocation-reclaim",
+      "overlap_surface_candidates": [],
+      "question_sha256": "e6e065b1a2e5f52c6ccf5b85e2a18745ebfbd8d04b23d3b1c98842fd32616be7",
+      "source_evidence_sha256": "8f6d86ffa98ca0a402d517c99e8cc33ce52ee4d944a2430e89701711fc79b8be",
+      "status": "pass",
+      "task_id": "ho-lwip-error-tcp-alloc-reclaim",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "f5f08cbce48faf5805c4acd2f5a776616ea5090d1b48f43db8bff47d9ff4c855",
+      "answer_record_sha256": "efc4f6bbf0644e4c32b6b07ace98c66dccc050ad589f5cd18b0f1066d100c855",
+      "category": "资源/错误路径",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 4,
+      "expected_point_ids": [
+        "dns-table-full",
+        "request-table-full",
+        "pcb-failure-rollback",
+        "success-transition"
+      ],
+      "expected_points_sha256": "2c4d619a38179f49a99487ac8d3fc854342614320ec30925745acb580a53ba1f",
+      "forbidden_claim_count": 2,
+      "forbidden_claims_sha256": "a80277af95e398158a4dd96043d90153bbd2df2b401a4256eff077c81088b099",
+      "mechanism_id": "lwip-dns-enqueue-capacity",
+      "overlap_surface_candidates": [],
+      "question_sha256": "bcf2296d4ae975dcc44759ac14beac5298611632985059e2ffe2455d25778b05",
+      "source_evidence_sha256": "ad67536b3d3958a98817b7b81bef1db61dce98c137587691e910c626db05e690",
+      "status": "pass",
+      "task_id": "ho-lwip-error-dns-enqueue-capacity",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "a517fd9f863628d61351df02500ab9b27f83c584c563dbab276dc22101a06989",
+      "answer_record_sha256": "573f8a4f9a08ee48cc5bee6163fb199488d06505fbde2acd256a540461effeef",
+      "category": "资源/错误路径",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 4,
+      "expected_point_ids": [
+        "early-errors",
+        "pcb-acquire",
+        "discover-cleanup",
+        "allocation-counterexample"
+      ],
+      "expected_points_sha256": "824430dcd597658f67bf816a100686c14fc0e7ba64203d61ffb336c5f1770687",
+      "forbidden_claim_count": 2,
+      "forbidden_claims_sha256": "3b36bf708d76bc4b4cb765f94ea68a94f8e77c749efe5c71bf0984e2954c5ee8",
+      "mechanism_id": "lwip-dhcp-start-discover",
+      "overlap_surface_candidates": [],
+      "question_sha256": "a35f8a9d28a19b65d5848e241fac33e7b845acd3ae654b3c0c5c5840abe1528f",
+      "source_evidence_sha256": "26b35ccaa0d1c7706b513e7bd47c296e004697f96fa8262a6f699389ca066502",
+      "status": "pass",
+      "task_id": "ho-lwip-error-dhcp-start-cleanup",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "7be8d63e66a71ab356e7f09927809fd5c9ae0458cff02228341289980024da1d",
+      "answer_record_sha256": "fb4479d9d9eb2ba1bbf036f7e18d0b6e9f07893c9711161694cdd0e57bdb7a13",
+      "category": "资源/错误路径",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 3,
+      "expected_point_ids": [
+        "old-free",
+        "allocation-failure-state",
+        "delete-after-failure"
+      ],
+      "expected_points_sha256": "eeb58461ca5351cf7bcd2cf0490f640c27aa62834556cdde2904fb7f34ce5071",
+      "forbidden_claim_count": 2,
+      "forbidden_claims_sha256": "49de13eff9f15f9599691a9519e1a6f5823e6d4571dfb2ad088cd5d6a14dccfa",
+      "mechanism_id": "lwip-netbuf-reallocation",
+      "overlap_surface_candidates": [],
+      "question_sha256": "002595eb718de8ec6cbfca8f7b77fe3002e887b255404ce2e52924b23f29332a",
+      "source_evidence_sha256": "23d4b80f0326f3ddd54bc321f07837a496a316b23e45732d59d8f110f9bb4778",
+      "status": "pass",
+      "task_id": "ho-lwip-error-netbuf-reallocation",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "109ae66144baa2cef8006334a09436b488593183932d31770e272b1e56a6d376",
+      "answer_record_sha256": "f5e340fa501b45d711a65dd86836b7b549e72be9c83b82a105aba09a09cf7e35",
+      "category": "资源/错误路径",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 4,
+      "expected_point_ids": [
+        "malformed",
+        "capacity",
+        "enqueue-fail",
+        "no-guarantee"
+      ],
+      "expected_points_sha256": "bce06c53f2c054af448b3f2dc4ea3d5f4ca9bce6fe9e9419b1552e603c8349c1",
+      "forbidden_claim_count": 2,
+      "forbidden_claims_sha256": "741f00c4d6e852bc6d3a8f6bfb63ec0959c81ebef5eabbd3ae9f5d1c84bd67fc",
+      "mechanism_id": "lwip-ip4-reassembly-limits",
+      "overlap_surface_candidates": [],
+      "question_sha256": "3591ce74b8bf936fa0362a76fb254c86bf1918d0c9b44cc21db6f3e8ee58e7ee",
+      "source_evidence_sha256": "1170b9796a326a58179f3c3f82ad51dbe384e1885d9caf001ed0eed324432b17",
+      "status": "pass",
+      "task_id": "ho-lwip-error-ip4-reassembly-cap",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "6be6ef5093cf8ffd4b016b01b67de9dd23c07d2dc907fbf44cecdeb0285329bd",
+      "answer_record_sha256": "0e68f78e4bfff49d227a9738af4c5e9c5db4dea03f5c92937f768f4a2f8f7da2",
+      "category": "状态/配置约束",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 4,
+      "expected_point_ids": [
+        "auto-bind",
+        "connected-state",
+        "disconnect-state",
+        "preserved-local"
+      ],
+      "expected_points_sha256": "964ce3b773bee0f667555025bf3caabb79e89d09aa0f475c7c430fedc3f7f210",
+      "forbidden_claim_count": 3,
+      "forbidden_claims_sha256": "90c0464f001b911069ec534d0029defbbcc4f5f2fc83a6cfd8859f9e9d6e3682",
+      "mechanism_id": "lwip-udp-connection-state",
+      "overlap_surface_candidates": [],
+      "question_sha256": "9240d3bb172a5daa7104d6f01397fc89294c7f0434f32141fafad2a82966d9c5",
+      "source_evidence_sha256": "2bdaad1e30ec797d5f75dd496c86f0356d20e554c75a66befbec5a9acf8ee53f",
+      "status": "pass",
+      "task_id": "ho-lwip-state-udp-connect-disconnect",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "243ed66681e67299149abcb5733e1477c68fdad6f38d7bdd0b0bf33ce846bb67",
+      "answer_record_sha256": "78b7b6d80484023ab3e1d0b066e47743540d5e9606acb5b76dce42d5097f0693",
+      "category": "状态/配置约束",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 3,
+      "expected_point_ids": [
+        "sorted-insert",
+        "equal-time",
+        "first-only-cancel"
+      ],
+      "expected_points_sha256": "0b012ca697715a2297c1ed3c01b3e1de6cfdec853d612fb30931041271c356e3",
+      "forbidden_claim_count": 2,
+      "forbidden_claims_sha256": "6a35e7e86599a11c10c1a96a3d331286bc741c4b3743bf8be431ec7214ce0b6f",
+      "mechanism_id": "lwip-timeout-dispatch",
+      "overlap_surface_candidates": [],
+      "question_sha256": "875d69acd6ce1203569ef330b0f475579f391776ba7986dc18072c37ab172c9b",
+      "source_evidence_sha256": "853cc51eda29abd9152a09633c2750a9b18a01df2f5bc22630e7489802d77e55",
+      "status": "pass",
+      "task_id": "ho-lwip-state-timeout-ordering",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "8e777f600b79b809b7d2e434f1ae566f0e547921d8c47fa74ebe6c098a98be26",
+      "answer_record_sha256": "9388f556124124cbc53e3a5876caa6d1634e2d42286691b5e6cab2653d936581",
+      "category": "状态/配置约束",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 4,
+      "expected_point_ids": [
+        "normalize-size",
+        "split-or-whole",
+        "lfree-advance",
+        "free-guards-and-coalesce"
+      ],
+      "expected_points_sha256": "be8f645c7398b93ac6c2c638fe1cf6e0241504a3f3d25143a9bef62e77a35865",
+      "forbidden_claim_count": 2,
+      "forbidden_claims_sha256": "13e4520e6eef5506f365699ac06135e0663f856883286e08e2d6c239cc0775d9",
+      "mechanism_id": "lwip-mem-heap-state",
+      "overlap_surface_candidates": [],
+      "question_sha256": "a2647ac1aa3326ed00d61010f542765bfe15ceabab5c3323331aa542c48573f1",
+      "source_evidence_sha256": "cee2b9a6f2ee27ee879dd63dab38e41ef4e644bcce263150b0b64af593e47c03",
+      "status": "pass",
+      "task_id": "ho-lwip-state-mem-heap",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "2afe94ffef65cb45ec8eee462d876b724ece1bdd8070922062cb7b54dd27e8b0",
+      "answer_record_sha256": "b97e2983eb83248db3232fc629223c69aa3946bb62cda02ca952c277ce0f7a06",
+      "category": "状态/配置约束",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 4,
+      "expected_point_ids": [
+        "creation",
+        "ip-type",
+        "activation",
+        "removal"
+      ],
+      "expected_points_sha256": "0dfafd960d884ec5821493741aefb8a0c348194ca63d000c074aea9e801f6c54",
+      "forbidden_claim_count": 2,
+      "forbidden_claims_sha256": "8e02a120ca2b525f18de282516ad16a9d8df34002572a15ec74218e1a59f581f",
+      "mechanism_id": "lwip-udp-pcb-lifecycle",
+      "overlap_surface_candidates": [],
+      "question_sha256": "2ccfdfd185436690309465d4cdcf19c7c6557083aad8de69eb1f873855b6bb7a",
+      "source_evidence_sha256": "ea6a48ca951d6b5569466d41734f4e3b30243ef9a7bc9e6f413ffeb3e342671c",
+      "status": "pass",
+      "task_id": "ho-lwip-state-udp-pcb-lifecycle",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": "0168af1e441c1d6df0a3978122be79d8fe462e6ec17861cc446264c3181c768b",
+      "answer_record_sha256": "85c2f340771a61ba5607832838c5456819ad752a3eefcdda33bb4e80ab3f62cc",
+      "category": "状态/配置约束",
+      "checks": {
+        "db_anchors": "pass",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 5,
+      "expected_point_ids": [
+        "compile-presence",
+        "overlap-helper",
+        "capacity-policy",
+        "completed-state",
+        "checksum-config"
+      ],
+      "expected_points_sha256": "8c1d5d9cbf85c1c2634d71b79ef0e9aab0e53e762b005ce6a61c95a1eb0c4bad",
+      "forbidden_claim_count": 4,
+      "forbidden_claims_sha256": "d458dc93b68e518404cf80572f8e4ae5a11bd124b1d50dafde0ac393e1ce52b3",
+      "mechanism_id": "lwip-ip4-reassembly-limits",
+      "overlap_surface_candidates": [],
+      "question_sha256": "e32aa0be9a9c5449e20ab4c5de590428a7eb8d1a15bc1aac296ef935d473b755",
+      "source_evidence_sha256": "cb73239e4fe510f49e50466d8b0570613f833d95c7c42e3db207bf0e504c97f6",
+      "status": "pass",
+      "task_id": "ho-lwip-state-ip4-reassembly-config",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": null,
+      "answer_record_sha256": "882f80c11fe45e0b71e7ed71daff3c81975114cdbe7c99066dca8d7663cc5542",
+      "category": "无证据拒答",
+      "checks": {
+        "db_anchors": "not_applicable",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 2,
+      "expected_point_ids": [
+        "boundary",
+        "response"
+      ],
+      "expected_points_sha256": "56b29c53860b4e6b8f3aed7eaf189de4e42ceb06b2cf8e7ae74c00cf42f0f272",
+      "forbidden_claim_count": 1,
+      "forbidden_claims_sha256": "ef75e33516d964369df5a88e1204f91b1a69e10fd651dea9b7d579fe894ea7eb",
+      "mechanism_id": "refusal-out-of-corpus-python-gil",
+      "question_sha256": "e710dd73e007b92ac2fe4d39cf6338be0223f68902780eb26c765ae9b0a6c78f",
+      "source_evidence_sha256": "4b447027cb2b686e113ee17b4d45cd2ec65f50a41ff2f11e2503e8b515504c27",
+      "status": "pass",
+      "task_id": "ho-lwip-refuse-python-gil",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": null,
+      "answer_record_sha256": "12bdc7591c3c74d8218a75066a6f9d9f4489afb3edc5369cb3163db82d9b211e",
+      "category": "无证据拒答",
+      "checks": {
+        "db_anchors": "not_applicable",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 2,
+      "expected_point_ids": [
+        "boundary",
+        "response"
+      ],
+      "expected_points_sha256": "2ad04e5f51614b70e4a45f3a60fc19887f8c7eb15e967c5e9c5af5d7d1092e92",
+      "forbidden_claim_count": 1,
+      "forbidden_claims_sha256": "8030f543b87341c4a2331ea1d326c2df9ae40f55fff88ad224aac64941bb4bf5",
+      "mechanism_id": "refusal-out-of-corpus-docker-overlay",
+      "question_sha256": "9cee77e2b828b8dbd52d19998d76947ad35dbf10d59bffb084cf822dc57d7ad8",
+      "source_evidence_sha256": "ba7717832af3b3c6d4da76240b56f4803e49cb2ef3bb63910f053727a5aacd4b",
+      "status": "pass",
+      "task_id": "ho-lwip-refuse-docker-overlay",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": null,
+      "answer_record_sha256": "59b330234cd2dd574eaca14b600b0094f0ea41b5cd1fa5d1e7e41d92ef52179a",
+      "category": "无证据拒答",
+      "checks": {
+        "db_anchors": "not_applicable",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 2,
+      "expected_point_ids": [
+        "boundary",
+        "response"
+      ],
+      "expected_points_sha256": "6c4aa99b10322dacc74e07c3b072bc933fe8949210a4582568b4162b058d0b11",
+      "forbidden_claim_count": 1,
+      "forbidden_claims_sha256": "ed328ecc99dd6a4eefe859ec11e22daf8f69faada7c5d6fb78756fb7a636afc8",
+      "mechanism_id": "refusal-out-of-corpus-kafka-rebalance",
+      "question_sha256": "c46169a3d1a0aac710b3fa53c21190f36fa2d0f94697258f992f78278a5365ef",
+      "source_evidence_sha256": "cc4c129245086d0e9a1029dd6289fe83ca52d8fe81fe458f0c757f2747579b78",
+      "status": "pass",
+      "task_id": "ho-lwip-refuse-kafka-rebalance",
+      "verdict": "pass"
+    },
+    {
+      "anchor_evidence_sha256": null,
+      "answer_record_sha256": "2305be7a69599fb0c4e17a1e3d98ab1e2a6bfaf7ee7126ee3daaa7ef499f3084",
+      "category": "无证据拒答",
+      "checks": {
+        "db_anchors": "not_applicable",
+        "evidence_payload": "pass",
+        "expected_atomic_points": "pass",
+        "forbidden_claims": "pass",
+        "necessary_conditions_and_counterexamples": "pass",
+        "question_mechanism": "pass",
+        "revision_and_permalink": "pass"
+      },
+      "expected_point_count": 2,
+      "expected_point_ids": [
+        "boundary",
+        "response"
+      ],
+      "expected_points_sha256": "eb63a58bf096edecfb30c44193be10f2c964fa73544e4b3c7beb1273d721e120",
+      "forbidden_claim_count": 1,
+      "forbidden_claims_sha256": "ecc1d1347a82da4bc1c6162af382c66b0780add47f3473e79e4b6642b383d462",
+      "mechanism_id": "refusal-out-of-corpus-android-lifecycle",
+      "question_sha256": "ecaa1aee64065a6c64e06d811dd48f414ac0c5dd68db73f95d90c019503bbf0e",
+      "source_evidence_sha256": "137b1321dd34771011eddd57df8febfc8fdafa2d2ab9d8bb9f90627129542dd9",
+      "status": "pass",
+      "task_id": "ho-lwip-refuse-android-lifecycle",
+      "verdict": "pass"
+    }
+  ],
+  "validated_at": "2026-09-05T21:18:39+08:00",
+  "validation_payload_sha256": "822392f9aa0e26ac22243a2f4a3a16e70d57edd9875d7c1ad66064839f294b97",
+  "validator": {
+    "agent_id": "/root/holdout_source_validator",
+    "human_release_eligible": false,
+    "human_reviewed": false,
+    "interface": "Codex",
+    "model": "GPT-5",
+    "provider": "OpenAI",
+    "validator_kind": "agent"
+  },
+  "verdict": "approved"
+}

@@ -1,27 +1,73 @@
-# 评测索引与统一口径
+# 评测口径与复现
 
-最后核验：2026-08-31，WSL2 Ubuntu、Python 3.12、Clang 18、本地 CPU、TF-IDF+SVD 向量降级通道。
+当前结果与限制以 [统一验收 JSON/Markdown](ACCEPTANCE-CJSON-LWIP.md) 为准。
+模型效果的实验设计和评分契约见 [三类价值证明协议](design/VALUE-PROOF-PROTOCOL.md)。
 
-| 语料 | 题目 | BM25 Recall@10 | 完整方案 Recall@10 | MRR@10 变化 | 自动生成报告 |
-|---|---:|---:|---:|---:|---|
-| lwIP（约 13.5 万行） | 58 | 64.4% | 74.5% | 0.471 → 0.456 | [EVAL-LWIP.md](EVAL-LWIP.md) |
-| cJSON（约 3.5 千行） | 59 | 55.9% | 66.4% | 0.454 → 0.460 | [EVAL-CJSON.md](EVAL-CJSON.md) |
+## 各类测试证明什么
 
-## 可以公开引用的结论
+- 内置 C fixture 与本地假 HTTP 服务：证明代码契约和异常处理，不证明真实模型能力。
+- 117 题检索回归：结构题主要由同一代码图生成，只能用于版本回归。
+- cJSON/lwIP 各 20 道开发任务：人工定义锚点和判定规则，但已经用于调参，不是独立留出。
+- 六场景隔离演示：证明审核、QA、失效、替代和重建门禁；模拟批准不能代替真实用户审核。
+- 真实模型 A/B/C：比较整套系统。经验信息量不等，因此经验分数不能证明策划增益。
+- 知识层消融：三组代码检索投影相同，只改变 Wiki 可用性和阅读方式，用于检验知识层价值。
+- 会话同源对照：两个案例的源码、命令、输出和会话事实相同，只改变材料组织方式。
+- 维护变异：24 个真实上游场景检验当前失效/发布策略；另有 24 个 CC0 合成契约作为单元补充，二者分开报告。
 
-- lwIP 完整方案相对仅 BM25 的 Recall@10 提升 12.1 个百分点；MRR 略降 0.011，不能声称所有指标都提升。
-- cJSON 完整方案相对仅 BM25 的 Recall@10 提升 11.9 个百分点，MRR 提升 0.010。
-- 图扩展收益主要来自结构性查询；非循环题型并未证明图扩展改善语义理解。
-- 摘要头降低单节点上下文成本，让固定预算可容纳更多节点，但上下文总 token 不保证在所有语料上下降。
-- 评测只覆盖检索，不覆盖最终自然语言答案质量；lwIP 金标全部来自 AST 图事实，存在循环性偏向，必须结合分题型表解释。
+## 当前结果
 
-## 复现
+固定 revision 的 cJSON/lwIP 都完成 compile database 解析，严重诊断为 0。
+现有 40 道开发任务为 30/40：20 道检索、4 道影响、6 道拒答通过；10 道经验复用因没有用户正式批准的 B 卡而阻塞。
+历史两道检索失败已修复，不能继续写成当前失败；具体 Recall/MRR 与运行身份从下面的报告读取，不保留另一套手写指标表。
+
+24 个真实上游维护场景已执行完整。首轮暴露的头文件配置漏放已通过把全部已解析 C/头文件实体纳入消费依赖修正；复验后 8 个有效变化漏放 0，但 8 个无关变化全部误失效，决策正确 8/16，本轮依赖指纹计算约 3.02 秒。仅主锚点哈希正确 13/16但漏放 2 个，全部失效正确 8/16。统一验收把维护收益标为 `insufficient_evidence`：安全门禁成立，精度和摊销价值未成立。该耗时不含完整解析、索引和真人复审，不能当作端到端维护成本。
+
+48 道留出题、6 道经验题与 12 个校准样例已完成双 agent 源码核验，状态为 `ai_reviewed`，不等于人审，也不能证明历史未曝光。真实模型尚未运行，因此模型正确率、知识层增益和调用成本仍没有可宣传的数字。
+无 Key 的工程通过、人工审核、模型效果是三个独立状态，不能互相替代。
+
+## 运行
 
 ```bash
-pip install -e ".[dev]"
 pytest -q
-bash demo.sh cjson  # 更新 EVAL-CJSON.md
-bash demo.sh        # 更新 EVAL-LWIP.md
+bash demo.sh cjson
+bash demo.sh lwip
+codeatlas acceptance-eval --mode fast
+codeatlas acceptance-eval --mode full
+codeatlas acceptance-eval --mode release --use-existing
+codeatlas eval knowledge-reuse --out docs/PROOF-KNOWLEDGE-REUSE.json
+codeatlas eval maintenance --executor upstream \
+  --manifest eval/upstream_maintenance.yaml \
+  --out docs/PROOF-MAINTENANCE-UPSTREAM.json
+codeatlas eval maintenance --execute-synthetic --out docs/PROOF-MAINTENANCE.json
+codeatlas eval calibrate-reviewer --submission path/to/calibration-submission.json
+
+# 可选真实模型；只能由用户在本机配置新的 Key 后运行。
+# 首轮是开发回归，不自动获得效果声明资格。
+codeatlas eval model --db data/kb.db --tasks eval/tasks_cjson.yaml \
+  --data-dir data --out docs/MODEL-ABC-CJSON.md --abc --runs 3 --seed 17
+codeatlas eval reading --db data/kb.db --tasks eval/tasks_cjson.yaml \
+  --runs 3 --seed 17 --out docs/MODEL-READING-CJSON.json
 ```
 
-两次演示使用不同数据库和报告文件，互不覆盖。公开 README、简历和面试材料应以本索引及两份生成报告为准。
+校准提交必须包含至少两个彼此隔离的 agent review；每个 review 都携带完整 12 项判断，以及 reviewer 的 provider、model、agent、prompt hash 和校准盲包 input hash。校准凭据只对这些实际评分身份有效，不能由另一模型或另一提示词复用。
+
+两种模型对照均保留全部试次、固定 seed 的成对调度、原始回答及来源，生成不含方案标签的评审包。经验同源对照先在题内平均三次重复，再在同一案例内平均三个追问，最后以两个案例为 bootstrap 单位；54 个回答不被当作 54 个独立样本。
+`--answer-key` 绑定固定题集和带来源的语义要点；`eval review` 可导入逐点评审并另存 JSON/Markdown。双 agent 复核记录为 `ai_reviewed`，不写成人工审核；分歧保留为 `unresolved`，只有第三个独立 agent 绑定两份原评分哈希后才能仲裁。
+没有评审的准确率/完整度显示待审；缺失 usage 显示未测，不按零成本计算。
+效果声明不再使用“命中金标源码”代替答案正确性。规则结果和假模型只验证流程。
+
+`eval/corpora.yaml` 声明 cJSON 官方 GitHub 与 lwIP 的 Savannah 官方源/GitHub 镜像关系。
+正式报告绑定 revision、构建输入、题集、实现、dirty 状态、命令和生成时间；
+公开声明从当前 JSON 读取。未提交结果仅本地可验证，404 或哈希漂移不得标为公开已验证。
+
+## 结果文件
+
+- [双语料统一验收](ACCEPTANCE-CJSON-LWIP.md)
+- [cJSON 开发任务](TASK-EVAL-CJSON.md) / [lwIP 开发任务](TASK-EVAL-LWIP.md)
+- [cJSON 自动回归](EVAL-CJSON.md) / [lwIP 自动回归](EVAL-LWIP.md)
+- [cJSON 六场景](WORKFLOW-EVAL-CJSON.md) / [lwIP 六场景](WORKFLOW-EVAL-LWIP.md)
+- [会话同源对照](PROOF-KNOWLEDGE-REUSE.md)
+- [真实上游维护变异](PROOF-MAINTENANCE-UPSTREAM.md)
+- [合成维护单元契约](PROOF-MAINTENANCE.md)
+
+工作区未提交、不推送。两张公开复现实验卡仍待审，不能用方案讨论代替最终内容确认。

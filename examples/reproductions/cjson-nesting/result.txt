@@ -1,0 +1,3 @@
+depth=999 result=ok parse_end=1999 input_len=1999
+depth=1000 result=ok parse_end=2001 input_len=2001
+depth=1001 result=NULL parse_end=1000 input_len=2003

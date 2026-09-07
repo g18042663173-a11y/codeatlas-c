@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "id": "lwip-insufficient-review",
+  "source_type": "public_synthetic",
+  "source_ref": "examples/conversations/lwip-insufficient-review.json",
+  "license": "CC0-1.0",
+  "repository": "https://github.com/lwip-tcpip/lwip",
+  "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+  "messages": [
+    {
+      "role": "user",
+      "content": "网络偶尔断开，但没有抓包、配置、输入条件、函数名或可复现步骤。"
+    },
+    {
+      "role": "reviewer",
+      "content": "当前材料无法核对具体代码路径；需要先补充可复现输入和固定函数锚点。"
+    }
+  ]
+}

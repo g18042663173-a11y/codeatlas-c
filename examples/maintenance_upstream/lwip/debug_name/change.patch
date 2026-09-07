@@ -1,0 +1,14 @@
+--- a/src/core/netif.c
++++ b/src/core/netif.c
+@@ -385,9 +385,8 @@ netif_add(struct netif *netif,
+ #endif /* LWIP_IPV4 */
+ 
+   /* call user specified initialization function for netif */
+-  if (init(netif) != ERR_OK) {
+-    return NULL;
+-  }
++  /* Isolated mutation: continue even when the driver reports failure. */
++  (void)init(netif);
+   LWIP_ASSERT("netif->hwaddr_len <= NETIF_MAX_HWADDR_LEN",
+               (netif->hwaddr_len <= NETIF_MAX_HWADDR_LEN));
+ #if LWIP_IPV6 && LWIP_ND6_ALLOW_RA_UPDATES

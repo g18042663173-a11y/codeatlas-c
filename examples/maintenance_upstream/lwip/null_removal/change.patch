@@ -1,0 +1,11 @@
+--- a/src/include/lwip/opt.h
++++ b/src/include/lwip/opt.h
+@@ -1663,7 +1663,7 @@
+  * in the netif's flags (NETIF_FLAG_ETHARP and NETIF_FLAG_ETHERNET).
+  */
+ #if !defined LWIP_SINGLE_NETIF || defined __DOXYGEN__
+-#define LWIP_SINGLE_NETIF               0
++#define LWIP_SINGLE_NETIF               1
+ #endif
+ 
+ /**

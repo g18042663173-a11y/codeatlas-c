@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "id": "lwip-unrelated-request",
+  "source_type": "public_synthetic",
+  "source_ref": "examples/conversations/lwip-unrelated-request.json",
+  "license": "CC0-1.0",
+  "repository": "https://github.com/lwip-tcpip/lwip",
+  "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+  "messages": [
+    {
+      "role": "user",
+      "content": "请给出 PostgreSQL 慢查询的索引优化方案。"
+    },
+    {
+      "role": "reviewer",
+      "content": "该问题不属于当前 lwIP 固定代码快照，不能从无关源码拼接答案。"
+    }
+  ]
+}

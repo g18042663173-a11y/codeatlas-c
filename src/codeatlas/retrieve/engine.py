@@ -17,6 +17,7 @@ import sqlite3
 from collections import defaultdict
 from pathlib import Path
 
+from .. import db as dbm
 from ..graph import traverse
 from ..summary import head as head_mod
 
@@ -25,6 +26,78 @@ log = logging.getLogger(__name__)
 RE_C_IDENT = re.compile(r"\b[a-z_][a-z0-9_]{3,}(?:_[a-z0-9]+)+\b", re.I)
 RE_FILE = re.compile(r"\b[\w/.-]+\.(?:c|h)\b", re.I)
 RRF_K = 60
+
+# Small, auditable bilingual vocabulary for the two public C corpora used by the
+# portfolio.  This is query normalization, not a hidden answer map: values are
+# general programming/network terms and never contain gold symbol names.  It
+# prevents an offline English code index from treating a Chinese question as a
+# one-token ``JSON``/``TCP`` query when no multilingual embedding model exists.
+QUERY_VOCAB = {
+    "解析": "parse parser", "对象": "object", "数组": "array",
+    "字符串": "string", "数字": "number", "字面量": "literal value",
+    "序列化": "serialize serialization print output", "无格式": "unformatted",
+    "输出": "output print", "缓冲区": "buffer", "增长": "grow allocate",
+    "扩容": "grow resize reallocate ensure buffer", "内存": "memory allocate realloc",
+    "比较": "compare", "递归": "recursive", "类型": "type",
+    "大小写": "case sensitive", "查找": "get find lookup", "成员": "item member",
+    "引用计数": "reference count ref", "释放": "free release",
+    "链表": "chain list", "头部": "header head", "网络接口": "network interface netif",
+    "默认接口": "default interface", "设置": "set", "切换": "set change",
+    "发送队列": "send queue unsent", "应用数据": "application data",
+    "限制": "limit available", "收包": "input receive packet",
+    "调用": "call caller", "影响": "impact caller", "入口": "entry",
+    "定义": "definition", "函数": "function",
+    "serialization": "serialize print output buffer ensure reallocate",
+    "serialize": "serialization print output buffer ensure reallocate",
+    "grow": "resize reallocate ensure buffer",
+}
+
+_IDENT_STOP = {
+    "the", "and", "for", "with", "where", "which", "what", "how", "function",
+    "definition", "entry", "code", "source", "network", "interface", "output",
+    "input", "change", "impact", "caller", "call", "json", "tcp", "parser",
+}
+_IDENT_ACTION_PARTS = {
+    "parse", "print", "serialize", "compare", "set", "get", "free", "release",
+    "add", "remove", "ensure", "grow", "resize", "find", "lookup", "read", "write",
+}
+_IDENT_PART_ALIASES = {
+    # General morphology/terminology normalization.  Values are lexical parts,
+    # never benchmark task IDs or target symbol names.
+    "parser": {"parse"},
+    "parsing": {"parse"},
+    "parsed": {"parse"},
+    "values": {"value"},
+    "objects": {"object"},
+    "arrays": {"array"},
+}
+
+
+def _enrich_query(q: str) -> str:
+    extras = [terms for phrase, terms in QUERY_VOCAB.items() if phrase in q]
+    return f"{q} {' '.join(extras)}" if extras else q
+
+
+def _identifier_parts(value: str) -> set[str]:
+    """Split C identifiers into auditable lexical parts.
+
+    FTS intentionally keeps ``_`` inside tokens, which is good for exact symbol
+    search but means a natural-language query containing ``set`` and ``up`` does
+    not match ``netif_set_up``.  This helper adds a general identifier-part
+    signal without knowing any benchmark answer.
+    """
+    value = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", value)
+    return {part.lower() for part in re.split(r"[^A-Za-z0-9]+", value)
+            if len(part) >= 2}
+
+
+def _query_identifier_parts(q: str) -> set[str]:
+    parts: set[str] = set()
+    for token in re.findall(r"[A-Za-z][A-Za-z0-9_]*", _enrich_query(q)):
+        parts.update(_identifier_parts(token))
+    for part in tuple(parts):
+        parts.update(_IDENT_PART_ALIASES.get(part, ()))
+    return {part for part in parts if part not in _IDENT_STOP}
 
 
 # ------------------------------------------------------------------ 路由
@@ -40,7 +113,9 @@ def _fts_query(q: str) -> str:
 
     直接把用户输入丢给 MATCH 会因为 - " * : 等字符抛语法错误。
     """
-    toks = re.findall(r"[A-Za-z_][A-Za-z0-9_]*|[\u4e00-\u9fff]{2,}", q)
+    toks = re.findall(
+        r"[A-Za-z_][A-Za-z0-9_]*|[\u4e00-\u9fff]{2,}", _enrich_query(q)
+    )
     toks = [t for t in toks if len(t) >= 2][:12]
     if not toks:
         return ""
@@ -51,29 +126,66 @@ def _fts_query(q: str) -> str:
 
 def recall_symbol(conn: sqlite3.Connection, q: str, limit: int = 30) -> list[int]:
     """符号精确召回：C 代码里同名符号必须精确命中，这是向量的弱项。"""
-    names = set(RE_C_IDENT.findall(q)) | set(re.findall(r"\b[A-Za-z_]\w{2,}\b", q))
+    names = {
+        name for name in (
+            set(RE_C_IDENT.findall(q)) | set(re.findall(r"\b[A-Za-z_]\w{2,}\b", q))
+        ) if name.lower() not in _IDENT_STOP
+    }
     files = set(RE_FILE.findall(q))
-    if not names and not files:
+    query_parts = _query_identifier_parts(q)
+    if not names and not files and len(query_parts) < 2:
         return []
 
     out: list[int] = []
-    for n in sorted(names)[:8]:
+    missing: list[str] = []
+    # Exact matches from *all* query identifiers must precede prefix fallbacks.
+    # Previously an early generic token such as ``TCP`` could consume the
+    # entire 30-row budget with ``tcp_*`` prefixes before the explicitly named
+    # ``tcp_write`` symbol was considered.
+    ordered_names = sorted(names, key=lambda value: ("_" not in value, -len(value), value.lower()))[:12]
+    for n in ordered_names:
         rows = conn.execute(
             """SELECT c.rowid FROM node nd JOIN chunk c ON c.node_id = nd.id
                 WHERE nd.name = ? AND c.visible = 1
                 ORDER BY nd.is_definition DESC, c.rowid LIMIT ?""", (n, limit)).fetchall()
-        if not rows:   # 退化为前缀匹配
-            rows = conn.execute(
-                """SELECT c.rowid FROM node nd JOIN chunk c ON c.node_id = nd.id
-                    WHERE nd.name LIKE ? AND c.visible = 1 ORDER BY c.rowid LIMIT ?""",
-                (n + "%", limit)).fetchall()
-        out.extend(r["rowid"] for r in rows)
+        if rows:
+            out.extend(r["rowid"] for r in rows)
+        else:
+            missing.append(n)
+    for n in missing:   # Exact signals are now safe; add weaker prefixes last.
+        if len(n) < 4:
+            continue
+        rows = conn.execute(
+            """SELECT c.rowid FROM node nd JOIN chunk c ON c.node_id = nd.id
+                WHERE nd.name LIKE ? AND c.visible = 1 ORDER BY c.rowid LIMIT ?""",
+            (n + "%", limit)).fetchall()
+        if rows:
+            out.extend(r["rowid"] for r in rows)
     for f in sorted(files):
         rows = conn.execute(
             """SELECT c.rowid FROM node nd JOIN chunk c ON c.node_id = nd.id
                 WHERE nd.path LIKE ? AND c.visible = 1 ORDER BY c.rowid LIMIT ?""",
             ("%" + f, limit)).fetchall()
         out.extend(r["rowid"] for r in rows)
+
+    # General natural-language-to-identifier matching.  Require at least two
+    # shared parts so an unrelated query containing a generic word cannot turn
+    # into A-level evidence.  Exact and prefix symbol results above retain
+    # precedence; this signal is appended as a weaker fallback.
+    if len(query_parts) >= 2:
+        fragment_matches: list[tuple[int, str, int]] = []
+        rows = conn.execute(
+            """SELECT c.rowid,n.name FROM node n JOIN chunk c ON c.node_id=n.id
+                 WHERE n.kind='function' AND n.is_definition=1 AND c.visible=1"""
+        ).fetchall()
+        for row in rows:
+            shared = _identifier_parts(row["name"]) & query_parts
+            score = sum(3 if part in _IDENT_ACTION_PARTS else 1 for part in shared)
+            action_shared = bool(shared & _IDENT_ACTION_PARTS)
+            if score >= 2 and (action_shared or len(shared) >= 3):
+                fragment_matches.append((-score, row["name"].lower(), row["rowid"]))
+        fragment_matches.sort()
+        out.extend(rowid for _score, _name, rowid in fragment_matches[:limit])
 
     seen, uniq = set(), []
     for r in out:
@@ -97,6 +209,20 @@ def recall_bm25(conn: sqlite3.Connection, q: str, limit: int = 30) -> list[int]:
     return [r["rowid"] for r in rows]
 
 
+def _exact_symbol_rowids(conn: sqlite3.Connection, q: str, limit: int = 4) -> list[int]:
+    """Return only exact function-name chunks explicitly written in the query."""
+    names = sorted(set(re.findall(r"\b[A-Za-z_]\w{2,}\b", q)), key=lambda x: -len(x))
+    out: list[int] = []
+    for name in names:
+        rows = conn.execute(
+            """SELECT c.rowid FROM node n JOIN chunk c ON c.node_id=n.id
+                 WHERE n.kind='function' AND n.is_definition=1 AND n.name=? AND c.visible=1
+                 ORDER BY c.rowid LIMIT ?""", (name, limit),
+        ).fetchall()
+        out.extend(row["rowid"] for row in rows)
+    return list(dict.fromkeys(out))[:limit]
+
+
 def recall_vector(conn: sqlite3.Connection, q: str, embedder, *,
                   data_dir: str = "data", limit: int = 30) -> list[int]:
     """向量召回。无模型 / 无索引时返回 []，系统自动退化为 BM25+图。"""
@@ -108,12 +234,17 @@ def recall_vector(conn: sqlite3.Connection, q: str, embedder, *,
         import numpy as np
         mat = np.load(vec_f)
         ids = json.loads(ids_f.read_text())
-        qv = embedder.encode([q])
+        qv = embedder.encode([_enrich_query(q)])
         if qv is None:
             return []
         sims = mat @ qv[0]
-        top = np.lexsort((np.asarray(ids), -sims))[:limit]
-        return [ids[i] for i in top if i < len(ids)]
+        if len(ids) != len(sims):
+            raise ValueError("vector mapping length mismatch")
+        # Hidden/stale rows must not consume the top-k budget before assembly.
+        visible = {row[0] for row in conn.execute("SELECT rowid FROM chunk WHERE visible=1")}
+        eligible = np.asarray([i for i, identifier in enumerate(ids) if identifier in visible], dtype=int)
+        top = eligible[np.lexsort((np.asarray(ids)[eligible], -sims[eligible]))[:limit]]
+        return [ids[i] for i in top]
     except Exception as e:
         log.warning("向量召回失败: %s", e)
         return []
@@ -139,8 +270,8 @@ def rrf(rank_lists: list[list[int]], weights: list[float] | None = None,
 # ------------------------------------------------------------------ 图扩展
 
 def graph_expand(conn: sqlite3.Connection, seeds: list, *,
-                 hops: int = 2, decay: float = 0.5, limit: int = 24,
-                 mode: str = "head") -> list[dict]:
+                 hops: int = 2, decay: float = 0.75, limit: int = 24,
+                 mode: str = "head", directions: tuple[str, ...] = ("out", "in")) -> list[dict]:
     """从种子 chunk 的节点出发扩展多跳邻居。
 
     mode="head" 只取定长摘要头（生产路径）；
@@ -153,10 +284,39 @@ def graph_expand(conn: sqlite3.Connection, seeds: list, *,
     #   才能混在一起按分数排序。否则 decay^hop(≈0.5) 和 RRF(≈0.03) 没法比。
     for item in seeds:
         rid, seed_score = item if isinstance(item, (tuple, list)) else (item, 1.0)
-        seed = conn.execute("SELECT node_id FROM chunk WHERE rowid=?", (rid,)).fetchone()
-        if not seed or not seed["node_id"]:
+        seed = conn.execute("SELECT node_id,kind,text FROM chunk WHERE rowid=?", (rid,)).fetchone()
+        if not seed:
             continue
-        for direction in ("out", "in"):
+        # A current Wiki page contains machine-validated [A:path:Lx-Ly] anchors.
+        # Following those anchors back to function definitions turns "read the
+        # document first" into a traceable C→A verification step instead of a
+        # free-form semantic jump.
+        if seed["kind"] == "wiki":
+            source_anchors = re.findall(
+                r"\[A:([^:\]]+):L(\d+)(?:-L(\d+))?\]", seed["text"] or ""
+            )
+            for path, start_raw, end_raw in source_anchors[:40]:
+                start, end = int(start_raw), int(end_raw or start_raw)
+                rows = conn.execute(
+                    """SELECT id FROM node WHERE kind='function' AND is_definition=1
+                         AND path=? AND line_start<=? AND line_end>=?
+                         ORDER BY line_start LIMIT 4""", (path, end, start),
+                ).fetchall()
+                for node in rows:
+                    h = head_mod.get(conn, node["id"])
+                    if h is None:
+                        continue
+                    score = seed_score * decay
+                    if node["id"] in out and out[node["id"]]["score"] >= score:
+                        continue
+                    text = head_mod.render(h, h["name"])
+                    out[node["id"]] = dict(
+                        node_id=node["id"], hop=1, score=score, name=h["name"],
+                        path=h["path"], text=text, tokens=h["token_len"] or 0,
+                    )
+        if not seed["node_id"]:
+            continue
+        for direction in directions:
             for nid_, hop in traverse.neighbors(conn, seed["node_id"], direction=direction,
                                                 kind="calls", max_hop=hops):
                 h = head_mod.get(conn, nid_)
@@ -187,6 +347,92 @@ def graph_expand(conn: sqlite3.Connection, seeds: list, *,
 
 BUDGET_SPLIT = {"code": 0.40, "head": 0.25, "experience": 0.20, "wiki": 0.15}
 
+SOURCE_TYPES = {
+    "code": "compiler_ast",
+    "head": "compiler_summary",
+    "experience": "reviewed_experience",
+    "wiki": "generated_wiki",
+}
+
+
+def _provenance(conn: sqlite3.Connection, node_id: str | None, kind: str,
+                source_ref: str | None) -> dict:
+    """Build a stable, display-ready provenance record for one citation.
+
+    A source reference alone is not enough to reproduce a conclusion after a repository
+    changes. Code citations therefore carry the repository snapshot plus the compiler's
+    symbol identity and exact source range. Non-code evidence keeps the same envelope so
+    consumers never have to infer what a field means from the citation level.
+    """
+    record = {
+        "source_type": SOURCE_TYPES.get(kind, kind),
+        "repository": dbm.get_meta(conn, "repository_id",
+                                    dbm.get_meta(conn, "repo", "unversioned")),
+        "revision": dbm.get_meta(conn, "revision", "unversioned"),
+        "source_ref": source_ref,
+        "symbol": None,
+        "usr": None,
+        "path": None,
+        "line_start": None,
+        "line_end": None,
+        "definition_hash": None,
+        "stale_status": "not_applicable",
+    }
+    if not node_id:
+        return record
+    node = conn.execute(
+        """SELECT name, usr, repo, path, line_start, line_end, definition_hash
+           FROM node WHERE id=?""",
+        (node_id,),
+    ).fetchone()
+    if node is None:
+        return record
+    record.update({
+        "symbol": node["name"],
+        "usr": node["usr"],
+        "path": node["path"],
+        "line_start": node["line_start"],
+        "line_end": node["line_end"],
+        "definition_hash": node["definition_hash"],
+    })
+    return record
+
+
+def _experience_provenance(conn: sqlite3.Connection, uid: str, source_ref: str | None) -> dict:
+    """Return a B-level card's review status and exact active code anchor."""
+    exp_id = uid.removeprefix("exp:")
+    card = conn.execute("SELECT id,status,source_type,source_ref FROM experience WHERE id=?", (exp_id,)).fetchone()
+    anchor = conn.execute(
+        "SELECT * FROM experience_anchor WHERE exp_id=? AND active=1 ORDER BY id DESC LIMIT 1", (exp_id,)
+    ).fetchone()
+    record = {
+        "source_type": "reviewed_knowledge_card",
+        "source_ref": source_ref,
+        "card_id": exp_id,
+        "card_status": card["status"] if card else "missing",
+        "stale_status": card["status"] if card else "missing",
+        "repository": None, "revision": None, "symbol": None, "usr": None,
+        "path": None, "line_start": None, "line_end": None, "definition_hash": None,
+    }
+    if card:
+        record["source_type"] = card["source_type"] or record["source_type"]
+        record["source_ref"] = card["source_ref"] or source_ref
+    if anchor:
+        record.update({key: anchor[key] for key in (
+            "repository", "revision", "usr", "path", "line_start", "line_end", "definition_hash"
+        )})
+        node = conn.execute(
+            """SELECT name,path,line_start,line_end,definition_hash FROM node
+                 WHERE usr=? AND kind='function' AND is_definition=1""", (anchor["usr"],)
+        ).fetchone()
+        if node:
+            record["symbol"] = node["name"]
+            # A relocation with byte-identical definition text stays reviewed, but
+            # evidence must point reviewers at the function's latest source range.
+            if node["definition_hash"] == anchor["definition_hash"]:
+                record.update({key: node[key] for key in ("path", "line_start", "line_end")})
+    return record
+
 
 def assemble(conn: sqlite3.Connection, fused: list[tuple[int, float]],
              heads: list[dict], budget_tokens: int = 8000) -> dict:
@@ -213,16 +459,26 @@ def assemble(conn: sqlite3.Connection, fused: list[tuple[int, float]],
         lvl = row["evidence_level"]
         counter[lvl] += 1
         tag = f"{lvl}{counter[lvl]}"
+        provenance = (_experience_provenance(conn, row["uid"], row["source_ref"])
+                      if bucket == "experience"
+                      else _provenance(conn, row["node_id"], bucket, row["source_ref"]))
         citations.append(dict(tag=tag, level=lvl, title=row["title"],
                               uid=row["uid"], node_id=row["node_id"],
-                              source_ref=row["source_ref"], score=round(score, 5)))
+                              source_ref=row["source_ref"], provenance=provenance,
+                              score=round(score, 5)))
         buckets[bucket].append(dict(tag=tag, uid=row["uid"], title=row["title"], text=txt,
-                                    source_ref=row["source_ref"]))
+                                    source_ref=row["source_ref"], provenance=provenance))
 
     # 注意：body 模式下单条就可能上千 token，这里用同一份预算，
     # 保证两种模式在"相同预算"下比较，差异体现在能塞进多少条邻居。
+    # A body selected by lexical recall is already the stronger source of truth for that
+    # symbol. Do not spend more context on its generated summary head; reserve heads for
+    # graph-only neighbours, where they actually add call-context coverage.
+    cited_node_ids = {c["node_id"] for c in citations if c.get("node_id")}
     cap_head = int(budget_tokens * BUDGET_SPLIT["head"])
     for h in heads:
+        if h["node_id"] in cited_node_ids:
+            continue
         t = h["tokens"] or est_tokens(h["text"])
         if used["head"] + t > cap_head:
             break
@@ -234,12 +490,15 @@ def assemble(conn: sqlite3.Connection, fused: list[tuple[int, float]],
         code_uid = conn.execute(
             "SELECT uid FROM chunk WHERE node_id=? AND kind='code'",
             (h["node_id"],)).fetchone()
+        provenance = _provenance(conn, h["node_id"], "head", h["path"])
         citations.append(dict(tag=tag, level="A", title=f"{h['name']} 摘要头(hop{h['hop']})",
                               uid=code_uid["uid"] if code_uid else None,
                               node_id=h["node_id"],
-                              source_ref=h["path"], score=round(h["score"], 4)))
+                              source_ref=h["path"], provenance=provenance,
+                              score=round(h["score"], 4)))
+        cited_node_ids.add(h["node_id"])
         buckets["head"].append(dict(tag=tag, title=h["name"], text=h["text"],
-                                    source_ref=h["path"]))
+                                    source_ref=h["path"], provenance=provenance))
 
     # ★ 统一按分数排序后再编号。之前是按桶顺序追加，
     #   图扩展的摘要头永远排在所有代码块之后，评测里直接被 top-10 截掉，
@@ -279,6 +538,131 @@ def _resync_tags(ctx: dict, reranked: list[dict]) -> None:
                 it["tag"] = new
 
 
+def _reserve_bm25_code_slots(conn: sqlite3.Connection, citations: list[dict],
+                             bm25_ids: list[int], query: str, *, slots: int = 2,
+                             top_k: int = 10) -> list[dict]:
+    """Keep up to two current A-level lexical code hits inside the first page.
+
+    Vector and graph channels may improve coverage, but they must not erase all
+    strong lexical evidence.  We only reserve slots for visible compiler-backed
+    code chunks; Wiki, cards and stale chunks do not qualify.
+    """
+    if not citations or not bm25_ids or slots <= 0:
+        return citations
+    protected: list[str] = []
+    query_parts = _query_identifier_parts(query)
+    for rowid in bm25_ids:
+        row = conn.execute(
+            """SELECT c.uid,n.name FROM chunk c LEFT JOIN node n ON n.id=c.node_id
+                WHERE c.rowid=? AND c.visible=1 AND c.kind='code' AND c.evidence_level='A'""",
+            (rowid,),
+        ).fetchone()
+        # "Top BM25" alone is not enough: generic prose can match a code chunk
+        # while its symbol has no lexical relationship to the query.  Requiring
+        # one public identifier part keeps the reserve generic and prevents a
+        # weak lexical hit from displacing compiler-confirmed graph neighbours.
+        symbol_parts = _identifier_parts(row["name"] or "") if row else set()
+        if row and query_parts & symbol_parts and row["uid"] not in protected:
+            protected.append(row["uid"])
+        if len(protected) >= slots:
+            break
+    out = list(citations)
+    for offset, uid in enumerate(reversed(protected)):
+        index = next((i for i, citation in enumerate(out) if citation.get("uid") == uid), None)
+        if index is None or index < top_k:
+            continue
+        citation = out.pop(index)
+        out.insert(max(0, top_k - 1 - offset), citation)
+    counter: dict[str, int] = defaultdict(int)
+    for citation in out:
+        level = citation.get("level", "A")
+        counter[level] += 1
+        citation["tag"] = f"{level}{counter[level]}"
+    return out
+
+
+def _reserve_strong_reviewed_experience(
+        conn: sqlite3.Connection, citations: list[dict], bm25_ids: list[int], *,
+        max_bm25_rank: int = 3, slots: int = 1, top_k: int = 10) -> list[dict]:
+    """Keep a top lexical approved card on the first evidence page.
+
+    A reviewed card participates only in BM25/vector retrieval, while a code
+    function can receive symbol, BM25, vector and graph votes.  RRF may therefore
+    push even the first lexical card below the first page.  Reserve one slot only
+    when the card is already among the first three BM25 results and its assembled
+    provenance still says ``approved``.  This preserves a general high-precision
+    lexical signal without promoting weak or stale experience material.
+    """
+    if not citations or not bm25_ids or slots <= 0 or top_k <= 0:
+        return citations
+    by_uid = {item.get("uid"): item for item in citations if item.get("uid")}
+    protected: list[str] = []
+    for rowid in bm25_ids[:max_bm25_rank]:
+        row = conn.execute(
+            """SELECT uid FROM chunk WHERE rowid=? AND visible=1
+                 AND kind='experience' AND evidence_level='B'""",
+            (rowid,),
+        ).fetchone()
+        if not row or row["uid"] in protected:
+            continue
+        citation = by_uid.get(row["uid"])
+        provenance = (citation or {}).get("provenance") or {}
+        if (citation and provenance.get("card_status") == "approved"
+                and provenance.get("stale_status") == "approved"):
+            protected.append(row["uid"])
+        if len(protected) >= slots:
+            break
+    out = list(citations)
+    for offset, uid in enumerate(reversed(protected)):
+        index = next((i for i, item in enumerate(out) if item.get("uid") == uid), None)
+        if index is None or index < top_k:
+            continue
+        item = out.pop(index)
+        out.insert(max(0, top_k - 1 - offset), item)
+    counter: dict[str, int] = defaultdict(int)
+    for item in out:
+        level = item.get("level", "A")
+        counter[level] += 1
+        item["tag"] = f"{level}{counter[level]}"
+    return out
+
+
+def _prioritize_direct_graph(conn: sqlite3.Connection, citations: list[dict],
+                             heads: list[dict], exact_seed_ids: list[int]) -> list[dict]:
+    """For an explicit direct-call question, show the root and direct neighbours first."""
+    seed_nodes = {
+        row["node_id"] for rowid in exact_seed_ids
+        if (row := conn.execute("SELECT node_id FROM chunk WHERE rowid=?", (rowid,)).fetchone())
+        and row["node_id"]
+    }
+    head_nodes = {head["node_id"] for head in heads if head.get("hop") == 1}
+    seeds = [item for item in citations if item.get("node_id") in seed_nodes]
+    neighbours = [item for item in citations
+                  if item.get("node_id") in head_nodes and item.get("node_id") not in seed_nodes]
+    # Direct callers often include many tests from one file.  Surface one caller
+    # per file first so the first page covers distinct production/test modules,
+    # then append the remaining callers in their reranked order.
+    diverse: list[dict] = []
+    remainder: list[dict] = []
+    seen_paths: set[str] = set()
+    for item in neighbours:
+        path = str((item.get("provenance") or {}).get("path") or item.get("source_ref") or "")
+        if path not in seen_paths:
+            diverse.append(item)
+            seen_paths.add(path)
+        else:
+            remainder.append(item)
+    neighbours = diverse + remainder
+    selected = {id(item) for item in seeds + neighbours}
+    out = seeds + neighbours + [item for item in citations if id(item) not in selected]
+    counter: dict[str, int] = defaultdict(int)
+    for citation in out:
+        level = citation.get("level", "A")
+        counter[level] += 1
+        citation["tag"] = f"{level}{counter[level]}"
+    return out
+
+
 def render_context(ctx: dict) -> str:
     parts = []
     labels = {"code": "源码证据(A级)", "head": "调用上下文摘要头(A级)",
@@ -288,7 +672,12 @@ def render_context(ctx: dict) -> str:
             continue
         parts.append(f"===== {labels[k]} =====")
         for it in items:
-            parts.append(f"[{it['tag']}] {it['title']}  ({it['source_ref']})\n{it['text']}")
+            p = it.get("provenance") or {}
+            location = p.get("path") or it["source_ref"]
+            if p.get("line_start"):
+                location = f"{location}:L{p['line_start']}-L{p.get('line_end') or p['line_start']}"
+            snapshot = f"{p.get('repository', 'unversioned')}@{p.get('revision', 'unversioned')}"
+            parts.append(f"[{it['tag']}] {it['title']}  ({snapshot} {location})\n{it['text']}")
     return "\n\n".join(parts)
 
 
@@ -308,36 +697,95 @@ def ask(conn: sqlite3.Connection, q: str, *, embedder=None, budget_tokens: int =
         use_vector: bool = True, use_bm25: bool = True, use_symbol: bool = True,
         expand_mode: str = "head", reranker="feature", explain: bool = False,
         llm_client=None) -> dict:
+    from .. import db as dbm
+    if dbm.get_meta(conn, "snapshot_enabled") == "1":
+        from ..snapshots import pin
+        from ..indexer.build import get_embedder
+        with pin(conn) as current:
+            result = ask(current.conn, q, embedder=get_embedder("local", str(current.directory)),
+                         budget_tokens=budget_tokens, data_dir=str(current.directory), hops=hops,
+                         use_graph=use_graph, use_vector=use_vector, use_bm25=use_bm25, use_symbol=use_symbol,
+                         expand_mode=expand_mode, reranker=reranker, explain=explain, llm_client=llm_client)
+            result.update(current.provenance)
+            for citation in result.get("citations", []):
+                citation.setdefault("provenance", {}).update(current.provenance)
+            return result
+    if dbm.get_meta(conn, "knowledge_set_id") and conn.execute("PRAGMA database_list").fetchone()[2]:
+        data_dir = str(Path(conn.execute("PRAGMA database_list").fetchone()[2]).parent)
+        from ..indexer.build import get_embedder
+        embedder = get_embedder("local", data_dir)
     mode = route(q)
 
     r_sym = recall_symbol(conn, q) if use_symbol else []
     r_bm = recall_bm25(conn, q) if use_bm25 else []
     r_vec = recall_vector(conn, q, embedder, data_dir=data_dir) if use_vector else []
 
-    weights = [1.5 if mode == "symbol" else 1.0, 1.0, 1.0]
+    # A nearest-neighbour index always returns *something*, even when the query has
+    # no overlap with this repository. In particular, a sparse TF-IDF query with no
+    # known term otherwise degenerates to arbitrary zero-similarity chunks. Such a
+    # vector-only result is a retrieval hint, not evidence: accepting it would turn
+    # an unrelated Kubernetes/SQL question into fabricated A-level code context.
+    # Keep the refusal boundary conservative until a calibrated semantic relevance
+    # threshold is available. A lexical or exact-symbol signal is still required to
+    # let optional vectors enrich the candidate set.
+    if not r_sym and not r_bm:
+        r_vec = []
+
+    # The dependency-free hashing vector is an enrichment channel, not a
+    # calibrated multilingual retriever.  Giving it the same RRF vote as exact
+    # symbols/BM25 let low-similarity neighbours displace lexical hits.  A lower
+    # vote preserves high-precision facts while still allowing repeated
+    # BM25+vector agreement to promote a candidate.
+    weights = [1.5 if mode == "symbol" else 1.0, 1.0, 0.35]
     fused = rrf([r_sym, r_bm, r_vec], weights=weights)
 
-    heads = (graph_expand(conn, fused[:8], hops=hops, mode=expand_mode)
+    direct_callers = bool(re.search(r"谁(?:直接)?调用|哪些函数(?:直接)?调用|who\s+calls", q, re.I))
+    direct_callees = bool(re.search(r"调用了哪些|calls?\s+which|callees?", q, re.I))
+    graph_directions = ("in",) if direct_callers else (("out",) if direct_callees else ("out", "in"))
+    graph_hops = 1 if "直接调用" in q else hops
+    exact_symbol_ids = _exact_symbol_rowids(conn, q)
+    graph_seeds = (
+        [(rowid, dict(fused).get(rowid, 1.0))
+         for rowid in (exact_symbol_ids or r_sym[:1])]
+        if (direct_callers or direct_callees) and r_sym else fused[:8]
+    )
+    heads = (graph_expand(conn, graph_seeds, hops=graph_hops, mode=expand_mode,
+                          directions=graph_directions)
              if use_graph else [])
     ctx = assemble(conn, fused, heads, budget_tokens=budget_tokens)
 
     # ★ 重排：召回 → 融合 → **重排** → 生成。
     #   融合只看各路排名，看不到内容；重排才用得上"是不是定义""是不是精确同名"
     #   "扇入多少"这些结构性信号。原来缺这一环，症状是 Recall 不低但 MRR 偏低。
-    from .rerank import get_reranker, apply as rerank_apply
+    from .rerank import get_reranker, should_rerank, apply as rerank_apply
     rr = get_reranker(reranker) if isinstance(reranker, str) else reranker
-    reranked, detail = rerank_apply(conn, q, ctx["citations"], rr, explain=explain)
+    if rr is not None and not should_rerank(q):
+        rr = None
+    reranked, detail = rerank_apply(
+        conn, _enrich_query(q), ctx["citations"], rr, explain=explain
+    )
+    reranked = _reserve_bm25_code_slots(conn, reranked, r_bm, q)
+    reranked = _reserve_strong_reviewed_experience(conn, reranked, r_bm)
+    if direct_callers or direct_callees:
+        reranked = _prioritize_direct_graph(conn, reranked, heads, exact_symbol_ids)
     ctx["citations"] = reranked
     # 上下文正文里的 [tag] 必须跟着新顺序改，否则生成侧引用编号会错位
     _resync_tags(ctx, reranked)
 
     result = dict(query=q, mode=mode, citations=ctx["citations"],
                   reranker=(rr.name if rr else "none"),
+                  repository=dbm.get_meta(conn, "repo", "unversioned"),
+                  revision=dbm.get_meta(conn, "revision", "unversioned"),
                   recall=dict(symbol=len(r_sym), bm25=len(r_bm), vector=len(r_vec),
                               fused=len(fused), graph_heads=len(heads)),
                   context_tokens=ctx["total_tokens"], ab_evidence=ctx["ab_evidence"])
     if explain:
         result["rerank_detail"] = [d.explain() for d in detail[:10]]
+    provenance = {key: dbm.get_meta(conn, key) for key in
+                  ("knowledge_set_id", "source_content_hash", "build_config_hash")}
+    result.update(provenance)
+    for citation in result.get("citations", []):
+        citation.setdefault("provenance", {}).update(provenance)
 
     # ★ D5：A/B 级证据为 0 → 拒答，只给线索
     if ctx["ab_evidence"] == 0:

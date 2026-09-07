@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "id": "cjson-unrelated-request",
+  "source_type": "public_synthetic",
+  "source_ref": "examples/conversations/cjson-unrelated-request.json",
+  "license": "CC0-1.0",
+  "repository": "https://github.com/DaveGamble/cJSON",
+  "revision": "fb16e5cf358798aabb049655975cde8427101056",
+  "messages": [
+    {"role": "user", "content": "公开合成请求：如何轮换 Kubernetes Ingress 的 TLS 证书？"},
+    {"role": "developer", "content": "该请求与 cJSON 固定代码快照无关，应返回证据不足，不调用外部系统，也不生成知识卡。"}
+  ]
+}

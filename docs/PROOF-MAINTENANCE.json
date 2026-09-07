@@ -1,0 +1,2336 @@
+{
+  "schema_version": 1,
+  "evaluation": "maintenance",
+  "mode": "execute",
+  "status": "executed",
+  "manifest_sha256": "5b18f029319ad73c38c92b8c6f420f786020d05c4c8ad9b5d77a40de051d780c",
+  "identity": {
+    "manifest_hash": "5b18f029319ad73c38c92b8c6f420f786020d05c4c8ad9b5d77a40de051d780c",
+    "evaluator_hash": "d4acfb7d268dec97f1d81328dcc35b085e505f9691bafa784bf5f6a1c75029ff",
+    "dependency_policy_hash": "e7082270ff43b8c1dc93edcf46231a68f62a9af9119f22f0826642fc33f1ebd0"
+  },
+  "generated_at": "2026-09-05T15:34:46.712270+00:00",
+  "corpora": {
+    "cjson": {
+      "revision": "fb16e5cf358798aabb049655975cde8427101056",
+      "repository": "https://github.com/DaveGamble/cJSON"
+    },
+    "lwip": {
+      "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+      "repository": "https://git.savannah.nongnu.org/git/lwip.git"
+    }
+  },
+  "boundary": "Predeclared external oracle; synthetic fixtures do not verify upstream behavior. No automatic shell/model invocation.",
+  "oracle_provenance": "declared_not_independently_audited",
+  "review_status": "unresolved",
+  "cases": [
+    {
+      "id": "cjson-nesting-limit",
+      "corpus": "cjson",
+      "classification": "effective",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; nesting-limit is a future upstream scenario topic, not an upstream result.",
+      "case_dir": "templates/maintenance_cases/cjson-nesting-limit",
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "9a8fe9c150c68330382a74cc4d8e69797b829a0e2fe4bb3085db4a8c305996a5"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "b33405591610326059e1e5c0967e8643c61168d6bb84a1c3e080bda2e73c953b"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "f7195b0fe928edc6d2bf710a49fccf1acb7a6fcf3cc9999bedef9981a6ff8bf6"
+        }
+      },
+      "expected_revalidation": true,
+      "expected_outcome": "completed",
+      "error_type": null,
+      "outcome": "completed",
+      "semantic_eligible": true,
+      "expected_outcome_matched": true,
+      "compile_exit": 0,
+      "run_exit": 0,
+      "assertions": [
+        {
+          "id": "probe_stdout",
+          "description": "Mutated standalone probe stdout, obtained by compiling/running source.c after change.patch (not a CodeAtlas output).",
+          "expected": "4\n",
+          "actual": "4\n",
+          "passed": true
+        }
+      ],
+      "compile_ms": 211.312,
+      "run_ms": 3048.633,
+      "adapters": {
+        "current": {
+          "actual_decision": "revalidate",
+          "measured": true,
+          "missed_invalidation": false,
+          "false_invalidation": null,
+          "decision_correct": true,
+          "citation_refreshed": false,
+          "wiki_updated": true,
+          "elapsed_ms": 3271.426,
+          "cost": {
+            "value": 3271.426,
+            "unit": "ms"
+          }
+        },
+        "main_anchor_hash": {
+          "actual_decision": "keep",
+          "measured": true,
+          "missed_invalidation": true,
+          "false_invalidation": null,
+          "decision_correct": false,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        },
+        "invalidate_all": {
+          "actual_decision": "revalidate",
+          "measured": true,
+          "missed_invalidation": false,
+          "false_invalidation": null,
+          "decision_correct": true,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        }
+      }
+    },
+    {
+      "id": "cjson-child-ownership",
+      "corpus": "cjson",
+      "classification": "effective",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; child-ownership is a future upstream scenario topic, not an upstream result.",
+      "case_dir": "templates/maintenance_cases/cjson-child-ownership",
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "9a8fe9c150c68330382a74cc4d8e69797b829a0e2fe4bb3085db4a8c305996a5"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "01237d8e58e9b350651f4384007e534d4266c30bb05d574f236e25d8479dbd63"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "f7195b0fe928edc6d2bf710a49fccf1acb7a6fcf3cc9999bedef9981a6ff8bf6"
+        }
+      },
+      "expected_revalidation": true,
+      "expected_outcome": "completed",
+      "error_type": null,
+      "outcome": "completed",
+      "semantic_eligible": true,
+      "expected_outcome_matched": true,
+      "compile_exit": 0,
+      "run_exit": 0,
+      "assertions": [
+        {
+          "id": "probe_stdout",
+          "description": "Mutated standalone probe stdout, obtained by compiling/running source.c after change.patch (not a CodeAtlas output).",
+          "expected": "4\n",
+          "actual": "4\n",
+          "passed": true
+        }
+      ],
+      "compile_ms": 55.547,
+      "run_ms": 10.122,
+      "adapters": {
+        "current": {
+          "actual_decision": "revalidate",
+          "measured": true,
+          "missed_invalidation": false,
+          "false_invalidation": null,
+          "decision_correct": true,
+          "citation_refreshed": false,
+          "wiki_updated": true,
+          "elapsed_ms": 74.795,
+          "cost": {
+            "value": 74.795,
+            "unit": "ms"
+          }
+        },
+        "main_anchor_hash": {
+          "actual_decision": "keep",
+          "measured": true,
+          "missed_invalidation": true,
+          "false_invalidation": null,
+          "decision_correct": false,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        },
+        "invalidate_all": {
+          "actual_decision": "revalidate",
+          "measured": true,
+          "missed_invalidation": false,
+          "false_invalidation": null,
+          "decision_correct": true,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        }
+      }
+    },
+    {
+      "id": "cjson-buffer-growth",
+      "corpus": "cjson",
+      "classification": "effective",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; buffer-growth is a future upstream scenario topic, not an upstream result.",
+      "case_dir": "templates/maintenance_cases/cjson-buffer-growth",
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "9a8fe9c150c68330382a74cc4d8e69797b829a0e2fe4bb3085db4a8c305996a5"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "3e77241e145de5810ecdf04ca84a367ac1196843ef8d28c00abee6d86ee40ed7"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "f7195b0fe928edc6d2bf710a49fccf1acb7a6fcf3cc9999bedef9981a6ff8bf6"
+        }
+      },
+      "expected_revalidation": true,
+      "expected_outcome": "completed",
+      "error_type": null,
+      "outcome": "completed",
+      "semantic_eligible": true,
+      "expected_outcome_matched": true,
+      "compile_exit": 0,
+      "run_exit": 0,
+      "assertions": [
+        {
+          "id": "probe_stdout",
+          "description": "Mutated standalone probe stdout, obtained by compiling/running source.c after change.patch (not a CodeAtlas output).",
+          "expected": "4\n",
+          "actual": "4\n",
+          "passed": true
+        }
+      ],
+      "compile_ms": 36.759,
+      "run_ms": 12.536,
+      "adapters": {
+        "current": {
+          "actual_decision": "revalidate",
+          "measured": true,
+          "missed_invalidation": false,
+          "false_invalidation": null,
+          "decision_correct": true,
+          "citation_refreshed": false,
+          "wiki_updated": true,
+          "elapsed_ms": 52.451,
+          "cost": {
+            "value": 52.451,
+            "unit": "ms"
+          }
+        },
+        "main_anchor_hash": {
+          "actual_decision": "keep",
+          "measured": true,
+          "missed_invalidation": true,
+          "false_invalidation": null,
+          "decision_correct": false,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        },
+        "invalidate_all": {
+          "actual_decision": "revalidate",
+          "measured": true,
+          "missed_invalidation": false,
+          "false_invalidation": null,
+          "decision_correct": true,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        }
+      }
+    },
+    {
+      "id": "cjson-failure-return",
+      "corpus": "cjson",
+      "classification": "effective",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; failure-return is a future upstream scenario topic, not an upstream result.",
+      "case_dir": "templates/maintenance_cases/cjson-failure-return",
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "9a8fe9c150c68330382a74cc4d8e69797b829a0e2fe4bb3085db4a8c305996a5"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "ba7b101189e198664091e54f3285159a13d339ad4b7b48b57ebdead06333b7c9"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "f7195b0fe928edc6d2bf710a49fccf1acb7a6fcf3cc9999bedef9981a6ff8bf6"
+        }
+      },
+      "expected_revalidation": true,
+      "expected_outcome": "completed",
+      "error_type": null,
+      "outcome": "completed",
+      "semantic_eligible": true,
+      "expected_outcome_matched": true,
+      "compile_exit": 0,
+      "run_exit": 0,
+      "assertions": [
+        {
+          "id": "probe_stdout",
+          "description": "Mutated standalone probe stdout, obtained by compiling/running source.c after change.patch (not a CodeAtlas output).",
+          "expected": "4\n",
+          "actual": "4\n",
+          "passed": true
+        }
+      ],
+      "compile_ms": 97.183,
+      "run_ms": 11.328,
+      "adapters": {
+        "current": {
+          "actual_decision": "revalidate",
+          "measured": true,
+          "missed_invalidation": false,
+          "false_invalidation": null,
+          "decision_correct": true,
+          "citation_refreshed": false,
+          "wiki_updated": true,
+          "elapsed_ms": 111.715,
+          "cost": {
+            "value": 111.715,
+            "unit": "ms"
+          }
+        },
+        "main_anchor_hash": {
+          "actual_decision": "revalidate",
+          "measured": true,
+          "missed_invalidation": false,
+          "false_invalidation": null,
+          "decision_correct": true,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        },
+        "invalidate_all": {
+          "actual_decision": "revalidate",
+          "measured": true,
+          "missed_invalidation": false,
+          "false_invalidation": null,
+          "decision_correct": true,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        }
+      }
+    },
+    {
+      "id": "cjson-comment-only",
+      "corpus": "cjson",
+      "classification": "unrelated_to_claim",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; comment-only is a future upstream scenario topic, not an upstream result.",
+      "case_dir": "templates/maintenance_cases/cjson-comment-only",
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "9a8fe9c150c68330382a74cc4d8e69797b829a0e2fe4bb3085db4a8c305996a5"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "bd41681842baeecb190564f917269f3a670d2dabf869d4ae86a7c55f886c0587"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "72a4c1d98da29599bca3b1310a0bd1319e4c12dfa0071a4f50365b3ced7f77f4"
+        }
+      },
+      "expected_revalidation": false,
+      "expected_outcome": "completed",
+      "error_type": null,
+      "outcome": "completed",
+      "semantic_eligible": true,
+      "expected_outcome_matched": true,
+      "compile_exit": 0,
+      "run_exit": 0,
+      "assertions": [
+        {
+          "id": "probe_stdout",
+          "description": "Mutated standalone probe stdout, obtained by compiling/running source.c after change.patch (not a CodeAtlas output).",
+          "expected": "3\n",
+          "actual": "3\n",
+          "passed": true
+        }
+      ],
+      "compile_ms": 42.606,
+      "run_ms": 15.642,
+      "adapters": {
+        "current": {
+          "actual_decision": "keep",
+          "measured": true,
+          "missed_invalidation": null,
+          "false_invalidation": false,
+          "decision_correct": true,
+          "citation_refreshed": true,
+          "wiki_updated": false,
+          "elapsed_ms": 62.41,
+          "cost": {
+            "value": 62.41,
+            "unit": "ms"
+          }
+        },
+        "main_anchor_hash": {
+          "actual_decision": "keep",
+          "measured": true,
+          "missed_invalidation": null,
+          "false_invalidation": false,
+          "decision_correct": true,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        },
+        "invalidate_all": {
+          "actual_decision": "revalidate",
+          "measured": true,
+          "missed_invalidation": null,
+          "false_invalidation": true,
+          "decision_correct": false,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        }
+      }
+    },
+    {
+      "id": "cjson-unrelated-helper",
+      "corpus": "cjson",
+      "classification": "unrelated_to_claim",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; unrelated-helper is a future upstream scenario topic, not an upstream result.",
+      "case_dir": "templates/maintenance_cases/cjson-unrelated-helper",
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "9a8fe9c150c68330382a74cc4d8e69797b829a0e2fe4bb3085db4a8c305996a5"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "803031c2f635b7d0901d970d04c71b779e73cb2204fce15bc892b4339dec3e39"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "72a4c1d98da29599bca3b1310a0bd1319e4c12dfa0071a4f50365b3ced7f77f4"
+        }
+      },
+      "expected_revalidation": false,
+      "expected_outcome": "completed",
+      "error_type": null,
+      "outcome": "completed",
+      "semantic_eligible": true,
+      "expected_outcome_matched": true,
+      "compile_exit": 0,
+      "run_exit": 0,
+      "assertions": [
+        {
+          "id": "probe_stdout",
+          "description": "Mutated standalone probe stdout, obtained by compiling/running source.c after change.patch (not a CodeAtlas output).",
+          "expected": "3\n",
+          "actual": "3\n",
+          "passed": true
+        }
+      ],
+      "compile_ms": 44.505,
+      "run_ms": 13.14,
+      "adapters": {
+        "current": {
+          "actual_decision": "revalidate",
+          "measured": true,
+          "missed_invalidation": null,
+          "false_invalidation": true,
+          "decision_correct": false,
+          "citation_refreshed": false,
+          "wiki_updated": true,
+          "elapsed_ms": 61.067,
+          "cost": {
+            "value": 61.067,
+            "unit": "ms"
+          }
+        },
+        "main_anchor_hash": {
+          "actual_decision": "keep",
+          "measured": true,
+          "missed_invalidation": null,
+          "false_invalidation": false,
+          "decision_correct": true,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        },
+        "invalidate_all": {
+          "actual_decision": "revalidate",
+          "measured": true,
+          "missed_invalidation": null,
+          "false_invalidation": true,
+          "decision_correct": false,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        }
+      }
+    },
+    {
+      "id": "cjson-line-move",
+      "corpus": "cjson",
+      "classification": "unrelated_to_claim",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; line-move is a future upstream scenario topic, not an upstream result.",
+      "case_dir": "templates/maintenance_cases/cjson-line-move",
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "9a8fe9c150c68330382a74cc4d8e69797b829a0e2fe4bb3085db4a8c305996a5"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "4b7b3a3085753e5007dd8c9d3a456b37684723c7ffd50647f1d597f8cc2b0b41"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "72a4c1d98da29599bca3b1310a0bd1319e4c12dfa0071a4f50365b3ced7f77f4"
+        }
+      },
+      "expected_revalidation": false,
+      "expected_outcome": "completed",
+      "error_type": null,
+      "outcome": "completed",
+      "semantic_eligible": true,
+      "expected_outcome_matched": true,
+      "compile_exit": 0,
+      "run_exit": 0,
+      "assertions": [
+        {
+          "id": "probe_stdout",
+          "description": "Mutated standalone probe stdout, obtained by compiling/running source.c after change.patch (not a CodeAtlas output).",
+          "expected": "3\n",
+          "actual": "3\n",
+          "passed": true
+        }
+      ],
+      "compile_ms": 44.086,
+      "run_ms": 15.852,
+      "adapters": {
+        "current": {
+          "actual_decision": "keep",
+          "measured": true,
+          "missed_invalidation": null,
+          "false_invalidation": false,
+          "decision_correct": true,
+          "citation_refreshed": true,
+          "wiki_updated": false,
+          "elapsed_ms": 63.028,
+          "cost": {
+            "value": 63.028,
+            "unit": "ms"
+          }
+        },
+        "main_anchor_hash": {
+          "actual_decision": "keep",
+          "measured": true,
+          "missed_invalidation": null,
+          "false_invalidation": false,
+          "decision_correct": true,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        },
+        "invalidate_all": {
+          "actual_decision": "revalidate",
+          "measured": true,
+          "missed_invalidation": null,
+          "false_invalidation": true,
+          "decision_correct": false,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        }
+      }
+    },
+    {
+      "id": "cjson-unused-macro",
+      "corpus": "cjson",
+      "classification": "unrelated_to_claim",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; unused-macro is a future upstream scenario topic, not an upstream result.",
+      "case_dir": "templates/maintenance_cases/cjson-unused-macro",
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "9a8fe9c150c68330382a74cc4d8e69797b829a0e2fe4bb3085db4a8c305996a5"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "9a3caa23dc875ae63f69aa2412d977685e1529f2d8e16c9ca1953615c4b3c981"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "72a4c1d98da29599bca3b1310a0bd1319e4c12dfa0071a4f50365b3ced7f77f4"
+        }
+      },
+      "expected_revalidation": false,
+      "expected_outcome": "completed",
+      "error_type": null,
+      "outcome": "completed",
+      "semantic_eligible": true,
+      "expected_outcome_matched": true,
+      "compile_exit": 0,
+      "run_exit": 0,
+      "assertions": [
+        {
+          "id": "probe_stdout",
+          "description": "Mutated standalone probe stdout, obtained by compiling/running source.c after change.patch (not a CodeAtlas output).",
+          "expected": "3\n",
+          "actual": "3\n",
+          "passed": true
+        }
+      ],
+      "compile_ms": 39.713,
+      "run_ms": 13.533,
+      "adapters": {
+        "current": {
+          "actual_decision": "revalidate",
+          "measured": true,
+          "missed_invalidation": null,
+          "false_invalidation": true,
+          "decision_correct": false,
+          "citation_refreshed": false,
+          "wiki_updated": true,
+          "elapsed_ms": 56.411,
+          "cost": {
+            "value": 56.411,
+            "unit": "ms"
+          }
+        },
+        "main_anchor_hash": {
+          "actual_decision": "keep",
+          "measured": true,
+          "missed_invalidation": null,
+          "false_invalidation": false,
+          "decision_correct": true,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        },
+        "invalidate_all": {
+          "actual_decision": "revalidate",
+          "measured": true,
+          "missed_invalidation": null,
+          "false_invalidation": true,
+          "decision_correct": false,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        }
+      }
+    },
+    {
+      "id": "cjson-syntax-error",
+      "corpus": "cjson",
+      "classification": "failure",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; syntax-error is a future upstream scenario topic, not an upstream result.",
+      "case_dir": "templates/maintenance_cases/cjson-syntax-error",
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "9a8fe9c150c68330382a74cc4d8e69797b829a0e2fe4bb3085db4a8c305996a5"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "4fe73f248d3cc42c8f84a39446ac04108d4a3ee34bbb3ec42a2015dcc63b7115"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "d98b361f2876824495c28a3a2a4befce2959c743b361f82abe31d712266aadd2"
+        }
+      },
+      "expected_revalidation": null,
+      "expected_outcome": "compile_failed",
+      "error_type": null,
+      "outcome": "compile_failed",
+      "semantic_eligible": false,
+      "expected_outcome_matched": true,
+      "compile_exit": 1,
+      "run_exit": null,
+      "assertions": [
+        {
+          "id": "probe_stdout",
+          "description": "Mutated standalone probe stdout, obtained by compiling/running source.c after change.patch (not a CodeAtlas output).",
+          "expected": "3\n",
+          "actual": null,
+          "passed": null
+        }
+      ],
+      "compile_ms": 21.499,
+      "run_ms": null,
+      "adapters": {
+        "current": {
+          "actual_decision": "revalidate",
+          "measured": false,
+          "missed_invalidation": null,
+          "false_invalidation": null,
+          "decision_correct": null,
+          "citation_refreshed": false,
+          "wiki_updated": true,
+          "elapsed_ms": 24.346,
+          "cost": {
+            "value": 24.346,
+            "unit": "ms"
+          }
+        },
+        "main_anchor_hash": {
+          "actual_decision": "keep",
+          "measured": false,
+          "missed_invalidation": null,
+          "false_invalidation": null,
+          "decision_correct": null,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        },
+        "invalidate_all": {
+          "actual_decision": null,
+          "measured": false,
+          "missed_invalidation": null,
+          "false_invalidation": null,
+          "decision_correct": null,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        }
+      }
+    },
+    {
+      "id": "cjson-unknown-type",
+      "corpus": "cjson",
+      "classification": "failure",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; unknown-type is a future upstream scenario topic, not an upstream result.",
+      "case_dir": "templates/maintenance_cases/cjson-unknown-type",
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "9a8fe9c150c68330382a74cc4d8e69797b829a0e2fe4bb3085db4a8c305996a5"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "eb11bdf3726f9adc2103f4098888bcff7c0ddac081ce8bd9b6b1efa4d3c37937"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "d98b361f2876824495c28a3a2a4befce2959c743b361f82abe31d712266aadd2"
+        }
+      },
+      "expected_revalidation": null,
+      "expected_outcome": "compile_failed",
+      "error_type": null,
+      "outcome": "compile_failed",
+      "semantic_eligible": false,
+      "expected_outcome_matched": true,
+      "compile_exit": 1,
+      "run_exit": null,
+      "assertions": [
+        {
+          "id": "probe_stdout",
+          "description": "Mutated standalone probe stdout, obtained by compiling/running source.c after change.patch (not a CodeAtlas output).",
+          "expected": "3\n",
+          "actual": null,
+          "passed": null
+        }
+      ],
+      "compile_ms": 21.219,
+      "run_ms": null,
+      "adapters": {
+        "current": {
+          "actual_decision": "revalidate",
+          "measured": false,
+          "missed_invalidation": null,
+          "false_invalidation": null,
+          "decision_correct": null,
+          "citation_refreshed": false,
+          "wiki_updated": true,
+          "elapsed_ms": 24.738,
+          "cost": {
+            "value": 24.738,
+            "unit": "ms"
+          }
+        },
+        "main_anchor_hash": {
+          "actual_decision": "keep",
+          "measured": false,
+          "missed_invalidation": null,
+          "false_invalidation": null,
+          "decision_correct": null,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        },
+        "invalidate_all": {
+          "actual_decision": null,
+          "measured": false,
+          "missed_invalidation": null,
+          "false_invalidation": null,
+          "decision_correct": null,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        }
+      }
+    },
+    {
+      "id": "cjson-missing-include",
+      "corpus": "cjson",
+      "classification": "failure",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; missing-include is a future upstream scenario topic, not an upstream result.",
+      "case_dir": "templates/maintenance_cases/cjson-missing-include",
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "9a8fe9c150c68330382a74cc4d8e69797b829a0e2fe4bb3085db4a8c305996a5"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "644a457e339e015050afb3b3100a07865b9b8b40d2a752e81307c66085d35681"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "d98b361f2876824495c28a3a2a4befce2959c743b361f82abe31d712266aadd2"
+        }
+      },
+      "expected_revalidation": null,
+      "expected_outcome": "compile_failed",
+      "error_type": null,
+      "outcome": "compile_failed",
+      "semantic_eligible": false,
+      "expected_outcome_matched": true,
+      "compile_exit": 1,
+      "run_exit": null,
+      "assertions": [
+        {
+          "id": "probe_stdout",
+          "description": "Mutated standalone probe stdout, obtained by compiling/running source.c after change.patch (not a CodeAtlas output).",
+          "expected": "3\n",
+          "actual": null,
+          "passed": null
+        }
+      ],
+      "compile_ms": 19.485,
+      "run_ms": null,
+      "adapters": {
+        "current": {
+          "actual_decision": "revalidate",
+          "measured": false,
+          "missed_invalidation": null,
+          "false_invalidation": null,
+          "decision_correct": null,
+          "citation_refreshed": true,
+          "wiki_updated": true,
+          "elapsed_ms": 22.71,
+          "cost": {
+            "value": 22.71,
+            "unit": "ms"
+          }
+        },
+        "main_anchor_hash": {
+          "actual_decision": "keep",
+          "measured": false,
+          "missed_invalidation": null,
+          "false_invalidation": null,
+          "decision_correct": null,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        },
+        "invalidate_all": {
+          "actual_decision": null,
+          "measured": false,
+          "missed_invalidation": null,
+          "false_invalidation": null,
+          "decision_correct": null,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        }
+      }
+    },
+    {
+      "id": "cjson-invalid-config",
+      "corpus": "cjson",
+      "classification": "failure",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; invalid-config is a future upstream scenario topic, not an upstream result.",
+      "case_dir": "templates/maintenance_cases/cjson-invalid-config",
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "9a8fe9c150c68330382a74cc4d8e69797b829a0e2fe4bb3085db4a8c305996a5"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "29058890f430a46bc9218ad499288a4e01ce0a2ccbdc5425fc8cbf44b98f4f83"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "d98b361f2876824495c28a3a2a4befce2959c743b361f82abe31d712266aadd2"
+        }
+      },
+      "expected_revalidation": null,
+      "expected_outcome": "compile_failed",
+      "error_type": null,
+      "outcome": "compile_failed",
+      "semantic_eligible": false,
+      "expected_outcome_matched": true,
+      "compile_exit": 1,
+      "run_exit": null,
+      "assertions": [
+        {
+          "id": "probe_stdout",
+          "description": "Mutated standalone probe stdout, obtained by compiling/running source.c after change.patch (not a CodeAtlas output).",
+          "expected": "3\n",
+          "actual": null,
+          "passed": null
+        }
+      ],
+      "compile_ms": 21.521,
+      "run_ms": null,
+      "adapters": {
+        "current": {
+          "actual_decision": "revalidate",
+          "measured": false,
+          "missed_invalidation": null,
+          "false_invalidation": null,
+          "decision_correct": null,
+          "citation_refreshed": false,
+          "wiki_updated": true,
+          "elapsed_ms": 25.589,
+          "cost": {
+            "value": 25.589,
+            "unit": "ms"
+          }
+        },
+        "main_anchor_hash": {
+          "actual_decision": "keep",
+          "measured": false,
+          "missed_invalidation": null,
+          "false_invalidation": null,
+          "decision_correct": null,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        },
+        "invalidate_all": {
+          "actual_decision": null,
+          "measured": false,
+          "missed_invalidation": null,
+          "false_invalidation": null,
+          "decision_correct": null,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        }
+      }
+    },
+    {
+      "id": "lwip-packet-refcount",
+      "corpus": "lwip",
+      "classification": "effective",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; packet-refcount is a future upstream scenario topic, not an upstream result.",
+      "case_dir": "templates/maintenance_cases/lwip-packet-refcount",
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "70707e9b18c2b4e9970175f46110574d8c11a55edb16125453f9d6134754d4c3"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "6fb80846963549147b7c2d96c331a64954a1654799f9c92b6065d91626f417a1"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "f7195b0fe928edc6d2bf710a49fccf1acb7a6fcf3cc9999bedef9981a6ff8bf6"
+        }
+      },
+      "expected_revalidation": true,
+      "expected_outcome": "completed",
+      "error_type": null,
+      "outcome": "completed",
+      "semantic_eligible": true,
+      "expected_outcome_matched": true,
+      "compile_exit": 0,
+      "run_exit": 0,
+      "assertions": [
+        {
+          "id": "probe_stdout",
+          "description": "Mutated standalone probe stdout, obtained by compiling/running source.c after change.patch (not a CodeAtlas output).",
+          "expected": "4\n",
+          "actual": "4\n",
+          "passed": true
+        }
+      ],
+      "compile_ms": 38.027,
+      "run_ms": 12.994,
+      "adapters": {
+        "current": {
+          "actual_decision": "revalidate",
+          "measured": true,
+          "missed_invalidation": false,
+          "false_invalidation": null,
+          "decision_correct": true,
+          "citation_refreshed": false,
+          "wiki_updated": true,
+          "elapsed_ms": 54.07,
+          "cost": {
+            "value": 54.07,
+            "unit": "ms"
+          }
+        },
+        "main_anchor_hash": {
+          "actual_decision": "keep",
+          "measured": true,
+          "missed_invalidation": true,
+          "false_invalidation": null,
+          "decision_correct": false,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        },
+        "invalidate_all": {
+          "actual_decision": "revalidate",
+          "measured": true,
+          "missed_invalidation": false,
+          "false_invalidation": null,
+          "decision_correct": true,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        }
+      }
+    },
+    {
+      "id": "lwip-default-interface",
+      "corpus": "lwip",
+      "classification": "effective",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; default-interface is a future upstream scenario topic, not an upstream result.",
+      "case_dir": "templates/maintenance_cases/lwip-default-interface",
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "70707e9b18c2b4e9970175f46110574d8c11a55edb16125453f9d6134754d4c3"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "daed71df6cb2f3ae1207416f89bac3f16eae5bfce42f0765b1ef79d749d83fd8"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "f7195b0fe928edc6d2bf710a49fccf1acb7a6fcf3cc9999bedef9981a6ff8bf6"
+        }
+      },
+      "expected_revalidation": true,
+      "expected_outcome": "completed",
+      "error_type": null,
+      "outcome": "completed",
+      "semantic_eligible": true,
+      "expected_outcome_matched": true,
+      "compile_exit": 0,
+      "run_exit": 0,
+      "assertions": [
+        {
+          "id": "probe_stdout",
+          "description": "Mutated standalone probe stdout, obtained by compiling/running source.c after change.patch (not a CodeAtlas output).",
+          "expected": "4\n",
+          "actual": "4\n",
+          "passed": true
+        }
+      ],
+      "compile_ms": 37.247,
+      "run_ms": 12.709,
+      "adapters": {
+        "current": {
+          "actual_decision": "revalidate",
+          "measured": true,
+          "missed_invalidation": false,
+          "false_invalidation": null,
+          "decision_correct": true,
+          "citation_refreshed": false,
+          "wiki_updated": true,
+          "elapsed_ms": 54.009,
+          "cost": {
+            "value": 54.009,
+            "unit": "ms"
+          }
+        },
+        "main_anchor_hash": {
+          "actual_decision": "keep",
+          "measured": true,
+          "missed_invalidation": true,
+          "false_invalidation": null,
+          "decision_correct": false,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        },
+        "invalidate_all": {
+          "actual_decision": "revalidate",
+          "measured": true,
+          "missed_invalidation": false,
+          "false_invalidation": null,
+          "decision_correct": true,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        }
+      }
+    },
+    {
+      "id": "lwip-interface-flag",
+      "corpus": "lwip",
+      "classification": "effective",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; interface-flag is a future upstream scenario topic, not an upstream result.",
+      "case_dir": "templates/maintenance_cases/lwip-interface-flag",
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "70707e9b18c2b4e9970175f46110574d8c11a55edb16125453f9d6134754d4c3"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "4be13ce93cf24e3c0e90ccd08b40a1eb93f4d482c62ce225552bb4c67b712f0f"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "f7195b0fe928edc6d2bf710a49fccf1acb7a6fcf3cc9999bedef9981a6ff8bf6"
+        }
+      },
+      "expected_revalidation": true,
+      "expected_outcome": "completed",
+      "error_type": null,
+      "outcome": "completed",
+      "semantic_eligible": true,
+      "expected_outcome_matched": true,
+      "compile_exit": 0,
+      "run_exit": 0,
+      "assertions": [
+        {
+          "id": "probe_stdout",
+          "description": "Mutated standalone probe stdout, obtained by compiling/running source.c after change.patch (not a CodeAtlas output).",
+          "expected": "4\n",
+          "actual": "4\n",
+          "passed": true
+        }
+      ],
+      "compile_ms": 36.523,
+      "run_ms": 12.444,
+      "adapters": {
+        "current": {
+          "actual_decision": "revalidate",
+          "measured": true,
+          "missed_invalidation": false,
+          "false_invalidation": null,
+          "decision_correct": true,
+          "citation_refreshed": false,
+          "wiki_updated": true,
+          "elapsed_ms": 52.041,
+          "cost": {
+            "value": 52.041,
+            "unit": "ms"
+          }
+        },
+        "main_anchor_hash": {
+          "actual_decision": "keep",
+          "measured": true,
+          "missed_invalidation": true,
+          "false_invalidation": null,
+          "decision_correct": false,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        },
+        "invalidate_all": {
+          "actual_decision": "revalidate",
+          "measured": true,
+          "missed_invalidation": false,
+          "false_invalidation": null,
+          "decision_correct": true,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        }
+      }
+    },
+    {
+      "id": "lwip-checksum-config",
+      "corpus": "lwip",
+      "classification": "effective",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; checksum-config is a future upstream scenario topic, not an upstream result.",
+      "case_dir": "templates/maintenance_cases/lwip-checksum-config",
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "70707e9b18c2b4e9970175f46110574d8c11a55edb16125453f9d6134754d4c3"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "3f0e432cdbcd0c42acf77ea0696ca99c119655fb6d79e7afa6e6f4ececec444a"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "f7195b0fe928edc6d2bf710a49fccf1acb7a6fcf3cc9999bedef9981a6ff8bf6"
+        }
+      },
+      "expected_revalidation": true,
+      "expected_outcome": "completed",
+      "error_type": null,
+      "outcome": "completed",
+      "semantic_eligible": true,
+      "expected_outcome_matched": true,
+      "compile_exit": 0,
+      "run_exit": 0,
+      "assertions": [
+        {
+          "id": "probe_stdout",
+          "description": "Mutated standalone probe stdout, obtained by compiling/running source.c after change.patch (not a CodeAtlas output).",
+          "expected": "4\n",
+          "actual": "4\n",
+          "passed": true
+        }
+      ],
+      "compile_ms": 38.822,
+      "run_ms": 12.386,
+      "adapters": {
+        "current": {
+          "actual_decision": "revalidate",
+          "measured": true,
+          "missed_invalidation": false,
+          "false_invalidation": null,
+          "decision_correct": true,
+          "citation_refreshed": false,
+          "wiki_updated": true,
+          "elapsed_ms": 54.152,
+          "cost": {
+            "value": 54.152,
+            "unit": "ms"
+          }
+        },
+        "main_anchor_hash": {
+          "actual_decision": "revalidate",
+          "measured": true,
+          "missed_invalidation": false,
+          "false_invalidation": null,
+          "decision_correct": true,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        },
+        "invalidate_all": {
+          "actual_decision": "revalidate",
+          "measured": true,
+          "missed_invalidation": false,
+          "false_invalidation": null,
+          "decision_correct": true,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        }
+      }
+    },
+    {
+      "id": "lwip-comment-only",
+      "corpus": "lwip",
+      "classification": "unrelated_to_claim",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; comment-only is a future upstream scenario topic, not an upstream result.",
+      "case_dir": "templates/maintenance_cases/lwip-comment-only",
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "70707e9b18c2b4e9970175f46110574d8c11a55edb16125453f9d6134754d4c3"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "cc5fe6f0e6e3f17fd16c00c92bd242a5473024d5aab428263cbfe73cbeff0f43"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "72a4c1d98da29599bca3b1310a0bd1319e4c12dfa0071a4f50365b3ced7f77f4"
+        }
+      },
+      "expected_revalidation": false,
+      "expected_outcome": "completed",
+      "error_type": null,
+      "outcome": "completed",
+      "semantic_eligible": true,
+      "expected_outcome_matched": true,
+      "compile_exit": 0,
+      "run_exit": 0,
+      "assertions": [
+        {
+          "id": "probe_stdout",
+          "description": "Mutated standalone probe stdout, obtained by compiling/running source.c after change.patch (not a CodeAtlas output).",
+          "expected": "3\n",
+          "actual": "3\n",
+          "passed": true
+        }
+      ],
+      "compile_ms": 40.984,
+      "run_ms": 14.266,
+      "adapters": {
+        "current": {
+          "actual_decision": "keep",
+          "measured": true,
+          "missed_invalidation": null,
+          "false_invalidation": false,
+          "decision_correct": true,
+          "citation_refreshed": true,
+          "wiki_updated": false,
+          "elapsed_ms": 58.339,
+          "cost": {
+            "value": 58.339,
+            "unit": "ms"
+          }
+        },
+        "main_anchor_hash": {
+          "actual_decision": "keep",
+          "measured": true,
+          "missed_invalidation": null,
+          "false_invalidation": false,
+          "decision_correct": true,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        },
+        "invalidate_all": {
+          "actual_decision": "revalidate",
+          "measured": true,
+          "missed_invalidation": null,
+          "false_invalidation": true,
+          "decision_correct": false,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        }
+      }
+    },
+    {
+      "id": "lwip-unrelated-helper",
+      "corpus": "lwip",
+      "classification": "unrelated_to_claim",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; unrelated-helper is a future upstream scenario topic, not an upstream result.",
+      "case_dir": "templates/maintenance_cases/lwip-unrelated-helper",
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "70707e9b18c2b4e9970175f46110574d8c11a55edb16125453f9d6134754d4c3"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "c638e06d67048ea8dea371ea1b3421ebb36c1cb0bdf1636fced18557fa06f4cc"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "72a4c1d98da29599bca3b1310a0bd1319e4c12dfa0071a4f50365b3ced7f77f4"
+        }
+      },
+      "expected_revalidation": false,
+      "expected_outcome": "completed",
+      "error_type": null,
+      "outcome": "completed",
+      "semantic_eligible": true,
+      "expected_outcome_matched": true,
+      "compile_exit": 0,
+      "run_exit": 0,
+      "assertions": [
+        {
+          "id": "probe_stdout",
+          "description": "Mutated standalone probe stdout, obtained by compiling/running source.c after change.patch (not a CodeAtlas output).",
+          "expected": "3\n",
+          "actual": "3\n",
+          "passed": true
+        }
+      ],
+      "compile_ms": 48.038,
+      "run_ms": 15.508,
+      "adapters": {
+        "current": {
+          "actual_decision": "revalidate",
+          "measured": true,
+          "missed_invalidation": null,
+          "false_invalidation": true,
+          "decision_correct": false,
+          "citation_refreshed": false,
+          "wiki_updated": true,
+          "elapsed_ms": 68.228,
+          "cost": {
+            "value": 68.228,
+            "unit": "ms"
+          }
+        },
+        "main_anchor_hash": {
+          "actual_decision": "keep",
+          "measured": true,
+          "missed_invalidation": null,
+          "false_invalidation": false,
+          "decision_correct": true,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        },
+        "invalidate_all": {
+          "actual_decision": "revalidate",
+          "measured": true,
+          "missed_invalidation": null,
+          "false_invalidation": true,
+          "decision_correct": false,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        }
+      }
+    },
+    {
+      "id": "lwip-line-move",
+      "corpus": "lwip",
+      "classification": "unrelated_to_claim",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; line-move is a future upstream scenario topic, not an upstream result.",
+      "case_dir": "templates/maintenance_cases/lwip-line-move",
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "70707e9b18c2b4e9970175f46110574d8c11a55edb16125453f9d6134754d4c3"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "d3bb7a590edfc3b4276f06e7f904e381a098423ff5a984545397ec84d55efce3"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "72a4c1d98da29599bca3b1310a0bd1319e4c12dfa0071a4f50365b3ced7f77f4"
+        }
+      },
+      "expected_revalidation": false,
+      "expected_outcome": "completed",
+      "error_type": null,
+      "outcome": "completed",
+      "semantic_eligible": true,
+      "expected_outcome_matched": true,
+      "compile_exit": 0,
+      "run_exit": 0,
+      "assertions": [
+        {
+          "id": "probe_stdout",
+          "description": "Mutated standalone probe stdout, obtained by compiling/running source.c after change.patch (not a CodeAtlas output).",
+          "expected": "3\n",
+          "actual": "3\n",
+          "passed": true
+        }
+      ],
+      "compile_ms": 48.498,
+      "run_ms": 13.722,
+      "adapters": {
+        "current": {
+          "actual_decision": "keep",
+          "measured": true,
+          "missed_invalidation": null,
+          "false_invalidation": false,
+          "decision_correct": true,
+          "citation_refreshed": true,
+          "wiki_updated": false,
+          "elapsed_ms": 65.646,
+          "cost": {
+            "value": 65.646,
+            "unit": "ms"
+          }
+        },
+        "main_anchor_hash": {
+          "actual_decision": "keep",
+          "measured": true,
+          "missed_invalidation": null,
+          "false_invalidation": false,
+          "decision_correct": true,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        },
+        "invalidate_all": {
+          "actual_decision": "revalidate",
+          "measured": true,
+          "missed_invalidation": null,
+          "false_invalidation": true,
+          "decision_correct": false,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        }
+      }
+    },
+    {
+      "id": "lwip-unused-macro",
+      "corpus": "lwip",
+      "classification": "unrelated_to_claim",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; unused-macro is a future upstream scenario topic, not an upstream result.",
+      "case_dir": "templates/maintenance_cases/lwip-unused-macro",
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "70707e9b18c2b4e9970175f46110574d8c11a55edb16125453f9d6134754d4c3"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "db5ff2e15279603fe07c5948f84bd0d74ac08cd361243f8d5b4bfc8a9c8a5d8b"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "72a4c1d98da29599bca3b1310a0bd1319e4c12dfa0071a4f50365b3ced7f77f4"
+        }
+      },
+      "expected_revalidation": false,
+      "expected_outcome": "completed",
+      "error_type": null,
+      "outcome": "completed",
+      "semantic_eligible": true,
+      "expected_outcome_matched": true,
+      "compile_exit": 0,
+      "run_exit": 0,
+      "assertions": [
+        {
+          "id": "probe_stdout",
+          "description": "Mutated standalone probe stdout, obtained by compiling/running source.c after change.patch (not a CodeAtlas output).",
+          "expected": "3\n",
+          "actual": "3\n",
+          "passed": true
+        }
+      ],
+      "compile_ms": 45.585,
+      "run_ms": 13.679,
+      "adapters": {
+        "current": {
+          "actual_decision": "revalidate",
+          "measured": true,
+          "missed_invalidation": null,
+          "false_invalidation": true,
+          "decision_correct": false,
+          "citation_refreshed": false,
+          "wiki_updated": true,
+          "elapsed_ms": 62.292,
+          "cost": {
+            "value": 62.292,
+            "unit": "ms"
+          }
+        },
+        "main_anchor_hash": {
+          "actual_decision": "keep",
+          "measured": true,
+          "missed_invalidation": null,
+          "false_invalidation": false,
+          "decision_correct": true,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        },
+        "invalidate_all": {
+          "actual_decision": "revalidate",
+          "measured": true,
+          "missed_invalidation": null,
+          "false_invalidation": true,
+          "decision_correct": false,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        }
+      }
+    },
+    {
+      "id": "lwip-syntax-error",
+      "corpus": "lwip",
+      "classification": "failure",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; syntax-error is a future upstream scenario topic, not an upstream result.",
+      "case_dir": "templates/maintenance_cases/lwip-syntax-error",
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "70707e9b18c2b4e9970175f46110574d8c11a55edb16125453f9d6134754d4c3"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "3a0ae59ae73bece4aeb7d63a613d69b1408523a4c2666c0fb046269d429c7cc2"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "d98b361f2876824495c28a3a2a4befce2959c743b361f82abe31d712266aadd2"
+        }
+      },
+      "expected_revalidation": null,
+      "expected_outcome": "compile_failed",
+      "error_type": null,
+      "outcome": "compile_failed",
+      "semantic_eligible": false,
+      "expected_outcome_matched": true,
+      "compile_exit": 1,
+      "run_exit": null,
+      "assertions": [
+        {
+          "id": "probe_stdout",
+          "description": "Mutated standalone probe stdout, obtained by compiling/running source.c after change.patch (not a CodeAtlas output).",
+          "expected": "3\n",
+          "actual": null,
+          "passed": null
+        }
+      ],
+      "compile_ms": 19.831,
+      "run_ms": null,
+      "adapters": {
+        "current": {
+          "actual_decision": "revalidate",
+          "measured": false,
+          "missed_invalidation": null,
+          "false_invalidation": null,
+          "decision_correct": null,
+          "citation_refreshed": false,
+          "wiki_updated": true,
+          "elapsed_ms": 23.07,
+          "cost": {
+            "value": 23.07,
+            "unit": "ms"
+          }
+        },
+        "main_anchor_hash": {
+          "actual_decision": "keep",
+          "measured": false,
+          "missed_invalidation": null,
+          "false_invalidation": null,
+          "decision_correct": null,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        },
+        "invalidate_all": {
+          "actual_decision": null,
+          "measured": false,
+          "missed_invalidation": null,
+          "false_invalidation": null,
+          "decision_correct": null,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        }
+      }
+    },
+    {
+      "id": "lwip-unknown-type",
+      "corpus": "lwip",
+      "classification": "failure",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; unknown-type is a future upstream scenario topic, not an upstream result.",
+      "case_dir": "templates/maintenance_cases/lwip-unknown-type",
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "70707e9b18c2b4e9970175f46110574d8c11a55edb16125453f9d6134754d4c3"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "9767d97c2d512867ccd0e7bb1675f74a82cab35741f3264e0aa48e56508446d3"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "d98b361f2876824495c28a3a2a4befce2959c743b361f82abe31d712266aadd2"
+        }
+      },
+      "expected_revalidation": null,
+      "expected_outcome": "compile_failed",
+      "error_type": null,
+      "outcome": "compile_failed",
+      "semantic_eligible": false,
+      "expected_outcome_matched": true,
+      "compile_exit": 1,
+      "run_exit": null,
+      "assertions": [
+        {
+          "id": "probe_stdout",
+          "description": "Mutated standalone probe stdout, obtained by compiling/running source.c after change.patch (not a CodeAtlas output).",
+          "expected": "3\n",
+          "actual": null,
+          "passed": null
+        }
+      ],
+      "compile_ms": 22.402,
+      "run_ms": null,
+      "adapters": {
+        "current": {
+          "actual_decision": "revalidate",
+          "measured": false,
+          "missed_invalidation": null,
+          "false_invalidation": null,
+          "decision_correct": null,
+          "citation_refreshed": false,
+          "wiki_updated": true,
+          "elapsed_ms": 26.383,
+          "cost": {
+            "value": 26.383,
+            "unit": "ms"
+          }
+        },
+        "main_anchor_hash": {
+          "actual_decision": "keep",
+          "measured": false,
+          "missed_invalidation": null,
+          "false_invalidation": null,
+          "decision_correct": null,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        },
+        "invalidate_all": {
+          "actual_decision": null,
+          "measured": false,
+          "missed_invalidation": null,
+          "false_invalidation": null,
+          "decision_correct": null,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        }
+      }
+    },
+    {
+      "id": "lwip-missing-include",
+      "corpus": "lwip",
+      "classification": "failure",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; missing-include is a future upstream scenario topic, not an upstream result.",
+      "case_dir": "templates/maintenance_cases/lwip-missing-include",
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "70707e9b18c2b4e9970175f46110574d8c11a55edb16125453f9d6134754d4c3"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "376118ea9a9b19bcfcc66de9fea4f62df87ca248a7b25d6a6e5ad2016a49eb2b"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "d98b361f2876824495c28a3a2a4befce2959c743b361f82abe31d712266aadd2"
+        }
+      },
+      "expected_revalidation": null,
+      "expected_outcome": "compile_failed",
+      "error_type": null,
+      "outcome": "compile_failed",
+      "semantic_eligible": false,
+      "expected_outcome_matched": true,
+      "compile_exit": 1,
+      "run_exit": null,
+      "assertions": [
+        {
+          "id": "probe_stdout",
+          "description": "Mutated standalone probe stdout, obtained by compiling/running source.c after change.patch (not a CodeAtlas output).",
+          "expected": "3\n",
+          "actual": null,
+          "passed": null
+        }
+      ],
+      "compile_ms": 20.917,
+      "run_ms": null,
+      "adapters": {
+        "current": {
+          "actual_decision": "revalidate",
+          "measured": false,
+          "missed_invalidation": null,
+          "false_invalidation": null,
+          "decision_correct": null,
+          "citation_refreshed": true,
+          "wiki_updated": true,
+          "elapsed_ms": 24.028,
+          "cost": {
+            "value": 24.028,
+            "unit": "ms"
+          }
+        },
+        "main_anchor_hash": {
+          "actual_decision": "keep",
+          "measured": false,
+          "missed_invalidation": null,
+          "false_invalidation": null,
+          "decision_correct": null,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        },
+        "invalidate_all": {
+          "actual_decision": null,
+          "measured": false,
+          "missed_invalidation": null,
+          "false_invalidation": null,
+          "decision_correct": null,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        }
+      }
+    },
+    {
+      "id": "lwip-invalid-config",
+      "corpus": "lwip",
+      "classification": "failure",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; invalid-config is a future upstream scenario topic, not an upstream result.",
+      "case_dir": "templates/maintenance_cases/lwip-invalid-config",
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "70707e9b18c2b4e9970175f46110574d8c11a55edb16125453f9d6134754d4c3"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "f5d74b9b143ebac9b979eedea727ef23c3a0bc001653b933171bac60bf5724db"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "d98b361f2876824495c28a3a2a4befce2959c743b361f82abe31d712266aadd2"
+        }
+      },
+      "expected_revalidation": null,
+      "expected_outcome": "compile_failed",
+      "error_type": null,
+      "outcome": "compile_failed",
+      "semantic_eligible": false,
+      "expected_outcome_matched": true,
+      "compile_exit": 1,
+      "run_exit": null,
+      "assertions": [
+        {
+          "id": "probe_stdout",
+          "description": "Mutated standalone probe stdout, obtained by compiling/running source.c after change.patch (not a CodeAtlas output).",
+          "expected": "3\n",
+          "actual": null,
+          "passed": null
+        }
+      ],
+      "compile_ms": 23.867,
+      "run_ms": null,
+      "adapters": {
+        "current": {
+          "actual_decision": "revalidate",
+          "measured": false,
+          "missed_invalidation": null,
+          "false_invalidation": null,
+          "decision_correct": null,
+          "citation_refreshed": false,
+          "wiki_updated": true,
+          "elapsed_ms": 28.227,
+          "cost": {
+            "value": 28.227,
+            "unit": "ms"
+          }
+        },
+        "main_anchor_hash": {
+          "actual_decision": "keep",
+          "measured": false,
+          "missed_invalidation": null,
+          "false_invalidation": null,
+          "decision_correct": null,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        },
+        "invalidate_all": {
+          "actual_decision": null,
+          "measured": false,
+          "missed_invalidation": null,
+          "false_invalidation": null,
+          "decision_correct": null,
+          "citation_refreshed": null,
+          "wiki_updated": null,
+          "elapsed_ms": null,
+          "cost": null
+        }
+      }
+    }
+  ],
+  "summary": {
+    "total": 24,
+    "not_run": 0,
+    "compile_failed": 8,
+    "semantic_eligible": 16,
+    "outcomes": {
+      "completed": 16,
+      "compile_failed": 8
+    },
+    "adapters": {
+      "current": {
+        "decision_count": 16,
+        "unmeasured": 0,
+        "missed_invalidation": {
+          "count": 0,
+          "denominator": 8,
+          "rate": 0.0
+        },
+        "false_invalidation": {
+          "count": 4,
+          "denominator": 8,
+          "rate": 0.5
+        },
+        "decision_correct": {
+          "count": 12,
+          "denominator": 16,
+          "rate": 0.75
+        },
+        "citation_refreshed": {
+          "count": 4,
+          "denominator": 16,
+          "rate": 0.25
+        },
+        "wiki_updated": {
+          "count": 12,
+          "denominator": 16,
+          "rate": 0.75
+        }
+      },
+      "main_anchor_hash": {
+        "decision_count": 16,
+        "unmeasured": 0,
+        "missed_invalidation": {
+          "count": 6,
+          "denominator": 8,
+          "rate": 0.75
+        },
+        "false_invalidation": {
+          "count": 0,
+          "denominator": 8,
+          "rate": 0.0
+        },
+        "decision_correct": {
+          "count": 10,
+          "denominator": 16,
+          "rate": 0.625
+        },
+        "citation_refreshed": {
+          "count": 0,
+          "denominator": 0,
+          "rate": null
+        },
+        "wiki_updated": {
+          "count": 0,
+          "denominator": 0,
+          "rate": null
+        }
+      },
+      "invalidate_all": {
+        "decision_count": 16,
+        "unmeasured": 0,
+        "missed_invalidation": {
+          "count": 0,
+          "denominator": 8,
+          "rate": 0.0
+        },
+        "false_invalidation": {
+          "count": 8,
+          "denominator": 8,
+          "rate": 1.0
+        },
+        "decision_correct": {
+          "count": 8,
+          "denominator": 16,
+          "rate": 0.5
+        },
+        "citation_refreshed": {
+          "count": 0,
+          "denominator": 0,
+          "rate": null
+        },
+        "wiki_updated": {
+          "count": 0,
+          "denominator": 0,
+          "rate": null
+        }
+      }
+    }
+  },
+  "by_corpus": {
+    "cjson": {
+      "total": 12,
+      "not_run": 0,
+      "compile_failed": 4,
+      "semantic_eligible": 8,
+      "outcomes": {
+        "completed": 8,
+        "compile_failed": 4
+      },
+      "adapters": {
+        "current": {
+          "decision_count": 8,
+          "unmeasured": 0,
+          "missed_invalidation": {
+            "count": 0,
+            "denominator": 4,
+            "rate": 0.0
+          },
+          "false_invalidation": {
+            "count": 2,
+            "denominator": 4,
+            "rate": 0.5
+          },
+          "decision_correct": {
+            "count": 6,
+            "denominator": 8,
+            "rate": 0.75
+          },
+          "citation_refreshed": {
+            "count": 2,
+            "denominator": 8,
+            "rate": 0.25
+          },
+          "wiki_updated": {
+            "count": 6,
+            "denominator": 8,
+            "rate": 0.75
+          }
+        },
+        "main_anchor_hash": {
+          "decision_count": 8,
+          "unmeasured": 0,
+          "missed_invalidation": {
+            "count": 3,
+            "denominator": 4,
+            "rate": 0.75
+          },
+          "false_invalidation": {
+            "count": 0,
+            "denominator": 4,
+            "rate": 0.0
+          },
+          "decision_correct": {
+            "count": 5,
+            "denominator": 8,
+            "rate": 0.625
+          },
+          "citation_refreshed": {
+            "count": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "wiki_updated": {
+            "count": 0,
+            "denominator": 0,
+            "rate": null
+          }
+        },
+        "invalidate_all": {
+          "decision_count": 8,
+          "unmeasured": 0,
+          "missed_invalidation": {
+            "count": 0,
+            "denominator": 4,
+            "rate": 0.0
+          },
+          "false_invalidation": {
+            "count": 4,
+            "denominator": 4,
+            "rate": 1.0
+          },
+          "decision_correct": {
+            "count": 4,
+            "denominator": 8,
+            "rate": 0.5
+          },
+          "citation_refreshed": {
+            "count": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "wiki_updated": {
+            "count": 0,
+            "denominator": 0,
+            "rate": null
+          }
+        }
+      }
+    },
+    "lwip": {
+      "total": 12,
+      "not_run": 0,
+      "compile_failed": 4,
+      "semantic_eligible": 8,
+      "outcomes": {
+        "completed": 8,
+        "compile_failed": 4
+      },
+      "adapters": {
+        "current": {
+          "decision_count": 8,
+          "unmeasured": 0,
+          "missed_invalidation": {
+            "count": 0,
+            "denominator": 4,
+            "rate": 0.0
+          },
+          "false_invalidation": {
+            "count": 2,
+            "denominator": 4,
+            "rate": 0.5
+          },
+          "decision_correct": {
+            "count": 6,
+            "denominator": 8,
+            "rate": 0.75
+          },
+          "citation_refreshed": {
+            "count": 2,
+            "denominator": 8,
+            "rate": 0.25
+          },
+          "wiki_updated": {
+            "count": 6,
+            "denominator": 8,
+            "rate": 0.75
+          }
+        },
+        "main_anchor_hash": {
+          "decision_count": 8,
+          "unmeasured": 0,
+          "missed_invalidation": {
+            "count": 3,
+            "denominator": 4,
+            "rate": 0.75
+          },
+          "false_invalidation": {
+            "count": 0,
+            "denominator": 4,
+            "rate": 0.0
+          },
+          "decision_correct": {
+            "count": 5,
+            "denominator": 8,
+            "rate": 0.625
+          },
+          "citation_refreshed": {
+            "count": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "wiki_updated": {
+            "count": 0,
+            "denominator": 0,
+            "rate": null
+          }
+        },
+        "invalidate_all": {
+          "decision_count": 8,
+          "unmeasured": 0,
+          "missed_invalidation": {
+            "count": 0,
+            "denominator": 4,
+            "rate": 0.0
+          },
+          "false_invalidation": {
+            "count": 4,
+            "denominator": 4,
+            "rate": 1.0
+          },
+          "decision_correct": {
+            "count": 4,
+            "denominator": 8,
+            "rate": 0.5
+          },
+          "citation_refreshed": {
+            "count": 0,
+            "denominator": 0,
+            "rate": null
+          },
+          "wiki_updated": {
+            "count": 0,
+            "denominator": 0,
+            "rate": null
+          }
+        }
+      }
+    }
+  },
+  "acceptance": {
+    "manifest_valid": true,
+    "execution_complete": true,
+    "all_expected_outcomes": true,
+    "current_decisions_passed": false,
+    "oracle_independently_validated": false,
+    "upstream_material_declared": false,
+    "upstream_validated": false,
+    "upstream_validation_reason": "This runner binds artifacts but does not verify their Git-checkout provenance."
+  },
+  "amortization": {
+    "break_even_queries": null,
+    "saving_per_query": null,
+    "unit": null,
+    "quality_comparable": false,
+    "reason": "quality_not_comparable"
+  }
+}

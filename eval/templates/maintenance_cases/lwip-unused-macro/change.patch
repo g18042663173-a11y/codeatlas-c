@@ -1,0 +1,21 @@
+--- a/source.c
++++ b/source.c
+@@ -1,9 +1,9 @@
+-/* CC0 synthetic maintenance fixture; NOT upstream lwip source. */
+-#include <stdio.h>
+-#define CONFIG_VALUE 1
+-#define UNUSED_VALUE 10
+-typedef struct { int value; } Item;
+-static int helper(void) { return 1; }
+-static int unrelated(void) { return UNUSED_VALUE; }
+-static int claim_probe(Item item) { return item.value + helper() + CONFIG_VALUE; }
+-int main(void) { Item item = {1}; printf("%d\n", claim_probe(item)); return 0; }
++/* CC0 synthetic maintenance fixture; NOT upstream lwip source. */
++#include <stdio.h>
++#define CONFIG_VALUE 1
++#define UNUSED_VALUE 99
++typedef struct { int value; } Item;
++static int helper(void) { return 1; }
++static int unrelated(void) { return UNUSED_VALUE; }
++static int claim_probe(Item item) { return item.value + helper() + CONFIG_VALUE; }
++int main(void) { Item item = {1}; printf("%d\n", claim_probe(item)); return 0; }

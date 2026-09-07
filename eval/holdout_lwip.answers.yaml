@@ -1,0 +1,646 @@
+schema_version: 2
+status: approved
+split: held_out
+task_set: eval/holdout_lwip.yaml
+task_set_hash: 25d775beb57c113a544b624d00d5e910ea797ec6eae719b09993b73fe8a1a8fa
+frozen_at: "2026-09-05T20:46:17+08:00"
+not_used_for_tuning: true
+provenance:
+  author: holdout-author-agent
+  author_kind: agent
+  reviewer_kind: agent
+  review_status: ai_reviewed
+  human_reviewed: false
+  method: "由固定 revision 的公开源码独立起草，并以同一源码与只读 DB 锚点重审本轮替换机制；未读取 CodeAtlas Wiki、docs、提示词、既有答案或运行得分。"
+  release_note: "两名独立 agent 已完成源码核验，可用于明确标注 AI 复核来源的效果实验；不构成人类复核，历史未曝光仍不可由哈希证明。"
+review:
+  reviewer_kind: agent
+  independent_reviews:
+    - reviewer_kind: agent
+      reviewer: holdout-source-validator
+      provider: OpenAI
+      model: GPT-5
+      agent: /root/holdout_source_validator
+      prompt_hash: d10ed500762923bd4804d419fc08b70d32af3eccf68bb3dd39a4e872b3912565
+      input_hash: 91e97b7bb996bbd40f922c873e7134760d4eef72dcc03e06d85baf5e63628d32
+      independent: true
+      peer_reviews_visible: false
+      verdict: approved
+      reviewed_at: "2026-09-05"
+      note: Current fixed-source facts, forbidden claims, evidence, anchors, corrected udp_disconnect boundary, category balance and zero development-mechanism overlap passed; no human or historical non-exposure claim.
+      validation_report: eval/holdout_validation.json
+      validation_report_hash: dc9621dc3b3ac0ef223f0ed6837906a900870223640aba1c039e1d8e5171156e
+    - reviewer_kind: agent
+      reviewer: holdout-source-validator-b
+      provider: OpenAI
+      model: gpt-5
+      agent: /root/holdout_source_validator_b
+      prompt_hash: 0081b41a01ea716181bd33a4c8d39cfff513baecab254907f2ce1be3ba939a70
+      input_hash: 91e97b7bb996bbd40f922c873e7134760d4eef72dcc03e06d85baf5e63628d32
+      independent: true
+      peer_reviews_visible: false
+      verdict: approved
+      reviewed_at: "2026-09-05"
+      note: Independently approved all current holdout source/evidence/anchor contracts including the two-branch udp_disconnect ANY behavior; no human review or historical non-exposure claim.
+      validation_report: eval/holdout_validation_b.json
+      validation_report_hash: e2d3bc87798571a8e7307a90f5df0e79817d1fe0d7ba318f44c54e023c508a96
+tasks:
+  ho-lwip-flow-udp-send-pipeline:
+    expected_points:
+      - id: connected-destination
+        text: "udp_send 要求 PCB/pbuf 非空且 remote_ip 不是 ANY，随后把 PCB 中 remote_ip/remote_port 交给 udp_sendto。"
+        evidence: "src/core/udp.c:466-478"
+      - id: route
+        text: "udp_sendto 先检查 IP 版本，优先使用 pcb->netif_idx 或组播接口配置，否则调用 ip_route；找不到 netif 返回 ERR_RTE。"
+        evidence: "src/core/udp.c:519-600"
+      - id: source
+        text: "udp_sendto_if 按目的地址族从 netif 选择源地址，或验证 PCB 的已绑定本地地址仍属于该 netif，再调用 udp_sendto_if_src。"
+        evidence: "src/core/udp.c:623-693"
+      - id: transport-to-ip
+        text: "最内层必要时自动 bind，增加 UDP 头、写端口/长度与校验和，选择 TTL，最后调用 ip_output_if_src 并返回其错误。"
+        evidence: "src/core/udp.c:698-908"
+    forbidden_claims:
+      - "不得声称 udp_send 在 remote_ip 为 ANY 时会自动选择目的地址。"
+      - "不得声称 udp_sendto 总是忽略 pcb->netif_idx 做普通路由查找。"
+    evidence_payload:
+      source:
+        - {path: src/core/udp.c, lines: "466-908", permalink: "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/udp.c#L466-L908"}
+      experiment:
+        kind: call_path_matrix
+        executed: false
+        setup: "已 connect PCB 分别配置固定 netif_idx、无 netif_idx 且可路由、无可用路由。"
+        expected: "前两种到达 ip_output_if_src；第三种在 udp_sendto 返回 ERR_RTE。"
+
+  ho-lwip-flow-dns-resolution:
+    expected_points:
+      - id: synchronous-fast-paths
+        text: "入口先校验参数和长度，再尝试 localhost、IP 字面量、首选地址族缓存，以及双栈回退地址族缓存；命中时同步 ERR_OK。"
+        evidence: "src/core/dns.c:1569-1631"
+      - id: server-gate
+        text: "普通 DNS 请求若首个服务器为 ANY 会返回 ERR_VAL；mDNS 条件满足时可绕过这个普通服务器门槛。"
+        evidence: "src/core/dns.c:1636-1650"
+      - id: enqueue
+        text: "未命中快路径时 dns_enqueue 选空闲或最老 DONE 表项，写入 NEW 状态、名称、回调和地址类型，然后直接调用 dns_check_entry。"
+        evidence: "src/core/dns.c:1438-1525"
+      - id: state-machine
+        text: "dns_check_entry 把 NEW 转为 ASKING、生成 txid、初始化 server/retry/timer 并发送；ASKING 超时后增长等待、切换备份服务器或回调失败并释放表项。"
+        evidence: "src/core/dns.c:1065-1128"
+    forbidden_claims:
+      - "不得声称每次调用都会发网络查询；字面量和缓存命中是同步快路径。"
+      - "不得声称 ERR_INPROGRESS 表示查询已经完成。"
+    evidence_payload:
+      source:
+        - {path: src/core/dns.c, lines: "617-651,1065-1137,1393-1655", permalink: "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/dns.c#L1393-L1655"}
+      experiment:
+        kind: state_transition_probe
+        executed: false
+        setup: "分别查询 IP 字面量、缓存名和未缓存名，并推进 DNS 定时器直到重试上限。"
+        expected: "前两者同步 ERR_OK；未缓存名 ERR_INPROGRESS 且 NEW->ASKING，最终切服或回调 NULL 后 UNUSED。"
+
+  ho-lwip-flow-ethernet-demux:
+    expected_points:
+      - id: header-validation
+        text: "基础以太网头长度不足直接计错并释放；VLAN 模式还校验 VLAN 头长度和可选 VLAN hook/check。"
+        evidence: "src/netif/ethernet.c:80-136"
+      - id: metadata
+        text: "入口填充缺失的 if_idx，并按目的 MAC 标记 PBUF_FLAG_LLMCAST 或 PBUF_FLAG_LLBCAST。"
+        evidence: "src/netif/ethernet.c:138-168"
+      - id: dispatch
+        text: "IPv4/ARP 需 NETIF_FLAG_ETHARP，去掉二层头后分别交给 ip4_input/etharp_input；IPv6 去头后交给 ip6_input；PPP 类型交给对应 PPPoE 入口。"
+        evidence: "src/netif/ethernet.c:170-232"
+      - id: unknown-and-ownership
+        text: "未知 EtherType 先给可选 hook；未被接受则计 unknown/drop 并释放。所有返回 ERR_OK 的分支都表示 pbuf 已被消费或释放。"
+        evidence: "src/netif/ethernet.c:234-252"
+    forbidden_claims:
+      - "不得声称 unknown protocol 一定立即释放；hook 返回 ERR_OK 时由 hook 消费。"
+      - "不得声称调用者在 ERR_OK 后仍应无条件 pbuf_free。"
+    evidence_payload:
+      source:
+        - {path: src/netif/ethernet.c, lines: "80-253", permalink: "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/netif/ethernet.c#L80-L253"}
+      experiment:
+        kind: frame_matrix
+        executed: false
+        setup: "输入短帧、被 VLAN hook 拒绝帧、IPv4 帧、未知 EtherType 且 hook 接受/拒绝。"
+        expected: "短帧和拒绝帧被释放；IPv4 去头后下交；未知帧仅在 hook 不接受时由入口释放。"
+
+  ho-lwip-flow-dhcp-start-discover:
+    expected_points:
+      - id: client-and-pcb
+        text: "dhcp_start 要求 netif 非空且已 up、MTU 足够；必要时分配/挂接 dhcp，清零时保留 EXTERNAL_MEM 标志，再取得共享 DHCP PCB 引用。"
+        evidence: "src/core/ipv4/dhcp.c:806-867"
+      - id: link-gate
+        text: "link 未 up 时仅把状态设为 INIT 并返回 ERR_OK，等待 dhcp_network_changed；link 已 up 才调用 dhcp_discover。"
+        evidence: "src/core/ipv4/dhcp.c:868-881"
+      - id: discover-message
+        text: "discover 清 offered_ip、切 SELECTING，调用 dhcp_create_msg 分配并填公共 DHCP 头和 xid，再追加最大报文、主机名/参数请求等选项。"
+        evidence: "src/core/ipv4/dhcp.c:1019-1057,1883-1961"
+      - id: send-and-backoff
+        text: "构造成功后通过 udp_sendto_if_src 向广播服务器端口发送并立即 pbuf_free；无论是否构造成功都递增 tries（饱和于 255）并计算 request_timeout。"
+        evidence: "src/core/ipv4/dhcp.c:1059-1074"
+    forbidden_claims:
+      - "不得声称接口 up 等价于 link up；后者决定是否立即 discover。"
+      - "不得声称 udp_sendto_if_src 接管 p_out 的调用者引用；discover 随后自行释放。"
+    evidence_payload:
+      source:
+        - {path: src/core/ipv4/dhcp.c, lines: "806-882,1019-1075,1883-1961", permalink: "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/ipv4/dhcp.c#L806-L882"}
+      experiment:
+        kind: state_matrix
+        executed: false
+        setup: "netif 已 up，分别令 link down/up 后调用 dhcp_start。"
+        expected: "link down 停在 INIT；link up 进入 SELECTING、尝试发送 DISCOVER 并设置退避。"
+
+  ho-lwip-flow-timeout-dispatch:
+    expected_points:
+      - id: absolute-registration
+        text: "sys_timeout 以 sys_now()+msecs 计算绝对到期时间并交给内部登记器，溢出比较由 TIME_LESS_THAN 语义处理。"
+        evidence: "src/core/timeouts.c:289-305"
+      - id: ordered-list
+        text: "内部登记器从 MEMP_SYS_TIMEOUT 分配节点，按 time 插入 next_timeout 链表；更早者放头部。"
+        evidence: "src/core/timeouts.c:185-220"
+      - id: dispatch-order
+        text: "sys_check_timeouts 只用入口捕获的 now 判定本轮到期项；每项先从链表摘除、保存 handler/arg、释放 timeout 节点，再调用 handler。"
+        evidence: "src/core/timeouts.c:354-400"
+      - id: sleep-result
+        text: "无定时器返回无限睡眠值；头项未到期返回其 time-now；否则循环处理入口时已经到期的项。"
+        evidence: "src/core/timeouts.c:361-400"
+    forbidden_claims:
+      - "不得声称 handler 被调用时其 sys_timeo 节点仍有效。"
+      - "不得声称一次调用会以不断刷新 now 的方式处理 handler 新建的立即定时器。"
+    evidence_payload:
+      source:
+        - {path: src/core/timeouts.c, lines: "185-220,289-305,354-401", permalink: "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/timeouts.c#L354-L401"}
+      experiment:
+        kind: callback_order_probe
+        executed: false
+        setup: "登记 t+10、t+5、t+20 三项并在首个 handler 中再登记立即项。"
+        expected: "原链按 5/10/20 排序；检查使用入口 now，节点先释放再回调，新项是否本轮执行取决于同一固定 now。"
+
+  ho-lwip-cond-udp-bind-conflict:
+    expected_points:
+      - id: ephemeral
+        text: "port==0 时调用 udp_new_port；没有可用临时端口返回 ERR_USE。"
+        evidence: "src/core/udp.c:979-986"
+      - id: conflict-shape
+        text: "显式端口冲突要求端口相同，且地址同类型并相等/任一为 ANY，或任一地址类型本身为 ANY。"
+        evidence: "src/core/udp.c:987-1011"
+      - id: reuse
+        text: "启用 SO_REUSE 时只有当前 PCB 和冲突 PCB 都设置 SOF_REUSEADDR 才跳过该冲突拒绝；仅一方设置仍检查并可能 ERR_USE。"
+        evidence: "src/core/udp.c:990-1012"
+      - id: activation
+        text: "成功后写 local_ip/local_port，并且仅 PCB 尚未在 active list 时插到表头；rebind 不重复插入。"
+        evidence: "src/core/udp.c:957-965,1017-1030"
+    forbidden_claims:
+      - "不得声称不同具体 IPv4 地址在同端口上一律冲突。"
+      - "不得声称任意一方 REUSEADDR 即足以共享端口。"
+    evidence_payload:
+      source:
+        - {path: src/core/udp.c, lines: "931-1031", permalink: "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/udp.c#L931-L1031"}
+      experiment:
+        kind: bind_matrix
+        executed: false
+        setup: "同端口组合具体地址 A/A、A/B、ANY/B，并切换双方 REUSEADDR。"
+        expected: "A/A 与 ANY/B 冲突；A/B 可不冲突；只有双方 REUSEADDR 时跳过默认拒绝。"
+
+  ho-lwip-cond-tcp-bind-state:
+    expected_points:
+      - id: state
+        text: "PCB 必须非空且 state==CLOSED，否则分别返回 ERR_ARG 或 ERR_VAL。"
+        evidence: "src/core/tcp.c:671-684"
+      - id: ephemeral
+        text: "port==0 调用 tcp_new_port，取不到端口时返回 ERR_BUF。"
+        evidence: "src/core/tcp.c:709-713"
+      - id: lists-and-timewait
+        text: "默认遍历全部 TCP PCB 列表含 TIME_WAIT；当前 PCB 设置 SOF_REUSEADDR 时缩短到不含 TIME_WAIT 的列表集合。"
+        evidence: "src/core/tcp.c:664-695"
+      - id: reuse-conflict
+        text: "同端口且地址族匹配，并且地址相等或任一 ANY 时冲突；SO_REUSE 编译开启后，只有双方都有 REUSEADDR 才跳过 bind 阶段拒绝。"
+        evidence: "src/core/tcp.c:714-737"
+    forbidden_claims:
+      - "不得声称非 CLOSED PCB 可重复 bind。"
+      - "不得把 UDP 的临时端口失败码 ERR_USE 套到 TCP；TCP 此处返回 ERR_BUF。"
+    evidence_payload:
+      source:
+        - {path: src/core/tcp.c, lines: "661-751", permalink: "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/tcp.c#L661-L751"}
+      experiment:
+        kind: bind_matrix
+        executed: false
+        setup: "对 ESTABLISHED/CLOSED PCB、port 0、TIME_WAIT 冲突和单双边 REUSEADDR 分别调用。"
+        expected: "状态错误 ERR_VAL；无临时端口 ERR_BUF；TIME_WAIT/复用结果按列表与双方标志决定。"
+
+  ho-lwip-cond-pbuf-header-force:
+    expected_points:
+      - id: wrapper-force-bit
+        text: "pbuf_header 与 pbuf_header_force 都进 pbuf_header_impl，区别只是 force=0/1；正增量再转给 pbuf_add_header_impl。"
+        evidence: "src/core/pbuf.c:620-664"
+      - id: external-payload
+        text: "对非连续外部载荷类型，普通版本正向扩头直接失败；force 版本允许把 payload 指针向前移动，供内部 RX 路径使用。"
+        evidence: "src/core/pbuf.c:498-522,656-664"
+      - id: remaining-guards
+        text: "两版仍拒绝 NULL、增量大于 0xFFFF、tot_len 加法回绕；连续缓冲区还必须保证新 payload 不越过 pbuf 结构后的前界。"
+        evidence: "src/core/pbuf.c:484-511"
+      - id: remove-guard
+        text: "负 header_size_increment 走 pbuf_remove_header，删除量超过 p->len 时失败；force 不绕过这个限制。"
+        evidence: "src/core/pbuf.c:586-627"
+    forbidden_claims:
+      - "不得声称 force 会绕过长度溢出或连续缓冲区前界检查。"
+      - "不得声称所有 PBUF_REF 正增量在任意指针位置都安全。"
+    evidence_payload:
+      source:
+        - {path: src/core/pbuf.c, lines: "477-664", permalink: "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/pbuf.c#L477-L533"}
+      experiment:
+        kind: boundary_matrix
+        executed: false
+        setup: "对 PBUF_REF、连续 RAM pbuf 前部空间不足、tot_len 近 65535、负增量超过 len 分别调用普通/force。"
+        expected: "force 仅改变 PBUF_REF 正扩头结果，其余安全边界仍失败。"
+
+  ho-lwip-cond-dns-sync-result:
+    expected_points:
+      - id: argument-errors
+        text: "addr==NULL、hostname 为 NULL/空、未初始化 PCB（相关配置下）或去掉末尾点后长度仍达到 DNS_MAX_NAME_LENGTH 都返回 ERR_ARG。"
+        evidence: "src/core/dns.c:1577-1595"
+      - id: terminal-dot-and-literal
+        text: "单个末尾点只从用于比较/入队的 hostnamelen 中扣除；IP 字面量只有与请求地址族允许关系匹配时同步 ERR_OK。"
+        evidence: "src/core/dns.c:1588-1614"
+      - id: cache
+        text: "缓存首选地址族命中同步 ERR_OK；双栈优先模式还会尝试另一地址族缓存。"
+        evidence: "src/core/dns.c:1615-1631"
+      - id: async-or-no-server
+        text: "无普通 DNS server 时返回 ERR_VAL；否则 dns_enqueue 成功返回 ERR_INPROGRESS，容量等错误可返回 ERR_MEM。"
+        evidence: "src/core/dns.c:1636-1655,1457-1510"
+      - id: mdns-server-bypass
+        text: "只有编译启用 LWIP_DNS_SUPPORT_MDNS_QUERIES，且 strstr(hostname, \".local\") 返回的首次匹配地址恰等于按去除可选末尾点后的 hostnamelen 计算出的最后六字符起点时，is_mdns 才为 1，并跳过 dns_servers[0] 为 ANY 的 ERR_VAL 门槛。"
+        evidence: "src/core/dns.c:1588-1591,1636-1650"
+    forbidden_claims:
+      - "不得声称任何可解析 IP 字面量都忽略 dns_addrtype 同步成功。"
+      - "不得声称 found 回调在 ERR_OK 快路径上必然被调用。"
+      - "不得声称名称只要包含 .local、或未启用 LWIP_DNS_SUPPORT_MDNS_QUERIES，也能绕过普通 DNS server 可用性检查。"
+      - "不得把该实现概括为无条件 endswith(\".local\")；它比较的是 strstr 的首次匹配位置与 hostnamelen-6。"
+    evidence_payload:
+      source:
+        - {path: src/core/dns.c, lines: "1569-1655", permalink: "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/dns.c#L1569-L1655"}
+        - {path: src/core/dns.c, lines: "1457-1510", permalink: "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/dns.c#L1457-L1510"}
+        - {path: src/core/dns.c, lines: "1636-1650", permalink: "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/dns.c#L1636-L1650"}
+      experiment:
+        kind: return_code_matrix
+        executed: false
+        setup: "传空名、超长名、IPv6 字面量配 IPv4-only、缓存命中、无服务器未缓存名、正常未缓存名。"
+        expected: "依次 ERR_ARG、ERR_ARG、跳过字面量 ERR_OK 并继续缓存/入队路径、ERR_OK、ERR_VAL、ERR_INPROGRESS/ERR_MEM。"
+
+  ho-lwip-cond-ip4-route-selection:
+    expected_points:
+      - id: direct
+        text: "线性扫描只考虑 up、link up 且 IPv4 地址非 ANY 的 netif；掩码直连匹配即返回。"
+        evidence: "src/core/ipv4/ip4.c:169-177"
+      - id: point-to-point
+        text: "没有 NETIF_FLAG_BROADCAST 的接口若目标等于其 gateway，也可被当作点到点路径返回。"
+        evidence: "src/core/ipv4/ip4.c:178-182"
+      - id: hooks
+        text: "直连未命中后按编译配置调用 LWIP_HOOK_IP4_ROUTE_SRC(NULL,dest) 或 LWIP_HOOK_IP4_ROUTE(dest)，hook 返回非空即采用。"
+        evidence: "src/core/ipv4/ip4.c:203-213"
+      - id: default
+        text: "默认接口必须非空、up、link up、地址非 ANY，且目的不是 loopback；仅 up 但 link down 会返回 NULL 并计无路由。"
+        evidence: "src/core/ipv4/ip4.c:216-228"
+    forbidden_claims:
+      - "不得声称 netif_default 只要 up 就一定可用。"
+      - "不得声称 hook 在直连扫描之前无条件运行。"
+    evidence_payload:
+      source:
+        - {path: src/core/ipv4/ip4.c, lines: "151-228", permalink: "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/ipv4/ip4.c#L151-L228"}
+      experiment:
+        kind: route_matrix
+        executed: false
+        setup: "构造直连 up/link-up、点到点 gateway、hook 命中、默认仅 up 但 link-down 四种环境。"
+        expected: "前三种按优先级返回对应 netif；最后一种无路由。"
+
+  ho-lwip-error-tcp-alloc-reclaim:
+    expected_points:
+      - id: initial-allocation
+        text: "tcp_alloc 首先从 MEMP_TCP_PCB 分配，只在这次返回 NULL 后进入恢复路径。"
+        evidence: "src/core/tcp.c:1844-1851"
+      - id: closepend-first
+        text: "牺牲 PCB 前先遍历活动 PCB，对 TF_CLOSEPEND 清标志并再尝试发 FIN。"
+        evidence: "src/core/tcp.c:1814-1829,1844-1851"
+      - id: ordered-retries
+        text: "回收顺序是最老 TIME_WAIT→重试分配→最老 LAST_ACK→重试→最老 CLOSING→重试→低于新 PCB 优先级的活动连接→最后一次重试。"
+        evidence: "src/core/tcp.c:1851-1882"
+      - id: timewait-victim
+        text: "TIME_WAIT 路径在 tcp_tw_pcbs 中选最长时间未活动的 PCB，并用 tcp_abort 终止它。"
+        evidence: "src/core/tcp.c:1787-1807"
+      - id: closing-state-victim
+        text: "LAST_ACK/CLOSING 路径在活动链中选指定状态下最久未活动的 PCB，并用 tcp_abandon(...,0) 终止，不发 RST。"
+        evidence: "src/core/tcp.c:1755-1781"
+      - id: priority-victim
+        text: "优先级路径只在活动链中考虑低于新 PCB 优先级的连接，选可用最低优先级中最久未活动者并 tcp_abort；新 prio 为 0 时不牺牲活动连接。"
+        evidence: "src/core/tcp.c:1709-1749"
+      - id: error-stat-adjustment
+        text: "某次重试成功时，嵌套的 MEMP_STATS_DEC 会抵消此前连续分配失败累加的对应错误统计。"
+        evidence: "src/core/tcp.c:1871-1890"
+      - id: final-result
+        text: "只对非 NULL PCB 做清零与字段初始化；所有重试仍失败时，末尾直接返回 NULL。"
+        evidence: "src/core/tcp.c:1892-1935"
+    forbidden_claims:
+      - "不得声称 tcp_alloc 在第一次池分配失败时立即返回 NULL。"
+      - "不得声称优先级回收可以杀死与新 PCB 同级或更高优先级的活动连接。"
+      - "不得声称 LAST_ACK 或 CLOSING 回收通过发送 RST 终止连接。"
+      - "不得声称回收阶梯保证最终分配成功。"
+    evidence_payload:
+      source:
+        - {path: src/core/tcp.c, lines: "1709-1807", permalink: "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/tcp.c#L1709-L1807"}
+        - {path: src/core/tcp.c, lines: "1814-1935", permalink: "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/tcp.c#L1814-L1935"}
+      experiment:
+        kind: tcp_pcb_pool_exhaustion_matrix
+        executed: false
+        setup: "耗尽 MEMP_TCP_PCB，分别仅提供 TIME_WAIT、LAST_ACK、CLOSING、低优先级活动 PCB 作为可回收对象，以及无可回收对象的情况。"
+        expected: "按固定阶梯每回收一类后重试；成功时初始化新 PCB 并校正之前失败统计，全部失败时返回 NULL。"
+
+  ho-lwip-error-dns-enqueue-capacity:
+    expected_points:
+      - id: dns-table-full
+        text: "没有 UNUSED 且没有可替换的最老 DONE 表项时直接 ERR_MEM，不改写新活动表项。"
+        evidence: "src/core/dns.c:1438-1468"
+      - id: request-table-full
+        text: "启用 NO_MULTIPLE_OUTSTANDING 配置时找不到空 dns_requests 槽也直接 ERR_MEM，发生在 entry 写 NEW 之前。"
+        evidence: "src/core/dns.c:1470-1488"
+      - id: pcb-failure-rollback
+        text: "随机源端口模式中，entry 和 req 已写入后若 dns_alloc_pcb 失败，会把 entry->state 还原 UNUSED、req->found 清 NULL，再返回 ERR_MEM。"
+        evidence: "src/core/dns.c:1490-1511"
+      - id: success-transition
+        text: "只有资源就绪才递增 dns_seqno、调用 dns_check_entry 并返回 ERR_INPROGRESS。"
+        evidence: "src/core/dns.c:1515-1525"
+    forbidden_claims:
+      - "不得声称表满时总会驱逐 ASKING 项；只考虑 UNUSED 或最老 DONE。"
+      - "不得声称 PCB 分配失败会留下 req->found 回调处于活动状态。"
+    evidence_payload:
+      source:
+        - {path: src/core/dns.c, lines: "1393-1526", permalink: "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/dns.c#L1393-L1526"}
+      experiment:
+        kind: capacity_failure_matrix
+        executed: false
+        setup: "分别填满 ASKING 表、填满 request 槽、让 dns_alloc_pcb 失败。"
+        expected: "均 ERR_MEM；前两种不创建 NEW 项，后一种显式恢复 UNUSED 并清 callback。"
+
+  ho-lwip-error-dhcp-start-cleanup:
+    expected_points:
+      - id: early-errors
+        text: "netif 无效/未 up 返回 ERR_ARG；MTU 过小或 dhcp 结构分配失败返回 ERR_MEM，尚未取得共享 PCB。"
+        evidence: "src/core/ipv4/dhcp.c:813-832"
+      - id: pcb-acquire
+        text: "dhcp_inc_pcb_refcount 失败时直接返回 ERR_MEM；若本次新分配 dhcp，它已挂到 netif，源码此处没有调用 release_and_stop。"
+        evidence: "src/core/ipv4/dhcp.c:825-865"
+      - id: discover-cleanup
+        text: "取得 PCB 后 dhcp_discover 若返回非 ERR_OK，dhcp_start 才调用 dhcp_release_and_stop 并返回 ERR_MEM。"
+        evidence: "src/core/ipv4/dhcp.c:863-880"
+      - id: allocation-counterexample
+        text: "当前 dhcp_discover 在 dhcp_create_msg 返回 NULL 时只记录日志，仍更新 tries/timeout 并返回初始 ERR_OK；该分配失败不会触发 start 的 release_and_stop 分支。"
+        evidence: "src/core/ipv4/dhcp.c:1022-1074"
+    forbidden_claims:
+      - "不得声称任何 DHCP 报文分配失败都会由 dhcp_start 立即完整回收。"
+      - "不得声称 MTU 过小返回 ERR_ARG；源码返回 ERR_MEM。"
+    evidence_payload:
+      source:
+        - {path: src/core/ipv4/dhcp.c, lines: "806-882,1019-1075", permalink: "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/ipv4/dhcp.c#L806-L882"}
+      experiment:
+        kind: allocator_failure_matrix
+        executed: false
+        setup: "分别让 dhcp mem_malloc、dhcp_inc_pcb_refcount、dhcp_create_msg 的 pbuf_alloc 失败。"
+        expected: "前两者 start 返回 ERR_MEM；第三者当前仍从 discover/start 返回 ERR_OK 并安排重试。"
+
+  ho-lwip-error-netbuf-reallocation:
+    expected_points:
+      - id: old-free
+        text: "netbuf_alloc 若 buf->p 非 NULL，先 pbuf_free 旧链，再把新 pbuf_alloc 结果赋给 buf->p。"
+        evidence: "src/api/netbuf.c:101-111"
+      - id: allocation-failure-state
+        text: "新分配失败时 buf->p 已是 NULL 并立即返回；buf->ptr 在失败前未清零，可能仍是指向已释放旧 pbuf 的陈旧指针。"
+        evidence: "src/api/netbuf.c:106-116"
+      - id: delete-after-failure
+        text: "netbuf_delete 只有 buf->p 非 NULL 才 pbuf_free 并同时清 p/ptr；失败后 p==NULL，因此不会二次释放旧 pbuf，随后归还 netbuf 本体。"
+        evidence: "src/api/netbuf.c:80-90"
+    forbidden_claims:
+      - "不得声称分配失败时 buf->ptr 一定被置 NULL。"
+      - "不得声称 netbuf_delete 会根据陈旧 ptr 再释放一次。"
+    evidence_payload:
+      source:
+        - {path: src/api/netbuf.c, lines: "80-118", permalink: "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/api/netbuf.c#L80-L118"}
+      experiment:
+        kind: allocator_failure_injection
+        executed: false
+        setup: "buf 初始含 p/ptr，令第二次 pbuf_alloc 返回 NULL，再调用 netbuf_delete。"
+        expected: "旧 p 释放一次、buf->p=NULL、ptr 暂时陈旧；delete 不再 free p，只释放 netbuf。"
+
+  ho-lwip-error-ip4-reassembly-cap:
+    expected_points:
+      - id: malformed
+        text: "不支持 IP options（头长不等于 IP_HLEN）或 hlen>总长时跳到统一 nullreturn，计 drop 并 pbuf_free 当前片段。"
+        evidence: "src/core/ipv4/ip4_frag.c:519-534,689-693"
+      - id: capacity
+        text: "若 ip_reass_pbufcount+clen 超过 IP_REASS_MAX_PBUFS，可选尝试删除最老 datagram；删除失败或删除后仍超限则计 memerr 并丢当前 pbuf。"
+        evidence: "src/core/ipv4/ip4_frag.c:536-552"
+      - id: enqueue-fail
+        text: "新 datagram 元数据分配失败、总长度溢出或片段链验证返回 DROPPED 都进入释放路径；若刚建空 ipr，还会先摘除该 ipr。"
+        evidence: "src/core/ipv4/ip4_frag.c:568-603,681-693"
+      - id: no-guarantee
+        text: "IP_REASS_FREE_OLDEST 只允许尝试腾位，不保证足够；二次容量条件仍可拒绝新片段。"
+        evidence: "src/core/ipv4/ip4_frag.c:538-550"
+    forbidden_claims:
+      - "不得声称启用 FREE_OLDEST 后所有超限片段都会入队。"
+      - "不得声称错误路径把当前 pbuf 留给调用者释放。"
+    evidence_payload:
+      source:
+        - {path: src/core/ipv4/ip4_frag.c, lines: "504-694", permalink: "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/ipv4/ip4_frag.c#L504-L694"}
+      experiment:
+        kind: resource_limit_probe
+        executed: false
+        setup: "令计数接近上限并提交 clen 仍大于淘汰可释放量；另提交带 IP options 的片段。"
+        expected: "两者均返回 NULL、计 drop 并释放当前 pbuf；前者还计 memerr。"
+
+  ho-lwip-state-udp-connect-disconnect:
+    expected_points:
+      - id: auto-bind
+        text: "udp_connect 若 local_port==0 先调用 udp_bind 自动取本地端口；bind 错误直接返回。"
+        evidence: "src/core/udp.c:1074-1089"
+      - id: connected-state
+        text: "成功后复制 remote_ip、设置 remote_port 和 UDP_FLAGS_CONNECTED，并确保 PCB 位于 udp_pcbs active list。"
+        evidence: "src/core/udp.c:1091-1119"
+      - id: disconnect-state
+        text: "udp_disconnect 在 IPv4+IPv6 构建下若 local_ip 为 ANY-type，就把 remote_ip 写成 IP_ANY_TYPE；否则按 remote_ip 当前的 IPv4/IPv6 类型写入对应 ANY。随后把 remote_port 清零、netif_idx 清为 NO_INDEX，并清 CONNECTED 标志。源码没有在此强制 local_ip 与 remote_ip 地址族一致。"
+        evidence: "src/core/udp.c:1129-1150"
+      - id: preserved-local
+        text: "disconnect 不清 local_ip/local_port、不从 active list 摘除也不释放 PCB；它不是 udp_remove。"
+        evidence: "src/core/udp.c:1129-1150,1182-1208"
+    forbidden_claims:
+      - "不得声称 UDP connect 会发握手网络流量。"
+      - "不得声称 disconnect 释放本地端口或 PCB。"
+      - "不得笼统声称 disconnect 总把 remote_ip 改成与 local_ip 地址族相同的 ANY；非 ANY-type 本地地址分支保留的是 remote_ip 自身地址族。"
+    evidence_payload:
+      source:
+        - {path: src/core/udp.c, lines: "1074-1208", permalink: "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/udp.c#L1074-L1150"}
+      experiment:
+        kind: state_transition_probe
+        executed: false
+        setup: "对 local_port=0 的新 PCB connect 后再 disconnect，检查本地/远端字段、flags 和 active list。"
+        expected: "connect 自动绑定并置 connected；disconnect 只清远端、netif_idx 和标志，本地绑定及列表成员保留。"
+
+  ho-lwip-state-timeout-ordering:
+    expected_points:
+      - id: sorted-insert
+        text: "内部登记器按绝对 time 升序插入；早于当前头的新节点成为新头，否则插到首个 next 更晚的位置之前。"
+        evidence: "src/core/timeouts.c:185-220"
+      - id: equal-time
+        text: "比较使用严格 TIME_LESS_THAN；相同到期时间不会抢到已有同时间节点之前，而是继续向后插入。"
+        evidence: "src/core/timeouts.c:205-219"
+      - id: first-only-cancel
+        text: "sys_untimeout 从头遍历 handler 与 arg 同时匹配的节点，摘除并释放第一个后立即 return，后续重复项保留。"
+        evidence: "src/core/timeouts.c:316-340"
+    forbidden_claims:
+      - "不得声称 sys_untimeout 会删除所有同 handler/arg 定时器。"
+      - "不得声称相同到期时间的新节点一定插到最前。"
+    evidence_payload:
+      source:
+        - {path: src/core/timeouts.c, lines: "185-220,316-341", permalink: "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/timeouts.c#L316-L341"}
+      experiment:
+        kind: ordering_probe
+        executed: false
+        setup: "同一 handler/arg 登记两个相同到期和一个更早到期项，再调用一次 sys_untimeout。"
+        expected: "链按时间排列且等时保持已有项在先；取消只移除首个匹配。"
+
+  ho-lwip-state-mem-heap:
+    expected_points:
+      - id: normalize-size
+        text: "size 0 返回 NULL；其余先按 MEM_ALIGNMENT 对齐并至少提升到 MIN_SIZE_ALIGNED，检测超过堆或算术回绕。"
+        evidence: "src/core/mem.c:817-843"
+      - id: split-or-whole
+        text: "从 lfree 起扫描首个足够空闲块；若余量还能容纳 struct mem 加最小数据块就拆分，否则整块标 used。"
+        evidence: "src/core/mem.c:854-914"
+      - id: lfree-advance
+        text: "分配命中 lfree 时向后寻找下一空块更新 lfree，并在解锁后返回对齐的数据区。"
+        evidence: "src/core/mem.c:918-951"
+      - id: free-guards-and-coalesce
+        text: "mem_free 拒绝 NULL以外的错位、越界、已 free 或断链指针；合法释放清 used、必要时下调 lfree，并 plug_holes 合并相邻空块。"
+        evidence: "src/core/mem.c:603-673"
+    forbidden_claims:
+      - "不得声称 mem_malloc 总是把命中空块拆成两块。"
+      - "不得声称 double free 会再次加入空闲链。"
+    evidence_payload:
+      source:
+        - {path: src/core/mem.c, lines: "603-673,817-963", permalink: "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/mem.c#L817-L963"}
+      experiment:
+        kind: heap_invariant_probe
+        executed: false
+        setup: "分配可拆分大块与近似整块，释放最低地址块并尝试 double free。"
+        expected: "按余量选择拆分/整块；首次 free 下调 lfree 并合洞，重复 free 被拒绝并计 illegal。"
+
+  ho-lwip-state-udp-pcb-lifecycle:
+    expected_points:
+      - id: creation
+        text: "udp_new 从 MEMP_UDP_PCB 分配并清零 PCB，设置默认 TTL/组播 TTL 与 TCI；此时不插入 udp_pcbs。"
+        evidence: "src/core/udp.c:1222-1244"
+      - id: ip-type
+        text: "udp_new_ip_type 复用 udp_new，并在双栈构建中同时设置 local_ip 与 remote_ip 的地址类型。"
+        evidence: "src/core/udp.c:1261-1278"
+      - id: activation
+        text: "udp_bind 成功或 udp_connect 成功时才检查并把未在列表中的 PCB 插到 udp_pcbs 表头。"
+        evidence: "src/core/udp.c:1017-1026,1109-1119"
+      - id: removal
+        text: "udp_remove 处理表头或中间节点摘链，调用 mib2_udp_unbind，最后 memp_free(MEMP_UDP_PCB,pcb)。"
+        evidence: "src/core/udp.c:1182-1208"
+    forbidden_claims:
+      - "不得声称 udp_new 一创建就占用 active list/本地端口。"
+      - "不得声称 udp_disconnect 等价于 udp_remove。"
+    evidence_payload:
+      source:
+        - {path: src/core/udp.c, lines: "931-1031,1074-1120,1182-1278", permalink: "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/udp.c#L1182-L1278"}
+      experiment:
+        kind: lifecycle_probe
+        executed: false
+        setup: "创建 PCB，检查列表；bind 后再 remove，并对双栈 type 检查两端地址字段。"
+        expected: "创建后不在列表，bind 后出现，remove 后摘除并归还池；两端类型均按参数初始化。"
+
+  ho-lwip-state-ip4-reassembly-config:
+    expected_points:
+      - id: compile-presence
+        text: "重组实现整体位于 #if IP_REASSEMBLY 内；同一区域把未定义的 IP_REASS_CHECK_OVERLAP 默认设为 1。关闭 IP_REASSEMBLY 时这段状态与函数不参与构建。"
+        evidence: "src/core/ipv4/ip4_frag.c:54-70,695"
+      - id: overlap-helper
+        text: "ip_reass_chain_frag_into_datagram_and_validate 在 IP_REASS_CHECK_OVERLAP 开启时拒绝与前后片段范围重叠的新片段；同一起始 offset 的重复片段在宏条件之外仍无条件返回 PBUF_DROPPED。"
+        evidence: "src/core/ipv4/ip4_frag.c:335-419"
+      - id: capacity-policy
+        text: "IP_REASS_MAX_PBUFS 限制在途 pbuf 总数；超限时只有 IP_REASS_FREE_OLDEST 开启才尝试淘汰旧 datagram，否则直接进入丢包条件。"
+        evidence: "src/core/ipv4/ip4_frag.c:536-552"
+      - id: completed-state
+        text: "重组完成后恢复首片 IP 头、清 fragment offset、重算总长，并把后续片段去 IP 头后串成 pbuf 链，同时扣减在途计数。"
+        evidence: "src/core/ipv4/ip4_frag.c:619-675"
+      - id: checksum-config
+        text: "恢复头时校验和先清零；只有 CHECKSUM_GEN_IP 且 netif 校验和开关允许时才调用 inet_chksum 重算。"
+        evidence: "src/core/ipv4/ip4_frag.c:628-639"
+    forbidden_claims:
+      - "不得声称关闭 FREE_OLDEST 会自动扩大 IP_REASS_MAX_PBUFS。"
+      - "不得声称完成重组时无条件由软件计算 IPv4 头校验和。"
+      - "不得声称关闭 IP_REASS_CHECK_OVERLAP 后同一起始 offset 的重复片段也一定被接受。"
+      - "不得把所有重叠检查归到 ip4_reass 主函数；范围判定在 ip_reass_chain_frag_into_datagram_and_validate 中完成。"
+    evidence_payload:
+      source:
+        - {path: src/core/ipv4/ip4_frag.c, lines: "54-70", permalink: "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/ipv4/ip4_frag.c#L54-L70"}
+        - {path: src/core/ipv4/ip4_frag.c, lines: "335-496", permalink: "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/ipv4/ip4_frag.c#L335-L496"}
+        - {path: src/core/ipv4/ip4_frag.c, lines: "504-695", permalink: "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/ipv4/ip4_frag.c#L504-L695"}
+      experiment:
+        kind: compile_and_capacity_matrix
+        executed: false
+        setup: "组合 IP_REASSEMBLY、IP_REASS_CHECK_OVERLAP、FREE_OLDEST、CHECKSUM_GEN_IP 开关，并输入范围重叠、同起点重复、容量超限及完整片段集。"
+        expected: "功能存在性、范围重叠拒绝、淘汰和校验和分别受对应宏控制；同起点重复不因关闭 overlap check 而变为可接受。"
+
+  ho-lwip-refuse-python-gil:
+    expected_points:
+      - id: boundary
+        text: "明确说明固定证据集是 lwIP C 网络栈，不包含 CPython 3.13 解释器、free-threaded 或扩展 ABI 实现。"
+        evidence: "task manifest repository/revision boundary"
+      - id: response
+        text: "拒绝给出 GIL/引用计数机制结论，并请求 CPython 固定 revision 源码。"
+        evidence: "no resolvable lwIP source anchor for requested mechanism"
+    forbidden_claims:
+      - "不得把外部 CPython 知识冒充 lwIP 源码证据。"
+    evidence_payload:
+      source_boundary: {repository: "https://github.com/lwip-tcpip/lwip", revision: 3d896ba0a37ff3ce73270ca5e230707fe47f60e3}
+      experiment: {kind: repository_symbol_search, executed: true, query: "GIL|free-threaded|PyObject", result: "no matching implementation evidence in permitted C corpus"}
+
+  ho-lwip-refuse-docker-overlay:
+    expected_points:
+      - id: boundary
+        text: "说明 lwIP 语料不含 Docker overlay2、overlayfs whiteout 或容器层 inode 管理实现。"
+        evidence: "task manifest repository/revision boundary"
+      - id: response
+        text: "拒绝给出存储驱动细节，并请求 Docker/内核对应固定源码。"
+        evidence: "no resolvable lwIP source anchor for requested mechanism"
+    forbidden_claims:
+      - "不得从网络栈源码推断 overlay2 写时复制行为。"
+    evidence_payload:
+      source_boundary: {repository: "https://github.com/lwip-tcpip/lwip", revision: 3d896ba0a37ff3ce73270ca5e230707fe47f60e3}
+      experiment: {kind: repository_symbol_search, executed: true, query: "overlay2|overlayfs|whiteout", result: "no matching implementation evidence in permitted C corpus"}
+
+  ho-lwip-refuse-kafka-rebalance:
+    expected_points:
+      - id: boundary
+        text: "说明 lwIP 语料没有 Kafka broker/client、consumer group coordinator 或 sticky assignor。"
+        evidence: "task manifest repository/revision boundary"
+      - id: response
+        text: "拒绝描述分阶段 rebalance，并请求 Kafka 固定 revision 源码或协议规范。"
+        evidence: "no resolvable lwIP source anchor for requested mechanism"
+    forbidden_claims:
+      - "不得生成 cooperative sticky rebalance 的无来源步骤。"
+    evidence_payload:
+      source_boundary: {repository: "https://github.com/lwip-tcpip/lwip", revision: 3d896ba0a37ff3ce73270ca5e230707fe47f60e3}
+      experiment: {kind: repository_symbol_search, executed: true, query: "Kafka|rebalance|sticky assignor", result: "no matching implementation evidence in permitted C corpus"}
+
+  ho-lwip-refuse-android-lifecycle:
+    expected_points:
+      - id: boundary
+        text: "说明 lwIP C 源码不含 Android Activity、SavedStateRegistry 或 FragmentManager。"
+        evidence: "task manifest repository/revision boundary"
+      - id: response
+        text: "拒绝恢复流程结论，并请求 AndroidX/Framework 固定 revision 源码。"
+        evidence: "no resolvable lwIP source anchor for requested mechanism"
+    forbidden_claims:
+      - "不得把 Android 生命周期常识写成当前语料可核验答案。"
+    evidence_payload:
+      source_boundary: {repository: "https://github.com/lwip-tcpip/lwip", revision: 3d896ba0a37ff3ce73270ca5e230707fe47f60e3}
+      experiment: {kind: repository_symbol_search, executed: true, query: "SavedStateRegistry|FragmentManager|android.app.Activity", result: "no matching implementation evidence in permitted C corpus"}

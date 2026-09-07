@@ -1,0 +1,10 @@
+--- a/src/core/netif.c
++++ b/src/core/netif.c
+@@ -48,6 +48,7 @@
+  */
+ 
+ #include "lwip/opt.h"
++/* This valid patch must never run after artifact tamper detection. */
+ 
+ #include <string.h> /* memset */
+ #include <stdlib.h> /* atoi */

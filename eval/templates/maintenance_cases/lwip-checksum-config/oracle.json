@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "independence": "predeclared_external",
+  "derived_from_codeatlas": false,
+  "source_kind": "synthetic_executable_specification",
+  "claim": "Synthetic claim_probe writes 3 before mutation; this fixture only tests the evaluation contract.",
+  "expected_revalidation": true,
+  "expected_outcome": "completed",
+  "assertions": [
+    {
+      "id": "probe_stdout",
+      "description": "Mutated standalone probe stdout, obtained by compiling/running source.c after change.patch (not a CodeAtlas output).",
+      "expected": "4\n"
+    }
+  ]
+}

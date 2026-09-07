@@ -1,0 +1,1274 @@
+{
+  "schema_version": 1,
+  "validation_id": "knowledge-reuse-source-validation-b-v1",
+  "verdict": "approved",
+  "validated_at": "2026-09-05T13:11:46Z",
+  "validator": {
+    "validator_kind": "agent",
+    "provider": "openai",
+    "model": "gpt-5",
+    "agent": "/root/holdout_source_validator_b",
+    "identity_scope": "Exact provider/model family/agent identity exposed in this runtime; no deployment snapshot identifier was exposed.",
+    "human_reviewed": false,
+    "independent": true,
+    "peer_validator_output_visible": false
+  },
+  "protocol": {
+    "name": "canonical-knowledge-release-review-v1",
+    "answer_key_input_hash": "2be7645e69c77b1d5bf3f05c8de6cbc49ee81ef28acac100dcfcf6a502a113bc",
+    "source_only": true,
+    "two_bound_reproduction_identities_required": true,
+    "cjson_session_round_5_treatment": "shared_unverified_source_assertion_not_gold",
+    "historical_no_exposure_provable": false,
+    "human_review": false
+  },
+  "input_binding": {
+    "protocol.answer_key_input_hash": "2be7645e69c77b1d5bf3f05c8de6cbc49ee81ef28acac100dcfcf6a502a113bc",
+    "input_files_sha256": {
+      "eval/knowledge_reuse.yaml": "c8c2504f8429ca7a235e0f9b858ac294fbe86de2bad5afedc3c781e2031a82a1",
+      "eval/knowledge_reuse.answers.yaml": "e3d7fb2eaca74edb23c37812c948fbd0d5c648fdb7657919477595c88722652c",
+      "corpus/cJSON/cJSON.c": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+      "corpus/cJSON/cJSON.h": "25b0145150d500498e4d209cec69c18c42cf818bffcc54690be3b895a2a16dee",
+      "corpus/lwip/src/core/netif.c": "a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+      "corpus/lwip/src/include/lwip/netif.h": "6e958aa1bd23b7381c09a873f7af919323f87ec50a2d3055a46f75275c2a121b",
+      "examples/reproductions/cjson-nesting/reproduce.c": "cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+      "examples/reproductions/cjson-nesting/result.txt": "ed76b1069221053876dd4995aaee6e228f4983ad8f97717d51bf1ff02be0b133",
+      "examples/reproductions/cjson-nesting/run.sh": "529274dbbd63556db765061836196cc91af288bcff2d449fc03c3bf9843cf481",
+      "examples/reproductions/lwip-netif/include/lwipopts.h": "65426d6f6d1c1a97a74392bfe626d19e68faf00ee585f5990231edd5edf2ecf2",
+      "examples/reproductions/lwip-netif/reproduce.c": "cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a",
+      "examples/reproductions/lwip-netif/result.txt": "8102733501276cd10303a81dc15877f7e5386b1dacb48c535f2960562f95414f",
+      "examples/reproductions/lwip-netif/run.sh": "82f26ccf13e73a3e8e19b12629a466c3b74045a3659203a0d414044f1fd34528"
+    },
+    "validator_contracts_sha256": {
+      "src/codeatlas/eval/protocol.py": "a2388257a059e95e03efaab9242659d5879202dd81d6e9b12b2ac0f936fd4331",
+      "src/codeatlas/eval/knowledge_reuse_eval.py": "8d5b670d2e99d86e3650577874d215181929469cc3cd95e6f9eeb9dd22b01c8c",
+      "src/codeatlas/contracts.py": "80f0b7066c0bd150e6cb13c515ae2c40ba42ca497c9b1d15f2dfce4fa175c6f8"
+    },
+    "case_revisions": {
+      "cjson-nesting": {
+        "repository": "https://github.com/DaveGamble/cJSON",
+        "declared_revision": "fb16e5cf358798aabb049655975cde8427101056",
+        "actual_revision": "fb16e5cf358798aabb049655975cde8427101056",
+        "result": "pass"
+      },
+      "lwip-netif": {
+        "repository": "https://github.com/lwip-tcpip/lwip",
+        "declared_revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+        "actual_revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+        "result": "pass"
+      }
+    },
+    "binding_sha256": "7d6e1929ad1ad4d3cc7b3e7442c06ec8bb2ae2b1891e49711ee8f301f7a48d62"
+  },
+  "answer_key_contract": {
+    "status": "draft",
+    "review_status": "unresolved",
+    "effect_review_eligible": false,
+    "artifact_scope": "isolated_experiment",
+    "split_declaration": "held_out",
+    "not_used_for_tuning_declaration": true,
+    "schema_result": "pass"
+  },
+  "coverage": {
+    "questions": {
+      "passed": 6,
+      "failed": 0,
+      "unresolved": 0,
+      "total": 6
+    },
+    "expected_points": {
+      "passed": 33,
+      "failed": 0,
+      "unresolved": 0,
+      "total": 33
+    },
+    "forbidden_claims": {
+      "passed": 26,
+      "failed": 0,
+      "unresolved": 0,
+      "total": 26
+    },
+    "evidence_items": {
+      "passed": 45,
+      "failed": 0,
+      "unresolved": 0,
+      "total": 45
+    },
+    "bound_reproduction_identities": {
+      "passed": 2,
+      "failed": 0,
+      "unresolved": 0,
+      "total": 2
+    },
+    "auxiliary_executable_probes": {
+      "passed": 4,
+      "failed": 0,
+      "unresolved": 0,
+      "total": 4
+    }
+  },
+  "tasks": {
+    "kr-v2-cjson-condition-limit-1001": {
+      "verdict": "pass",
+      "assessment": "The source guard is checked before depth increment. The shared-harness A/B reproduced the exact predicted one-level shift while preserving all input lengths and the 999/1000 rows.",
+      "answer_row_sha256": "f4706c8e15281987d1b1567d15201fe200cfa99cf2203fe91b03e1b508cc06e0",
+      "evidence_payload_sha256": "11f9b1edb6c106bdee4436d8bfa9258f78d024ffed49fd25ca2c56379ffc47da",
+      "expected_point_results": [
+        {
+          "id": "c1-condition",
+          "kind": "condition",
+          "result": "pass",
+          "evidence_ids": [
+            "c1-harness-cases",
+            "c1-harness-call",
+            "c1-revision-check",
+            "c1-build-default",
+            "c1-default-limit"
+          ],
+          "finding": "Claim matches the cited frozen source/observation and the task-level source/execution assessment."
+        },
+        {
+          "id": "c1-input-lengths",
+          "kind": "fact",
+          "result": "pass",
+          "evidence_ids": [
+            "c1-generator",
+            "c1-current-output"
+          ],
+          "finding": "Claim matches the cited frozen source/observation and the task-level source/execution assessment."
+        },
+        {
+          "id": "c1-lower-cases",
+          "kind": "fact",
+          "result": "pass",
+          "evidence_ids": [
+            "c1-current-output",
+            "c1-array-guard"
+          ],
+          "finding": "Claim matches the cited frozen source/observation and the task-level source/execution assessment."
+        },
+        {
+          "id": "c1-depth-1001",
+          "kind": "fact",
+          "result": "pass",
+          "evidence_ids": [
+            "c1-current-output",
+            "c1-array-guard",
+            "c1-generator"
+          ],
+          "finding": "Claim matches the cited frozen source/observation and the task-level source/execution assessment."
+        },
+        {
+          "id": "c1-boundary",
+          "kind": "fact",
+          "result": "pass",
+          "evidence_ids": [
+            "c1-array-guard",
+            "c1-object-guard",
+            "c1-default-limit"
+          ],
+          "finding": "Claim matches the cited frozen source/observation and the task-level source/execution assessment."
+        }
+      ],
+      "forbidden_claim_results": [
+        {
+          "id": "forbidden-1",
+          "claim": "With CJSON_NESTING_LIMIT=1001, depth 1001 still returns NULL at parse_end 1000.",
+          "result": "pass",
+          "finding": "Contradicted by the executed B row, which is ok/end 2003."
+        },
+        {
+          "id": "forbidden-2",
+          "claim": "Changing only CJSON_NESTING_LIMIT changes the three generated input lengths.",
+          "result": "pass",
+          "finding": "Contradicted by the unchanged generator and executed lengths 1999/2001/2003."
+        },
+        {
+          "id": "forbidden-3",
+          "claim": "Either depth 999 or depth 1000 becomes a failure in the 1001-limit build.",
+          "result": "pass",
+          "finding": "Contradicted by the executed B rows; both remain successful."
+        },
+        {
+          "id": "forbidden-4",
+          "claim": "The boundary shift is caused by changing the harness inputs or require_null_terminated.",
+          "result": "pass",
+          "finding": "Contradicted by the shared harness object and unchanged require_null_terminated=1 call."
+        }
+      ],
+      "evidence_checks": {
+        "result": "pass",
+        "all_items_referenced": true,
+        "items": [
+          {
+            "id": "c1-harness-cases",
+            "source": "public_harness",
+            "path": "examples/reproductions/cjson-nesting/reproduce.c",
+            "line_start": 43,
+            "line_end": 54,
+            "file_sha256": "cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+            "excerpt_sha256": "d14d66b501ffd1c2beb0acb221cbffb4fe458933da5f996363ebcaed7d5ccb93",
+            "referenced": true
+          },
+          {
+            "id": "c1-harness-call",
+            "source": "public_harness",
+            "path": "examples/reproductions/cjson-nesting/reproduce.c",
+            "line_start": 34,
+            "line_end": 37,
+            "file_sha256": "cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+            "excerpt_sha256": "bb8a510e859b38bf6a4d47b8fa9d47d5cfe562f0451e352f3f9a8fd38a4f8203",
+            "referenced": true
+          },
+          {
+            "id": "c1-build-default",
+            "source": "public_command",
+            "path": "examples/reproductions/cjson-nesting/run.sh",
+            "line_start": 16,
+            "line_end": 20,
+            "file_sha256": "529274dbbd63556db765061836196cc91af288bcff2d449fc03c3bf9843cf481",
+            "excerpt_sha256": "e2e39788f3460ccd0d9fad02153671a64ede02a57346629dd1f025fcbf4cf4be",
+            "referenced": true
+          },
+          {
+            "id": "c1-revision-check",
+            "source": "public_command",
+            "path": "examples/reproductions/cjson-nesting/run.sh",
+            "line_start": 10,
+            "line_end": 14,
+            "file_sha256": "529274dbbd63556db765061836196cc91af288bcff2d449fc03c3bf9843cf481",
+            "excerpt_sha256": "4498b6188294f88fe2ee7630b856110c3e1810c6a72a1a275d120ecce9a46ba6",
+            "referenced": true
+          },
+          {
+            "id": "c1-default-limit",
+            "source": "public_source",
+            "path": "corpus/cJSON/cJSON.h",
+            "line_start": 134,
+            "line_end": 138,
+            "file_sha256": "25b0145150d500498e4d209cec69c18c42cf818bffcc54690be3b895a2a16dee",
+            "excerpt_sha256": "9af9886390209f8ebd3b406209276a985bbae9f005925625f3712eea7df9664d",
+            "referenced": true
+          },
+          {
+            "id": "c1-generator",
+            "source": "public_harness",
+            "path": "examples/reproductions/cjson-nesting/reproduce.c",
+            "line_start": 10,
+            "line_end": 21,
+            "file_sha256": "cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+            "excerpt_sha256": "f84b703f9ceb3e61e7ebe30363e4a7a8665d968e11014af273a09d686db1b087",
+            "referenced": true
+          },
+          {
+            "id": "c1-current-output",
+            "source": "public_observation",
+            "path": "examples/reproductions/cjson-nesting/result.txt",
+            "line_start": 1,
+            "line_end": 3,
+            "file_sha256": "ed76b1069221053876dd4995aaee6e228f4983ad8f97717d51bf1ff02be0b133",
+            "excerpt_sha256": "7dd91cb09af6619c1a1c39ccefb9637e031a6127bc25ded1be26256346c4a17e",
+            "referenced": true
+          },
+          {
+            "id": "c1-array-guard",
+            "source": "public_source",
+            "path": "corpus/cJSON/cJSON.c",
+            "line_start": 1496,
+            "line_end": 1506,
+            "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "excerpt_sha256": "2282b6b791d21b69952b7a0f7ca3920f77f5f084df95d7fb60107fd08d32d97b",
+            "referenced": true
+          },
+          {
+            "id": "c1-object-guard",
+            "source": "public_source",
+            "path": "corpus/cJSON/cJSON.c",
+            "line_start": 1661,
+            "line_end": 1671,
+            "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "excerpt_sha256": "95594d22d1fb89c06b28f6b0c697bb41b3a968d73ee9b2ad6a30faea462ea0ab",
+            "referenced": true
+          }
+        ]
+      }
+    },
+    "kr-v2-cjson-exclude-error-causes": {
+      "verdict": "pass",
+      "assessment": "The generator proves NUL termination and balanced brackets, the default guard and output support the limit explanation, and the answer correctly leaves ordinary allocation failure unresolved rather than excluding it.",
+      "answer_row_sha256": "e2c38f89d7d71e31799df5d308b7e4bbebc27f03751eee0071a88ddf028a4441",
+      "evidence_payload_sha256": "af686cbf5d2be5531ed9ff81a6d4707c98627c55b40aeed56c9afd34f1ab75e8",
+      "expected_point_results": [
+        {
+          "id": "c2-fixed-shape",
+          "kind": "condition",
+          "result": "pass",
+          "evidence_ids": [
+            "c2-generator",
+            "c2-call"
+          ],
+          "finding": "Claim matches the cited frozen source/observation and the task-level source/execution assessment."
+        },
+        {
+          "id": "c2-nul-excluded",
+          "kind": "fact",
+          "result": "pass",
+          "evidence_ids": [
+            "c2-generator",
+            "c2-length-wrapper",
+            "c2-null-check"
+          ],
+          "finding": "Claim matches the cited frozen source/observation and the task-level source/execution assessment."
+        },
+        {
+          "id": "c2-brackets-excluded",
+          "kind": "fact",
+          "result": "pass",
+          "evidence_ids": [
+            "c2-generator",
+            "c2-output"
+          ],
+          "finding": "Claim matches the cited frozen source/observation and the task-level source/execution assessment."
+        },
+        {
+          "id": "c2-limit-supported",
+          "kind": "fact",
+          "result": "pass",
+          "evidence_ids": [
+            "c2-default-limit",
+            "c2-array-guard",
+            "c2-output"
+          ],
+          "finding": "Claim matches the cited frozen source/observation and the task-level source/execution assessment."
+        },
+        {
+          "id": "c2-allocation-unresolved",
+          "kind": "fact",
+          "result": "pass",
+          "evidence_ids": [
+            "c2-root-allocation",
+            "c2-child-allocation",
+            "c2-output"
+          ],
+          "finding": "Claim matches the cited frozen source/observation and the task-level source/execution assessment."
+        },
+        {
+          "id": "c2-allocation-test",
+          "kind": "action",
+          "result": "pass",
+          "evidence_ids": [
+            "c2-root-allocation",
+            "c2-child-allocation",
+            "c2-output"
+          ],
+          "finding": "Claim matches the cited frozen source/observation and the task-level source/execution assessment."
+        },
+        {
+          "id": "c2-offset-boundary",
+          "kind": "fact",
+          "result": "pass",
+          "evidence_ids": [
+            "c2-failure-position",
+            "c2-array-guard",
+            "c2-output"
+          ],
+          "finding": "Claim matches the cited frozen source/observation and the task-level source/execution assessment."
+        }
+      ],
+      "forbidden_claim_results": [
+        {
+          "id": "forbidden-1",
+          "claim": "The generated depth=1001 input lacks a terminating NUL.",
+          "result": "pass",
+          "finding": "Contradicted by the generator's explicit terminal NUL."
+        },
+        {
+          "id": "forbidden-2",
+          "claim": "The generated depth=1001 input has unbalanced brackets.",
+          "result": "pass",
+          "finding": "Contradicted by equal opening/closing counts and the successful depth-1000 same-shape case."
+        },
+        {
+          "id": "forbidden-3",
+          "claim": "One successful reproduction definitively excludes every internal allocation failure.",
+          "result": "pass",
+          "finding": "Correctly forbidden: allocator failure paths exist and no allocator telemetry was recorded."
+        },
+        {
+          "id": "forbidden-4",
+          "claim": "parse_end=1000 proves that every possible NULL result is caused by CJSON_NESTING_LIMIT.",
+          "result": "pass",
+          "finding": "Correctly forbidden: the offset is consistent evidence, not a universal causal discriminator."
+        },
+        {
+          "id": "forbidden-5",
+          "claim": "Ordinary allocation failure is established as the cause of the observed 1000/1001 boundary.",
+          "result": "pass",
+          "finding": "Correctly forbidden: no allocator event establishes allocation failure as the observed cause."
+        }
+      ],
+      "evidence_checks": {
+        "result": "pass",
+        "all_items_referenced": true,
+        "items": [
+          {
+            "id": "c2-generator",
+            "source": "public_harness",
+            "path": "examples/reproductions/cjson-nesting/reproduce.c",
+            "line_start": 14,
+            "line_end": 22,
+            "file_sha256": "cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+            "excerpt_sha256": "1df544e3fd56a0f8f48708cd896c088b4fda0219c108da372f84efc1a284037f",
+            "referenced": true
+          },
+          {
+            "id": "c2-call",
+            "source": "public_harness",
+            "path": "examples/reproductions/cjson-nesting/reproduce.c",
+            "line_start": 34,
+            "line_end": 37,
+            "file_sha256": "cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+            "excerpt_sha256": "bb8a510e859b38bf6a4d47b8fa9d47d5cfe562f0451e352f3f9a8fd38a4f8203",
+            "referenced": true
+          },
+          {
+            "id": "c2-length-wrapper",
+            "source": "public_source",
+            "path": "corpus/cJSON/cJSON.c",
+            "line_start": 1140,
+            "line_end": 1143,
+            "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "excerpt_sha256": "81bad0301df8765f5c8b25b93b860aa99020c822335f27791a7ae47b7f575bf2",
+            "referenced": true
+          },
+          {
+            "id": "c2-null-check",
+            "source": "public_source",
+            "path": "corpus/cJSON/cJSON.c",
+            "line_start": 1178,
+            "line_end": 1185,
+            "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "excerpt_sha256": "8379b5ee88bbb77582c011c6fd6a146e94bc167d5d6ea9e38c20467d31a30d9d",
+            "referenced": true
+          },
+          {
+            "id": "c2-output",
+            "source": "public_observation",
+            "path": "examples/reproductions/cjson-nesting/result.txt",
+            "line_start": 1,
+            "line_end": 3,
+            "file_sha256": "ed76b1069221053876dd4995aaee6e228f4983ad8f97717d51bf1ff02be0b133",
+            "excerpt_sha256": "7dd91cb09af6619c1a1c39ccefb9637e031a6127bc25ded1be26256346c4a17e",
+            "referenced": true
+          },
+          {
+            "id": "c2-default-limit",
+            "source": "public_source",
+            "path": "corpus/cJSON/cJSON.h",
+            "line_start": 134,
+            "line_end": 138,
+            "file_sha256": "25b0145150d500498e4d209cec69c18c42cf818bffcc54690be3b895a2a16dee",
+            "excerpt_sha256": "9af9886390209f8ebd3b406209276a985bbae9f005925625f3712eea7df9664d",
+            "referenced": true
+          },
+          {
+            "id": "c2-array-guard",
+            "source": "public_source",
+            "path": "corpus/cJSON/cJSON.c",
+            "line_start": 1502,
+            "line_end": 1506,
+            "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "excerpt_sha256": "fbaef0cea43d513182bf33f57101e70a20d7bf823cc8228b03af53d1e38a7a00",
+            "referenced": true
+          },
+          {
+            "id": "c2-root-allocation",
+            "source": "public_source",
+            "path": "corpus/cJSON/cJSON.c",
+            "line_start": 1166,
+            "line_end": 1170,
+            "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "excerpt_sha256": "e1d5bf0bff9d49d5e7374db8072f1bef1b5b123de5bc0be3ea92e3aee86613e6",
+            "referenced": true
+          },
+          {
+            "id": "c2-child-allocation",
+            "source": "public_source",
+            "path": "corpus/cJSON/cJSON.c",
+            "line_start": 1533,
+            "line_end": 1539,
+            "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "excerpt_sha256": "896a13bb2cb7bffcd3c7c76e6de5bd857b75f5d9924c96aabe7064aa316e51ce",
+            "referenced": true
+          },
+          {
+            "id": "c2-failure-position",
+            "source": "public_source",
+            "path": "corpus/cJSON/cJSON.c",
+            "line_start": 1200,
+            "line_end": 1218,
+            "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "excerpt_sha256": "3275116872466b67595cee347ece1746dd89de70ea1c8601c2c1c5ab4145e17e",
+            "referenced": true
+          }
+        ]
+      }
+    },
+    "kr-v2-cjson-verify-limit-ab": {
+      "verdict": "pass",
+      "assessment": "The commands are executable and correctly scope the macro to cJSON.c while reusing harness.o. The independent B run matched the prediction. The revised falsifier correctly requires confirming treatment delivery and independently excluding B-only allocation or other new failures before treating a same-boundary B failure as falsification.",
+      "answer_row_sha256": "1ed2ac478101b48edfda5e009597505662db66a48ae359df6104201ea9bddab2",
+      "evidence_payload_sha256": "8a2ba16fe94d51b60fbfc227a3e6f040dafe2c586a0ec0c6b85d13162542afc6",
+      "expected_point_results": [
+        {
+          "id": "c3-controlled-ab",
+          "kind": "condition",
+          "result": "pass",
+          "evidence_ids": [
+            "c3-revision-check",
+            "c3-run-command",
+            "c3-fixed-cases",
+            "c3-default-limit"
+          ],
+          "finding": "Claim matches the cited frozen source/observation and the task-level source/execution assessment."
+        },
+        {
+          "id": "c3-build-a",
+          "kind": "action",
+          "result": "pass",
+          "evidence_ids": [
+            "c3-run-command"
+          ],
+          "finding": "Claim matches the cited frozen source/observation and the task-level source/execution assessment."
+        },
+        {
+          "id": "c3-build-b",
+          "kind": "action",
+          "result": "pass",
+          "evidence_ids": [
+            "c3-run-command",
+            "c3-default-limit"
+          ],
+          "finding": "Claim matches the cited frozen source/observation and the task-level source/execution assessment."
+        },
+        {
+          "id": "c3-output-a",
+          "kind": "fact",
+          "result": "pass",
+          "evidence_ids": [
+            "c3-output"
+          ],
+          "finding": "Claim matches the cited frozen source/observation and the task-level source/execution assessment."
+        },
+        {
+          "id": "c3-output-b",
+          "kind": "fact",
+          "result": "pass",
+          "evidence_ids": [
+            "c3-output",
+            "c3-guard",
+            "c3-generator"
+          ],
+          "finding": "Claim matches the cited frozen source/observation and the task-level source/execution assessment."
+        },
+        {
+          "id": "c3-falsifier",
+          "kind": "condition",
+          "result": "pass",
+          "evidence_ids": [
+            "c3-default-limit",
+            "c3-guard",
+            "c3-root-allocation",
+            "c3-child-allocation",
+            "c3-failure-position",
+            "c3-output"
+          ],
+          "finding": "Claim matches the cited frozen source/observation and the task-level source/execution assessment."
+        }
+      ],
+      "forbidden_claim_results": [
+        {
+          "id": "forbidden-1",
+          "claim": "Change reproduce.c or its tested depths between A and B.",
+          "result": "pass",
+          "finding": "Correctly forbidden because it breaks the controlled comparison."
+        },
+        {
+          "id": "forbidden-2",
+          "claim": "Apply the macro only to the harness while compiling cJSON.c separately without it.",
+          "result": "pass",
+          "finding": "Correctly forbidden because the override must reach the cJSON.c translation unit."
+        },
+        {
+          "id": "forbidden-3",
+          "claim": "Treat run.sh's expected diff against the old result.txt as the B result oracle.",
+          "result": "pass",
+          "finding": "Correctly forbidden because result.txt is the A oracle and expected B intentionally differs."
+        },
+        {
+          "id": "forbidden-4",
+          "claim": "Predict that B changes input_len for any tested depth.",
+          "result": "pass",
+          "finding": "Contradicted by the unchanged generator and executed B output."
+        },
+        {
+          "id": "forbidden-5",
+          "claim": "Treat a B failure at the same boundary as direct falsification before independently excluding allocation failure or another newly introduced failure.",
+          "result": "pass",
+          "finding": "Correctly forbidden: a same-boundary B failure is inconclusive until treatment delivery and independent failure causes are checked."
+        }
+      ],
+      "evidence_checks": {
+        "result": "pass",
+        "all_items_referenced": true,
+        "items": [
+          {
+            "id": "c3-run-command",
+            "source": "public_command",
+            "path": "examples/reproductions/cjson-nesting/run.sh",
+            "line_start": 16,
+            "line_end": 25,
+            "file_sha256": "529274dbbd63556db765061836196cc91af288bcff2d449fc03c3bf9843cf481",
+            "excerpt_sha256": "cfc0e2ddf60d90a7d56685cc748c85f5d0298ae4569f663a52414c9631d6eda1",
+            "referenced": true
+          },
+          {
+            "id": "c3-revision-check",
+            "source": "public_command",
+            "path": "examples/reproductions/cjson-nesting/run.sh",
+            "line_start": 10,
+            "line_end": 14,
+            "file_sha256": "529274dbbd63556db765061836196cc91af288bcff2d449fc03c3bf9843cf481",
+            "excerpt_sha256": "4498b6188294f88fe2ee7630b856110c3e1810c6a72a1a275d120ecce9a46ba6",
+            "referenced": true
+          },
+          {
+            "id": "c3-fixed-cases",
+            "source": "public_harness",
+            "path": "examples/reproductions/cjson-nesting/reproduce.c",
+            "line_start": 45,
+            "line_end": 54,
+            "file_sha256": "cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+            "excerpt_sha256": "9fd325f9181fe3456cc8244b1f298f5291bb0b739e91aafdfac620bed5be6e07",
+            "referenced": true
+          },
+          {
+            "id": "c3-default-limit",
+            "source": "public_source",
+            "path": "corpus/cJSON/cJSON.h",
+            "line_start": 134,
+            "line_end": 138,
+            "file_sha256": "25b0145150d500498e4d209cec69c18c42cf818bffcc54690be3b895a2a16dee",
+            "excerpt_sha256": "9af9886390209f8ebd3b406209276a985bbae9f005925625f3712eea7df9664d",
+            "referenced": true
+          },
+          {
+            "id": "c3-output",
+            "source": "public_observation",
+            "path": "examples/reproductions/cjson-nesting/result.txt",
+            "line_start": 1,
+            "line_end": 3,
+            "file_sha256": "ed76b1069221053876dd4995aaee6e228f4983ad8f97717d51bf1ff02be0b133",
+            "excerpt_sha256": "7dd91cb09af6619c1a1c39ccefb9637e031a6127bc25ded1be26256346c4a17e",
+            "referenced": true
+          },
+          {
+            "id": "c3-guard",
+            "source": "public_source",
+            "path": "corpus/cJSON/cJSON.c",
+            "line_start": 1502,
+            "line_end": 1506,
+            "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "excerpt_sha256": "fbaef0cea43d513182bf33f57101e70a20d7bf823cc8228b03af53d1e38a7a00",
+            "referenced": true
+          },
+          {
+            "id": "c3-generator",
+            "source": "public_harness",
+            "path": "examples/reproductions/cjson-nesting/reproduce.c",
+            "line_start": 17,
+            "line_end": 21,
+            "file_sha256": "cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+            "excerpt_sha256": "a82ceea3a14680385c60015fc74ad4c4f1d4728ffeb228c4555cadb61874b4d4",
+            "referenced": true
+          },
+          {
+            "id": "c3-root-allocation",
+            "source": "public_source",
+            "path": "corpus/cJSON/cJSON.c",
+            "line_start": 1166,
+            "line_end": 1170,
+            "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "excerpt_sha256": "e1d5bf0bff9d49d5e7374db8072f1bef1b5b123de5bc0be3ea92e3aee86613e6",
+            "referenced": true
+          },
+          {
+            "id": "c3-child-allocation",
+            "source": "public_source",
+            "path": "corpus/cJSON/cJSON.c",
+            "line_start": 1533,
+            "line_end": 1539,
+            "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "excerpt_sha256": "896a13bb2cb7bffcd3c7c76e6de5bd857b75f5d9924c96aabe7064aa316e51ce",
+            "referenced": true
+          },
+          {
+            "id": "c3-failure-position",
+            "source": "public_source",
+            "path": "corpus/cJSON/cJSON.c",
+            "line_start": 1200,
+            "line_end": 1218,
+            "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "excerpt_sha256": "3275116872466b67595cee347ece1746dd89de70ea1c8601c2c1c5ab4145e17e",
+            "referenced": true
+          }
+        ]
+      }
+    },
+    "kr-v2-lwip-condition-second-init-fails": {
+      "verdict": "pass",
+      "assessment": "netif_add invokes init before list insertion; the executed second-call ERR_IF probe preserved first as both list head and default and did not overclaim rollback of writes inside the rejected struct.",
+      "answer_row_sha256": "41ae59bc3ea74df4f8603620196db7547f91b03e7240c7b3fdad7d1e1c141348",
+      "evidence_payload_sha256": "5f656846adda5fa2e9c833c412c18295cee0d2002fe2fc3d399b8c9a590f95ca",
+      "expected_point_results": [
+        {
+          "id": "l4-condition",
+          "kind": "condition",
+          "result": "pass",
+          "evidence_ids": [
+            "l4-current-init",
+            "l4-harness-order"
+          ],
+          "finding": "Claim matches the cited frozen source/observation and the task-level source/execution assessment."
+        },
+        {
+          "id": "l4-second-return",
+          "kind": "fact",
+          "result": "pass",
+          "evidence_ids": [
+            "l4-init-before-insert",
+            "l4-harness-order"
+          ],
+          "finding": "Claim matches the cited frozen source/observation and the task-level source/execution assessment."
+        },
+        {
+          "id": "l4-after-second",
+          "kind": "fact",
+          "result": "pass",
+          "evidence_ids": [
+            "l4-current-output",
+            "l4-init-before-insert",
+            "l4-list-insert"
+          ],
+          "finding": "Claim matches the cited frozen source/observation and the task-level source/execution assessment."
+        },
+        {
+          "id": "l4-order-reason",
+          "kind": "fact",
+          "result": "pass",
+          "evidence_ids": [
+            "l4-init-before-insert",
+            "l4-list-insert"
+          ],
+          "finding": "Claim matches the cited frozen source/observation and the task-level source/execution assessment."
+        },
+        {
+          "id": "l4-first-preserved",
+          "kind": "fact",
+          "result": "pass",
+          "evidence_ids": [
+            "l4-harness-order",
+            "l4-init-before-insert",
+            "l4-set-default"
+          ],
+          "finding": "Claim matches the cited frozen source/observation and the task-level source/execution assessment."
+        }
+      ],
+      "forbidden_claim_results": [
+        {
+          "id": "forbidden-1",
+          "claim": "The failed second interface is still inserted at the head of netif_list.",
+          "result": "pass",
+          "finding": "Contradicted by return-before-insert source order and the executed list=first result."
+        },
+        {
+          "id": "forbidden-2",
+          "claim": "A failed second initialization changes netif_default to second or none.",
+          "result": "pass",
+          "finding": "Contradicted by the lack of a second default setter and the executed default=first result."
+        },
+        {
+          "id": "forbidden-3",
+          "claim": "The second failure removes or resets the already-linked first interface.",
+          "result": "pass",
+          "finding": "Contradicted by source control flow and the preserved first pointer identity."
+        },
+        {
+          "id": "forbidden-4",
+          "claim": "netif_add guarantees rollback of every field that init may have written on the rejected second struct.",
+          "result": "pass",
+          "finding": "Correctly forbidden: init can mutate the candidate before returning failure and netif_add does not promise field rollback."
+        }
+      ],
+      "evidence_checks": {
+        "result": "pass",
+        "all_items_referenced": true,
+        "items": [
+          {
+            "id": "l4-current-init",
+            "source": "public_harness",
+            "path": "examples/reproductions/lwip-netif/reproduce.c",
+            "line_start": 6,
+            "line_end": 12,
+            "file_sha256": "cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a",
+            "excerpt_sha256": "ba06c803e510187c1a36ee90c89ee8fab49dd4f57ca866e3776a1b7449a51f64",
+            "referenced": true
+          },
+          {
+            "id": "l4-harness-order",
+            "source": "public_harness",
+            "path": "examples/reproductions/lwip-netif/reproduce.c",
+            "line_start": 46,
+            "line_end": 56,
+            "file_sha256": "cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a",
+            "excerpt_sha256": "0c6e36898a89318be52130cd6ffb20cd6cd57911ae8a8be09138069b805bf8aa",
+            "referenced": true
+          },
+          {
+            "id": "l4-init-before-insert",
+            "source": "public_source",
+            "path": "corpus/lwip/src/core/netif.c",
+            "line_start": 387,
+            "line_end": 390,
+            "file_sha256": "a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+            "excerpt_sha256": "0f84d7d1b9939c1f101c7c4ee81601dc0b803a81395aa9c005231df586ab35ee",
+            "referenced": true
+          },
+          {
+            "id": "l4-list-insert",
+            "source": "public_source",
+            "path": "corpus/lwip/src/core/netif.c",
+            "line_start": 430,
+            "line_end": 433,
+            "file_sha256": "a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+            "excerpt_sha256": "34561c646d337c62e22c5235e0b6c6a0f1e3f707e86b0e1276bc8da10157138f",
+            "referenced": true
+          },
+          {
+            "id": "l4-current-output",
+            "source": "public_observation",
+            "path": "examples/reproductions/lwip-netif/result.txt",
+            "line_start": 2,
+            "line_end": 6,
+            "file_sha256": "8102733501276cd10303a81dc15877f7e5386b1dacb48c535f2960562f95414f",
+            "excerpt_sha256": "b64dcb080e04cdf933c7970e9590048fdb4ab47a83ab9c5ec9d08b10b10bfcfe",
+            "referenced": true
+          },
+          {
+            "id": "l4-set-default",
+            "source": "public_source",
+            "path": "corpus/lwip/src/core/netif.c",
+            "line_start": 851,
+            "line_end": 862,
+            "file_sha256": "a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+            "excerpt_sha256": "6e90a2d54918405a07c62cc3de191628bfc778b64d890165f9283adc4eb2f9e4",
+            "referenced": true
+          }
+        ]
+      }
+    },
+    "kr-v2-lwip-exclude-default-alias": {
+      "verdict": "pass",
+      "assessment": "Pointer-identity observations and the separate netif_list/netif_default assignments exclude automatic defaulting, head aliasing, and a non-linked second add.",
+      "answer_row_sha256": "676ec7423b250b1bafbd9c19be8da042777ffb148562e3d54f132540b568fbee",
+      "evidence_payload_sha256": "da9331216e9d13a74c8d39324b9824164e938db09ddf804e183f94348d0b9980",
+      "expected_point_results": [
+        {
+          "id": "l5-which-identity",
+          "kind": "condition",
+          "result": "pass",
+          "evidence_ids": [
+            "l5-which"
+          ],
+          "finding": "Claim matches the cited frozen source/observation and the task-level source/execution assessment."
+        },
+        {
+          "id": "l5-no-auto-default",
+          "kind": "fact",
+          "result": "pass",
+          "evidence_ids": [
+            "l5-output"
+          ],
+          "finding": "Claim matches the cited frozen source/observation and the task-level source/execution assessment."
+        },
+        {
+          "id": "l5-not-head-alias",
+          "kind": "fact",
+          "result": "pass",
+          "evidence_ids": [
+            "l5-output"
+          ],
+          "finding": "Claim matches the cited frozen source/observation and the task-level source/execution assessment."
+        },
+        {
+          "id": "l5-second-linked",
+          "kind": "fact",
+          "result": "pass",
+          "evidence_ids": [
+            "l5-which",
+            "l5-output"
+          ],
+          "finding": "Claim matches the cited frozen source/observation and the task-level source/execution assessment."
+        },
+        {
+          "id": "l5-source-separation",
+          "kind": "fact",
+          "result": "pass",
+          "evidence_ids": [
+            "l5-list-insert",
+            "l5-set-default",
+            "l5-globals"
+          ],
+          "finding": "Claim matches the cited frozen source/observation and the task-level source/execution assessment."
+        }
+      ],
+      "forbidden_claim_results": [
+        {
+          "id": "forbidden-1",
+          "claim": "netif_add automatically made first the default despite after_first default=none.",
+          "result": "pass",
+          "finding": "Contradicted by after_first default=none."
+        },
+        {
+          "id": "forbidden-2",
+          "claim": "netif_default must always equal netif_list.",
+          "result": "pass",
+          "finding": "Contradicted by after_second list=second default=first."
+        },
+        {
+          "id": "forbidden-3",
+          "claim": "The successful second add was not linked even though which(netif_list) returned second.",
+          "result": "pass",
+          "finding": "Contradicted by add_second=ok and immediate list=second pointer identity."
+        },
+        {
+          "id": "forbidden-4",
+          "claim": "The labels first and second are inferred from interface names rather than pointer identity.",
+          "result": "pass",
+          "finding": "Contradicted by which(), which compares addresses rather than interface names."
+        }
+      ],
+      "evidence_checks": {
+        "result": "pass",
+        "all_items_referenced": true,
+        "items": [
+          {
+            "id": "l5-which",
+            "source": "public_harness",
+            "path": "examples/reproductions/lwip-netif/reproduce.c",
+            "line_start": 21,
+            "line_end": 35,
+            "file_sha256": "cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a",
+            "excerpt_sha256": "7743beb8a704d357ce9e2528d4d43015594be14238970384904c47469718993c",
+            "referenced": true
+          },
+          {
+            "id": "l5-output",
+            "source": "public_observation",
+            "path": "examples/reproductions/lwip-netif/result.txt",
+            "line_start": 1,
+            "line_end": 6,
+            "file_sha256": "8102733501276cd10303a81dc15877f7e5386b1dacb48c535f2960562f95414f",
+            "excerpt_sha256": "4474494efeccb4cd7fbcfeca901883cdcc447e59fa4f9b2ea03c0a87be9c8356",
+            "referenced": true
+          },
+          {
+            "id": "l5-list-insert",
+            "source": "public_source",
+            "path": "corpus/lwip/src/core/netif.c",
+            "line_start": 430,
+            "line_end": 432,
+            "file_sha256": "a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+            "excerpt_sha256": "36db61fb71e7ad1d56ce2a3351b9a5fca2dab1ac178508c51683df4cdde40964",
+            "referenced": true
+          },
+          {
+            "id": "l5-set-default",
+            "source": "public_source",
+            "path": "corpus/lwip/src/core/netif.c",
+            "line_start": 851,
+            "line_end": 862,
+            "file_sha256": "a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+            "excerpt_sha256": "6e90a2d54918405a07c62cc3de191628bfc778b64d890165f9283adc4eb2f9e4",
+            "referenced": true
+          },
+          {
+            "id": "l5-globals",
+            "source": "public_source",
+            "path": "corpus/lwip/src/include/lwip/netif.h",
+            "line_start": 422,
+            "line_end": 427,
+            "file_sha256": "6e958aa1bd23b7381c09a873f7af919323f87ec50a2d3055a46f75275c2a121b",
+            "excerpt_sha256": "39817eb4aed8e06003d7cc743fa408d30a60354bb0061fe53dc84dd77bd20449",
+            "referenced": true
+          }
+        ]
+      }
+    },
+    "kr-v2-lwip-verify-clear-default": {
+      "verdict": "pass",
+      "assessment": "The minimal post-after_second call was executable and produced list=second default=none, matching the separate-global source mechanism and the stated falsifier.",
+      "answer_row_sha256": "b700e85d76821c596507fc13bf280b8e3be37f110a8c35059ae5fc170d594054",
+      "evidence_payload_sha256": "eae93860042bf7677b54092ae2758a3a9c97b8fcca6e8d36e972ec2f378f4e02",
+      "expected_point_results": [
+        {
+          "id": "l6-insertion-condition",
+          "kind": "condition",
+          "result": "pass",
+          "evidence_ids": [
+            "l6-harness-site"
+          ],
+          "finding": "Claim matches the cited frozen source/observation and the task-level source/execution assessment."
+        },
+        {
+          "id": "l6-code-change",
+          "kind": "action",
+          "result": "pass",
+          "evidence_ids": [
+            "l6-harness-site",
+            "l6-which"
+          ],
+          "finding": "Claim matches the cited frozen source/observation and the task-level source/execution assessment."
+        },
+        {
+          "id": "l6-output",
+          "kind": "fact",
+          "result": "pass",
+          "evidence_ids": [
+            "l6-current-output",
+            "l6-set-default"
+          ],
+          "finding": "Claim matches the cited frozen source/observation and the task-level source/execution assessment."
+        },
+        {
+          "id": "l6-source-effect",
+          "kind": "fact",
+          "result": "pass",
+          "evidence_ids": [
+            "l6-set-default",
+            "l6-globals"
+          ],
+          "finding": "Claim matches the cited frozen source/observation and the task-level source/execution assessment."
+        },
+        {
+          "id": "l6-falsifier",
+          "kind": "condition",
+          "result": "pass",
+          "evidence_ids": [
+            "l6-set-default",
+            "l6-globals",
+            "l6-current-output"
+          ],
+          "finding": "Claim matches the cited frozen source/observation and the task-level source/execution assessment."
+        }
+      ],
+      "forbidden_claim_results": [
+        {
+          "id": "forbidden-1",
+          "claim": "The expected post-clear list is none.",
+          "result": "pass",
+          "finding": "Contradicted by source separation and the executed post-clear list=second."
+        },
+        {
+          "id": "forbidden-2",
+          "claim": "The expected post-clear default remains first.",
+          "result": "pass",
+          "finding": "Contradicted by netif_set_default(NULL) and executed default=none."
+        },
+        {
+          "id": "forbidden-3",
+          "claim": "netif_set_default(NULL) removes second or first from netif_list.",
+          "result": "pass",
+          "finding": "Contradicted by the absence of a netif_list write in netif_set_default and the executed list state."
+        },
+        {
+          "id": "forbidden-4",
+          "claim": "A list=none observation would confirm that list and default are independent.",
+          "result": "pass",
+          "finding": "Correctly forbidden: list=none would contradict, not confirm, the predicted independent-state mechanism."
+        }
+      ],
+      "evidence_checks": {
+        "result": "pass",
+        "all_items_referenced": true,
+        "items": [
+          {
+            "id": "l6-harness-site",
+            "source": "public_harness",
+            "path": "examples/reproductions/lwip-netif/reproduce.c",
+            "line_start": 53,
+            "line_end": 58,
+            "file_sha256": "cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a",
+            "excerpt_sha256": "583a75e2c0d1ff81cac46cea0ca0a8e757b184dd8a10916dbba924cad2277bdd",
+            "referenced": true
+          },
+          {
+            "id": "l6-which",
+            "source": "public_harness",
+            "path": "examples/reproductions/lwip-netif/reproduce.c",
+            "line_start": 21,
+            "line_end": 35,
+            "file_sha256": "cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a",
+            "excerpt_sha256": "7743beb8a704d357ce9e2528d4d43015594be14238970384904c47469718993c",
+            "referenced": true
+          },
+          {
+            "id": "l6-current-output",
+            "source": "public_observation",
+            "path": "examples/reproductions/lwip-netif/result.txt",
+            "line_start": 4,
+            "line_end": 6,
+            "file_sha256": "8102733501276cd10303a81dc15877f7e5386b1dacb48c535f2960562f95414f",
+            "excerpt_sha256": "d22d1b990abce14b08ec8ea2372682bec5b0576f17af9e2fb7c15062fd52e906",
+            "referenced": true
+          },
+          {
+            "id": "l6-set-default",
+            "source": "public_source",
+            "path": "corpus/lwip/src/core/netif.c",
+            "line_start": 851,
+            "line_end": 862,
+            "file_sha256": "a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+            "excerpt_sha256": "6e90a2d54918405a07c62cc3de191628bfc778b64d890165f9283adc4eb2f9e4",
+            "referenced": true
+          },
+          {
+            "id": "l6-globals",
+            "source": "public_source",
+            "path": "corpus/lwip/src/include/lwip/netif.h",
+            "line_start": 422,
+            "line_end": 427,
+            "file_sha256": "6e958aa1bd23b7381c09a873f7af919323f87ec50a2d3055a46f75275c2a121b",
+            "excerpt_sha256": "39817eb4aed8e06003d7cc743fa408d30a60354bb0061fe53dc84dd77bd20449",
+            "referenced": true
+          }
+        ]
+      }
+    }
+  },
+  "execution_evidence": [
+    {
+      "id": "cjson-bound-baseline",
+      "purpose": "Re-run the bound cJSON reproduction identity exactly.",
+      "command": "bash examples/reproductions/cjson-nesting/run.sh",
+      "expected_revision": "fb16e5cf358798aabb049655975cde8427101056",
+      "result": "pass",
+      "exit_code": 0,
+      "stdout": "depth=999 result=ok parse_end=1999 input_len=1999\ndepth=1000 result=ok parse_end=2001 input_len=2001\ndepth=1001 result=NULL parse_end=1000 input_len=2003\n",
+      "stdout_sha256": "ed76b1069221053876dd4995aaee6e228f4983ad8f97717d51bf1ff02be0b133",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "lwip-bound-baseline",
+      "purpose": "Re-run the bound lwIP reproduction identity exactly.",
+      "command": "bash examples/reproductions/lwip-netif/run.sh",
+      "expected_revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+      "result": "pass",
+      "exit_code": 0,
+      "stdout": "initial list=none default=none\nadd_first=ok\nafter_first list=first default=none\nafter_set_default list=first default=first\nadd_second=ok\nafter_second list=second default=first\n",
+      "stdout_sha256": "8102733501276cd10303a81dc15877f7e5386b1dacb48c535f2960562f95414f",
+      "stderr": "/Users/guoshuaiqi/Documents/Codex/2026-09-03/github-plugin-github-openai-curated-remote-2/work/codeatlas-c/corpus/lwip/src/core/netif.c:461:43: warning: unused parameter 'old_addr' [-Wunused-parameter]\n  461 | netif_do_ip_addr_changed(const ip_addr_t *old_addr, const ip_addr_t *new_addr)\n      |                                           ^\n/Users/guoshuaiqi/Documents/Codex/2026-09-03/github-plugin-github-openai-curated-remote-2/work/codeatlas-c/corpus/lwip/src/core/netif.c:461:70: warning: unused parameter 'new_addr' [-Wunused-parameter]\n  461 | netif_do_ip_addr_changed(const ip_addr_t *old_addr, const ip_addr_t *new_addr)\n      |                                                                      ^\n2 warnings generated.\n",
+      "stderr_sha256": "9d9296d5a83355aaddbe0d3c404dce15252dc4e7803d7b276a6183f87667af3b"
+    },
+    {
+      "id": "cjson-ab-a",
+      "purpose": "Control build using the same precompiled harness object.",
+      "command": "compile reproduce.c once as harness.o; compile cJSON.c without override; link and run A",
+      "result": "pass",
+      "exit_code": 0,
+      "stdout": "depth=999 result=ok parse_end=1999 input_len=1999\ndepth=1000 result=ok parse_end=2001 input_len=2001\ndepth=1001 result=NULL parse_end=1000 input_len=2003\n",
+      "stdout_sha256": "ed76b1069221053876dd4995aaee6e228f4983ad8f97717d51bf1ff02be0b133",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "cjson-ab-b-limit-1001",
+      "purpose": "Treatment build; only cJSON.c receives -DCJSON_NESTING_LIMIT=1001 and harness.o is reused.",
+      "command": "compile cJSON.c with -DCJSON_NESTING_LIMIT=1001; link the same harness.o and run B",
+      "result": "pass",
+      "exit_code": 0,
+      "stdout": "depth=999 result=ok parse_end=1999 input_len=1999\ndepth=1000 result=ok parse_end=2001 input_len=2001\ndepth=1001 result=ok parse_end=2003 input_len=2003\n",
+      "stdout_sha256": "39f9c9e0da64d1bb1d1783abc9f3c41fbe1aa7e9d0e3bae5bb3c72c01a9114ae",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "lwip-second-init-failure",
+      "purpose": "Executable assertion for first ERR_OK, second ERR_IF.",
+      "command": "compile frozen public lwIP objects and the persisted validator probe with -DSECOND_INIT_FAILS; link and run",
+      "probe_source": "#include <stdio.h>\n#include <string.h>\n\n#include \"lwip/netif.h\"\n\nstatic err_t test_init(struct netif *netif)\n{\n#ifdef SECOND_INIT_FAILS\n    static unsigned calls;\n#endif\n    netif->name[0] = 'c';\n    netif->name[1] = 'a';\n    netif->mtu = 1500;\n#ifdef SECOND_INIT_FAILS\n    calls++;\n    return calls == 2 ? ERR_IF : ERR_OK;\n#else\n    return ERR_OK;\n#endif\n}\n\nstatic err_t test_input(struct pbuf *packet, struct netif *netif)\n{\n    LWIP_UNUSED_ARG(packet);\n    LWIP_UNUSED_ARG(netif);\n    return ERR_OK;\n}\n\nstatic const char *which(const struct netif *value,\n                         const struct netif *first,\n                         const struct netif *second)\n{\n    if (value == NULL) {\n        return \"none\";\n    }\n    if (value == first) {\n        return \"first\";\n    }\n    if (value == second) {\n        return \"second\";\n    }\n    return \"other\";\n}\n\nint main(void)\n{\n    struct netif first;\n    struct netif second;\n    memset(&first, 0, sizeof(first));\n    memset(&second, 0, sizeof(second));\n\n    printf(\"initial list=%s default=%s\\n\",\n           which(netif_list, &first, &second), which(netif_default, &first, &second));\n    printf(\"add_first=%s\\n\",\n           netif_add_noaddr(&first, NULL, test_init, test_input) == &first ? \"ok\" : \"failed\");\n    printf(\"after_first list=%s default=%s\\n\",\n           which(netif_list, &first, &second), which(netif_default, &first, &second));\n    netif_set_default(&first);\n    printf(\"after_set_default list=%s default=%s\\n\",\n           which(netif_list, &first, &second), which(netif_default, &first, &second));\n    printf(\"add_second=%s\\n\",\n           netif_add_noaddr(&second, NULL, test_init, test_input) == &second ? \"ok\" : \"failed\");\n    printf(\"after_second list=%s default=%s\\n\",\n           which(netif_list, &first, &second), which(netif_default, &first, &second));\n#ifdef CLEAR_DEFAULT\n    netif_set_default(NULL);\n    printf(\"after_clear_default list=%s default=%s\\n\",\n           which(netif_list, &first, &second), which(netif_default, &first, &second));\n#endif\n    netif_remove(&second);\n    netif_remove(&first);\n    return 0;\n}\n",
+      "probe_source_sha256": "b5bbe737bf9868d2237c5845c4c320481f3fcc7df464a48a7d3013dfa951acec",
+      "result": "pass",
+      "exit_code": 0,
+      "stdout": "initial list=none default=none\nadd_first=ok\nafter_first list=first default=none\nafter_set_default list=first default=first\nadd_second=failed\nafter_second list=first default=first\n",
+      "stdout_sha256": "ae0fabb8c7f471d4f3d841702c1d5c8fdedabdc12c57668a9dee01b3de63931f",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "lwip-clear-default",
+      "purpose": "Executable assertion for netif_set_default(NULL) after after_second.",
+      "command": "compile frozen public lwIP objects and the persisted validator probe with -DCLEAR_DEFAULT; link and run",
+      "probe_source": "#include <stdio.h>\n#include <string.h>\n\n#include \"lwip/netif.h\"\n\nstatic err_t test_init(struct netif *netif)\n{\n#ifdef SECOND_INIT_FAILS\n    static unsigned calls;\n#endif\n    netif->name[0] = 'c';\n    netif->name[1] = 'a';\n    netif->mtu = 1500;\n#ifdef SECOND_INIT_FAILS\n    calls++;\n    return calls == 2 ? ERR_IF : ERR_OK;\n#else\n    return ERR_OK;\n#endif\n}\n\nstatic err_t test_input(struct pbuf *packet, struct netif *netif)\n{\n    LWIP_UNUSED_ARG(packet);\n    LWIP_UNUSED_ARG(netif);\n    return ERR_OK;\n}\n\nstatic const char *which(const struct netif *value,\n                         const struct netif *first,\n                         const struct netif *second)\n{\n    if (value == NULL) {\n        return \"none\";\n    }\n    if (value == first) {\n        return \"first\";\n    }\n    if (value == second) {\n        return \"second\";\n    }\n    return \"other\";\n}\n\nint main(void)\n{\n    struct netif first;\n    struct netif second;\n    memset(&first, 0, sizeof(first));\n    memset(&second, 0, sizeof(second));\n\n    printf(\"initial list=%s default=%s\\n\",\n           which(netif_list, &first, &second), which(netif_default, &first, &second));\n    printf(\"add_first=%s\\n\",\n           netif_add_noaddr(&first, NULL, test_init, test_input) == &first ? \"ok\" : \"failed\");\n    printf(\"after_first list=%s default=%s\\n\",\n           which(netif_list, &first, &second), which(netif_default, &first, &second));\n    netif_set_default(&first);\n    printf(\"after_set_default list=%s default=%s\\n\",\n           which(netif_list, &first, &second), which(netif_default, &first, &second));\n    printf(\"add_second=%s\\n\",\n           netif_add_noaddr(&second, NULL, test_init, test_input) == &second ? \"ok\" : \"failed\");\n    printf(\"after_second list=%s default=%s\\n\",\n           which(netif_list, &first, &second), which(netif_default, &first, &second));\n#ifdef CLEAR_DEFAULT\n    netif_set_default(NULL);\n    printf(\"after_clear_default list=%s default=%s\\n\",\n           which(netif_list, &first, &second), which(netif_default, &first, &second));\n#endif\n    netif_remove(&second);\n    netif_remove(&first);\n    return 0;\n}\n",
+      "probe_source_sha256": "b5bbe737bf9868d2237c5845c4c320481f3fcc7df464a48a7d3013dfa951acec",
+      "result": "pass",
+      "exit_code": 0,
+      "stdout": "initial list=none default=none\nadd_first=ok\nafter_first list=first default=none\nafter_set_default list=first default=first\nadd_second=ok\nafter_second list=second default=first\nafter_clear_default list=second default=none\n",
+      "stdout_sha256": "41ab9363681cceb48bcb2c2645201c5ab6158396269f903bea8653efa4ca69d5",
+      "stderr": "",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "execution_evidence_sha256": "de5a596fe7a9eecb3e2fc3b0ec27b14b367c140d54b2cbacfd14548f07498a38",
+  "special_findings": {
+    "cjson_limit_1001_ab_persistence": {
+      "status": "resolved_by_this_validator_execution",
+      "preexisting_limit_1001_stdout_in_answer_evidence": false,
+      "persisted_in_this_report": true,
+      "execution_evidence_id": "cjson-ab-b-limit-1001",
+      "stdout_sha256": "39f9c9e0da64d1bb1d1783abc9f3c41fbe1aa7e9d0e3bae5bb3c72c01a9114ae",
+      "finding": "The answer payload binds baseline result.txt but no pre-existing B observation. This report persists the independently executed B output that matches c1/c3."
+    },
+    "ordinary_allocation_exhaustion": {
+      "status": "unresolved_boundary",
+      "counts_as_fact_validation_failure": false,
+      "finding": "Neither the baseline nor the limit-shift A/B universally excludes ordinary allocator failure. The answer correctly says it remains unresolved without allocator telemetry or fault injection and does not overreach."
+    },
+    "c3_same_boundary_falsifier": {
+      "status": "pass",
+      "finding": "The revised point and forbidden claim require verified macro delivery, fixed non-treatment factors, and independent exclusion of B-only allocation/other new failure before a same-boundary B failure falsifies limit sufficiency."
+    },
+    "historical_no_exposure": {
+      "status": "unresolved_boundary",
+      "counts_as_fact_validation_failure": false,
+      "finding": "The held_out/not_used_for_tuning flags are current asset declarations; historical no-exposure cannot be proven from the allowed source/reproduction packet."
+    },
+    "human_release": {
+      "status": "not_human_reviewed",
+      "human_review": false,
+      "finding": "This is an agent source validation only and does not confer human-release eligibility."
+    }
+  },
+  "excluded_inputs": [
+    "all knowledge_reuse_validation*.json files, including any previous target bytes",
+    "all review-calibration files",
+    "CodeAtlas Wiki and docs",
+    "prompts, model answers, and evaluation scores",
+    "peer-validator output and proof-fixture-review messages/reports",
+    "the frozen cJSON/lwIP conversation sessions and presentation template"
+  ],
+  "approval_basis": "All six questions, 33 expected points, 26 forbidden claims, 45 frozen evidence items, two bound reproduction identities, and four auxiliary executable probes passed. The c3 independent-failure exclusion boundary is present. Historical no-exposure and human review remain outside this factual approval.",
+  "report_hash_scope": "SHA-256 via codeatlas.contracts.digest over the complete report object before adding report_hash_sha256.",
+  "report_hash_sha256": "ec59e8b88d2578546a3c8385a1dc2e7c538e404e3d72bdfdcdf4676e75f80af6"
+}

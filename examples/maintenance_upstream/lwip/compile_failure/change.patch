@@ -1,0 +1,11 @@
+--- a/src/core/netif.c
++++ b/src/core/netif.c
+@@ -861,7 +861,7 @@ netif_set_default(struct netif *netif)
+     /* install default route */
+     mib2_add_route_ip4(1, netif);
+   }
+-  netif_default = netif;
++  netif_default = codeatlas_missing_netif_symbol;
+   LWIP_DEBUGF(NETIF_DEBUG, ("netif: setting default interface %c%c\n",
+                             netif ? netif->name[0] : '\'', netif ? netif->name[1] : '\''));
+ }

@@ -1,0 +1,11 @@
+--- a/src/include/lwip/netif.h
++++ b/src/include/lwip/netif.h
+@@ -496,7 +496,7 @@ void netif_set_link_callback(struct netif *netif, netif_status_callback_fn link_c
+ 
+ #if LWIP_NETIF_HOSTNAME
+ /** @ingroup netif */
+-#define netif_set_hostname(netif, name) do { if((netif) != NULL) { (netif)->hostname = name; }}while(0)
++#define netif_set_hostname(netif, name) do { if((netif) != NULL) { (netif)->hostname = NULL; }}while(0)
+ /** @ingroup netif */
+ #define netif_get_hostname(netif) (((netif) != NULL) ? ((netif)->hostname) : NULL)
+ #endif /* LWIP_NETIF_HOSTNAME */

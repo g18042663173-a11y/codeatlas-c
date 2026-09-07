@@ -1,0 +1,1924 @@
+{
+  "schema_version": 1,
+  "report_kind": "knowledge_reuse",
+  "artifact_scope": "isolated_experiment",
+  "status": "not_run",
+  "case_count": 2,
+  "question_count": 6,
+  "task_count": 6,
+  "planned_trial_count": 54,
+  "runs_per_task": 3,
+  "task_scope": "short_synthetic_pilot",
+  "generated_at": "2026-09-05T17:46:55+00:00",
+  "model": null,
+  "temperature": 0.1,
+  "materials": {
+    "schema_version": 1,
+    "artifact_scope": "isolated_experiment",
+    "protocol_version": "same-source-reuse-pilot-v1",
+    "case_count": 2,
+    "question_count": 6,
+    "manifest_hash": "c8c2504f8429ca7a235e0f9b858ac294fbe86de2bad5afedc3c781e2031a82a1",
+    "cases": [
+      {
+        "case_id": "cjson-nesting",
+        "repository": "https://github.com/DaveGamble/cJSON",
+        "revision": "fb16e5cf358798aabb049655975cde8427101056",
+        "source_type": "public_synthetic",
+        "license": "CC0-1.0",
+        "messages": [
+          {
+            "turn_id": 1,
+            "content": "公开复现实验中，深层嵌套 JSON 在超过限定深度后返回 NULL；这不是生产事故。"
+          },
+          {
+            "turn_id": 2,
+            "content": "初始假设是进程栈空间不足，也可能是解析器主动限制递归深度。"
+          },
+          {
+            "turn_id": 3,
+            "content": "仅增大进程栈不会改变 cJSON 的编译期嵌套限制，不能据此修复问题。"
+          },
+          {
+            "turn_id": 4,
+            "content": "固定 revision 中 parse_value 分派数组和对象解析；parse_array 与 parse_object 在进入下一层前检查 CJSON_NESTING_LIMIT；cJSON_ParseWithOpts 通过 parse_end 返回停止位置。"
+          },
+          {
+            "turn_id": 5,
+            "content": "失败来自 cJSON 对 CJSON_NESTING_LIMIT 的主动边界保护，而不是本实验中的内存耗尽或进程栈不足。"
+          },
+          {
+            "turn_id": 6,
+            "content": "调用方应校验输入深度并处理 NULL；只有明确接受递归与资源风险且补齐边界测试时，才调整编译期 CJSON_NESTING_LIMIT。"
+          },
+          {
+            "turn_id": 7,
+            "content": "在固定 revision 运行 examples/reproductions/cjson-nesting/run.sh：深度 999 和 1000 解析成功，深度 1001 返回 NULL，并记录 parse_end 与输入长度。"
+          }
+        ],
+        "attachments": [
+          {
+            "tag": "E1",
+            "path": "corpus/cJSON/cJSON.h",
+            "kind": "source",
+            "file_sha256": "25b0145150d500498e4d209cec69c18c42cf818bffcc54690be3b895a2a16dee",
+            "line_start": 132,
+            "line_end": 139,
+            "text": "typedef int cJSON_bool;\n\n/* Limits how deeply nested arrays/objects can be before cJSON rejects to parse them.\n * This is to prevent stack overflows. */\n#ifndef CJSON_NESTING_LIMIT\n#define CJSON_NESTING_LIMIT 1000\n#endif\n\n",
+            "content_hash": "04e061eed1dd77bb26fb5921c2207fa4370d274d9cdb128f441d70ea320bc20d"
+          },
+          {
+            "tag": "E2",
+            "path": "corpus/cJSON/cJSON.c",
+            "kind": "source",
+            "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "line_start": 1496,
+            "line_end": 1515,
+            "text": "/* Build an array from input text. */\nstatic cJSON_bool parse_array(cJSON * const item, parse_buffer * const input_buffer)\n{\n    cJSON *head = NULL; /* head of the linked list */\n    cJSON *current_item = NULL;\n\n    if (input_buffer->depth >= CJSON_NESTING_LIMIT)\n    {\n        return false; /* to deeply nested */\n    }\n    input_buffer->depth++;\n\n    if (buffer_at_offset(input_buffer)[0] != '[')\n    {\n        /* not an array */\n        goto fail;\n    }\n\n    input_buffer->offset++;\n    buffer_skip_whitespace(input_buffer);\n",
+            "content_hash": "97af3bab01a723f6c38bfc12412f0868743fed12203391bd3e5e2805f8401071"
+          },
+          {
+            "tag": "E3",
+            "path": "corpus/cJSON/cJSON.c",
+            "kind": "source",
+            "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "line_start": 1663,
+            "line_end": 1678,
+            "text": "{\n    cJSON *head = NULL; /* linked list head */\n    cJSON *current_item = NULL;\n\n    if (input_buffer->depth >= CJSON_NESTING_LIMIT)\n    {\n        return false; /* to deeply nested */\n    }\n    input_buffer->depth++;\n\n    if (cannot_access_at_index(input_buffer, 0) || (buffer_at_offset(input_buffer)[0] != '{'))\n    {\n        goto fail; /* not an object */\n    }\n\n    input_buffer->offset++;\n",
+            "content_hash": "741404983cae992c1080dc9a7cd14cdb97b5bcb8c2b618c4234f95ed4f919bd6"
+          },
+          {
+            "tag": "E4",
+            "path": "corpus/cJSON/cJSON.c",
+            "kind": "source",
+            "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "line_start": 1131,
+            "line_end": 1144,
+            "text": "CJSON_PUBLIC(cJSON *) cJSON_ParseWithOpts(const char *value, const char **return_parse_end, cJSON_bool require_null_terminated)\n{\n    size_t buffer_length;\n\n    if (NULL == value)\n    {\n        return NULL;\n    }\n\n    /* Adding null character size due to require_null_terminated. */\n    buffer_length = strlen(value) + sizeof(\"\");\n\n    return cJSON_ParseWithLengthOpts(value, buffer_length, return_parse_end, require_null_terminated);\n}\n",
+            "content_hash": "46abe9e9f739bddb629c583371ecf9148644615021acdfeacc3fa6305bb9cfbd"
+          },
+          {
+            "tag": "E5",
+            "path": "corpus/cJSON/cJSON.c",
+            "kind": "source",
+            "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "line_start": 1200,
+            "line_end": 1223,
+            "text": "    if (value != NULL)\n    {\n        error local_error;\n        local_error.json = (const unsigned char*)value;\n        local_error.position = 0;\n\n        if (buffer.offset < buffer.length)\n        {\n            local_error.position = buffer.offset;\n        }\n        else if (buffer.length > 0)\n        {\n            local_error.position = buffer.length - 1;\n        }\n\n        if (return_parse_end != NULL)\n        {\n            *return_parse_end = (const char*)local_error.json + local_error.position;\n        }\n\n        global_error = local_error;\n    }\n\n    return NULL;\n",
+            "content_hash": "46f2d0cefd9544bca7a4426f6c1edf71b0d575dfcfde6db366b7ef79b0c56794"
+          },
+          {
+            "tag": "E6",
+            "path": "examples/reproductions/cjson-nesting/reproduce.c",
+            "kind": "harness",
+            "file_sha256": "cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+            "line_start": 1,
+            "line_end": 57,
+            "text": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n\n#include \"cJSON.h\"\n\nstatic char *nested_array(size_t depth)\n{\n    size_t index;\n    char *text = malloc(depth * 2 + 2);\n    if (text == NULL) {\n        return NULL;\n    }\n    for (index = 0; index < depth; ++index) {\n        text[index] = '[';\n    }\n    text[depth] = '0';\n    for (index = 0; index < depth; ++index) {\n        text[depth + 1 + index] = ']';\n    }\n    text[depth * 2 + 1] = '\\0';\n    return text;\n}\n\nstatic int run_case(size_t depth)\n{\n    const char *parse_end = NULL;\n    char *input = nested_array(depth);\n    cJSON *value;\n    size_t offset;\n    if (input == NULL) {\n        return 2;\n    }\n    value = cJSON_ParseWithOpts(input, &parse_end, 1);\n    offset = parse_end == NULL ? 0 : (size_t)(parse_end - input);\n    printf(\"depth=%zu result=%s parse_end=%zu input_len=%zu\\n\",\n           depth, value == NULL ? \"NULL\" : \"ok\", offset, strlen(input));\n    cJSON_Delete(value);\n    free(input);\n    return 0;\n}\n\nint main(void)\n{\n    /*\n     * These depths are deliberately fixed instead of being derived from the\n     * library macro.  That makes a future CJSON_NESTING_LIMIT change observable\n     * rather than silently moving both the treatment and the test inputs.\n     */\n    static const size_t fixed_depths[] = {999u, 1000u, 1001u};\n    size_t index;\n    int status = 0;\n    for (index = 0; index < sizeof(fixed_depths) / sizeof(fixed_depths[0]); ++index) {\n        status |= run_case(fixed_depths[index]);\n    }\n    return status;\n}\n",
+            "content_hash": "8a8409b4048be1c58846016adf7fb1bac0efaf76b358be8a33c6be670dcf7a94"
+          },
+          {
+            "tag": "E7",
+            "path": "examples/reproductions/cjson-nesting/run.sh",
+            "kind": "command",
+            "file_sha256": "529274dbbd63556db765061836196cc91af288bcff2d449fc03c3bf9843cf481",
+            "line_start": 1,
+            "line_end": 25,
+            "text": "#!/usr/bin/env bash\nset -euo pipefail\n\nproject_root=\"$(cd \"$(dirname \"$0\")/../../..\" && pwd)\"\nsource_root=\"${CODEATLAS_CJSON_SOURCE_ROOT:-$project_root/corpus/cJSON}\"\nexpected_revision=\"fb16e5cf358798aabb049655975cde8427101056\"\nbuild_dir=\"$(mktemp -d \"${TMPDIR:-/tmp}/codeatlas-cjson.XXXXXX\")\"\ntrap 'rm -rf \"$build_dir\"' EXIT\n\nactual_revision=\"$(git -C \"$source_root\" rev-parse HEAD)\"\nif [[ \"$actual_revision\" != \"$expected_revision\" ]]; then\n  printf 'cJSON revision mismatch: expected %s, got %s\\n' \"$expected_revision\" \"$actual_revision\" >&2\n  exit 2\nfi\n\ncc -std=c99 -Wall -Wextra -Werror \\\n  -I \"$source_root\" \\\n  \"$source_root/cJSON.c\" \\\n  \"$project_root/examples/reproductions/cjson-nesting/reproduce.c\" \\\n  -lm -o \"$build_dir/reproduce\"\n\noutput=\"$(\"$build_dir/reproduce\")\"\nprintf '%s\\n' \"$output\"\ndiff -u \"$project_root/examples/reproductions/cjson-nesting/result.txt\" \\\n  <(printf '%s\\n' \"$output\")\n",
+            "content_hash": "7e17b1ded21f64a9f002f9d11d45f1eb83f3d4aaeebfa422a1622da1eeddc7e9"
+          },
+          {
+            "tag": "E8",
+            "path": "examples/reproductions/cjson-nesting/result.txt",
+            "kind": "observation",
+            "file_sha256": "ed76b1069221053876dd4995aaee6e228f4983ad8f97717d51bf1ff02be0b133",
+            "line_start": 1,
+            "line_end": 3,
+            "text": "depth=999 result=ok parse_end=1999 input_len=1999\ndepth=1000 result=ok parse_end=2001 input_len=2001\ndepth=1001 result=NULL parse_end=1000 input_len=2003\n",
+            "content_hash": "ab02110d3e763b4e156efbd47789dc745feed8a4a44c1f5182f4608c98e110ee"
+          }
+        ],
+        "source_digest": "1da053a12efcc06562d46c1e1c723c7117de516bcfd4e49b8dfa5a745c10f5c4",
+        "attachments_digest": "ad80b1594c77a29f1f52b3bf9a633abc6dffb7a97298685bf1d95e357b04ccd1",
+        "source_file_hash": "82d267a60b35e0172579dc26af61f912265119e3d38a6d20c4aeca500339a736",
+        "template_hash": "faeed3b3773d81a8f99e74686c8993d7094d1663d6c1dab3bd15ca0aad4ea507",
+        "materials": {
+          "raw_session": {
+            "text": "第 1 轮：公开复现实验中，深层嵌套 JSON 在超过限定深度后返回 NULL；这不是生产事故。\n\n第 2 轮：初始假设是进程栈空间不足，也可能是解析器主动限制递归深度。\n\n第 3 轮：仅增大进程栈不会改变 cJSON 的编译期嵌套限制，不能据此修复问题。\n\n第 4 轮：固定 revision 中 parse_value 分派数组和对象解析；parse_array 与 parse_object 在进入下一层前检查 CJSON_NESTING_LIMIT；cJSON_ParseWithOpts 通过 parse_end 返回停止位置。\n\n第 5 轮：失败来自 cJSON 对 CJSON_NESTING_LIMIT 的主动边界保护，而不是本实验中的内存耗尽或进程栈不足。\n\n第 6 轮：调用方应校验输入深度并处理 NULL；只有明确接受递归与资源风险且补齐边界测试时，才调整编译期 CJSON_NESTING_LIMIT。\n\n第 7 轮：在固定 revision 运行 examples/reproductions/cjson-nesting/run.sh：深度 999 和 1000 解析成功，深度 1001 返回 NULL，并记录 parse_end 与输入长度。",
+            "source_digest": "1da053a12efcc06562d46c1e1c723c7117de516bcfd4e49b8dfa5a745c10f5c4",
+            "attachments_digest": "ad80b1594c77a29f1f52b3bf9a633abc6dffb7a97298685bf1d95e357b04ccd1",
+            "content_hash": "99453ff4587c820eca48349b228b22280708d051f411d830716c443187ec2c16",
+            "source_turn_ids": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "production": {
+              "method": "frozen_extractive_template",
+              "model_requests": 0,
+              "model_tokens": 0,
+              "cost_usd": 0,
+              "human_edit_seconds": null
+            }
+          },
+          "generic_summary": {
+            "text": "公开复现实验中，深层嵌套 JSON 在超过限定深度后返回 NULL；这不是生产事故。\n\n固定 revision 中 parse_value 分派数组和对象解析；parse_array 与 parse_object 在进入下一层前检查 CJSON_NESTING_LIMIT；cJSON_ParseWithOpts 通过 parse_end 返回停止位置。\n\n失败来自 cJSON 对 CJSON_NESTING_LIMIT 的主动边界保护，而不是本实验中的内存耗尽或进程栈不足。\n\n调用方应校验输入深度并处理 NULL；只有明确接受递归与资源风险且补齐边界测试时，才调整编译期 CJSON_NESTING_LIMIT。\n\n在固定 revision 运行 examples/reproductions/cjson-nesting/run.sh：深度 999 和 1000 解析成功，深度 1001 返回 NULL，并记录 parse_end 与输入长度。\n\n初始假设是进程栈空间不足，也可能是解析器主动限制递归深度。\n\n仅增大进程栈不会改变 cJSON 的编译期嵌套限制，不能据此修复问题。",
+            "source_digest": "1da053a12efcc06562d46c1e1c723c7117de516bcfd4e49b8dfa5a745c10f5c4",
+            "attachments_digest": "ad80b1594c77a29f1f52b3bf9a633abc6dffb7a97298685bf1d95e357b04ccd1",
+            "content_hash": "17f0291c813e3a80e40a19f28658941921dc83e19636d6c452929b4834dcd858",
+            "source_turn_ids": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "production": {
+              "method": "frozen_extractive_template",
+              "model_requests": 0,
+              "model_tokens": 0,
+              "cost_usd": 0,
+              "human_edit_seconds": null
+            }
+          },
+          "structured_card": {
+            "text": "现象\n公开复现实验中，深层嵌套 JSON 在超过限定深度后返回 NULL；这不是生产事故。\n\n假设\n初始假设是进程栈空间不足，也可能是解析器主动限制递归深度。\n\n已排除的解释\n仅增大进程栈不会改变 cJSON 的编译期嵌套限制，不能据此修复问题。\n\n源码说明\n固定 revision 中 parse_value 分派数组和对象解析；parse_array 与 parse_object 在进入下一层前检查 CJSON_NESTING_LIMIT；cJSON_ParseWithOpts 通过 parse_end 返回停止位置。\n\n结论\n失败来自 cJSON 对 CJSON_NESTING_LIMIT 的主动边界保护，而不是本实验中的内存耗尽或进程栈不足。\n\n处理建议\n调用方应校验输入深度并处理 NULL；只有明确接受递归与资源风险且补齐边界测试时，才调整编译期 CJSON_NESTING_LIMIT。\n\n验证记录\n在固定 revision 运行 examples/reproductions/cjson-nesting/run.sh：深度 999 和 1000 解析成功，深度 1001 返回 NULL，并记录 parse_end 与输入长度。",
+            "source_digest": "1da053a12efcc06562d46c1e1c723c7117de516bcfd4e49b8dfa5a745c10f5c4",
+            "attachments_digest": "ad80b1594c77a29f1f52b3bf9a633abc6dffb7a97298685bf1d95e357b04ccd1",
+            "content_hash": "fe5537516d6dc8f45f52858112f26b4aae7520ee4c9368c248e172f7c9c21ad0",
+            "source_turn_ids": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "production": {
+              "method": "frozen_extractive_template",
+              "model_requests": 0,
+              "model_tokens": 0,
+              "cost_usd": 0,
+              "human_edit_seconds": null
+            }
+          }
+        }
+      },
+      {
+        "case_id": "lwip-netif",
+        "repository": "https://github.com/lwip-tcpip/lwip",
+        "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+        "source_type": "public_synthetic",
+        "license": "CC0-1.0",
+        "messages": [
+          {
+            "turn_id": 1,
+            "content": "公开复现实验中，新增网络接口后 netif_list 更新了，但 netif_default 没有自动指向新接口；这不是生产事故。"
+          },
+          {
+            "turn_id": 2,
+            "content": "初始假设是 netif_add 会在加入首个接口时顺带设置默认接口。"
+          },
+          {
+            "turn_id": 3,
+            "content": "反复调用 netif_add 只会改变接口链表，不能代替显式的 netif_set_default。"
+          },
+          {
+            "turn_id": 4,
+            "content": "固定 revision 的 netif_add 将接口插入 netif_list 并返回接口；多接口配置下，netif_set_default 是修改 netif_default 的独立函数。"
+          },
+          {
+            "turn_id": 5,
+            "content": "根因是调用方把“加入接口链表”和“选择默认接口”当成了同一步；在该固定多接口配置中 netif_add 不会自动设置 netif_default。"
+          },
+          {
+            "turn_id": 6,
+            "content": "netif_add 成功后，根据路由策略显式调用 netif_set_default；不要默认让最后添加的接口覆盖既有默认接口。"
+          },
+          {
+            "turn_id": 7,
+            "content": "在固定 revision 运行 examples/reproductions/lwip-netif/run.sh：首个接口加入后 list=first/default=none；调用 netif_set_default 后 default=first；追加第二个接口后 list=second/default 仍为 first。"
+          }
+        ],
+        "attachments": [
+          {
+            "tag": "E1",
+            "path": "corpus/lwip/src/core/netif.c",
+            "kind": "source",
+            "file_sha256": "a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+            "line_start": 286,
+            "line_end": 308,
+            "text": "struct netif *\nnetif_add(struct netif *netif,\n#if LWIP_IPV4\n          const ip4_addr_t *ipaddr, const ip4_addr_t *netmask, const ip4_addr_t *gw,\n#endif /* LWIP_IPV4 */\n          void *state, netif_init_fn init, netif_input_fn input)\n{\n#if LWIP_IPV6\n  s8_t i;\n#endif\n\n  LWIP_ASSERT_CORE_LOCKED();\n\n#if LWIP_SINGLE_NETIF\n  if (netif_default != NULL) {\n    LWIP_ASSERT(\"single netif already set\", 0);\n    return NULL;\n  }\n#endif\n\n  LWIP_ERROR(\"netif_add: invalid netif\", netif != NULL, return NULL);\n  LWIP_ERROR(\"netif_add: No init function given\", init != NULL, return NULL);\n\n",
+            "content_hash": "f1c7e536d662e9ed4e61a3abba59fd5ffdfba48866cdd16e0968871e3b76a36f"
+          },
+          {
+            "tag": "E2",
+            "path": "corpus/lwip/src/core/netif.c",
+            "kind": "source",
+            "file_sha256": "a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+            "line_start": 387,
+            "line_end": 392,
+            "text": "  /* call user specified initialization function for netif */\n  if (init(netif) != ERR_OK) {\n    return NULL;\n  }\n  LWIP_ASSERT(\"netif->hwaddr_len <= NETIF_MAX_HWADDR_LEN\",\n              (netif->hwaddr_len <= NETIF_MAX_HWADDR_LEN));\n",
+            "content_hash": "4ae7b72dfe5806869a44be003311591bfbf90c275855295a81fc56fc42dcb890"
+          },
+          {
+            "tag": "E3",
+            "path": "corpus/lwip/src/core/netif.c",
+            "kind": "source",
+            "file_sha256": "a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+            "line_start": 424,
+            "line_end": 433,
+            "text": "  if (netif->num == 254) {\n    netif_num = 0;\n  } else {\n    netif_num = (u8_t)(netif->num + 1);\n  }\n\n  /* add this netif to the list */\n  netif->next = netif_list;\n  netif_list = netif;\n#endif /* \"LWIP_SINGLE_NETIF */\n",
+            "content_hash": "4a0d8e5a9a6607980673cb1c697d0b1cc4c660122d5ed26424e5eccfaa4f7793"
+          },
+          {
+            "tag": "E4",
+            "path": "corpus/lwip/src/core/netif.c",
+            "kind": "source",
+            "file_sha256": "a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+            "line_start": 851,
+            "line_end": 865,
+            "text": "netif_set_default(struct netif *netif)\n{\n  LWIP_ASSERT_CORE_LOCKED();\n\n  if (netif == NULL) {\n    /* remove default route */\n    mib2_remove_route_ip4(1, netif);\n  } else {\n    /* install default route */\n    mib2_add_route_ip4(1, netif);\n  }\n  netif_default = netif;\n  LWIP_DEBUGF(NETIF_DEBUG, (\"netif: setting default interface %c%c\\n\",\n                            netif ? netif->name[0] : '\\'', netif ? netif->name[1] : '\\''));\n}\n",
+            "content_hash": "c62b38709d81fd2b54a4b93abf6cac437caa59541cc3013d7f4719cc34d0be21"
+          },
+          {
+            "tag": "E5",
+            "path": "corpus/lwip/src/include/lwip/netif.h",
+            "kind": "source",
+            "file_sha256": "6e958aa1bd23b7381c09a873f7af919323f87ec50a2d3055a46f75275c2a121b",
+            "line_start": 419,
+            "line_end": 427,
+            "text": "#if LWIP_SINGLE_NETIF\n#define NETIF_FOREACH(netif) if (((netif) = netif_default) != NULL)\n#else /* LWIP_SINGLE_NETIF */\n/** The list of network interfaces. */\nextern struct netif *netif_list;\n#define NETIF_FOREACH(netif) for ((netif) = netif_list; (netif) != NULL; (netif) = (netif)->next)\n#endif /* LWIP_SINGLE_NETIF */\n/** The default network interface. */\nextern struct netif *netif_default;\n",
+            "content_hash": "a0157a0c95806a70fa092a71f63f3f2e9c2fbae333dee5b6e6ebabe5a469353a"
+          },
+          {
+            "tag": "E6",
+            "path": "examples/reproductions/lwip-netif/reproduce.c",
+            "kind": "harness",
+            "file_sha256": "cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a",
+            "line_start": 1,
+            "line_end": 60,
+            "text": "#include <stdio.h>\n#include <string.h>\n\n#include \"lwip/netif.h\"\n\nstatic err_t test_init(struct netif *netif)\n{\n    netif->name[0] = 'c';\n    netif->name[1] = 'a';\n    netif->mtu = 1500;\n    return ERR_OK;\n}\n\nstatic err_t test_input(struct pbuf *packet, struct netif *netif)\n{\n    LWIP_UNUSED_ARG(packet);\n    LWIP_UNUSED_ARG(netif);\n    return ERR_OK;\n}\n\nstatic const char *which(const struct netif *value,\n                         const struct netif *first,\n                         const struct netif *second)\n{\n    if (value == NULL) {\n        return \"none\";\n    }\n    if (value == first) {\n        return \"first\";\n    }\n    if (value == second) {\n        return \"second\";\n    }\n    return \"other\";\n}\n\nint main(void)\n{\n    struct netif first;\n    struct netif second;\n    memset(&first, 0, sizeof(first));\n    memset(&second, 0, sizeof(second));\n\n    printf(\"initial list=%s default=%s\\n\",\n           which(netif_list, &first, &second), which(netif_default, &first, &second));\n    printf(\"add_first=%s\\n\",\n           netif_add_noaddr(&first, NULL, test_init, test_input) == &first ? \"ok\" : \"failed\");\n    printf(\"after_first list=%s default=%s\\n\",\n           which(netif_list, &first, &second), which(netif_default, &first, &second));\n    netif_set_default(&first);\n    printf(\"after_set_default list=%s default=%s\\n\",\n           which(netif_list, &first, &second), which(netif_default, &first, &second));\n    printf(\"add_second=%s\\n\",\n           netif_add_noaddr(&second, NULL, test_init, test_input) == &second ? \"ok\" : \"failed\");\n    printf(\"after_second list=%s default=%s\\n\",\n           which(netif_list, &first, &second), which(netif_default, &first, &second));\n    netif_remove(&second);\n    netif_remove(&first);\n    return 0;\n}\n",
+            "content_hash": "98d8616871f36648da3fe64ad192a733c193dbf4f904a492387d39a5ff4a8905"
+          },
+          {
+            "tag": "E7",
+            "path": "examples/reproductions/lwip-netif/run.sh",
+            "kind": "command",
+            "file_sha256": "82f26ccf13e73a3e8e19b12629a466c3b74045a3659203a0d414044f1fd34528",
+            "line_start": 1,
+            "line_end": 45,
+            "text": "#!/usr/bin/env bash\nset -euo pipefail\n\nproject_root=\"$(cd \"$(dirname \"$0\")/../../..\" && pwd)\"\nsource_root=\"${CODEATLAS_LWIP_SOURCE_ROOT:-$project_root/corpus/lwip}\"\nexpected_revision=\"3d896ba0a37ff3ce73270ca5e230707fe47f60e3\"\nbuild_dir=\"$(mktemp -d \"${TMPDIR:-/tmp}/codeatlas-lwip.XXXXXX\")\"\ntrap 'rm -rf \"$build_dir\"' EXIT\n\nif [[ ! -r \"$source_root/src/include/lwip/ip4_addr.h\" ]]; then\n  printf 'lwIP source is not locally readable: %s\\n' \"$source_root\" >&2\n  printf 'Set CODEATLAS_LWIP_SOURCE_ROOT to the pinned checkout if the workspace copy is cloud-evicted.\\n' >&2\n  exit 2\nfi\nactual_revision=\"$(git -C \"$source_root\" rev-parse HEAD)\"\nif [[ \"$actual_revision\" != \"$expected_revision\" ]]; then\n  printf 'lwIP revision mismatch: expected %s, got %s\\n' \"$expected_revision\" \"$actual_revision\" >&2\n  exit 2\nfi\n\ncc -std=c99 -Wall -Wextra -ffunction-sections -fdata-sections \\\n  -I \"$project_root/examples/reproductions/lwip-netif/include\" \\\n  -I \"$source_root/test/unit/arch\" \\\n  -I \"$source_root/contrib/ports/unix/port/include\" \\\n  -I \"$source_root/src/include\" \\\n  -c \"$source_root/src/core/netif.c\" -o \"$build_dir/netif.o\"\ncc -std=c99 -Wall -Wextra -ffunction-sections -fdata-sections \\\n  -I \"$project_root/examples/reproductions/lwip-netif/include\" \\\n  -I \"$source_root/test/unit/arch\" \\\n  -I \"$source_root/contrib/ports/unix/port/include\" \\\n  -I \"$source_root/src/include\" \\\n  -c \"$source_root/src/core/ipv4/ip4_addr.c\" -o \"$build_dir/ip4_addr.o\"\ncc -std=c99 -Wall -Wextra -ffunction-sections -fdata-sections \\\n  -I \"$project_root/examples/reproductions/lwip-netif/include\" \\\n  -I \"$source_root/test/unit/arch\" \\\n  -I \"$source_root/contrib/ports/unix/port/include\" \\\n  -I \"$source_root/src/include\" \\\n  -c \"$project_root/examples/reproductions/lwip-netif/reproduce.c\" -o \"$build_dir/reproduce.o\"\ncc -Wl,-dead_strip \"$build_dir/netif.o\" \"$build_dir/ip4_addr.o\" \\\n  \"$build_dir/reproduce.o\" -o \"$build_dir/reproduce\"\n\noutput=\"$(\"$build_dir/reproduce\")\"\nprintf '%s\\n' \"$output\"\ndiff -u \"$project_root/examples/reproductions/lwip-netif/result.txt\" \\\n  <(printf '%s\\n' \"$output\")\n",
+            "content_hash": "c6ef78884ed4c55566f66300f827de38c1bdfd7f6652445e34eac4461787797e"
+          },
+          {
+            "tag": "E8",
+            "path": "examples/reproductions/lwip-netif/include/lwipopts.h",
+            "kind": "configuration",
+            "file_sha256": "65426d6f6d1c1a97a74392bfe626d19e68faf00ee585f5990231edd5edf2ecf2",
+            "line_start": 1,
+            "line_end": 26,
+            "text": "#ifndef CODEATLAS_LWIPOPTS_H\n#define CODEATLAS_LWIPOPTS_H\n\n/* Minimal, deterministic configuration for the public netif reproduction. */\n#define NO_SYS 1\n#define SYS_LIGHTWEIGHT_PROT 0\n#define MEM_LIBC_MALLOC 1\n\n#define LWIP_IPV4 1\n#define LWIP_IPV6 0\n#define LWIP_ARP 0\n#define LWIP_ETHERNET 0\n#define LWIP_RAW 0\n#define LWIP_UDP 0\n#define LWIP_TCP 0\n#define LWIP_DHCP 0\n#define LWIP_AUTOIP 0\n#define LWIP_IGMP 0\n#define LWIP_DNS 0\n\n#define LWIP_NETCONN 0\n#define LWIP_SOCKET 0\n#define LWIP_STATS 0\n#define LWIP_TIMERS 0\n\n#endif\n",
+            "content_hash": "ae946166eea60dd8935219806c15c2230dd0a90871837ce510918ac7f95cc733"
+          },
+          {
+            "tag": "E9",
+            "path": "examples/reproductions/lwip-netif/result.txt",
+            "kind": "observation",
+            "file_sha256": "8102733501276cd10303a81dc15877f7e5386b1dacb48c535f2960562f95414f",
+            "line_start": 1,
+            "line_end": 6,
+            "text": "initial list=none default=none\nadd_first=ok\nafter_first list=first default=none\nafter_set_default list=first default=first\nadd_second=ok\nafter_second list=second default=first\n",
+            "content_hash": "e8f403d726236c033727c2dbf5b398893effd3cad5f0eaa4b200e3e666011b2f"
+          }
+        ],
+        "source_digest": "a35e7b2ae68cf1a6d95cb2685d92989ae84f0371e904520428e8a99d69e1bc5a",
+        "attachments_digest": "3ff2f983556ec1628bcf1e555c596acf35657cc3f814bea0785e7f263f4fdb8a",
+        "source_file_hash": "154df7929e17e425d2f3bccd54feb70eee8287eab46c66ebe347b604284d3dc3",
+        "template_hash": "faeed3b3773d81a8f99e74686c8993d7094d1663d6c1dab3bd15ca0aad4ea507",
+        "materials": {
+          "raw_session": {
+            "text": "第 1 轮：公开复现实验中，新增网络接口后 netif_list 更新了，但 netif_default 没有自动指向新接口；这不是生产事故。\n\n第 2 轮：初始假设是 netif_add 会在加入首个接口时顺带设置默认接口。\n\n第 3 轮：反复调用 netif_add 只会改变接口链表，不能代替显式的 netif_set_default。\n\n第 4 轮：固定 revision 的 netif_add 将接口插入 netif_list 并返回接口；多接口配置下，netif_set_default 是修改 netif_default 的独立函数。\n\n第 5 轮：根因是调用方把“加入接口链表”和“选择默认接口”当成了同一步；在该固定多接口配置中 netif_add 不会自动设置 netif_default。\n\n第 6 轮：netif_add 成功后，根据路由策略显式调用 netif_set_default；不要默认让最后添加的接口覆盖既有默认接口。\n\n第 7 轮：在固定 revision 运行 examples/reproductions/lwip-netif/run.sh：首个接口加入后 list=first/default=none；调用 netif_set_default 后 default=first；追加第二个接口后 list=second/default 仍为 first。",
+            "source_digest": "a35e7b2ae68cf1a6d95cb2685d92989ae84f0371e904520428e8a99d69e1bc5a",
+            "attachments_digest": "3ff2f983556ec1628bcf1e555c596acf35657cc3f814bea0785e7f263f4fdb8a",
+            "content_hash": "eeb5c1e4bea2127f4e637f72a76ce029e58e0c8b7aecc908f252074c09022686",
+            "source_turn_ids": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "production": {
+              "method": "frozen_extractive_template",
+              "model_requests": 0,
+              "model_tokens": 0,
+              "cost_usd": 0,
+              "human_edit_seconds": null
+            }
+          },
+          "generic_summary": {
+            "text": "公开复现实验中，新增网络接口后 netif_list 更新了，但 netif_default 没有自动指向新接口；这不是生产事故。\n\n固定 revision 的 netif_add 将接口插入 netif_list 并返回接口；多接口配置下，netif_set_default 是修改 netif_default 的独立函数。\n\n根因是调用方把“加入接口链表”和“选择默认接口”当成了同一步；在该固定多接口配置中 netif_add 不会自动设置 netif_default。\n\nnetif_add 成功后，根据路由策略显式调用 netif_set_default；不要默认让最后添加的接口覆盖既有默认接口。\n\n在固定 revision 运行 examples/reproductions/lwip-netif/run.sh：首个接口加入后 list=first/default=none；调用 netif_set_default 后 default=first；追加第二个接口后 list=second/default 仍为 first。\n\n初始假设是 netif_add 会在加入首个接口时顺带设置默认接口。\n\n反复调用 netif_add 只会改变接口链表，不能代替显式的 netif_set_default。",
+            "source_digest": "a35e7b2ae68cf1a6d95cb2685d92989ae84f0371e904520428e8a99d69e1bc5a",
+            "attachments_digest": "3ff2f983556ec1628bcf1e555c596acf35657cc3f814bea0785e7f263f4fdb8a",
+            "content_hash": "90d1708b22e265f6865f6fa6708e83aa55dc360e58e7a6d85e46b9e95a2b999c",
+            "source_turn_ids": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "production": {
+              "method": "frozen_extractive_template",
+              "model_requests": 0,
+              "model_tokens": 0,
+              "cost_usd": 0,
+              "human_edit_seconds": null
+            }
+          },
+          "structured_card": {
+            "text": "现象\n公开复现实验中，新增网络接口后 netif_list 更新了，但 netif_default 没有自动指向新接口；这不是生产事故。\n\n假设\n初始假设是 netif_add 会在加入首个接口时顺带设置默认接口。\n\n已排除的解释\n反复调用 netif_add 只会改变接口链表，不能代替显式的 netif_set_default。\n\n源码说明\n固定 revision 的 netif_add 将接口插入 netif_list 并返回接口；多接口配置下，netif_set_default 是修改 netif_default 的独立函数。\n\n结论\n根因是调用方把“加入接口链表”和“选择默认接口”当成了同一步；在该固定多接口配置中 netif_add 不会自动设置 netif_default。\n\n处理建议\nnetif_add 成功后，根据路由策略显式调用 netif_set_default；不要默认让最后添加的接口覆盖既有默认接口。\n\n验证记录\n在固定 revision 运行 examples/reproductions/lwip-netif/run.sh：首个接口加入后 list=first/default=none；调用 netif_set_default 后 default=first；追加第二个接口后 list=second/default 仍为 first。",
+            "source_digest": "a35e7b2ae68cf1a6d95cb2685d92989ae84f0371e904520428e8a99d69e1bc5a",
+            "attachments_digest": "3ff2f983556ec1628bcf1e555c596acf35657cc3f814bea0785e7f263f4fdb8a",
+            "content_hash": "eee60041905fbf7d0b7c03fd33587f766e2d97f5d447da8f88dde342739fa051",
+            "source_turn_ids": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "production": {
+              "method": "frozen_extractive_template",
+              "model_requests": 0,
+              "model_tokens": 0,
+              "cost_usd": 0,
+              "human_edit_seconds": null
+            }
+          }
+        }
+      }
+    ],
+    "tasks": [
+      {
+        "id": "kr-v2-cjson-condition-limit-1001",
+        "case_id": "cjson-nesting",
+        "question": "保持 reproduce.c 的 fixed_depths={999,1000,1001} 和 require_null_terminated=1 不变，仅在编译 cJSON.c 时定义 CJSON_NESTING_LIMIT=1001。根据 parse_array/parse_object 在 depth 自增前执行的 >= 检查，预测三行 result、parse_end 和 input_len 中哪些字段会相对当前 result.txt 变化，并解释边界为什么移动一层。",
+        "type": "经验同源对照"
+      },
+      {
+        "id": "kr-v2-cjson-exclude-error-causes",
+        "case_id": "cjson-nesting",
+        "question": "现有观测中 depth=1000 成功，depth=1001 则 result=NULL 且 parse_end=1000。结合 nested_array 的构造、require_null_terminated=1、深度守卫与失败位置记录代码，哪些“末尾非 NUL”、“括号本身不配对”、“命中嵌套上限”或“普通分配失败”解释可由当前证据排除、支持或仍须额外实验？逐项给出证据边界。",
+        "type": "经验同源对照"
+      },
+      {
+        "id": "kr-v2-cjson-verify-limit-ab",
+        "case_id": "cjson-nesting",
+        "question": "设计一个可立即执行的最小 A/B 验证：A 保持 run.sh 的默认编译，B 只为 cJSON.c 增加 -DCJSON_NESTING_LIMIT=1001，两者均运行同一 reproduce.c。写出具体编译/运行改动、预期区分两个假设的关键输出，以及哪种观测会否定“失败由固定嵌套上限触发”。",
+        "type": "经验同源对照"
+      },
+      {
+        "id": "kr-v2-lwip-condition-second-init-fails",
+        "case_id": "lwip-netif",
+        "question": "保持当前 lwipopts.h 与调用顺序不变，只把 test_init 改成第一次返回 ERR_OK、第二次返回 ERR_IF。根据 netif_add 调用 init 和把 netif 插入 netif_list 的先后顺序，预测 add_second 以及 after_second 的 list/default 输出，并说明为什么第一个接口的状态不应被第二次初始化失败改写。",
+        "type": "经验同源对照"
+      },
+      {
+        "id": "kr-v2-lwip-exclude-default-alias",
+        "case_id": "lwip-netif",
+        "question": "当前 result.txt 显示首次 netif_add 后 list=first 但 default=none，显式 netif_set_default(&first) 后 default=first，再添加 second 后 list=second 但 default=first。结合 which 的指针身份判定、链表头插代码和 netif_set_default，哪些“netif_add 会自动设默认”、“default 始终是链表头”、“第二次 add 未真正入链”解释可被逐一排除？说明每个结论依赖的观测。",
+        "type": "经验同源对照"
+      },
+      {
+        "id": "kr-v2-lwip-verify-clear-default",
+        "case_id": "lwip-netif",
+        "question": "为验证 netif_default 与 netif_list 是可独立改变的状态，在现有 harness 的 after_second 打印后插入 netif_set_default(NULL)，并立即用 which 再打印 list/default，其他操作不变。写出最小代码改动、预期新输出，以及若 list 也随之变为 none 将否定源码机制中的什么判断。",
+        "type": "经验同源对照"
+      }
+    ],
+    "source_digests": {
+      "cjson-nesting": "1da053a12efcc06562d46c1e1c723c7117de516bcfd4e49b8dfa5a745c10f5c4",
+      "lwip-netif": "a35e7b2ae68cf1a6d95cb2685d92989ae84f0371e904520428e8a99d69e1bc5a"
+    },
+    "knowledge_role_removed": true,
+    "speaker_authority_removed": true,
+    "formal_b_cards_created": 0,
+    "production_database_accessed": false,
+    "presentation_mode": "frozen_extractive_pilot",
+    "generated_artifact_hash": null,
+    "production_cost": {
+      "method": "frozen_extractive_templates",
+      "model_requests": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cost_usd": 0,
+      "human_edit_seconds": null
+    },
+    "materials_hash": "907e7cf2c23f599237c456104c92c229892645f71757654f989920f6931bf861"
+  },
+  "raw_trials": {
+    "raw_session": [
+      {
+        "id": "kr-v2-cjson-condition-limit-1001",
+        "case_id": "cjson-nesting",
+        "question": "保持 reproduce.c 的 fixed_depths={999,1000,1001} 和 require_null_terminated=1 不变，仅在编译 cJSON.c 时定义 CJSON_NESTING_LIMIT=1001。根据 parse_array/parse_object 在 depth 自增前执行的 >= 检查，预测三行 result、parse_end 和 input_len 中哪些字段会相对当前 result.txt 变化，并解释边界为什么移动一层。",
+        "type": "经验同源对照",
+        "repetitions": []
+      },
+      {
+        "id": "kr-v2-cjson-exclude-error-causes",
+        "case_id": "cjson-nesting",
+        "question": "现有观测中 depth=1000 成功，depth=1001 则 result=NULL 且 parse_end=1000。结合 nested_array 的构造、require_null_terminated=1、深度守卫与失败位置记录代码，哪些“末尾非 NUL”、“括号本身不配对”、“命中嵌套上限”或“普通分配失败”解释可由当前证据排除、支持或仍须额外实验？逐项给出证据边界。",
+        "type": "经验同源对照",
+        "repetitions": []
+      },
+      {
+        "id": "kr-v2-cjson-verify-limit-ab",
+        "case_id": "cjson-nesting",
+        "question": "设计一个可立即执行的最小 A/B 验证：A 保持 run.sh 的默认编译，B 只为 cJSON.c 增加 -DCJSON_NESTING_LIMIT=1001，两者均运行同一 reproduce.c。写出具体编译/运行改动、预期区分两个假设的关键输出，以及哪种观测会否定“失败由固定嵌套上限触发”。",
+        "type": "经验同源对照",
+        "repetitions": []
+      },
+      {
+        "id": "kr-v2-lwip-condition-second-init-fails",
+        "case_id": "lwip-netif",
+        "question": "保持当前 lwipopts.h 与调用顺序不变，只把 test_init 改成第一次返回 ERR_OK、第二次返回 ERR_IF。根据 netif_add 调用 init 和把 netif 插入 netif_list 的先后顺序，预测 add_second 以及 after_second 的 list/default 输出，并说明为什么第一个接口的状态不应被第二次初始化失败改写。",
+        "type": "经验同源对照",
+        "repetitions": []
+      },
+      {
+        "id": "kr-v2-lwip-exclude-default-alias",
+        "case_id": "lwip-netif",
+        "question": "当前 result.txt 显示首次 netif_add 后 list=first 但 default=none，显式 netif_set_default(&first) 后 default=first，再添加 second 后 list=second 但 default=first。结合 which 的指针身份判定、链表头插代码和 netif_set_default，哪些“netif_add 会自动设默认”、“default 始终是链表头”、“第二次 add 未真正入链”解释可被逐一排除？说明每个结论依赖的观测。",
+        "type": "经验同源对照",
+        "repetitions": []
+      },
+      {
+        "id": "kr-v2-lwip-verify-clear-default",
+        "case_id": "lwip-netif",
+        "question": "为验证 netif_default 与 netif_list 是可独立改变的状态，在现有 harness 的 after_second 打印后插入 netif_set_default(NULL)，并立即用 which 再打印 list/default，其他操作不变。写出最小代码改动、预期新输出，以及若 list 也随之变为 none 将否定源码机制中的什么判断。",
+        "type": "经验同源对照",
+        "repetitions": []
+      }
+    ],
+    "generic_summary": [
+      {
+        "id": "kr-v2-cjson-condition-limit-1001",
+        "case_id": "cjson-nesting",
+        "question": "保持 reproduce.c 的 fixed_depths={999,1000,1001} 和 require_null_terminated=1 不变，仅在编译 cJSON.c 时定义 CJSON_NESTING_LIMIT=1001。根据 parse_array/parse_object 在 depth 自增前执行的 >= 检查，预测三行 result、parse_end 和 input_len 中哪些字段会相对当前 result.txt 变化，并解释边界为什么移动一层。",
+        "type": "经验同源对照",
+        "repetitions": []
+      },
+      {
+        "id": "kr-v2-cjson-exclude-error-causes",
+        "case_id": "cjson-nesting",
+        "question": "现有观测中 depth=1000 成功，depth=1001 则 result=NULL 且 parse_end=1000。结合 nested_array 的构造、require_null_terminated=1、深度守卫与失败位置记录代码，哪些“末尾非 NUL”、“括号本身不配对”、“命中嵌套上限”或“普通分配失败”解释可由当前证据排除、支持或仍须额外实验？逐项给出证据边界。",
+        "type": "经验同源对照",
+        "repetitions": []
+      },
+      {
+        "id": "kr-v2-cjson-verify-limit-ab",
+        "case_id": "cjson-nesting",
+        "question": "设计一个可立即执行的最小 A/B 验证：A 保持 run.sh 的默认编译，B 只为 cJSON.c 增加 -DCJSON_NESTING_LIMIT=1001，两者均运行同一 reproduce.c。写出具体编译/运行改动、预期区分两个假设的关键输出，以及哪种观测会否定“失败由固定嵌套上限触发”。",
+        "type": "经验同源对照",
+        "repetitions": []
+      },
+      {
+        "id": "kr-v2-lwip-condition-second-init-fails",
+        "case_id": "lwip-netif",
+        "question": "保持当前 lwipopts.h 与调用顺序不变，只把 test_init 改成第一次返回 ERR_OK、第二次返回 ERR_IF。根据 netif_add 调用 init 和把 netif 插入 netif_list 的先后顺序，预测 add_second 以及 after_second 的 list/default 输出，并说明为什么第一个接口的状态不应被第二次初始化失败改写。",
+        "type": "经验同源对照",
+        "repetitions": []
+      },
+      {
+        "id": "kr-v2-lwip-exclude-default-alias",
+        "case_id": "lwip-netif",
+        "question": "当前 result.txt 显示首次 netif_add 后 list=first 但 default=none，显式 netif_set_default(&first) 后 default=first，再添加 second 后 list=second 但 default=first。结合 which 的指针身份判定、链表头插代码和 netif_set_default，哪些“netif_add 会自动设默认”、“default 始终是链表头”、“第二次 add 未真正入链”解释可被逐一排除？说明每个结论依赖的观测。",
+        "type": "经验同源对照",
+        "repetitions": []
+      },
+      {
+        "id": "kr-v2-lwip-verify-clear-default",
+        "case_id": "lwip-netif",
+        "question": "为验证 netif_default 与 netif_list 是可独立改变的状态，在现有 harness 的 after_second 打印后插入 netif_set_default(NULL)，并立即用 which 再打印 list/default，其他操作不变。写出最小代码改动、预期新输出，以及若 list 也随之变为 none 将否定源码机制中的什么判断。",
+        "type": "经验同源对照",
+        "repetitions": []
+      }
+    ],
+    "structured_card": [
+      {
+        "id": "kr-v2-cjson-condition-limit-1001",
+        "case_id": "cjson-nesting",
+        "question": "保持 reproduce.c 的 fixed_depths={999,1000,1001} 和 require_null_terminated=1 不变，仅在编译 cJSON.c 时定义 CJSON_NESTING_LIMIT=1001。根据 parse_array/parse_object 在 depth 自增前执行的 >= 检查，预测三行 result、parse_end 和 input_len 中哪些字段会相对当前 result.txt 变化，并解释边界为什么移动一层。",
+        "type": "经验同源对照",
+        "repetitions": []
+      },
+      {
+        "id": "kr-v2-cjson-exclude-error-causes",
+        "case_id": "cjson-nesting",
+        "question": "现有观测中 depth=1000 成功，depth=1001 则 result=NULL 且 parse_end=1000。结合 nested_array 的构造、require_null_terminated=1、深度守卫与失败位置记录代码，哪些“末尾非 NUL”、“括号本身不配对”、“命中嵌套上限”或“普通分配失败”解释可由当前证据排除、支持或仍须额外实验？逐项给出证据边界。",
+        "type": "经验同源对照",
+        "repetitions": []
+      },
+      {
+        "id": "kr-v2-cjson-verify-limit-ab",
+        "case_id": "cjson-nesting",
+        "question": "设计一个可立即执行的最小 A/B 验证：A 保持 run.sh 的默认编译，B 只为 cJSON.c 增加 -DCJSON_NESTING_LIMIT=1001，两者均运行同一 reproduce.c。写出具体编译/运行改动、预期区分两个假设的关键输出，以及哪种观测会否定“失败由固定嵌套上限触发”。",
+        "type": "经验同源对照",
+        "repetitions": []
+      },
+      {
+        "id": "kr-v2-lwip-condition-second-init-fails",
+        "case_id": "lwip-netif",
+        "question": "保持当前 lwipopts.h 与调用顺序不变，只把 test_init 改成第一次返回 ERR_OK、第二次返回 ERR_IF。根据 netif_add 调用 init 和把 netif 插入 netif_list 的先后顺序，预测 add_second 以及 after_second 的 list/default 输出，并说明为什么第一个接口的状态不应被第二次初始化失败改写。",
+        "type": "经验同源对照",
+        "repetitions": []
+      },
+      {
+        "id": "kr-v2-lwip-exclude-default-alias",
+        "case_id": "lwip-netif",
+        "question": "当前 result.txt 显示首次 netif_add 后 list=first 但 default=none，显式 netif_set_default(&first) 后 default=first，再添加 second 后 list=second 但 default=first。结合 which 的指针身份判定、链表头插代码和 netif_set_default，哪些“netif_add 会自动设默认”、“default 始终是链表头”、“第二次 add 未真正入链”解释可被逐一排除？说明每个结论依赖的观测。",
+        "type": "经验同源对照",
+        "repetitions": []
+      },
+      {
+        "id": "kr-v2-lwip-verify-clear-default",
+        "case_id": "lwip-netif",
+        "question": "为验证 netif_default 与 netif_list 是可独立改变的状态，在现有 harness 的 after_second 打印后插入 netif_set_default(NULL)，并立即用 which 再打印 list/default，其他操作不变。写出最小代码改动、预期新输出，以及若 list 也随之变为 none 将否定源码机制中的什么判断。",
+        "type": "经验同源对照",
+        "repetitions": []
+      }
+    ]
+  },
+  "variants": {
+    "raw_session": {
+      "name": "原顺序会话"
+    },
+    "generic_summary": {
+      "name": "通用摘要"
+    },
+    "structured_card": {
+      "name": "结构化知识卡"
+    }
+  },
+  "identity": {
+    "materials_hash": "907e7cf2c23f599237c456104c92c229892645f71757654f989920f6931bf861",
+    "manifest_hash": "c8c2504f8429ca7a235e0f9b858ac294fbe86de2bad5afedc3c781e2031a82a1",
+    "evaluator_hash": "092ea4a5cd74dbeede046753de4f5d73c22a845a6a10b8c6956d1a97f0a255fb",
+    "shared_protocol_hash": "89ddbadec5fbcb2edb489adb111ee46f972de97c7114614400d2541d361fc8b3",
+    "rubric_hash": "7a0542387e22ae742645a75cc002fa8f0fa0745d8b74b88496ddeee178be7cbe",
+    "model_client_hash": "84abecbed65692c47889593dd00cd3aae7318cd7361f953ab238870db8c1f9a0",
+    "prompt_hash": "7c9901a65eb73770001a75422219274a75b9910b5f7d3301d6a59cfa3d3f389e",
+    "source_digests": {
+      "cjson-nesting": "1da053a12efcc06562d46c1e1c723c7117de516bcfd4e49b8dfa5a745c10f5c4",
+      "lwip-netif": "a35e7b2ae68cf1a6d95cb2685d92989ae84f0371e904520428e8a99d69e1bc5a"
+    },
+    "artifact_scope": "isolated_experiment",
+    "generated_artifact_hash": null
+  },
+  "protocol": {
+    "version": "same-source-reuse-pilot-v1",
+    "seed": 17,
+    "schedule": [
+      {
+        "task_id": "kr-v2-cjson-condition-limit-1001",
+        "repetition": 0,
+        "variant": "structured_card"
+      },
+      {
+        "task_id": "kr-v2-cjson-condition-limit-1001",
+        "repetition": 0,
+        "variant": "generic_summary"
+      },
+      {
+        "task_id": "kr-v2-cjson-condition-limit-1001",
+        "repetition": 0,
+        "variant": "raw_session"
+      },
+      {
+        "task_id": "kr-v2-lwip-verify-clear-default",
+        "repetition": 0,
+        "variant": "generic_summary"
+      },
+      {
+        "task_id": "kr-v2-lwip-verify-clear-default",
+        "repetition": 0,
+        "variant": "structured_card"
+      },
+      {
+        "task_id": "kr-v2-lwip-verify-clear-default",
+        "repetition": 0,
+        "variant": "raw_session"
+      },
+      {
+        "task_id": "kr-v2-cjson-exclude-error-causes",
+        "repetition": 0,
+        "variant": "structured_card"
+      },
+      {
+        "task_id": "kr-v2-cjson-exclude-error-causes",
+        "repetition": 0,
+        "variant": "generic_summary"
+      },
+      {
+        "task_id": "kr-v2-cjson-exclude-error-causes",
+        "repetition": 0,
+        "variant": "raw_session"
+      },
+      {
+        "task_id": "kr-v2-cjson-verify-limit-ab",
+        "repetition": 0,
+        "variant": "raw_session"
+      },
+      {
+        "task_id": "kr-v2-cjson-verify-limit-ab",
+        "repetition": 0,
+        "variant": "generic_summary"
+      },
+      {
+        "task_id": "kr-v2-cjson-verify-limit-ab",
+        "repetition": 0,
+        "variant": "structured_card"
+      },
+      {
+        "task_id": "kr-v2-lwip-condition-second-init-fails",
+        "repetition": 0,
+        "variant": "raw_session"
+      },
+      {
+        "task_id": "kr-v2-lwip-condition-second-init-fails",
+        "repetition": 0,
+        "variant": "structured_card"
+      },
+      {
+        "task_id": "kr-v2-lwip-condition-second-init-fails",
+        "repetition": 0,
+        "variant": "generic_summary"
+      },
+      {
+        "task_id": "kr-v2-lwip-exclude-default-alias",
+        "repetition": 0,
+        "variant": "raw_session"
+      },
+      {
+        "task_id": "kr-v2-lwip-exclude-default-alias",
+        "repetition": 0,
+        "variant": "generic_summary"
+      },
+      {
+        "task_id": "kr-v2-lwip-exclude-default-alias",
+        "repetition": 0,
+        "variant": "structured_card"
+      },
+      {
+        "task_id": "kr-v2-lwip-verify-clear-default",
+        "repetition": 1,
+        "variant": "generic_summary"
+      },
+      {
+        "task_id": "kr-v2-lwip-verify-clear-default",
+        "repetition": 1,
+        "variant": "structured_card"
+      },
+      {
+        "task_id": "kr-v2-lwip-verify-clear-default",
+        "repetition": 1,
+        "variant": "raw_session"
+      },
+      {
+        "task_id": "kr-v2-cjson-verify-limit-ab",
+        "repetition": 1,
+        "variant": "structured_card"
+      },
+      {
+        "task_id": "kr-v2-cjson-verify-limit-ab",
+        "repetition": 1,
+        "variant": "raw_session"
+      },
+      {
+        "task_id": "kr-v2-cjson-verify-limit-ab",
+        "repetition": 1,
+        "variant": "generic_summary"
+      },
+      {
+        "task_id": "kr-v2-lwip-condition-second-init-fails",
+        "repetition": 1,
+        "variant": "generic_summary"
+      },
+      {
+        "task_id": "kr-v2-lwip-condition-second-init-fails",
+        "repetition": 1,
+        "variant": "raw_session"
+      },
+      {
+        "task_id": "kr-v2-lwip-condition-second-init-fails",
+        "repetition": 1,
+        "variant": "structured_card"
+      },
+      {
+        "task_id": "kr-v2-cjson-condition-limit-1001",
+        "repetition": 1,
+        "variant": "raw_session"
+      },
+      {
+        "task_id": "kr-v2-cjson-condition-limit-1001",
+        "repetition": 1,
+        "variant": "structured_card"
+      },
+      {
+        "task_id": "kr-v2-cjson-condition-limit-1001",
+        "repetition": 1,
+        "variant": "generic_summary"
+      },
+      {
+        "task_id": "kr-v2-lwip-exclude-default-alias",
+        "repetition": 1,
+        "variant": "structured_card"
+      },
+      {
+        "task_id": "kr-v2-lwip-exclude-default-alias",
+        "repetition": 1,
+        "variant": "generic_summary"
+      },
+      {
+        "task_id": "kr-v2-lwip-exclude-default-alias",
+        "repetition": 1,
+        "variant": "raw_session"
+      },
+      {
+        "task_id": "kr-v2-cjson-exclude-error-causes",
+        "repetition": 1,
+        "variant": "generic_summary"
+      },
+      {
+        "task_id": "kr-v2-cjson-exclude-error-causes",
+        "repetition": 1,
+        "variant": "raw_session"
+      },
+      {
+        "task_id": "kr-v2-cjson-exclude-error-causes",
+        "repetition": 1,
+        "variant": "structured_card"
+      },
+      {
+        "task_id": "kr-v2-lwip-exclude-default-alias",
+        "repetition": 2,
+        "variant": "structured_card"
+      },
+      {
+        "task_id": "kr-v2-lwip-exclude-default-alias",
+        "repetition": 2,
+        "variant": "raw_session"
+      },
+      {
+        "task_id": "kr-v2-lwip-exclude-default-alias",
+        "repetition": 2,
+        "variant": "generic_summary"
+      },
+      {
+        "task_id": "kr-v2-cjson-exclude-error-causes",
+        "repetition": 2,
+        "variant": "raw_session"
+      },
+      {
+        "task_id": "kr-v2-cjson-exclude-error-causes",
+        "repetition": 2,
+        "variant": "generic_summary"
+      },
+      {
+        "task_id": "kr-v2-cjson-exclude-error-causes",
+        "repetition": 2,
+        "variant": "structured_card"
+      },
+      {
+        "task_id": "kr-v2-cjson-condition-limit-1001",
+        "repetition": 2,
+        "variant": "structured_card"
+      },
+      {
+        "task_id": "kr-v2-cjson-condition-limit-1001",
+        "repetition": 2,
+        "variant": "generic_summary"
+      },
+      {
+        "task_id": "kr-v2-cjson-condition-limit-1001",
+        "repetition": 2,
+        "variant": "raw_session"
+      },
+      {
+        "task_id": "kr-v2-cjson-verify-limit-ab",
+        "repetition": 2,
+        "variant": "structured_card"
+      },
+      {
+        "task_id": "kr-v2-cjson-verify-limit-ab",
+        "repetition": 2,
+        "variant": "raw_session"
+      },
+      {
+        "task_id": "kr-v2-cjson-verify-limit-ab",
+        "repetition": 2,
+        "variant": "generic_summary"
+      },
+      {
+        "task_id": "kr-v2-lwip-condition-second-init-fails",
+        "repetition": 2,
+        "variant": "structured_card"
+      },
+      {
+        "task_id": "kr-v2-lwip-condition-second-init-fails",
+        "repetition": 2,
+        "variant": "raw_session"
+      },
+      {
+        "task_id": "kr-v2-lwip-condition-second-init-fails",
+        "repetition": 2,
+        "variant": "generic_summary"
+      },
+      {
+        "task_id": "kr-v2-lwip-verify-clear-default",
+        "repetition": 2,
+        "variant": "generic_summary"
+      },
+      {
+        "task_id": "kr-v2-lwip-verify-clear-default",
+        "repetition": 2,
+        "variant": "structured_card"
+      },
+      {
+        "task_id": "kr-v2-lwip-verify-clear-default",
+        "repetition": 2,
+        "variant": "raw_session"
+      }
+    ],
+    "independent_unit": "case",
+    "case_count": 2,
+    "question_count": 6,
+    "estimated_input_token_limit": 8000,
+    "output_token_limit": 1200,
+    "knowledge_role_removed": true,
+    "neutral_citation_tags": true,
+    "shared_code_and_observation_attachments": true,
+    "generation_model_calls": 0,
+    "source_turn_coverage": "all_turns_once_per_arm",
+    "summary_method": "frozen_extractive_pilot",
+    "generated_artifact_hash": null
+  },
+  "manifest_hash": "c8c2504f8429ca7a235e0f9b858ac294fbe86de2bad5afedc3c781e2031a82a1",
+  "answer_key_hash": "df58ade939fb1c9056c582e289d65a0983df475362082978eb4772cdf9ee0e48",
+  "answer_key": {
+    "schema_version": 2,
+    "status": "approved",
+    "split": "held_out",
+    "artifact_scope": "isolated_experiment",
+    "pilot": true,
+    "task_set_hash": "c8c2504f8429ca7a235e0f9b858ac294fbe86de2bad5afedc3c781e2031a82a1",
+    "frozen_at": "2026-09-05T13:07:09Z",
+    "not_used_for_tuning": true,
+    "provenance": {
+      "author_agent": "/root/reuse_gold_reviewer",
+      "author_type": "ai_agent",
+      "source_review_only": true,
+      "inputs_reviewed": [
+        "eval/knowledge_reuse.yaml",
+        "corpus/cJSON/cJSON.h",
+        "corpus/cJSON/cJSON.c",
+        "examples/reproductions/cjson-nesting/reproduce.c",
+        "examples/reproductions/cjson-nesting/run.sh",
+        "examples/reproductions/cjson-nesting/result.txt",
+        "corpus/lwip/src/core/netif.c",
+        "corpus/lwip/src/include/lwip/netif.h",
+        "examples/reproductions/lwip-netif/reproduce.c",
+        "examples/reproductions/lwip-netif/run.sh",
+        "examples/reproductions/lwip-netif/include/lwipopts.h",
+        "examples/reproductions/lwip-netif/result.txt"
+      ],
+      "not_used_as_answer_evidence": [
+        "frozen presentation template",
+        "CodeAtlas Wiki and docs",
+        "model answers and evaluation scores",
+        "prior answer keys and calibration assets"
+      ],
+      "frozen_presentation_template_read": false,
+      "human_reviewed": false,
+      "second_reviewer_complete": true,
+      "shared_session_claim_boundary": {
+        "reference": "cJSON session round 5",
+        "status": "unverified_source_assertion",
+        "shared_across_groups": true,
+        "part_of_gold": false,
+        "policy": "Re-verify against the frozen public source and reproduction before scoring; do not treat the session assertion itself as gold evidence."
+      },
+      "review_boundary": "AI-authored pilot gold approved by two source-grounded agents for effect evaluation only; independent human review remains outstanding."
+    },
+    "review": {
+      "reviewer_kind": "agent",
+      "independent_reviews": [
+        {
+          "reviewer_kind": "agent",
+          "reviewer": "proof-fixture-review",
+          "provider": "OpenAI",
+          "model": "runtime-model-undisclosed",
+          "agent": "/root/proof_fixture_review",
+          "prompt_hash": "30216e72dc907a839e91ba8b4dbc328c56383330511bd3d8367687ddca180cdd",
+          "input_hash": "2be7645e69c77b1d5bf3f05c8de6cbc49ee81ef28acac100dcfcf6a502a113bc",
+          "independent": true,
+          "peer_reviews_visible": false,
+          "verdict": "approved",
+          "reviewed_at": "2026-09-05",
+          "note": "6 questions, 33 answer points, 26 forbidden claims, 45 frozen evidence items and both reproduction identities passed; no human review or historical non-exposure claim.",
+          "validation_report": "eval/knowledge_reuse_validation.json",
+          "validation_report_hash": "462a681c9af4c8bb157f62f3c3cd96cf87457e77eeda0560681c49a6c965d7c9"
+        },
+        {
+          "reviewer_kind": "agent",
+          "reviewer": "holdout-source-validator-b",
+          "provider": "OpenAI",
+          "model": "gpt-5",
+          "agent": "/root/holdout_source_validator_b",
+          "prompt_hash": "750880167c277c03b3f054c1ba337c1b1c510a77dff70e2f6fc2d2a0209a5166",
+          "input_hash": "2be7645e69c77b1d5bf3f05c8de6cbc49ee81ef28acac100dcfcf6a502a113bc",
+          "independent": true,
+          "peer_reviews_visible": false,
+          "verdict": "approved",
+          "reviewed_at": "2026-09-05",
+          "note": "Independently re-ran the two reproductions and auxiliary probes and approved the same source contract; human review and prior-exposure claims remain false.",
+          "validation_report": "eval/knowledge_reuse_validation_b.json",
+          "validation_report_hash": "6e09b3363d1a88db12b22d411d4572dce0e6046aa9e8adaa482948fd60550a33"
+        }
+      ]
+    },
+    "tasks": {
+      "kr-v2-cjson-condition-limit-1001": {
+        "expected_points": [
+          {
+            "id": "c1-condition",
+            "text": "The comparison keeps fixed_depths={999,1000,1001}, require_null_terminated=1, the source revision, and the harness unchanged; the only treatment is defining CJSON_NESTING_LIMIT=1001 for the cJSON.c translation unit.",
+            "kind": "condition",
+            "evidence": [
+              "c1-harness-cases",
+              "c1-harness-call",
+              "c1-revision-check",
+              "c1-build-default",
+              "c1-default-limit"
+            ]
+          },
+          {
+            "id": "c1-input-lengths",
+            "text": "input_len remains 1999, 2001, and 2003 for depths 999, 1000, and 1001 respectively because the macro does not alter nested_array's 2*depth+1-byte JSON text.",
+            "kind": "fact",
+            "evidence": [
+              "c1-generator",
+              "c1-current-output"
+            ]
+          },
+          {
+            "id": "c1-lower-cases",
+            "text": "The depth=999 and depth=1000 lines remain result=ok with parse_end equal to input_len (1999 and 2001 respectively).",
+            "kind": "fact",
+            "evidence": [
+              "c1-current-output",
+              "c1-array-guard"
+            ]
+          },
+          {
+            "id": "c1-depth-1001",
+            "text": "The depth=1001 line changes from result=NULL parse_end=1000 input_len=2003 to result=ok parse_end=2003 input_len=2003.",
+            "kind": "fact",
+            "evidence": [
+              "c1-current-output",
+              "c1-array-guard",
+              "c1-generator"
+            ]
+          },
+          {
+            "id": "c1-boundary",
+            "text": "The boundary moves by one level because parse_array and parse_object both test current depth >= limit before incrementing it; this array-only harness exercises parse_array, where limit 1001 admits entries at current depths 0 through 1000 and the old limit 1000 rejected the entry at current depth 1000.",
+            "kind": "fact",
+            "evidence": [
+              "c1-array-guard",
+              "c1-object-guard",
+              "c1-default-limit"
+            ]
+          }
+        ],
+        "forbidden_claims": [
+          "With CJSON_NESTING_LIMIT=1001, depth 1001 still returns NULL at parse_end 1000.",
+          "Changing only CJSON_NESTING_LIMIT changes the three generated input lengths.",
+          "Either depth 999 or depth 1000 becomes a failure in the 1001-limit build.",
+          "The boundary shift is caused by changing the harness inputs or require_null_terminated."
+        ],
+        "evidence_payload": [
+          {
+            "id": "c1-harness-cases",
+            "source": "public_harness",
+            "path": "examples/reproductions/cjson-nesting/reproduce.c",
+            "line_start": 43,
+            "line_end": 54,
+            "lines": "43-54",
+            "hash": "sha256:cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+            "sha256": "cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+            "snippet": "int main(void)\n{\n    /*\n     * These depths are deliberately fixed instead of being derived from the\n     * library macro.  That makes a future CJSON_NESTING_LIMIT change observable\n     * rather than silently moving both the treatment and the test inputs.\n     */\n    static const size_t fixed_depths[] = {999u, 1000u, 1001u};\n    size_t index;\n    int status = 0;\n    for (index = 0; index < sizeof(fixed_depths) / sizeof(fixed_depths[0]); ++index) {\n        status |= run_case(fixed_depths[index]);"
+          },
+          {
+            "id": "c1-harness-call",
+            "source": "public_harness",
+            "path": "examples/reproductions/cjson-nesting/reproduce.c",
+            "line_start": 34,
+            "line_end": 37,
+            "lines": "34-37",
+            "hash": "sha256:cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+            "sha256": "cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+            "snippet": "    value = cJSON_ParseWithOpts(input, &parse_end, 1);\n    offset = parse_end == NULL ? 0 : (size_t)(parse_end - input);\n    printf(\"depth=%zu result=%s parse_end=%zu input_len=%zu\\n\",\n           depth, value == NULL ? \"NULL\" : \"ok\", offset, strlen(input));"
+          },
+          {
+            "id": "c1-build-default",
+            "source": "public_command",
+            "path": "examples/reproductions/cjson-nesting/run.sh",
+            "line_start": 16,
+            "line_end": 20,
+            "lines": "16-20",
+            "hash": "sha256:529274dbbd63556db765061836196cc91af288bcff2d449fc03c3bf9843cf481",
+            "sha256": "529274dbbd63556db765061836196cc91af288bcff2d449fc03c3bf9843cf481",
+            "snippet": "cc -std=c99 -Wall -Wextra -Werror \\\n  -I \"$source_root\" \\\n  \"$source_root/cJSON.c\" \\\n  \"$project_root/examples/reproductions/cjson-nesting/reproduce.c\" \\\n  -lm -o \"$build_dir/reproduce\""
+          },
+          {
+            "id": "c1-revision-check",
+            "source": "public_command",
+            "path": "examples/reproductions/cjson-nesting/run.sh",
+            "line_start": 10,
+            "line_end": 14,
+            "lines": "10-14",
+            "hash": "sha256:529274dbbd63556db765061836196cc91af288bcff2d449fc03c3bf9843cf481",
+            "sha256": "529274dbbd63556db765061836196cc91af288bcff2d449fc03c3bf9843cf481",
+            "snippet": "actual_revision=\"$(git -C \"$source_root\" rev-parse HEAD)\"\nif [[ \"$actual_revision\" != \"$expected_revision\" ]]; then\n  printf 'cJSON revision mismatch: expected %s, got %s\\n' \"$expected_revision\" \"$actual_revision\" >&2\n  exit 2\nfi"
+          },
+          {
+            "id": "c1-default-limit",
+            "source": "public_source",
+            "path": "corpus/cJSON/cJSON.h",
+            "line_start": 134,
+            "line_end": 138,
+            "lines": "134-138",
+            "hash": "sha256:25b0145150d500498e4d209cec69c18c42cf818bffcc54690be3b895a2a16dee",
+            "sha256": "25b0145150d500498e4d209cec69c18c42cf818bffcc54690be3b895a2a16dee",
+            "snippet": "/* Limits how deeply nested arrays/objects can be before cJSON rejects to parse them.\n * This is to prevent stack overflows. */\n#ifndef CJSON_NESTING_LIMIT\n#define CJSON_NESTING_LIMIT 1000\n#endif"
+          },
+          {
+            "id": "c1-generator",
+            "source": "public_harness",
+            "path": "examples/reproductions/cjson-nesting/reproduce.c",
+            "line_start": 10,
+            "line_end": 21,
+            "lines": "10-21",
+            "hash": "sha256:cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+            "sha256": "cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+            "snippet": "    char *text = malloc(depth * 2 + 2);\n    if (text == NULL) {\n        return NULL;\n    }\n    for (index = 0; index < depth; ++index) {\n        text[index] = '[';\n    }\n    text[depth] = '0';\n    for (index = 0; index < depth; ++index) {\n        text[depth + 1 + index] = ']';\n    }\n    text[depth * 2 + 1] = '\\0';"
+          },
+          {
+            "id": "c1-current-output",
+            "source": "public_observation",
+            "path": "examples/reproductions/cjson-nesting/result.txt",
+            "line_start": 1,
+            "line_end": 3,
+            "lines": "1-3",
+            "hash": "sha256:ed76b1069221053876dd4995aaee6e228f4983ad8f97717d51bf1ff02be0b133",
+            "sha256": "ed76b1069221053876dd4995aaee6e228f4983ad8f97717d51bf1ff02be0b133",
+            "snippet": "depth=999 result=ok parse_end=1999 input_len=1999\ndepth=1000 result=ok parse_end=2001 input_len=2001\ndepth=1001 result=NULL parse_end=1000 input_len=2003"
+          },
+          {
+            "id": "c1-array-guard",
+            "source": "public_source",
+            "path": "corpus/cJSON/cJSON.c",
+            "line_start": 1496,
+            "line_end": 1506,
+            "lines": "1496-1506",
+            "hash": "sha256:607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "snippet": "/* Build an array from input text. */\nstatic cJSON_bool parse_array(cJSON * const item, parse_buffer * const input_buffer)\n{\n    cJSON *head = NULL; /* head of the linked list */\n    cJSON *current_item = NULL;\n\n    if (input_buffer->depth >= CJSON_NESTING_LIMIT)\n    {\n        return false; /* to deeply nested */\n    }\n    input_buffer->depth++;"
+          },
+          {
+            "id": "c1-object-guard",
+            "source": "public_source",
+            "path": "corpus/cJSON/cJSON.c",
+            "line_start": 1661,
+            "line_end": 1671,
+            "lines": "1661-1671",
+            "hash": "sha256:607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "snippet": "/* Build an object from the text. */\nstatic cJSON_bool parse_object(cJSON * const item, parse_buffer * const input_buffer)\n{\n    cJSON *head = NULL; /* linked list head */\n    cJSON *current_item = NULL;\n\n    if (input_buffer->depth >= CJSON_NESTING_LIMIT)\n    {\n        return false; /* to deeply nested */\n    }\n    input_buffer->depth++;"
+          }
+        ]
+      },
+      "kr-v2-cjson-exclude-error-causes": {
+        "expected_points": [
+          {
+            "id": "c2-fixed-shape",
+            "text": "The current cases are balanced arrays generated as depth opening brackets, one zero, depth closing brackets, and a terminating NUL; the parser is called with require_null_terminated=1.",
+            "kind": "condition",
+            "evidence": [
+              "c2-generator",
+              "c2-call"
+            ]
+          },
+          {
+            "id": "c2-nul-excluded",
+            "text": "A missing terminal NUL is excluded for these generated inputs because nested_array writes the NUL and cJSON_ParseWithOpts includes it in buffer_length before enforcing require_null_terminated.",
+            "kind": "fact",
+            "evidence": [
+              "c2-generator",
+              "c2-length-wrapper",
+              "c2-null-check"
+            ]
+          },
+          {
+            "id": "c2-brackets-excluded",
+            "text": "Mismatched brackets are excluded for these generated inputs because the generator emits equal counts of '[' and ']', and the depth=1000 instance of the same shape parses successfully.",
+            "kind": "fact",
+            "evidence": [
+              "c2-generator",
+              "c2-output"
+            ]
+          },
+          {
+            "id": "c2-limit-supported",
+            "text": "Hitting the nesting limit is supported: the default is 1000, parse_array rejects when current depth is >= that limit before incrementing, and the observed transition is success at 1000 to failure at 1001 with failure offset 1000.",
+            "kind": "fact",
+            "evidence": [
+              "c2-default-limit",
+              "c2-array-guard",
+              "c2-output"
+            ]
+          },
+          {
+            "id": "c2-allocation-unresolved",
+            "text": "Ordinary internal allocation failure is neither established as the cause nor fully ruled out by the current run because cJSON has independent root/item allocation failure paths and the harness records no allocator event.",
+            "kind": "fact",
+            "evidence": [
+              "c2-root-allocation",
+              "c2-child-allocation",
+              "c2-output"
+            ]
+          },
+          {
+            "id": "c2-allocation-test",
+            "text": "Distinguishing ordinary allocation failure requires an additional controlled experiment, such as allocator fault injection/telemetry or the limit-shift A/B while holding the input and build otherwise fixed.",
+            "kind": "action",
+            "evidence": [
+              "c2-root-allocation",
+              "c2-child-allocation",
+              "c2-output"
+            ]
+          },
+          {
+            "id": "c2-offset-boundary",
+            "text": "parse_end=1000 is the recorded buffer.offset on failure and is consistent with the limit guard, but that offset alone is not a universal proof that every NULL result has the same cause.",
+            "kind": "fact",
+            "evidence": [
+              "c2-failure-position",
+              "c2-array-guard",
+              "c2-output"
+            ]
+          }
+        ],
+        "forbidden_claims": [
+          "The generated depth=1001 input lacks a terminating NUL.",
+          "The generated depth=1001 input has unbalanced brackets.",
+          "One successful reproduction definitively excludes every internal allocation failure.",
+          "parse_end=1000 proves that every possible NULL result is caused by CJSON_NESTING_LIMIT.",
+          "Ordinary allocation failure is established as the cause of the observed 1000/1001 boundary."
+        ],
+        "evidence_payload": [
+          {
+            "id": "c2-generator",
+            "source": "public_harness",
+            "path": "examples/reproductions/cjson-nesting/reproduce.c",
+            "line_start": 14,
+            "line_end": 22,
+            "lines": "14-22",
+            "hash": "sha256:cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+            "sha256": "cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+            "snippet": "    for (index = 0; index < depth; ++index) {\n        text[index] = '[';\n    }\n    text[depth] = '0';\n    for (index = 0; index < depth; ++index) {\n        text[depth + 1 + index] = ']';\n    }\n    text[depth * 2 + 1] = '\\0';\n    return text;"
+          },
+          {
+            "id": "c2-call",
+            "source": "public_harness",
+            "path": "examples/reproductions/cjson-nesting/reproduce.c",
+            "line_start": 34,
+            "line_end": 37,
+            "lines": "34-37",
+            "hash": "sha256:cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+            "sha256": "cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+            "snippet": "    value = cJSON_ParseWithOpts(input, &parse_end, 1);\n    offset = parse_end == NULL ? 0 : (size_t)(parse_end - input);\n    printf(\"depth=%zu result=%s parse_end=%zu input_len=%zu\\n\",\n           depth, value == NULL ? \"NULL\" : \"ok\", offset, strlen(input));"
+          },
+          {
+            "id": "c2-length-wrapper",
+            "source": "public_source",
+            "path": "corpus/cJSON/cJSON.c",
+            "line_start": 1140,
+            "line_end": 1143,
+            "lines": "1140-1143",
+            "hash": "sha256:607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "snippet": "    /* Adding null character size due to require_null_terminated. */\n    buffer_length = strlen(value) + sizeof(\"\");\n\n    return cJSON_ParseWithLengthOpts(value, buffer_length, return_parse_end, require_null_terminated);"
+          },
+          {
+            "id": "c2-null-check",
+            "source": "public_source",
+            "path": "corpus/cJSON/cJSON.c",
+            "line_start": 1178,
+            "line_end": 1185,
+            "lines": "1178-1185",
+            "hash": "sha256:607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "snippet": "    /* if we require null-terminated JSON without appended garbage, skip and then check for a null terminator */\n    if (require_null_terminated)\n    {\n        buffer_skip_whitespace(&buffer);\n        if ((buffer.offset >= buffer.length) || buffer_at_offset(&buffer)[0] != '\\0')\n        {\n            goto fail;\n        }"
+          },
+          {
+            "id": "c2-output",
+            "source": "public_observation",
+            "path": "examples/reproductions/cjson-nesting/result.txt",
+            "line_start": 1,
+            "line_end": 3,
+            "lines": "1-3",
+            "hash": "sha256:ed76b1069221053876dd4995aaee6e228f4983ad8f97717d51bf1ff02be0b133",
+            "sha256": "ed76b1069221053876dd4995aaee6e228f4983ad8f97717d51bf1ff02be0b133",
+            "snippet": "depth=999 result=ok parse_end=1999 input_len=1999\ndepth=1000 result=ok parse_end=2001 input_len=2001\ndepth=1001 result=NULL parse_end=1000 input_len=2003"
+          },
+          {
+            "id": "c2-default-limit",
+            "source": "public_source",
+            "path": "corpus/cJSON/cJSON.h",
+            "line_start": 134,
+            "line_end": 138,
+            "lines": "134-138",
+            "hash": "sha256:25b0145150d500498e4d209cec69c18c42cf818bffcc54690be3b895a2a16dee",
+            "sha256": "25b0145150d500498e4d209cec69c18c42cf818bffcc54690be3b895a2a16dee",
+            "snippet": "/* Limits how deeply nested arrays/objects can be before cJSON rejects to parse them.\n * This is to prevent stack overflows. */\n#ifndef CJSON_NESTING_LIMIT\n#define CJSON_NESTING_LIMIT 1000\n#endif"
+          },
+          {
+            "id": "c2-array-guard",
+            "source": "public_source",
+            "path": "corpus/cJSON/cJSON.c",
+            "line_start": 1502,
+            "line_end": 1506,
+            "lines": "1502-1506",
+            "hash": "sha256:607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "snippet": "    if (input_buffer->depth >= CJSON_NESTING_LIMIT)\n    {\n        return false; /* to deeply nested */\n    }\n    input_buffer->depth++;"
+          },
+          {
+            "id": "c2-root-allocation",
+            "source": "public_source",
+            "path": "corpus/cJSON/cJSON.c",
+            "line_start": 1166,
+            "line_end": 1170,
+            "lines": "1166-1170",
+            "hash": "sha256:607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "snippet": "    item = cJSON_New_Item(&global_hooks);\n    if (item == NULL) /* memory fail */\n    {\n        goto fail;\n    }"
+          },
+          {
+            "id": "c2-child-allocation",
+            "source": "public_source",
+            "path": "corpus/cJSON/cJSON.c",
+            "line_start": 1533,
+            "line_end": 1539,
+            "lines": "1533-1539",
+            "hash": "sha256:607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "snippet": "    {\n        /* allocate next item */\n        cJSON *new_item = cJSON_New_Item(&(input_buffer->hooks));\n        if (new_item == NULL)\n        {\n            goto fail; /* allocation failure */\n        }"
+          },
+          {
+            "id": "c2-failure-position",
+            "source": "public_source",
+            "path": "corpus/cJSON/cJSON.c",
+            "line_start": 1200,
+            "line_end": 1218,
+            "lines": "1200-1218",
+            "hash": "sha256:607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "snippet": "    if (value != NULL)\n    {\n        error local_error;\n        local_error.json = (const unsigned char*)value;\n        local_error.position = 0;\n\n        if (buffer.offset < buffer.length)\n        {\n            local_error.position = buffer.offset;\n        }\n        else if (buffer.length > 0)\n        {\n            local_error.position = buffer.length - 1;\n        }\n\n        if (return_parse_end != NULL)\n        {\n            *return_parse_end = (const char*)local_error.json + local_error.position;\n        }"
+          }
+        ]
+      },
+      "kr-v2-cjson-verify-limit-ab": {
+        "expected_points": [
+          {
+            "id": "c3-controlled-ab",
+            "text": "A and B use the same checked source revision, compiler flags, include path, and reproduce.c; B's only semantic difference is CJSON_NESTING_LIMIT=1001 applied when cJSON.c is compiled.",
+            "kind": "condition",
+            "evidence": [
+              "c3-revision-check",
+              "c3-run-command",
+              "c3-fixed-cases",
+              "c3-default-limit"
+            ]
+          },
+          {
+            "id": "c3-build-a",
+            "text": "From the repository root, an immediately executable A setup is:\n  build_dir=\"$(mktemp -d \"${TMPDIR:-/tmp}/codeatlas-cjson-ab.XXXXXX\")\"\n  cc -std=c99 -Wall -Wextra -Werror -I corpus/cJSON -c examples/reproductions/cjson-nesting/reproduce.c -o \"$build_dir/harness.o\"\n  cc -std=c99 -Wall -Wextra -Werror -I corpus/cJSON -c corpus/cJSON/cJSON.c -o \"$build_dir/cjson-a.o\"\n  cc \"$build_dir/cjson-a.o\" \"$build_dir/harness.o\" -lm -o \"$build_dir/a\"\n  \"$build_dir/a\"",
+            "kind": "action",
+            "evidence": [
+              "c3-run-command"
+            ]
+          },
+          {
+            "id": "c3-build-b",
+            "text": "Reuse the same harness.o and build/run B with the define scoped to cJSON.c:\n  cc -std=c99 -Wall -Wextra -Werror -I corpus/cJSON -DCJSON_NESTING_LIMIT=1001 -c corpus/cJSON/cJSON.c -o \"$build_dir/cjson-b.o\"\n  cc \"$build_dir/cjson-b.o\" \"$build_dir/harness.o\" -lm -o \"$build_dir/b\"\n  \"$build_dir/b\"\nCompare stdout directly; run.sh's diff still names the old A result and is not the B oracle.",
+            "kind": "action",
+            "evidence": [
+              "c3-run-command",
+              "c3-default-limit"
+            ]
+          },
+          {
+            "id": "c3-output-a",
+            "text": "A must print the current three lines: 999 ok/end 1999/len 1999; 1000 ok/end 2001/len 2001; 1001 NULL/end 1000/len 2003.",
+            "kind": "fact",
+            "evidence": [
+              "c3-output"
+            ]
+          },
+          {
+            "id": "c3-output-b",
+            "text": "B should leave the 999 and 1000 lines unchanged and print depth=1001 result=ok parse_end=2003 input_len=2003.",
+            "kind": "fact",
+            "evidence": [
+              "c3-output",
+              "c3-guard",
+              "c3-generator"
+            ]
+          },
+          {
+            "id": "c3-falsifier",
+            "text": "A same-boundary B failure falsifies the nesting limit as a sufficient explanation only after confirming the macro override reached cJSON.c, holding the input and all other build factors fixed, and independently excluding a B-only allocation failure or another new failure through allocator telemetry and/or guard instrumentation; B failing by itself is inconclusive and requires diagnosis.",
+            "kind": "condition",
+            "evidence": [
+              "c3-default-limit",
+              "c3-guard",
+              "c3-root-allocation",
+              "c3-child-allocation",
+              "c3-failure-position",
+              "c3-output"
+            ]
+          }
+        ],
+        "forbidden_claims": [
+          "Change reproduce.c or its tested depths between A and B.",
+          "Apply the macro only to the harness while compiling cJSON.c separately without it.",
+          "Treat run.sh's expected diff against the old result.txt as the B result oracle.",
+          "Predict that B changes input_len for any tested depth.",
+          "Treat a B failure at the same boundary as direct falsification before independently excluding allocation failure or another newly introduced failure."
+        ],
+        "evidence_payload": [
+          {
+            "id": "c3-run-command",
+            "source": "public_command",
+            "path": "examples/reproductions/cjson-nesting/run.sh",
+            "line_start": 16,
+            "line_end": 25,
+            "lines": "16-25",
+            "hash": "sha256:529274dbbd63556db765061836196cc91af288bcff2d449fc03c3bf9843cf481",
+            "sha256": "529274dbbd63556db765061836196cc91af288bcff2d449fc03c3bf9843cf481",
+            "snippet": "cc -std=c99 -Wall -Wextra -Werror \\\n  -I \"$source_root\" \\\n  \"$source_root/cJSON.c\" \\\n  \"$project_root/examples/reproductions/cjson-nesting/reproduce.c\" \\\n  -lm -o \"$build_dir/reproduce\"\n\noutput=\"$(\"$build_dir/reproduce\")\"\nprintf '%s\\n' \"$output\"\ndiff -u \"$project_root/examples/reproductions/cjson-nesting/result.txt\" \\\n  <(printf '%s\\n' \"$output\")"
+          },
+          {
+            "id": "c3-revision-check",
+            "source": "public_command",
+            "path": "examples/reproductions/cjson-nesting/run.sh",
+            "line_start": 10,
+            "line_end": 14,
+            "lines": "10-14",
+            "hash": "sha256:529274dbbd63556db765061836196cc91af288bcff2d449fc03c3bf9843cf481",
+            "sha256": "529274dbbd63556db765061836196cc91af288bcff2d449fc03c3bf9843cf481",
+            "snippet": "actual_revision=\"$(git -C \"$source_root\" rev-parse HEAD)\"\nif [[ \"$actual_revision\" != \"$expected_revision\" ]]; then\n  printf 'cJSON revision mismatch: expected %s, got %s\\n' \"$expected_revision\" \"$actual_revision\" >&2\n  exit 2\nfi"
+          },
+          {
+            "id": "c3-fixed-cases",
+            "source": "public_harness",
+            "path": "examples/reproductions/cjson-nesting/reproduce.c",
+            "line_start": 45,
+            "line_end": 54,
+            "lines": "45-54",
+            "hash": "sha256:cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+            "sha256": "cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+            "snippet": "    /*\n     * These depths are deliberately fixed instead of being derived from the\n     * library macro.  That makes a future CJSON_NESTING_LIMIT change observable\n     * rather than silently moving both the treatment and the test inputs.\n     */\n    static const size_t fixed_depths[] = {999u, 1000u, 1001u};\n    size_t index;\n    int status = 0;\n    for (index = 0; index < sizeof(fixed_depths) / sizeof(fixed_depths[0]); ++index) {\n        status |= run_case(fixed_depths[index]);"
+          },
+          {
+            "id": "c3-default-limit",
+            "source": "public_source",
+            "path": "corpus/cJSON/cJSON.h",
+            "line_start": 134,
+            "line_end": 138,
+            "lines": "134-138",
+            "hash": "sha256:25b0145150d500498e4d209cec69c18c42cf818bffcc54690be3b895a2a16dee",
+            "sha256": "25b0145150d500498e4d209cec69c18c42cf818bffcc54690be3b895a2a16dee",
+            "snippet": "/* Limits how deeply nested arrays/objects can be before cJSON rejects to parse them.\n * This is to prevent stack overflows. */\n#ifndef CJSON_NESTING_LIMIT\n#define CJSON_NESTING_LIMIT 1000\n#endif"
+          },
+          {
+            "id": "c3-output",
+            "source": "public_observation",
+            "path": "examples/reproductions/cjson-nesting/result.txt",
+            "line_start": 1,
+            "line_end": 3,
+            "lines": "1-3",
+            "hash": "sha256:ed76b1069221053876dd4995aaee6e228f4983ad8f97717d51bf1ff02be0b133",
+            "sha256": "ed76b1069221053876dd4995aaee6e228f4983ad8f97717d51bf1ff02be0b133",
+            "snippet": "depth=999 result=ok parse_end=1999 input_len=1999\ndepth=1000 result=ok parse_end=2001 input_len=2001\ndepth=1001 result=NULL parse_end=1000 input_len=2003"
+          },
+          {
+            "id": "c3-guard",
+            "source": "public_source",
+            "path": "corpus/cJSON/cJSON.c",
+            "line_start": 1502,
+            "line_end": 1506,
+            "lines": "1502-1506",
+            "hash": "sha256:607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "snippet": "    if (input_buffer->depth >= CJSON_NESTING_LIMIT)\n    {\n        return false; /* to deeply nested */\n    }\n    input_buffer->depth++;"
+          },
+          {
+            "id": "c3-generator",
+            "source": "public_harness",
+            "path": "examples/reproductions/cjson-nesting/reproduce.c",
+            "line_start": 17,
+            "line_end": 21,
+            "lines": "17-21",
+            "hash": "sha256:cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+            "sha256": "cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+            "snippet": "    text[depth] = '0';\n    for (index = 0; index < depth; ++index) {\n        text[depth + 1 + index] = ']';\n    }\n    text[depth * 2 + 1] = '\\0';"
+          },
+          {
+            "id": "c3-root-allocation",
+            "source": "public_source",
+            "path": "corpus/cJSON/cJSON.c",
+            "line_start": 1166,
+            "line_end": 1170,
+            "lines": "1166-1170",
+            "hash": "sha256:607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "snippet": "    item = cJSON_New_Item(&global_hooks);\n    if (item == NULL) /* memory fail */\n    {\n        goto fail;\n    }"
+          },
+          {
+            "id": "c3-child-allocation",
+            "source": "public_source",
+            "path": "corpus/cJSON/cJSON.c",
+            "line_start": 1533,
+            "line_end": 1539,
+            "lines": "1533-1539",
+            "hash": "sha256:607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "snippet": "    {\n        /* allocate next item */\n        cJSON *new_item = cJSON_New_Item(&(input_buffer->hooks));\n        if (new_item == NULL)\n        {\n            goto fail; /* allocation failure */\n        }"
+          },
+          {
+            "id": "c3-failure-position",
+            "source": "public_source",
+            "path": "corpus/cJSON/cJSON.c",
+            "line_start": 1200,
+            "line_end": 1218,
+            "lines": "1200-1218",
+            "hash": "sha256:607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+            "snippet": "    if (value != NULL)\n    {\n        error local_error;\n        local_error.json = (const unsigned char*)value;\n        local_error.position = 0;\n\n        if (buffer.offset < buffer.length)\n        {\n            local_error.position = buffer.offset;\n        }\n        else if (buffer.length > 0)\n        {\n            local_error.position = buffer.length - 1;\n        }\n\n        if (return_parse_end != NULL)\n        {\n            *return_parse_end = (const char*)local_error.json + local_error.position;\n        }"
+          }
+        ]
+      },
+      "kr-v2-lwip-condition-second-init-fails": {
+        "expected_points": [
+          {
+            "id": "l4-condition",
+            "text": "Keep lwipopts.h and the call order unchanged, but make test_init return ERR_OK on its first invocation and ERR_IF on its second invocation.",
+            "kind": "condition",
+            "evidence": [
+              "l4-current-init",
+              "l4-harness-order"
+            ]
+          },
+          {
+            "id": "l4-second-return",
+            "text": "add_first remains ok, while add_second prints failed because netif_add returns NULL when the second init call returns ERR_IF.",
+            "kind": "fact",
+            "evidence": [
+              "l4-init-before-insert",
+              "l4-harness-order"
+            ]
+          },
+          {
+            "id": "l4-after-second",
+            "text": "after_second prints list=first default=first.",
+            "kind": "fact",
+            "evidence": [
+              "l4-current-output",
+              "l4-init-before-insert",
+              "l4-list-insert"
+            ]
+          },
+          {
+            "id": "l4-order-reason",
+            "text": "netif_add calls init before it prepends the candidate to netif_list, so the failed second candidate never replaces first as the list head.",
+            "kind": "fact",
+            "evidence": [
+              "l4-init-before-insert",
+              "l4-list-insert"
+            ]
+          },
+          {
+            "id": "l4-first-preserved",
+            "text": "The already-linked first interface and the explicitly selected netif_default remain unchanged because the second failure returns before global list insertion and the harness does not call netif_set_default again; this does not imply every field written on the rejected second struct is rolled back.",
+            "kind": "fact",
+            "evidence": [
+              "l4-harness-order",
+              "l4-init-before-insert",
+              "l4-set-default"
+            ]
+          }
+        ],
+        "forbidden_claims": [
+          "The failed second interface is still inserted at the head of netif_list.",
+          "A failed second initialization changes netif_default to second or none.",
+          "The second failure removes or resets the already-linked first interface.",
+          "netif_add guarantees rollback of every field that init may have written on the rejected second struct."
+        ],
+        "evidence_payload": [
+          {
+            "id": "l4-current-init",
+            "source": "public_harness",
+            "path": "examples/reproductions/lwip-netif/reproduce.c",
+            "line_start": 6,
+            "line_end": 12,
+            "lines": "6-12",
+            "hash": "sha256:cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a",
+            "sha256": "cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a",
+            "snippet": "static err_t test_init(struct netif *netif)\n{\n    netif->name[0] = 'c';\n    netif->name[1] = 'a';\n    netif->mtu = 1500;\n    return ERR_OK;\n}"
+          },
+          {
+            "id": "l4-harness-order",
+            "source": "public_harness",
+            "path": "examples/reproductions/lwip-netif/reproduce.c",
+            "line_start": 46,
+            "line_end": 56,
+            "lines": "46-56",
+            "hash": "sha256:cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a",
+            "sha256": "cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a",
+            "snippet": "    printf(\"add_first=%s\\n\",\n           netif_add_noaddr(&first, NULL, test_init, test_input) == &first ? \"ok\" : \"failed\");\n    printf(\"after_first list=%s default=%s\\n\",\n           which(netif_list, &first, &second), which(netif_default, &first, &second));\n    netif_set_default(&first);\n    printf(\"after_set_default list=%s default=%s\\n\",\n           which(netif_list, &first, &second), which(netif_default, &first, &second));\n    printf(\"add_second=%s\\n\",\n           netif_add_noaddr(&second, NULL, test_init, test_input) == &second ? \"ok\" : \"failed\");\n    printf(\"after_second list=%s default=%s\\n\",\n           which(netif_list, &first, &second), which(netif_default, &first, &second));"
+          },
+          {
+            "id": "l4-init-before-insert",
+            "source": "public_source",
+            "path": "corpus/lwip/src/core/netif.c",
+            "line_start": 387,
+            "line_end": 390,
+            "lines": "387-390",
+            "hash": "sha256:a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+            "sha256": "a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+            "snippet": "  /* call user specified initialization function for netif */\n  if (init(netif) != ERR_OK) {\n    return NULL;\n  }"
+          },
+          {
+            "id": "l4-list-insert",
+            "source": "public_source",
+            "path": "corpus/lwip/src/core/netif.c",
+            "line_start": 430,
+            "line_end": 433,
+            "lines": "430-433",
+            "hash": "sha256:a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+            "sha256": "a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+            "snippet": "  /* add this netif to the list */\n  netif->next = netif_list;\n  netif_list = netif;\n#endif /* \"LWIP_SINGLE_NETIF */"
+          },
+          {
+            "id": "l4-current-output",
+            "source": "public_observation",
+            "path": "examples/reproductions/lwip-netif/result.txt",
+            "line_start": 2,
+            "line_end": 6,
+            "lines": "2-6",
+            "hash": "sha256:8102733501276cd10303a81dc15877f7e5386b1dacb48c535f2960562f95414f",
+            "sha256": "8102733501276cd10303a81dc15877f7e5386b1dacb48c535f2960562f95414f",
+            "snippet": "add_first=ok\nafter_first list=first default=none\nafter_set_default list=first default=first\nadd_second=ok\nafter_second list=second default=first"
+          },
+          {
+            "id": "l4-set-default",
+            "source": "public_source",
+            "path": "corpus/lwip/src/core/netif.c",
+            "line_start": 851,
+            "line_end": 862,
+            "lines": "851-862",
+            "hash": "sha256:a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+            "sha256": "a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+            "snippet": "netif_set_default(struct netif *netif)\n{\n  LWIP_ASSERT_CORE_LOCKED();\n\n  if (netif == NULL) {\n    /* remove default route */\n    mib2_remove_route_ip4(1, netif);\n  } else {\n    /* install default route */\n    mib2_add_route_ip4(1, netif);\n  }\n  netif_default = netif;"
+          }
+        ]
+      },
+      "kr-v2-lwip-exclude-default-alias": {
+        "expected_points": [
+          {
+            "id": "l5-which-identity",
+            "text": "The printed names are pointer-identity observations: which maps NULL to none, &first to first, and &second to second.",
+            "kind": "condition",
+            "evidence": [
+              "l5-which"
+            ]
+          },
+          {
+            "id": "l5-no-auto-default",
+            "text": "The hypothesis that netif_add automatically sets the default is excluded by add_first=ok followed by after_first list=first default=none.",
+            "kind": "fact",
+            "evidence": [
+              "l5-output"
+            ]
+          },
+          {
+            "id": "l5-not-head-alias",
+            "text": "The hypothesis that default is always an alias of the list head is excluded by after_second list=second default=first after first was explicitly made default.",
+            "kind": "fact",
+            "evidence": [
+              "l5-output"
+            ]
+          },
+          {
+            "id": "l5-second-linked",
+            "text": "The hypothesis that the second add did not link second is excluded by add_second=ok and the immediate pointer-identity observation list=second.",
+            "kind": "fact",
+            "evidence": [
+              "l5-which",
+              "l5-output"
+            ]
+          },
+          {
+            "id": "l5-source-separation",
+            "text": "The mechanism matches the observations: successful netif_add prepends only netif_list, while netif_set_default assigns netif_default separately.",
+            "kind": "fact",
+            "evidence": [
+              "l5-list-insert",
+              "l5-set-default",
+              "l5-globals"
+            ]
+          }
+        ],
+        "forbidden_claims": [
+          "netif_add automatically made first the default despite after_first default=none.",
+          "netif_default must always equal netif_list.",
+          "The successful second add was not linked even though which(netif_list) returned second.",
+          "The labels first and second are inferred from interface names rather than pointer identity."
+        ],
+        "evidence_payload": [
+          {
+            "id": "l5-which",
+            "source": "public_harness",
+            "path": "examples/reproductions/lwip-netif/reproduce.c",
+            "line_start": 21,
+            "line_end": 35,
+            "lines": "21-35",
+            "hash": "sha256:cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a",
+            "sha256": "cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a",
+            "snippet": "static const char *which(const struct netif *value,\n                         const struct netif *first,\n                         const struct netif *second)\n{\n    if (value == NULL) {\n        return \"none\";\n    }\n    if (value == first) {\n        return \"first\";\n    }\n    if (value == second) {\n        return \"second\";\n    }\n    return \"other\";\n}"
+          },
+          {
+            "id": "l5-output",
+            "source": "public_observation",
+            "path": "examples/reproductions/lwip-netif/result.txt",
+            "line_start": 1,
+            "line_end": 6,
+            "lines": "1-6",
+            "hash": "sha256:8102733501276cd10303a81dc15877f7e5386b1dacb48c535f2960562f95414f",
+            "sha256": "8102733501276cd10303a81dc15877f7e5386b1dacb48c535f2960562f95414f",
+            "snippet": "initial list=none default=none\nadd_first=ok\nafter_first list=first default=none\nafter_set_default list=first default=first\nadd_second=ok\nafter_second list=second default=first"
+          },
+          {
+            "id": "l5-list-insert",
+            "source": "public_source",
+            "path": "corpus/lwip/src/core/netif.c",
+            "line_start": 430,
+            "line_end": 432,
+            "lines": "430-432",
+            "hash": "sha256:a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+            "sha256": "a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+            "snippet": "  /* add this netif to the list */\n  netif->next = netif_list;\n  netif_list = netif;"
+          },
+          {
+            "id": "l5-set-default",
+            "source": "public_source",
+            "path": "corpus/lwip/src/core/netif.c",
+            "line_start": 851,
+            "line_end": 862,
+            "lines": "851-862",
+            "hash": "sha256:a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+            "sha256": "a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+            "snippet": "netif_set_default(struct netif *netif)\n{\n  LWIP_ASSERT_CORE_LOCKED();\n\n  if (netif == NULL) {\n    /* remove default route */\n    mib2_remove_route_ip4(1, netif);\n  } else {\n    /* install default route */\n    mib2_add_route_ip4(1, netif);\n  }\n  netif_default = netif;"
+          },
+          {
+            "id": "l5-globals",
+            "source": "public_source",
+            "path": "corpus/lwip/src/include/lwip/netif.h",
+            "line_start": 422,
+            "line_end": 427,
+            "lines": "422-427",
+            "hash": "sha256:6e958aa1bd23b7381c09a873f7af919323f87ec50a2d3055a46f75275c2a121b",
+            "sha256": "6e958aa1bd23b7381c09a873f7af919323f87ec50a2d3055a46f75275c2a121b",
+            "snippet": "/** The list of network interfaces. */\nextern struct netif *netif_list;\n#define NETIF_FOREACH(netif) for ((netif) = netif_list; (netif) != NULL; (netif) = (netif)->next)\n#endif /* LWIP_SINGLE_NETIF */\n/** The default network interface. */\nextern struct netif *netif_default;"
+          }
+        ]
+      },
+      "kr-v2-lwip-verify-clear-default": {
+        "expected_points": [
+          {
+            "id": "l6-insertion-condition",
+            "text": "Insert the probe immediately after the existing after_second print and before either netif_remove call, with all earlier operations unchanged.",
+            "kind": "condition",
+            "evidence": [
+              "l6-harness-site"
+            ]
+          },
+          {
+            "id": "l6-code-change",
+            "text": "The minimal change is netif_set_default(NULL) followed by a printf that passes netif_list and netif_default through which, for example after_clear_default list=%s default=%s.",
+            "kind": "action",
+            "evidence": [
+              "l6-harness-site",
+              "l6-which"
+            ]
+          },
+          {
+            "id": "l6-output",
+            "text": "The new line should be after_clear_default list=second default=none.",
+            "kind": "fact",
+            "evidence": [
+              "l6-current-output",
+              "l6-set-default"
+            ]
+          },
+          {
+            "id": "l6-source-effect",
+            "text": "netif_set_default(NULL) assigns NULL only to netif_default (aside from route bookkeeping) and contains no write to netif_list, whose declaration is a separate global.",
+            "kind": "fact",
+            "evidence": [
+              "l6-set-default",
+              "l6-globals"
+            ]
+          },
+          {
+            "id": "l6-falsifier",
+            "text": "If this isolated call also made the printed list become none, it would falsify the source-based mechanism claim that clearing the default leaves netif_list unchanged and that the two observed pointer states can be varied independently; it would require investigating an unaccounted side effect, build/configuration mismatch, or other operation.",
+            "kind": "condition",
+            "evidence": [
+              "l6-set-default",
+              "l6-globals",
+              "l6-current-output"
+            ]
+          }
+        ],
+        "forbidden_claims": [
+          "The expected post-clear list is none.",
+          "The expected post-clear default remains first.",
+          "netif_set_default(NULL) removes second or first from netif_list.",
+          "A list=none observation would confirm that list and default are independent."
+        ],
+        "evidence_payload": [
+          {
+            "id": "l6-harness-site",
+            "source": "public_harness",
+            "path": "examples/reproductions/lwip-netif/reproduce.c",
+            "line_start": 53,
+            "line_end": 58,
+            "lines": "53-58",
+            "hash": "sha256:cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a",
+            "sha256": "cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a",
+            "snippet": "    printf(\"add_second=%s\\n\",\n           netif_add_noaddr(&second, NULL, test_init, test_input) == &second ? \"ok\" : \"failed\");\n    printf(\"after_second list=%s default=%s\\n\",\n           which(netif_list, &first, &second), which(netif_default, &first, &second));\n    netif_remove(&second);\n    netif_remove(&first);"
+          },
+          {
+            "id": "l6-which",
+            "source": "public_harness",
+            "path": "examples/reproductions/lwip-netif/reproduce.c",
+            "line_start": 21,
+            "line_end": 35,
+            "lines": "21-35",
+            "hash": "sha256:cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a",
+            "sha256": "cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a",
+            "snippet": "static const char *which(const struct netif *value,\n                         const struct netif *first,\n                         const struct netif *second)\n{\n    if (value == NULL) {\n        return \"none\";\n    }\n    if (value == first) {\n        return \"first\";\n    }\n    if (value == second) {\n        return \"second\";\n    }\n    return \"other\";\n}"
+          },
+          {
+            "id": "l6-current-output",
+            "source": "public_observation",
+            "path": "examples/reproductions/lwip-netif/result.txt",
+            "line_start": 4,
+            "line_end": 6,
+            "lines": "4-6",
+            "hash": "sha256:8102733501276cd10303a81dc15877f7e5386b1dacb48c535f2960562f95414f",
+            "sha256": "8102733501276cd10303a81dc15877f7e5386b1dacb48c535f2960562f95414f",
+            "snippet": "after_set_default list=first default=first\nadd_second=ok\nafter_second list=second default=first"
+          },
+          {
+            "id": "l6-set-default",
+            "source": "public_source",
+            "path": "corpus/lwip/src/core/netif.c",
+            "line_start": 851,
+            "line_end": 862,
+            "lines": "851-862",
+            "hash": "sha256:a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+            "sha256": "a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+            "snippet": "netif_set_default(struct netif *netif)\n{\n  LWIP_ASSERT_CORE_LOCKED();\n\n  if (netif == NULL) {\n    /* remove default route */\n    mib2_remove_route_ip4(1, netif);\n  } else {\n    /* install default route */\n    mib2_add_route_ip4(1, netif);\n  }\n  netif_default = netif;"
+          },
+          {
+            "id": "l6-globals",
+            "source": "public_source",
+            "path": "corpus/lwip/src/include/lwip/netif.h",
+            "line_start": 422,
+            "line_end": 427,
+            "lines": "422-427",
+            "hash": "sha256:6e958aa1bd23b7381c09a873f7af919323f87ec50a2d3055a46f75275c2a121b",
+            "sha256": "6e958aa1bd23b7381c09a873f7af919323f87ec50a2d3055a46f75275c2a121b",
+            "snippet": "/** The list of network interfaces. */\nextern struct netif *netif_list;\n#define NETIF_FOREACH(netif) for ((netif) = netif_list; (netif) != NULL; (netif) = (netif)->next)\n#endif /* LWIP_SINGLE_NETIF */\n/** The default network interface. */\nextern struct netif *netif_default;"
+          }
+        ]
+      }
+    },
+    "content_hash": "df58ade939fb1c9056c582e289d65a0983df475362082978eb4772cdf9ee0e48",
+    "effect_eligible": true,
+    "effect_review_eligible": true,
+    "human_release_eligible": false,
+    "review_status": "ai_reviewed",
+    "review_input_hash": "2be7645e69c77b1d5bf3f05c8de6cbc49ee81ef28acac100dcfcf6a502a113bc",
+    "boundary": "Declared review provenance; AI consensus is not human review, and hashes cannot prove no prior exposure."
+  },
+  "answer_review_status": "not_run",
+  "acceptance": {
+    "passed": false,
+    "effect_eligible": false,
+    "formal_human_b_gate": false
+  },
+  "boundary": "两例短公开合成会话的同源呈现对照；六个问题与重复试次不扩充独立案例数。模型产物若启用，必须先双审冻结；不证明真实长会话收益，不创建正式人工 B 卡。",
+  "preparation_ms": 34.2,
+  "production_cost": {
+    "method": "frozen_extractive_templates",
+    "model_requests": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cost_usd": 0,
+    "human_edit_seconds": null
+  },
+  "evaluation_hash": "9787ca61d954701e5050eb13af9356cf64ecd580406690582b8bf884a5641c9d",
+  "reason": "model_not_configured",
+  "executed_trial_count": 0,
+  "query_cost": {
+    "requests": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "tokens": 0,
+    "usage_complete": true,
+    "cost_usd": 0
+  }
+}

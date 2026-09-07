@@ -1,0 +1,22 @@
+schema_version: 1
+name: CodeAtlas lwIP Agent 与会话知识闭环（6 个固定公开场景）
+repository: https://github.com/lwip-tcpip/lwip
+revision: 3d896ba0a37ff3ce73270ca5e230707fe47f60e3
+public_source: lwIP 固定公开镜像快照 + CC0 公开合成会话
+anchor_symbol: netif_add
+wiki_question: netif_add 如何初始化网络接口并处理状态关系？
+diagnostic_question: 审查 netif_add 的初始化路径和接口状态影响范围
+unrelated_question: 如何优化 PostgreSQL 慢查询？
+cases:
+  - id: session-import
+    purpose: 校验公开来源、许可证、固定版本和内容哈希去重；原始会话不入检索索引。
+  - id: agent-trace
+    purpose: 验证概念题遵守 Wiki-first，全部 Agent 只调用白名单只读工具且不超过六次。
+  - id: pending-gate
+    purpose: 验证显式保存的草稿在审核前不成为 B 级检索证据。
+  - id: approval-anchor
+    purpose: 验证审核前必须绑定 repository/revision/USR/range/definition hash。
+  - id: stale-isolation
+    purpose: 验证函数定义变化后卡片 stale 且立即退出 B 级检索。
+  - id: no-evidence-refusal
+    purpose: 验证证据不足和无关请求均拒答且不生成知识卡草稿。

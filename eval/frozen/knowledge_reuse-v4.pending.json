@@ -1,0 +1,329 @@
+{
+  "schema_version": 1,
+  "version": "same-source-model-production-v1",
+  "status": "pending_review",
+  "review_status": "unresolved",
+  "artifact_scope": "isolated_experiment",
+  "campaign_id": "knowledge-production-b27387a60d29823d",
+  "generated_at": "2026-09-06T02:33:09+00:00",
+  "manifest_hash": "c8c2504f8429ca7a235e0f9b858ac294fbe86de2bad5afedc3c781e2031a82a1",
+  "source_materials_hash": "cb8d14eedf54161f9cefce9927435d32c2d301144f4d6a0c6779dbc3e44fe41f",
+  "prompt_hash": "50317bcdc6eb0a12d8b83fbbb9ac405f0d4d1f542fe0ce2d00bc8c58ce741205",
+  "products": [
+    {
+      "id": "cjson-nesting:generic_summary",
+      "case_id": "cjson-nesting",
+      "arm": "generic_summary",
+      "model": "deepseek-v4-flash",
+      "session_id": "knowledge-production-b27387a60d29823d:generic_summary:cjson-nesting",
+      "sections": [
+        {
+          "id": "cjson-nesting:generic_summary:s1",
+          "heading": "现象与结论",
+          "content": "固定版本中，深度1001的嵌套JSON解析返回NULL，深度999和1000成功；这是cJSON对CJSON_NESTING_LIMIT的主动边界保护，并非生产事故或栈溢出。",
+          "evidence_tags": [
+            "T1",
+            "T5",
+            "T7"
+          ]
+        },
+        {
+          "id": "cjson-nesting:generic_summary:s2",
+          "heading": "实现机制",
+          "content": "cJSON.h定义CJSON_NESTING_LIMIT默认1000；parse_array和parse_object在进入下一层前检查depth>=限制则返回false，从而阻止过深递归。",
+          "evidence_tags": [
+            "E1",
+            "E2",
+            "E3",
+            "T4"
+          ]
+        },
+        {
+          "id": "cjson-nesting:generic_summary:s3",
+          "heading": "验证方法与结果",
+          "content": "复现脚本固定revision，用固定深度999/1000/1001生成嵌套数组，调用cJSON_ParseWithOpts并记录parse_end；结果与result.txt一致，1001时parse_end=1000。",
+          "evidence_tags": [
+            "E6",
+            "E7",
+            "E8",
+            "T7"
+          ]
+        },
+        {
+          "id": "cjson-nesting:generic_summary:s4",
+          "heading": "错误返回位置",
+          "content": "cJSON_ParseWithOpts通过parse_end返回停止位置；失败时parse_end指向深度1000处，可用于定位截断点。",
+          "evidence_tags": [
+            "E4",
+            "E5",
+            "T4"
+          ]
+        },
+        {
+          "id": "cjson-nesting:generic_summary:s5",
+          "heading": "修复边界与调用方责任",
+          "content": "仅增大进程栈无法改变编译期限制；调用方应校验输入深度并处理NULL；只有明确接受递归与资源风险且补齐边界测试时，才调整CJSON_NESTING_LIMIT。",
+          "evidence_tags": [
+            "T2",
+            "T3",
+            "T6"
+          ]
+        }
+      ],
+      "text": "现象与结论\n固定版本中，深度1001的嵌套JSON解析返回NULL，深度999和1000成功；这是cJSON对CJSON_NESTING_LIMIT的主动边界保护，并非生产事故或栈溢出。 [T1] [T5] [T7]\n\n实现机制\ncJSON.h定义CJSON_NESTING_LIMIT默认1000；parse_array和parse_object在进入下一层前检查depth>=限制则返回false，从而阻止过深递归。 [E1] [E2] [E3] [T4]\n\n验证方法与结果\n复现脚本固定revision，用固定深度999/1000/1001生成嵌套数组，调用cJSON_ParseWithOpts并记录parse_end；结果与result.txt一致，1001时parse_end=1000。 [E6] [E7] [E8] [T7]\n\n错误返回位置\ncJSON_ParseWithOpts通过parse_end返回停止位置；失败时parse_end指向深度1000处，可用于定位截断点。 [E4] [E5] [T4]\n\n修复边界与调用方责任\n仅增大进程栈无法改变编译期限制；调用方应校验输入深度并处理NULL；只有明确接受递归与资源风险且补齐边界测试时，才调整CJSON_NESTING_LIMIT。 [T2] [T3] [T6]",
+      "usage": {
+        "requests": 1,
+        "input_tokens": 2003,
+        "output_tokens": 960,
+        "tokens": 2963,
+        "usage_complete": true,
+        "cost_usd": 0.0,
+        "cost_upper_bound_usd": 0.0
+      }
+    },
+    {
+      "id": "cjson-nesting:structured_card",
+      "case_id": "cjson-nesting",
+      "arm": "structured_card",
+      "model": "deepseek-v4-flash",
+      "session_id": "knowledge-production-b27387a60d29823d:structured_card:cjson-nesting",
+      "sections": [
+        {
+          "id": "cjson-nesting:structured_card:s1",
+          "heading": "现象",
+          "content": "深层嵌套JSON在超过限定深度后，cJSON_ParseWithOpts返回NULL；深度999和1000解析成功，深度1001返回NULL，parse_end停在深度1000处。",
+          "evidence_tags": [
+            "E6",
+            "E8",
+            "T1"
+          ]
+        },
+        {
+          "id": "cjson-nesting:structured_card:s2",
+          "heading": "假设",
+          "content": "初始假设是进程栈空间不足，也可能是解析器主动限制递归深度。",
+          "evidence_tags": [
+            "T2"
+          ]
+        },
+        {
+          "id": "cjson-nesting:structured_card:s3",
+          "heading": "排除项",
+          "content": "仅增大进程栈不会改变cJSON的编译期嵌套限制，不能据此修复问题。",
+          "evidence_tags": [
+            "T3"
+          ]
+        },
+        {
+          "id": "cjson-nesting:structured_card:s4",
+          "heading": "根因",
+          "content": "cJSON在parse_array和parse_object进入下一层前检查CJSON_NESTING_LIMIT（默认1000），超过即返回false，属于主动边界保护而非内存耗尽或栈不足。",
+          "evidence_tags": [
+            "E1",
+            "E2",
+            "E3",
+            "T5"
+          ]
+        },
+        {
+          "id": "cjson-nesting:structured_card:s5",
+          "heading": "处理步骤",
+          "content": "调用方应校验输入深度并处理NULL；只有明确接受递归与资源风险且补齐边界测试时，才调整编译期CJSON_NESTING_LIMIT。",
+          "evidence_tags": [
+            "T6"
+          ]
+        },
+        {
+          "id": "cjson-nesting:structured_card:s6",
+          "heading": "验证和边界",
+          "content": "在固定revision fb16e5c上运行run.sh，深度999和1000成功，深度1001返回NULL，并记录parse_end与输入长度；结果与result.txt一致。",
+          "evidence_tags": [
+            "E7",
+            "E8",
+            "T7"
+          ]
+        }
+      ],
+      "text": "现象\n深层嵌套JSON在超过限定深度后，cJSON_ParseWithOpts返回NULL；深度999和1000解析成功，深度1001返回NULL，parse_end停在深度1000处。 [E6] [E8] [T1]\n\n假设\n初始假设是进程栈空间不足，也可能是解析器主动限制递归深度。 [T2]\n\n排除项\n仅增大进程栈不会改变cJSON的编译期嵌套限制，不能据此修复问题。 [T3]\n\n根因\ncJSON在parse_array和parse_object进入下一层前检查CJSON_NESTING_LIMIT（默认1000），超过即返回false，属于主动边界保护而非内存耗尽或栈不足。 [E1] [E2] [E3] [T5]\n\n处理步骤\n调用方应校验输入深度并处理NULL；只有明确接受递归与资源风险且补齐边界测试时，才调整编译期CJSON_NESTING_LIMIT。 [T6]\n\n验证和边界\n在固定revision fb16e5c上运行run.sh，深度999和1000成功，深度1001返回NULL，并记录parse_end与输入长度；结果与result.txt一致。 [E7] [E8] [T7]",
+      "usage": {
+        "requests": 1,
+        "input_tokens": 2006,
+        "output_tokens": 1126,
+        "tokens": 3132,
+        "usage_complete": true,
+        "cost_usd": 0.0,
+        "cost_upper_bound_usd": 0.0
+      }
+    },
+    {
+      "id": "lwip-netif:generic_summary",
+      "case_id": "lwip-netif",
+      "arm": "generic_summary",
+      "model": "deepseek-v4-flash",
+      "session_id": "knowledge-production-b27387a60d29823d:generic_summary:lwip-netif",
+      "sections": [
+        {
+          "id": "lwip-netif:generic_summary:s1",
+          "heading": "核心结论",
+          "content": "在固定版本中，netif_add 只将接口插入 netif_list，不会自动设置 netif_default；默认接口必须显式调用 netif_set_default。",
+          "evidence_tags": [
+            "E3",
+            "E4",
+            "T1",
+            "T4",
+            "T5"
+          ]
+        },
+        {
+          "id": "lwip-netif:generic_summary:s2",
+          "heading": "代码路径",
+          "content": "netif_add 在初始化后把 netif 加入链表头部（E3）；netif_set_default 是独立函数，直接赋值 netif_default（E4）。两者职责分离。",
+          "evidence_tags": [
+            "E3",
+            "E4",
+            "T4"
+          ]
+        },
+        {
+          "id": "lwip-netif:generic_summary:s3",
+          "heading": "复现实验",
+          "content": "运行 run.sh 输出：初始 list=none default=none；添加 first 后 list=first default=none；调用 netif_set_default 后 default=first；添加 second 后 list=second default=first。",
+          "evidence_tags": [
+            "E6",
+            "E7",
+            "E9",
+            "T7"
+          ]
+        },
+        {
+          "id": "lwip-netif:generic_summary:s4",
+          "heading": "常见误解与反例",
+          "content": "调用方误把“加入接口链表”当作“选择默认接口”。反复调用 netif_add 只改变链表，不能替代 netif_set_default；最后添加的接口不会自动成为默认接口。",
+          "evidence_tags": [
+            "T3",
+            "T5",
+            "T6"
+          ]
+        },
+        {
+          "id": "lwip-netif:generic_summary:s5",
+          "heading": "边界条件",
+          "content": "LWIP_SINGLE_NETIF 下，若 netif_default 已存在，netif_add 返回 NULL；多接口配置下，显式调用 netif_set_default 才能修改默认接口，且不会因新接口加入而覆盖。",
+          "evidence_tags": [
+            "E1",
+            "E5",
+            "T6"
+          ]
+        },
+        {
+          "id": "lwip-netif:generic_summary:s6",
+          "heading": "验证边界",
+          "content": "复现固定于 revision 3d896ba0a37ff3ce73270ca5e230707fe47f60e3，使用最小化 lwipopts.h（NO_SYS、IPv4-only 等），结果与 result.txt 做 diff 校验。",
+          "evidence_tags": [
+            "E7",
+            "E8"
+          ]
+        }
+      ],
+      "text": "核心结论\n在固定版本中，netif_add 只将接口插入 netif_list，不会自动设置 netif_default；默认接口必须显式调用 netif_set_default。 [E3] [E4] [T1] [T4] [T5]\n\n代码路径\nnetif_add 在初始化后把 netif 加入链表头部（E3）；netif_set_default 是独立函数，直接赋值 netif_default（E4）。两者职责分离。 [E3] [E4] [T4]\n\n复现实验\n运行 run.sh 输出：初始 list=none default=none；添加 first 后 list=first default=none；调用 netif_set_default 后 default=first；添加 second 后 list=second default=first。 [E6] [E7] [E9] [T7]\n\n常见误解与反例\n调用方误把“加入接口链表”当作“选择默认接口”。反复调用 netif_add 只改变链表，不能替代 netif_set_default；最后添加的接口不会自动成为默认接口。 [T3] [T5] [T6]\n\n边界条件\nLWIP_SINGLE_NETIF 下，若 netif_default 已存在，netif_add 返回 NULL；多接口配置下，显式调用 netif_set_default 才能修改默认接口，且不会因新接口加入而覆盖。 [E1] [E5] [T6]\n\n验证边界\n复现固定于 revision 3d896ba0a37ff3ce73270ca5e230707fe47f60e3，使用最小化 lwipopts.h（NO_SYS、IPv4-only 等），结果与 result.txt 做 diff 校验。 [E7] [E8]",
+      "usage": {
+        "requests": 1,
+        "input_tokens": 2778,
+        "output_tokens": 876,
+        "tokens": 3654,
+        "usage_complete": true,
+        "cost_usd": 0.0,
+        "cost_upper_bound_usd": 0.0
+      }
+    },
+    {
+      "id": "lwip-netif:structured_card",
+      "case_id": "lwip-netif",
+      "arm": "structured_card",
+      "model": "deepseek-v4-flash",
+      "session_id": "knowledge-production-b27387a60d29823d:structured_card:lwip-netif",
+      "sections": [
+        {
+          "id": "lwip-netif:structured_card:s1",
+          "heading": "现象",
+          "content": "新增网络接口后 netif_list 更新了，但 netif_default 没有自动指向新接口；这不是生产事故。复现输出显示：初始 list=none default=none；加入 first 后 list=first default=none。",
+          "evidence_tags": [
+            "E6",
+            "E9",
+            "T1"
+          ]
+        },
+        {
+          "id": "lwip-netif:structured_card:s2",
+          "heading": "假设",
+          "content": "初始假设是 netif_add 会在加入首个接口时顺带设置默认接口。但固定版本源码中 netif_add 仅插入链表并返回接口，未修改 netif_default。",
+          "evidence_tags": [
+            "E1",
+            "E3",
+            "T2"
+          ]
+        },
+        {
+          "id": "lwip-netif:structured_card:s3",
+          "heading": "排除项",
+          "content": "反复调用 netif_add 只会改变接口链表，不能代替显式的 netif_set_default。netif_set_default 是修改 netif_default 的独立函数。",
+          "evidence_tags": [
+            "E4",
+            "T3"
+          ]
+        },
+        {
+          "id": "lwip-netif:structured_card:s4",
+          "heading": "根因",
+          "content": "调用方把“加入接口链表”和“选择默认接口”当成了同一步；在该固定多接口配置中 netif_add 不会自动设置 netif_default。",
+          "evidence_tags": [
+            "E1",
+            "E4",
+            "T5"
+          ]
+        },
+        {
+          "id": "lwip-netif:structured_card:s5",
+          "heading": "处理步骤",
+          "content": "netif_add 成功后，根据路由策略显式调用 netif_set_default；不要默认让最后添加的接口覆盖既有默认接口。",
+          "evidence_tags": [
+            "E4",
+            "T6"
+          ]
+        },
+        {
+          "id": "lwip-netif:structured_card:s6",
+          "heading": "验证和边界",
+          "content": "运行 run.sh：first 加入后 default=none；调用 netif_set_default 后 default=first；追加 second 后 default 仍为 first。边界：LWIP_SINGLE_NETIF 下若已有默认接口，netif_add 会返回 NULL。",
+          "evidence_tags": [
+            "E1",
+            "E5",
+            "E7",
+            "E9",
+            "T7"
+          ]
+        }
+      ],
+      "text": "现象\n新增网络接口后 netif_list 更新了，但 netif_default 没有自动指向新接口；这不是生产事故。复现输出显示：初始 list=none default=none；加入 first 后 list=first default=none。 [E6] [E9] [T1]\n\n假设\n初始假设是 netif_add 会在加入首个接口时顺带设置默认接口。但固定版本源码中 netif_add 仅插入链表并返回接口，未修改 netif_default。 [E1] [E3] [T2]\n\n排除项\n反复调用 netif_add 只会改变接口链表，不能代替显式的 netif_set_default。netif_set_default 是修改 netif_default 的独立函数。 [E4] [T3]\n\n根因\n调用方把“加入接口链表”和“选择默认接口”当成了同一步；在该固定多接口配置中 netif_add 不会自动设置 netif_default。 [E1] [E4] [T5]\n\n处理步骤\nnetif_add 成功后，根据路由策略显式调用 netif_set_default；不要默认让最后添加的接口覆盖既有默认接口。 [E4] [T6]\n\n验证和边界\n运行 run.sh：first 加入后 default=none；调用 netif_set_default 后 default=first；追加 second 后 default 仍为 first。边界：LWIP_SINGLE_NETIF 下若已有默认接口，netif_add 会返回 NULL。 [E1] [E5] [E7] [E9] [T7]",
+      "usage": {
+        "requests": 1,
+        "input_tokens": 2781,
+        "output_tokens": 815,
+        "tokens": 3596,
+        "usage_complete": true,
+        "cost_usd": 0.0,
+        "cost_upper_bound_usd": 0.0
+      }
+    }
+  ],
+  "production_cost": {
+    "model_requests": 4,
+    "input_tokens": 9568,
+    "output_tokens": 3777,
+    "cost_usd": 0,
+    "human_edit_seconds": null,
+    "latency_ms": 51243.6
+  },
+  "boundary": "Model-produced materials are isolated and unusable until dual review; follow-up questions and answer keys were not model inputs.",
+  "artifact_hash": "96ef228c9a0caa4c161bd41d298703c1e75df76fd15e3b4ccf4977790d22d4f4"
+}

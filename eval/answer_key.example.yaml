@@ -1,0 +1,24 @@
+schema_version: 2
+status: draft
+split: development_regression
+# FORMAT EXAMPLE ONLY: freeze separately and record actual human or agent provenance.
+# An agent review uses review.independent_reviews (two isolated judges), with
+# optional third-agent adjudication. Never put an agent's scores under a human name.
+task_set_hash: REPLACE_WITH_UNCHANGED_TASK_MANIFEST_SHA256
+reviewer: null
+reviewer_kind: null
+reviewed_at: null
+note: null
+frozen_at: null
+not_used_for_tuning: false
+tasks:
+  replace_with_actual_task_id:
+    expected_points:
+      - id: child_guard
+        text: 只有非 reference 且 child 非空时，才递归删除 child。
+        evidence: https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L259-L262
+      - id: other_deallocations
+        text: 跳过 child 不表示整个函数不释放；valuestring、string 有各自条件，当前节点仍被释放。
+        evidence: https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L263-L275
+    forbidden_claims:
+      - reference 节点完全不释放任何内存。

@@ -1,0 +1,2295 @@
+{
+  "manifest": {
+    "schema_version": 1,
+    "name": "cJSON 精选开发任务集（20 题）",
+    "repository": "https://github.com/DaveGamble/cJSON",
+    "revision": "fb16e5cf358798aabb049655975cde8427101056",
+    "public_source": "cJSON 公开源码固定快照",
+    "reviewer": "Guoshuaiqi",
+    "reviewed_at": "2026-09-04",
+    "failure_policy": "运行时未命中固定锚点、provenance 不完整或门禁不满足即记录为失败，不调整 gold 隐藏失败。",
+    "tasks": [
+      {
+        "id": "locate-parse-options",
+        "type": "定位",
+        "status": "approved",
+        "question": "cJSON_ParseWithOpts 在哪里定义，它是哪个解析入口？",
+        "source_permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1131-L1144",
+        "expected_anchors": [
+          {
+            "symbol": "cJSON_ParseWithOpts",
+            "path": "cJSON.c",
+            "line_start": 1131
+          }
+        ],
+        "rationale": "公开 API 的实现位置是解析入口定位任务的明确源码锚点。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "locate-delete",
+        "type": "定位",
+        "status": "approved",
+        "question": "cJSON_Delete 的定义位置和释放入口在哪里？",
+        "source_permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L253-L276",
+        "expected_anchors": [
+          {
+            "symbol": "cJSON_Delete",
+            "path": "cJSON.c",
+            "line_start": 253
+          }
+        ],
+        "rationale": "递归释放函数可通过稳定的公开 API 名称和定义范围定位。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "callers-parse-value",
+        "type": "调用链",
+        "status": "approved",
+        "question": "哪些函数直接调用 parse_value？",
+        "source_permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1368-L1420",
+        "expected_anchors": [
+          {
+            "symbol": "cJSON_ParseWithLengthOpts",
+            "path": "cJSON.c",
+            "line_start": 1147
+          },
+          {
+            "symbol": "parse_array",
+            "path": "cJSON.c",
+            "line_start": 1497
+          },
+          {
+            "symbol": "parse_object",
+            "path": "cJSON.c",
+            "line_start": 1662
+          }
+        ],
+        "rationale": "三个调用者均由固定快照中的 certain AST 调用边确认。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "callers-add-item",
+        "type": "调用链",
+        "status": "approved",
+        "question": "谁直接调用 cJSON_AddItemToObject？",
+        "source_permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L2119-L2122",
+        "expected_anchors": [
+          {
+            "symbol": "apply_patch",
+            "path": "cJSON_Utils.c",
+            "line_start": 807
+          },
+          {
+            "symbol": "create_objects",
+            "path": "test.c",
+            "line_start": 109
+          }
+        ],
+        "rationale": "一个工具实现和一个公开测试调用点可验证跨文件调用链检索。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "impact-parse-value",
+        "type": "影响分析",
+        "status": "approved",
+        "question": "修改 parse_value 后，2 跳内哪些 certain 调用者需要回归检查？",
+        "source_permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1368-L1420",
+        "target": {
+          "symbol": "parse_value",
+          "path": "cJSON.c",
+          "line_start": 1368
+        },
+        "depth": 2,
+        "expected_certain": [
+          {
+            "symbol": "cJSON_ParseWithLengthOpts",
+            "path": "cJSON.c",
+            "line_start": 1147
+          },
+          {
+            "symbol": "parse_array",
+            "path": "cJSON.c",
+            "line_start": 1497
+          },
+          {
+            "symbol": "parse_object",
+            "path": "cJSON.c",
+            "line_start": 1662
+          },
+          {
+            "symbol": "parse_value",
+            "path": "cJSON.c",
+            "line_start": 1368
+          },
+          {
+            "symbol": "assert_parse_value",
+            "path": "tests/parse_value.c",
+            "line_start": 44
+          },
+          {
+            "symbol": "assert_print_value",
+            "path": "tests/print_value.c",
+            "line_start": 31
+          },
+          {
+            "symbol": "assert_print_object",
+            "path": "tests/print_object.c",
+            "line_start": 27
+          },
+          {
+            "symbol": "print_value_should_print_object",
+            "path": "tests/print_value.c",
+            "line_start": 88
+          },
+          {
+            "symbol": "assert_parse_object",
+            "path": "tests/parse_object.c",
+            "line_start": 65
+          },
+          {
+            "symbol": "parse_value_should_parse_string",
+            "path": "tests/parse_value.c",
+            "line_start": 79
+          },
+          {
+            "symbol": "assert_parse_array",
+            "path": "tests/parse_array.c",
+            "line_start": 56
+          },
+          {
+            "symbol": "print_value_should_print_string",
+            "path": "tests/print_value.c",
+            "line_start": 77
+          },
+          {
+            "symbol": "print_value_should_print_array",
+            "path": "tests/print_value.c",
+            "line_start": 83
+          },
+          {
+            "symbol": "print_value_should_print_false",
+            "path": "tests/print_value.c",
+            "line_start": 67
+          },
+          {
+            "symbol": "assert_not_array",
+            "path": "tests/parse_array.c",
+            "line_start": 45
+          },
+          {
+            "symbol": "parse_value_should_parse_false",
+            "path": "tests/parse_value.c",
+            "line_start": 67
+          },
+          {
+            "symbol": "parse_value_should_parse_object",
+            "path": "tests/parse_value.c",
+            "line_start": 93
+          },
+          {
+            "symbol": "print_value_should_print_true",
+            "path": "tests/print_value.c",
+            "line_start": 62
+          },
+          {
+            "symbol": "cJSON_ParseWithOpts",
+            "path": "cJSON.c",
+            "line_start": 1131
+          },
+          {
+            "symbol": "parse_value_should_parse_null",
+            "path": "tests/parse_value.c",
+            "line_start": 55
+          },
+          {
+            "symbol": "print_value_should_print_null",
+            "path": "tests/print_value.c",
+            "line_start": 57
+          },
+          {
+            "symbol": "cJSON_ParseWithLength",
+            "path": "cJSON.c",
+            "line_start": 1232
+          },
+          {
+            "symbol": "assert_print_array",
+            "path": "tests/print_array.c",
+            "line_start": 27
+          },
+          {
+            "symbol": "parse_value_should_parse_true",
+            "path": "tests/parse_value.c",
+            "line_start": 61
+          },
+          {
+            "symbol": "print_value_should_print_number",
+            "path": "tests/print_value.c",
+            "line_start": 72
+          },
+          {
+            "symbol": "parse_value_should_parse_number",
+            "path": "tests/parse_value.c",
+            "line_start": 73
+          },
+          {
+            "symbol": "assert_not_object",
+            "path": "tests/parse_object.c",
+            "line_start": 53
+          },
+          {
+            "symbol": "parse_value_should_parse_array",
+            "path": "tests/parse_value.c",
+            "line_start": 87
+          }
+        ],
+        "rationale": "金标是固定 revision 与正式 compile database 下完整的 2 跳 certain 反向可达集，包含公开测试调用者与自递归。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "impact-parse-options",
+        "type": "影响分析",
+        "status": "approved",
+        "question": "修改 cJSON_ParseWithOpts 后，2 跳内哪些 certain 调用者会受影响？",
+        "source_permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1131-L1144",
+        "target": {
+          "symbol": "cJSON_ParseWithOpts",
+          "path": "cJSON.c",
+          "line_start": 1131
+        },
+        "depth": 2,
+        "expected_certain": [
+          {
+            "symbol": "cJSON_Parse",
+            "path": "cJSON.c",
+            "line_start": 1227
+          },
+          {
+            "symbol": "parse_with_opts_should_parse_utf8_bom",
+            "path": "tests/parse_with_opts.c",
+            "line_start": 84
+          },
+          {
+            "symbol": "LLVMFuzzerTestOneInput",
+            "path": "fuzzing/cjson_read_fuzzer.c",
+            "line_start": 13
+          },
+          {
+            "symbol": "parse_with_opts_should_require_null_if_requested",
+            "path": "tests/parse_with_opts.c",
+            "line_start": 62
+          },
+          {
+            "symbol": "cjson_functions_should_not_crash_with_null_pointers",
+            "path": "tests/misc_tests.c",
+            "line_start": 384
+          },
+          {
+            "symbol": "parse_with_opts_should_handle_empty_strings",
+            "path": "tests/parse_with_opts.c",
+            "line_start": 39
+          },
+          {
+            "symbol": "parse_with_opts_should_handle_incomplete_json",
+            "path": "tests/parse_with_opts.c",
+            "line_start": 52
+          },
+          {
+            "symbol": "parse_with_opts_should_return_parse_end",
+            "path": "tests/parse_with_opts.c",
+            "line_start": 73
+          },
+          {
+            "symbol": "parse_with_opts_should_handle_null",
+            "path": "tests/parse_with_opts.c",
+            "line_start": 27
+          },
+          {
+            "symbol": "main",
+            "path": "fuzzing/afl.c",
+            "line_start": 85
+          },
+          {
+            "symbol": "main",
+            "path": "fuzzing/fuzz_main.c",
+            "line_start": 9
+          },
+          {
+            "symbol": "cjson_get_object_item_case_sensitive_should_get_object_items",
+            "path": "tests/misc_tests.c",
+            "line_start": 98
+          },
+          {
+            "symbol": "file_test6_should_not_be_parsed",
+            "path": "tests/parse_examples.c",
+            "line_start": 134
+          },
+          {
+            "symbol": "cjson_parse_big_numbers_should_not_report_error",
+            "path": "tests/misc_tests.c",
+            "line_start": 786
+          },
+          {
+            "symbol": "cjson_delete_item_from_array_should_not_broken_list_structure",
+            "path": "tests/misc_tests.c",
+            "line_start": 659
+          },
+          {
+            "symbol": "cjson_get_object_item_should_not_crash_with_array",
+            "path": "tests/misc_tests.c",
+            "line_start": 129
+          },
+          {
+            "symbol": "cjson_get_object_item_should_get_object_items",
+            "path": "tests/misc_tests.c",
+            "line_start": 67
+          },
+          {
+            "symbol": "cjson_compare_should_compare_raw",
+            "path": "tests/compare_tests.c",
+            "line_start": 121
+          },
+          {
+            "symbol": "supports_full_hd",
+            "path": "tests/readme_examples.c",
+            "line_start": 169
+          },
+          {
+            "symbol": "merge_tests",
+            "path": "tests/old_utils_tests.c",
+            "line_start": 168
+          },
+          {
+            "symbol": "cjson_set_valuestring_should_return_null_if_strings_overlap",
+            "path": "tests/misc_tests.c",
+            "line_start": 492
+          },
+          {
+            "symbol": "cjson_should_not_parse_to_deeply_nested_jsons",
+            "path": "tests/misc_tests.c",
+            "line_start": 209
+          },
+          {
+            "symbol": "generate_merge_tests",
+            "path": "tests/old_utils_tests.c",
+            "line_start": 192
+          },
+          {
+            "symbol": "parse_test_file",
+            "path": "tests/json_patch_tests.c",
+            "line_start": 32
+          },
+          {
+            "symbol": "compare_from_string",
+            "path": "tests/compare_tests.c",
+            "line_start": 27
+          },
+          {
+            "symbol": "parse_file",
+            "path": "tests/parse_examples.c",
+            "line_start": 31
+          },
+          {
+            "symbol": "json_pointer_tests",
+            "path": "tests/old_utils_tests.c",
+            "line_start": 52
+          },
+          {
+            "symbol": "cjson_set_valuestring_to_object_should_not_leak_memory",
+            "path": "tests/misc_tests.c",
+            "line_start": 693
+          },
+          {
+            "symbol": "test12_should_not_be_parsed",
+            "path": "tests/parse_examples.c",
+            "line_start": 182
+          },
+          {
+            "symbol": "cjson_get_object_item_case_sensitive_should_not_crash_with_array",
+            "path": "tests/misc_tests.c",
+            "line_start": 141
+          }
+        ],
+        "rationale": "该金标覆盖正式 compile database 中完整的 2 跳 certain 集，包括 API 包装、fuzz 入口和公开测试调用者。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "semantic-parse-tree",
+        "type": "语义检索",
+        "status": "approved",
+        "question": "JSON parser 如何处理 object values？",
+        "source_permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1368-L1420",
+        "expected_anchors": [
+          {
+            "symbol": "parse_value",
+            "path": "cJSON.c",
+            "line_start": 1368
+          },
+          {
+            "symbol": "parse_object",
+            "path": "cJSON.c",
+            "line_start": 1662
+          },
+          {
+            "symbol": "parse_string",
+            "path": "cJSON.c",
+            "line_start": 824
+          }
+        ],
+        "rationale": "不直接给出符号名，检查自然语言是否能回到解析分派与对象/字符串处理实现。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "semantic-serialize",
+        "type": "语义检索",
+        "status": "approved",
+        "question": "JSON output buffer 如何在 serialization 时 grow？",
+        "source_permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1423-L1494",
+        "expected_anchors": [
+          {
+            "symbol": "print_value",
+            "path": "cJSON.c",
+            "line_start": 1423
+          },
+          {
+            "symbol": "print_object",
+            "path": "cJSON.c",
+            "line_start": 1780
+          },
+          {
+            "symbol": "print_string",
+            "path": "cJSON.c",
+            "line_start": 1076
+          }
+        ],
+        "rationale": "不直接给出函数名，检查序列化语义查询是否命中值分派、对象和字符串输出实现。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "refuse-kubernetes-tls",
+        "type": "无证据拒答",
+        "status": "approved",
+        "question": "如何轮换 Kubernetes Ingress 的 TLS 证书？",
+        "source_permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1-L20",
+        "rationale": "Kubernetes 运维知识不属于 cJSON 公开源码范围，不能用无关 A 级片段拼凑答案。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "refuse-postgresql-slow-query",
+        "type": "无证据拒答",
+        "status": "approved",
+        "question": "如何排查 PostgreSQL 的慢查询？",
+        "source_permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1-L20",
+        "rationale": "数据库排障知识不属于 cJSON 代码事实或已审核经验，系统应明确拒答。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "locate-print-unformatted",
+        "type": "定位",
+        "status": "approved",
+        "question": "cJSON_PrintUnformatted 的公开输出入口在哪里定义？",
+        "source_permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1312-L1326",
+        "expected_anchors": [
+          {
+            "symbol": "cJSON_PrintUnformatted",
+            "path": "cJSON.c",
+            "line_start": 1312
+          }
+        ],
+        "rationale": "固定 revision 上无格式化输出 API 的唯一函数定义。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "locate-object-item-sensitive",
+        "type": "定位",
+        "status": "approved",
+        "question": "区分大小写查找对象成员的函数定义在哪里？",
+        "source_permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1988-L1991",
+        "expected_anchors": [
+          {
+            "symbol": "cJSON_GetObjectItemCaseSensitive",
+            "path": "cJSON.c",
+            "line_start": 1988
+          }
+        ],
+        "rationale": "自然语言接口意图对应固定源码中的唯一公开实现。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "locate-compare",
+        "type": "定位",
+        "status": "approved",
+        "question": "cJSON 节点深度比较的入口 cJSON_Compare 在哪里实现？",
+        "source_permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L3072-L3179",
+        "expected_anchors": [
+          {
+            "symbol": "cJSON_Compare",
+            "path": "cJSON.c",
+            "line_start": 3072
+          }
+        ],
+        "rationale": "比较入口的源码范围在固定 revision 上唯一。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "semantic-compare-tree",
+        "type": "语义检索",
+        "status": "approved",
+        "question": "两棵 JSON 树怎样递归比较类型、数组元素和对象成员？",
+        "source_permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L3072-L3179",
+        "expected_anchors": [
+          {
+            "symbol": "cJSON_Compare",
+            "path": "cJSON.c",
+            "line_start": 3072
+          }
+        ],
+        "rationale": "不直接依赖完整函数名，检查树比较语义能否回到实现锚点。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "refuse-redis-cluster",
+        "type": "无证据拒答",
+        "status": "approved",
+        "question": "Redis Cluster 跨槽事务失败应该如何排查？",
+        "source_permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1-L20",
+        "rationale": "分布式缓存排障不属于 cJSON 代码与已审核经验边界。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "exp-cjson-symptom",
+        "type": "已审核经验复用",
+        "status": "approved",
+        "question": "深层嵌套 JSON 输入触发解析失败时，历史审查记录描述了什么现象？",
+        "source_permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1368-L1420",
+        "expected_card_title": "cJSON 深层嵌套输入审查示例",
+        "main_anchor": {
+          "symbol": "parse_value",
+          "path": "cJSON.c",
+          "line_start": 1368
+        },
+        "rationale": "必须命中 approved B 卡并返回当前 parse_value 主锚点。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "exp-cjson-dead-end",
+        "type": "已审核经验复用",
+        "status": "approved",
+        "question": "深层嵌套解析问题中，为什么只增大进程栈不是可靠修复？",
+        "source_permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1368-L1420",
+        "expected_card_title": "cJSON 深层嵌套输入审查示例",
+        "main_anchor": {
+          "symbol": "parse_value",
+          "path": "cJSON.c",
+          "line_start": 1368
+        },
+        "rationale": "检查无效尝试能否从审核卡复用，而不是由模型猜测。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "exp-cjson-fix",
+        "type": "已审核经验复用",
+        "status": "approved",
+        "question": "已审核经验建议如何核对嵌套层级限制和失败返回？",
+        "source_permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1368-L1420",
+        "expected_card_title": "cJSON 深层嵌套输入审查示例",
+        "main_anchor": {
+          "symbol": "parse_value",
+          "path": "cJSON.c",
+          "line_start": 1368
+        },
+        "rationale": "解决步骤必须来自当前可用的 B 级知识卡。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "exp-cjson-verify",
+        "type": "已审核经验复用",
+        "status": "approved",
+        "question": "深层嵌套输入审查应覆盖哪些边界用例？",
+        "source_permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1368-L1420",
+        "expected_card_title": "cJSON 深层嵌套输入审查示例",
+        "main_anchor": {
+          "symbol": "parse_value",
+          "path": "cJSON.c",
+          "line_start": 1368
+        },
+        "rationale": "验证方式由审核卡记录并保持版本锚点。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "exp-cjson-anchor",
+        "type": "已审核经验复用",
+        "status": "approved",
+        "question": "深层嵌套解析经验当前绑定的主函数和源码范围是什么？",
+        "source_permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1368-L1420",
+        "expected_card_title": "cJSON 深层嵌套输入审查示例",
+        "main_anchor": {
+          "symbol": "parse_value",
+          "path": "cJSON.c",
+          "line_start": 1368
+        },
+        "rationale": "B 卡引用必须携带当前主锚点而不是历史行号或 stale 页面。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      }
+    ],
+    "db_repository": "https://github.com/DaveGamble/cJSON",
+    "db_revision": "fb16e5cf358798aabb049655975cde8427101056"
+  },
+  "retrieval": [
+    {
+      "id": "locate-parse-options",
+      "type": "定位",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "cJSON_ParseWithOpts 在哪里定义，它是哪个解析入口？",
+      "permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1131-L1144",
+      "anchors": [
+        {
+          "symbol": "cJSON_ParseWithOpts",
+          "path": "cJSON.c",
+          "line_start": 1131
+        }
+      ],
+      "rationale": "公开 API 的实现位置是解析入口定位任务的明确源码锚点。",
+      "attempts": {
+        "仅 BM25": {
+          "hit": true,
+          "mrr": 0.25,
+          "evidence_complete": true,
+          "latency_ms": 2.5,
+          "context_tokens": 4307,
+          "errors": [],
+          "matched_tag": "A4",
+          "refused": false
+        },
+        "BM25 + 符号": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 1.8,
+          "context_tokens": 4353,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "+ 本地向量": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 20.7,
+          "context_tokens": 4317,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "+ certain 图扩展": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 4.0,
+          "context_tokens": 5315,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "完整无模型": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 4.5,
+          "context_tokens": 5315,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        }
+      },
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "locate-delete",
+      "type": "定位",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "cJSON_Delete 的定义位置和释放入口在哪里？",
+      "permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L253-L276",
+      "anchors": [
+        {
+          "symbol": "cJSON_Delete",
+          "path": "cJSON.c",
+          "line_start": 253
+        }
+      ],
+      "rationale": "递归释放函数可通过稳定的公开 API 名称和定义范围定位。",
+      "attempts": {
+        "仅 BM25": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 0.8,
+          "context_tokens": 3742,
+          "errors": [
+            "top-10 未命中预期代码锚点"
+          ],
+          "matched_tag": null,
+          "refused": false
+        },
+        "BM25 + 符号": {
+          "hit": true,
+          "mrr": 0.25,
+          "evidence_complete": true,
+          "latency_ms": 1.7,
+          "context_tokens": 3778,
+          "errors": [],
+          "matched_tag": "A4",
+          "refused": false
+        },
+        "+ 本地向量": {
+          "hit": true,
+          "mrr": 0.25,
+          "evidence_complete": true,
+          "latency_ms": 2.1,
+          "context_tokens": 4357,
+          "errors": [],
+          "matched_tag": "A4",
+          "refused": false
+        },
+        "+ certain 图扩展": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 5.4,
+          "context_tokens": 5995,
+          "errors": [
+            "top-10 未命中预期代码锚点"
+          ],
+          "matched_tag": null,
+          "refused": false
+        },
+        "完整无模型": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 6.0,
+          "context_tokens": 5995,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        }
+      },
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "callers-parse-value",
+      "type": "调用链",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "哪些函数直接调用 parse_value？",
+      "permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1368-L1420",
+      "anchors": [
+        {
+          "symbol": "cJSON_ParseWithLengthOpts",
+          "path": "cJSON.c",
+          "line_start": 1147
+        },
+        {
+          "symbol": "parse_array",
+          "path": "cJSON.c",
+          "line_start": 1497
+        },
+        {
+          "symbol": "parse_object",
+          "path": "cJSON.c",
+          "line_start": 1662
+        }
+      ],
+      "rationale": "三个调用者均由固定快照中的 certain AST 调用边确认。",
+      "attempts": {
+        "仅 BM25": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 0.7,
+          "context_tokens": 3315,
+          "errors": [
+            "top-10 未命中预期代码锚点"
+          ],
+          "matched_tag": null,
+          "refused": false
+        },
+        "BM25 + 符号": {
+          "hit": true,
+          "mrr": 0.1,
+          "evidence_complete": true,
+          "latency_ms": 1.6,
+          "context_tokens": 3816,
+          "errors": [],
+          "matched_tag": "A10",
+          "refused": false
+        },
+        "+ 本地向量": {
+          "hit": true,
+          "mrr": 0.1,
+          "evidence_complete": true,
+          "latency_ms": 2.0,
+          "context_tokens": 3809,
+          "errors": [],
+          "matched_tag": "A10",
+          "refused": false
+        },
+        "+ certain 图扩展": {
+          "hit": true,
+          "mrr": 0.333,
+          "evidence_complete": true,
+          "latency_ms": 2.0,
+          "context_tokens": 3978,
+          "errors": [],
+          "matched_tag": "A3",
+          "refused": false
+        },
+        "完整无模型": {
+          "hit": true,
+          "mrr": 0.333,
+          "evidence_complete": true,
+          "latency_ms": 2.3,
+          "context_tokens": 3978,
+          "errors": [],
+          "matched_tag": "A3",
+          "refused": false
+        }
+      },
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "callers-add-item",
+      "type": "调用链",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "谁直接调用 cJSON_AddItemToObject？",
+      "permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L2119-L2122",
+      "anchors": [
+        {
+          "symbol": "apply_patch",
+          "path": "cJSON_Utils.c",
+          "line_start": 807
+        },
+        {
+          "symbol": "create_objects",
+          "path": "test.c",
+          "line_start": 109
+        }
+      ],
+      "rationale": "一个工具实现和一个公开测试调用点可验证跨文件调用链检索。",
+      "attempts": {
+        "仅 BM25": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 0.6,
+          "context_tokens": 3987,
+          "errors": [
+            "top-10 未命中预期代码锚点"
+          ],
+          "matched_tag": null,
+          "refused": false
+        },
+        "BM25 + 符号": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 1.7,
+          "context_tokens": 4214,
+          "errors": [
+            "top-10 未命中预期代码锚点"
+          ],
+          "matched_tag": null,
+          "refused": false
+        },
+        "+ 本地向量": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 2.4,
+          "context_tokens": 4244,
+          "errors": [
+            "top-10 未命中预期代码锚点"
+          ],
+          "matched_tag": null,
+          "refused": false
+        },
+        "+ certain 图扩展": {
+          "hit": true,
+          "mrr": 0.333,
+          "evidence_complete": true,
+          "latency_ms": 2.6,
+          "context_tokens": 5191,
+          "errors": [],
+          "matched_tag": "A3",
+          "refused": false
+        },
+        "完整无模型": {
+          "hit": true,
+          "mrr": 0.167,
+          "evidence_complete": true,
+          "latency_ms": 2.8,
+          "context_tokens": 5191,
+          "errors": [],
+          "matched_tag": "A6",
+          "refused": false
+        }
+      },
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "semantic-parse-tree",
+      "type": "语义检索",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "JSON parser 如何处理 object values？",
+      "permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1368-L1420",
+      "anchors": [
+        {
+          "symbol": "parse_value",
+          "path": "cJSON.c",
+          "line_start": 1368
+        },
+        {
+          "symbol": "parse_object",
+          "path": "cJSON.c",
+          "line_start": 1662
+        },
+        {
+          "symbol": "parse_string",
+          "path": "cJSON.c",
+          "line_start": 824
+        }
+      ],
+      "rationale": "不直接给出符号名，检查自然语言是否能回到解析分派与对象/字符串处理实现。",
+      "attempts": {
+        "仅 BM25": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 1.0,
+          "context_tokens": 3658,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "BM25 + 符号": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 2.4,
+          "context_tokens": 3734,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "+ 本地向量": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 2.7,
+          "context_tokens": 3758,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "+ certain 图扩展": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 3.9,
+          "context_tokens": 4911,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "完整无模型": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 4.3,
+          "context_tokens": 4911,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        }
+      },
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "semantic-serialize",
+      "type": "语义检索",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "JSON output buffer 如何在 serialization 时 grow？",
+      "permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1423-L1494",
+      "anchors": [
+        {
+          "symbol": "print_value",
+          "path": "cJSON.c",
+          "line_start": 1423
+        },
+        {
+          "symbol": "print_object",
+          "path": "cJSON.c",
+          "line_start": 1780
+        },
+        {
+          "symbol": "print_string",
+          "path": "cJSON.c",
+          "line_start": 1076
+        }
+      ],
+      "rationale": "不直接给出函数名，检查序列化语义查询是否命中值分派、对象和字符串输出实现。",
+      "attempts": {
+        "仅 BM25": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 1.1,
+          "context_tokens": 3158,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "BM25 + 符号": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 2.8,
+          "context_tokens": 3123,
+          "errors": [
+            "top-10 未命中预期代码锚点"
+          ],
+          "matched_tag": null,
+          "refused": false
+        },
+        "+ 本地向量": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 3.1,
+          "context_tokens": 3159,
+          "errors": [
+            "top-10 未命中预期代码锚点"
+          ],
+          "matched_tag": null,
+          "refused": false
+        },
+        "+ certain 图扩展": {
+          "hit": true,
+          "mrr": 0.111,
+          "evidence_complete": true,
+          "latency_ms": 4.2,
+          "context_tokens": 4052,
+          "errors": [],
+          "matched_tag": "A9",
+          "refused": false
+        },
+        "完整无模型": {
+          "hit": true,
+          "mrr": 0.111,
+          "evidence_complete": true,
+          "latency_ms": 4.8,
+          "context_tokens": 4052,
+          "errors": [],
+          "matched_tag": "A9",
+          "refused": false
+        }
+      },
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "locate-print-unformatted",
+      "type": "定位",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "cJSON_PrintUnformatted 的公开输出入口在哪里定义？",
+      "permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1312-L1326",
+      "anchors": [
+        {
+          "symbol": "cJSON_PrintUnformatted",
+          "path": "cJSON.c",
+          "line_start": 1312
+        }
+      ],
+      "rationale": "固定 revision 上无格式化输出 API 的唯一函数定义。",
+      "attempts": {
+        "仅 BM25": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 0.6,
+          "context_tokens": 3797,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "BM25 + 符号": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 1.6,
+          "context_tokens": 3774,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "+ 本地向量": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 1.9,
+          "context_tokens": 3774,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "+ certain 图扩展": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 3.2,
+          "context_tokens": 4843,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "完整无模型": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 3.8,
+          "context_tokens": 4843,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        }
+      },
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "locate-object-item-sensitive",
+      "type": "定位",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "区分大小写查找对象成员的函数定义在哪里？",
+      "permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1988-L1991",
+      "anchors": [
+        {
+          "symbol": "cJSON_GetObjectItemCaseSensitive",
+          "path": "cJSON.c",
+          "line_start": 1988
+        }
+      ],
+      "rationale": "自然语言接口意图对应固定源码中的唯一公开实现。",
+      "attempts": {
+        "仅 BM25": {
+          "hit": true,
+          "mrr": 0.5,
+          "evidence_complete": true,
+          "latency_ms": 0.7,
+          "context_tokens": 4300,
+          "errors": [],
+          "matched_tag": "A2",
+          "refused": false
+        },
+        "BM25 + 符号": {
+          "hit": true,
+          "mrr": 0.5,
+          "evidence_complete": true,
+          "latency_ms": 1.5,
+          "context_tokens": 4356,
+          "errors": [],
+          "matched_tag": "A2",
+          "refused": false
+        },
+        "+ 本地向量": {
+          "hit": true,
+          "mrr": 0.333,
+          "evidence_complete": true,
+          "latency_ms": 2.1,
+          "context_tokens": 4356,
+          "errors": [],
+          "matched_tag": "A3",
+          "refused": false
+        },
+        "+ certain 图扩展": {
+          "hit": true,
+          "mrr": 0.333,
+          "evidence_complete": true,
+          "latency_ms": 3.3,
+          "context_tokens": 5778,
+          "errors": [],
+          "matched_tag": "A3",
+          "refused": false
+        },
+        "完整无模型": {
+          "hit": true,
+          "mrr": 0.5,
+          "evidence_complete": true,
+          "latency_ms": 3.8,
+          "context_tokens": 5778,
+          "errors": [],
+          "matched_tag": "A2",
+          "refused": false
+        }
+      },
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "locate-compare",
+      "type": "定位",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "cJSON 节点深度比较的入口 cJSON_Compare 在哪里实现？",
+      "permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L3072-L3179",
+      "anchors": [
+        {
+          "symbol": "cJSON_Compare",
+          "path": "cJSON.c",
+          "line_start": 3072
+        }
+      ],
+      "rationale": "比较入口的源码范围在固定 revision 上唯一。",
+      "attempts": {
+        "仅 BM25": {
+          "hit": true,
+          "mrr": 0.167,
+          "evidence_complete": true,
+          "latency_ms": 1.0,
+          "context_tokens": 4326,
+          "errors": [],
+          "matched_tag": "A6",
+          "refused": false
+        },
+        "BM25 + 符号": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 1.3,
+          "context_tokens": 4362,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "+ 本地向量": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 1.6,
+          "context_tokens": 4343,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "+ certain 图扩展": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 3.1,
+          "context_tokens": 5652,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "完整无模型": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 3.6,
+          "context_tokens": 5652,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        }
+      },
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "semantic-compare-tree",
+      "type": "语义检索",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "两棵 JSON 树怎样递归比较类型、数组元素和对象成员？",
+      "permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L3072-L3179",
+      "anchors": [
+        {
+          "symbol": "cJSON_Compare",
+          "path": "cJSON.c",
+          "line_start": 3072
+        }
+      ],
+      "rationale": "不直接依赖完整函数名，检查树比较语义能否回到实现锚点。",
+      "attempts": {
+        "仅 BM25": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 0.7,
+          "context_tokens": 3762,
+          "errors": [
+            "top-10 未命中预期代码锚点"
+          ],
+          "matched_tag": null,
+          "refused": false
+        },
+        "BM25 + 符号": {
+          "hit": true,
+          "mrr": 0.2,
+          "evidence_complete": true,
+          "latency_ms": 1.5,
+          "context_tokens": 3687,
+          "errors": [],
+          "matched_tag": "A5",
+          "refused": false
+        },
+        "+ 本地向量": {
+          "hit": true,
+          "mrr": 0.333,
+          "evidence_complete": true,
+          "latency_ms": 2.1,
+          "context_tokens": 4351,
+          "errors": [],
+          "matched_tag": "A3",
+          "refused": false
+        },
+        "+ certain 图扩展": {
+          "hit": true,
+          "mrr": 0.333,
+          "evidence_complete": true,
+          "latency_ms": 3.1,
+          "context_tokens": 5856,
+          "errors": [],
+          "matched_tag": "A3",
+          "refused": false
+        },
+        "完整无模型": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 3.7,
+          "context_tokens": 5856,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        }
+      },
+      "passed": true,
+      "errors": []
+    }
+  ],
+  "impacts": [
+    {
+      "id": "impact-parse-value",
+      "type": "影响分析",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "修改 parse_value 后，2 跳内哪些 certain 调用者需要回归检查？",
+      "permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1368-L1420",
+      "target": {
+        "symbol": "parse_value",
+        "path": "cJSON.c",
+        "line_start": 1368
+      },
+      "expected_certain": [
+        {
+          "symbol": "cJSON_ParseWithLengthOpts",
+          "path": "cJSON.c",
+          "line_start": 1147
+        },
+        {
+          "symbol": "parse_array",
+          "path": "cJSON.c",
+          "line_start": 1497
+        },
+        {
+          "symbol": "parse_object",
+          "path": "cJSON.c",
+          "line_start": 1662
+        },
+        {
+          "symbol": "parse_value",
+          "path": "cJSON.c",
+          "line_start": 1368
+        },
+        {
+          "symbol": "assert_parse_value",
+          "path": "tests/parse_value.c",
+          "line_start": 44
+        },
+        {
+          "symbol": "assert_print_value",
+          "path": "tests/print_value.c",
+          "line_start": 31
+        },
+        {
+          "symbol": "assert_print_object",
+          "path": "tests/print_object.c",
+          "line_start": 27
+        },
+        {
+          "symbol": "print_value_should_print_object",
+          "path": "tests/print_value.c",
+          "line_start": 88
+        },
+        {
+          "symbol": "assert_parse_object",
+          "path": "tests/parse_object.c",
+          "line_start": 65
+        },
+        {
+          "symbol": "parse_value_should_parse_string",
+          "path": "tests/parse_value.c",
+          "line_start": 79
+        },
+        {
+          "symbol": "assert_parse_array",
+          "path": "tests/parse_array.c",
+          "line_start": 56
+        },
+        {
+          "symbol": "print_value_should_print_string",
+          "path": "tests/print_value.c",
+          "line_start": 77
+        },
+        {
+          "symbol": "print_value_should_print_array",
+          "path": "tests/print_value.c",
+          "line_start": 83
+        },
+        {
+          "symbol": "print_value_should_print_false",
+          "path": "tests/print_value.c",
+          "line_start": 67
+        },
+        {
+          "symbol": "assert_not_array",
+          "path": "tests/parse_array.c",
+          "line_start": 45
+        },
+        {
+          "symbol": "parse_value_should_parse_false",
+          "path": "tests/parse_value.c",
+          "line_start": 67
+        },
+        {
+          "symbol": "parse_value_should_parse_object",
+          "path": "tests/parse_value.c",
+          "line_start": 93
+        },
+        {
+          "symbol": "print_value_should_print_true",
+          "path": "tests/print_value.c",
+          "line_start": 62
+        },
+        {
+          "symbol": "cJSON_ParseWithOpts",
+          "path": "cJSON.c",
+          "line_start": 1131
+        },
+        {
+          "symbol": "parse_value_should_parse_null",
+          "path": "tests/parse_value.c",
+          "line_start": 55
+        },
+        {
+          "symbol": "print_value_should_print_null",
+          "path": "tests/print_value.c",
+          "line_start": 57
+        },
+        {
+          "symbol": "cJSON_ParseWithLength",
+          "path": "cJSON.c",
+          "line_start": 1232
+        },
+        {
+          "symbol": "assert_print_array",
+          "path": "tests/print_array.c",
+          "line_start": 27
+        },
+        {
+          "symbol": "parse_value_should_parse_true",
+          "path": "tests/parse_value.c",
+          "line_start": 61
+        },
+        {
+          "symbol": "print_value_should_print_number",
+          "path": "tests/print_value.c",
+          "line_start": 72
+        },
+        {
+          "symbol": "parse_value_should_parse_number",
+          "path": "tests/parse_value.c",
+          "line_start": 73
+        },
+        {
+          "symbol": "assert_not_object",
+          "path": "tests/parse_object.c",
+          "line_start": 53
+        },
+        {
+          "symbol": "parse_value_should_parse_array",
+          "path": "tests/parse_value.c",
+          "line_start": 87
+        }
+      ],
+      "rationale": "金标是固定 revision 与正式 compile database 下完整的 2 跳 certain 反向可达集，包含公开测试调用者与自递归。",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "latency_ms": 0.4,
+      "depth": 2,
+      "predicted_count": 28,
+      "candidate_count": 0,
+      "candidate_independent": true,
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "impact-parse-options",
+      "type": "影响分析",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "修改 cJSON_ParseWithOpts 后，2 跳内哪些 certain 调用者会受影响？",
+      "permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1131-L1144",
+      "target": {
+        "symbol": "cJSON_ParseWithOpts",
+        "path": "cJSON.c",
+        "line_start": 1131
+      },
+      "expected_certain": [
+        {
+          "symbol": "cJSON_Parse",
+          "path": "cJSON.c",
+          "line_start": 1227
+        },
+        {
+          "symbol": "parse_with_opts_should_parse_utf8_bom",
+          "path": "tests/parse_with_opts.c",
+          "line_start": 84
+        },
+        {
+          "symbol": "LLVMFuzzerTestOneInput",
+          "path": "fuzzing/cjson_read_fuzzer.c",
+          "line_start": 13
+        },
+        {
+          "symbol": "parse_with_opts_should_require_null_if_requested",
+          "path": "tests/parse_with_opts.c",
+          "line_start": 62
+        },
+        {
+          "symbol": "cjson_functions_should_not_crash_with_null_pointers",
+          "path": "tests/misc_tests.c",
+          "line_start": 384
+        },
+        {
+          "symbol": "parse_with_opts_should_handle_empty_strings",
+          "path": "tests/parse_with_opts.c",
+          "line_start": 39
+        },
+        {
+          "symbol": "parse_with_opts_should_handle_incomplete_json",
+          "path": "tests/parse_with_opts.c",
+          "line_start": 52
+        },
+        {
+          "symbol": "parse_with_opts_should_return_parse_end",
+          "path": "tests/parse_with_opts.c",
+          "line_start": 73
+        },
+        {
+          "symbol": "parse_with_opts_should_handle_null",
+          "path": "tests/parse_with_opts.c",
+          "line_start": 27
+        },
+        {
+          "symbol": "main",
+          "path": "fuzzing/afl.c",
+          "line_start": 85
+        },
+        {
+          "symbol": "main",
+          "path": "fuzzing/fuzz_main.c",
+          "line_start": 9
+        },
+        {
+          "symbol": "cjson_get_object_item_case_sensitive_should_get_object_items",
+          "path": "tests/misc_tests.c",
+          "line_start": 98
+        },
+        {
+          "symbol": "file_test6_should_not_be_parsed",
+          "path": "tests/parse_examples.c",
+          "line_start": 134
+        },
+        {
+          "symbol": "cjson_parse_big_numbers_should_not_report_error",
+          "path": "tests/misc_tests.c",
+          "line_start": 786
+        },
+        {
+          "symbol": "cjson_delete_item_from_array_should_not_broken_list_structure",
+          "path": "tests/misc_tests.c",
+          "line_start": 659
+        },
+        {
+          "symbol": "cjson_get_object_item_should_not_crash_with_array",
+          "path": "tests/misc_tests.c",
+          "line_start": 129
+        },
+        {
+          "symbol": "cjson_get_object_item_should_get_object_items",
+          "path": "tests/misc_tests.c",
+          "line_start": 67
+        },
+        {
+          "symbol": "cjson_compare_should_compare_raw",
+          "path": "tests/compare_tests.c",
+          "line_start": 121
+        },
+        {
+          "symbol": "supports_full_hd",
+          "path": "tests/readme_examples.c",
+          "line_start": 169
+        },
+        {
+          "symbol": "merge_tests",
+          "path": "tests/old_utils_tests.c",
+          "line_start": 168
+        },
+        {
+          "symbol": "cjson_set_valuestring_should_return_null_if_strings_overlap",
+          "path": "tests/misc_tests.c",
+          "line_start": 492
+        },
+        {
+          "symbol": "cjson_should_not_parse_to_deeply_nested_jsons",
+          "path": "tests/misc_tests.c",
+          "line_start": 209
+        },
+        {
+          "symbol": "generate_merge_tests",
+          "path": "tests/old_utils_tests.c",
+          "line_start": 192
+        },
+        {
+          "symbol": "parse_test_file",
+          "path": "tests/json_patch_tests.c",
+          "line_start": 32
+        },
+        {
+          "symbol": "compare_from_string",
+          "path": "tests/compare_tests.c",
+          "line_start": 27
+        },
+        {
+          "symbol": "parse_file",
+          "path": "tests/parse_examples.c",
+          "line_start": 31
+        },
+        {
+          "symbol": "json_pointer_tests",
+          "path": "tests/old_utils_tests.c",
+          "line_start": 52
+        },
+        {
+          "symbol": "cjson_set_valuestring_to_object_should_not_leak_memory",
+          "path": "tests/misc_tests.c",
+          "line_start": 693
+        },
+        {
+          "symbol": "test12_should_not_be_parsed",
+          "path": "tests/parse_examples.c",
+          "line_start": 182
+        },
+        {
+          "symbol": "cjson_get_object_item_case_sensitive_should_not_crash_with_array",
+          "path": "tests/misc_tests.c",
+          "line_start": 141
+        }
+      ],
+      "rationale": "该金标覆盖正式 compile database 中完整的 2 跳 certain 集，包括 API 包装、fuzz 入口和公开测试调用者。",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "latency_ms": 0.3,
+      "depth": 2,
+      "predicted_count": 30,
+      "candidate_count": 0,
+      "candidate_independent": true,
+      "passed": true,
+      "errors": []
+    }
+  ],
+  "refusals": [
+    {
+      "id": "refuse-kubernetes-tls",
+      "type": "无证据拒答",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "如何轮换 Kubernetes Ingress 的 TLS 证书？",
+      "permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1-L20",
+      "rationale": "Kubernetes 运维知识不属于 cJSON 公开源码范围，不能用无关 A 级片段拼凑答案。",
+      "refused": true,
+      "ab_evidence": 0,
+      "latency_ms": 2.1,
+      "context_tokens": 0,
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "refuse-postgresql-slow-query",
+      "type": "无证据拒答",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "如何排查 PostgreSQL 的慢查询？",
+      "permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1-L20",
+      "rationale": "数据库排障知识不属于 cJSON 代码事实或已审核经验，系统应明确拒答。",
+      "refused": true,
+      "ab_evidence": 0,
+      "latency_ms": 1.4,
+      "context_tokens": 0,
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "refuse-redis-cluster",
+      "type": "无证据拒答",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "Redis Cluster 跨槽事务失败应该如何排查？",
+      "permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1-L20",
+      "rationale": "分布式缓存排障不属于 cJSON 代码与已审核经验边界。",
+      "refused": true,
+      "ab_evidence": 0,
+      "latency_ms": 1.7,
+      "context_tokens": 0,
+      "passed": true,
+      "errors": []
+    }
+  ],
+  "experiences": [
+    {
+      "id": "exp-cjson-symptom",
+      "type": "已审核经验复用",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "深层嵌套 JSON 输入触发解析失败时，历史审查记录描述了什么现象？",
+      "permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1368-L1420",
+      "expected_card_title": "cJSON 深层嵌套输入审查示例",
+      "main_anchor": {
+        "symbol": "parse_value",
+        "path": "cJSON.c",
+        "line_start": 1368
+      },
+      "rationale": "必须命中 approved B 卡并返回当前 parse_value 主锚点。",
+      "attempts": {
+        "仅 BM25": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 0.6,
+          "context_tokens": 3164,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "BM25 + 符号": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 0.6,
+          "context_tokens": 3164,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "+ 本地向量": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 1.0,
+          "context_tokens": 3752,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "+ certain 图扩展": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 3.2,
+          "context_tokens": 4963,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "完整无模型": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 3.7,
+          "context_tokens": 4963,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        }
+      },
+      "passed": false,
+      "errors": [
+        "未命中当前 approved B 卡或主锚点 provenance 不完整"
+      ]
+    },
+    {
+      "id": "exp-cjson-dead-end",
+      "type": "已审核经验复用",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "深层嵌套解析问题中，为什么只增大进程栈不是可靠修复？",
+      "permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1368-L1420",
+      "expected_card_title": "cJSON 深层嵌套输入审查示例",
+      "main_anchor": {
+        "symbol": "parse_value",
+        "path": "cJSON.c",
+        "line_start": 1368
+      },
+      "rationale": "检查无效尝试能否从审核卡复用，而不是由模型猜测。",
+      "attempts": {
+        "仅 BM25": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 0.5,
+          "context_tokens": 3190,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "BM25 + 符号": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 0.5,
+          "context_tokens": 3190,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "+ 本地向量": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 0.8,
+          "context_tokens": 3161,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "+ certain 图扩展": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 1.8,
+          "context_tokens": 4543,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "完整无模型": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 2.3,
+          "context_tokens": 4543,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        }
+      },
+      "passed": false,
+      "errors": [
+        "未命中当前 approved B 卡或主锚点 provenance 不完整"
+      ]
+    },
+    {
+      "id": "exp-cjson-fix",
+      "type": "已审核经验复用",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "已审核经验建议如何核对嵌套层级限制和失败返回？",
+      "permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1368-L1420",
+      "expected_card_title": "cJSON 深层嵌套输入审查示例",
+      "main_anchor": {
+        "symbol": "parse_value",
+        "path": "cJSON.c",
+        "line_start": 1368
+      },
+      "rationale": "解决步骤必须来自当前可用的 B 级知识卡。",
+      "attempts": {
+        "仅 BM25": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 0.2,
+          "context_tokens": 1598,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "BM25 + 符号": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 1.0,
+          "context_tokens": 1598,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "+ 本地向量": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 1.6,
+          "context_tokens": 4171,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "+ certain 图扩展": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 4.3,
+          "context_tokens": 5680,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "完整无模型": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 4.6,
+          "context_tokens": 5680,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        }
+      },
+      "passed": false,
+      "errors": [
+        "未命中当前 approved B 卡或主锚点 provenance 不完整"
+      ]
+    },
+    {
+      "id": "exp-cjson-verify",
+      "type": "已审核经验复用",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "深层嵌套输入审查应覆盖哪些边界用例？",
+      "permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1368-L1420",
+      "expected_card_title": "cJSON 深层嵌套输入审查示例",
+      "main_anchor": {
+        "symbol": "parse_value",
+        "path": "cJSON.c",
+        "line_start": 1368
+      },
+      "rationale": "验证方式由审核卡记录并保持版本锚点。",
+      "attempts": {
+        "仅 BM25": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 0.0,
+          "context_tokens": 0,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "BM25 + 符号": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 0.0,
+          "context_tokens": 0,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "+ 本地向量": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 0.2,
+          "context_tokens": 0,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "+ certain 图扩展": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 0.2,
+          "context_tokens": 0,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "完整无模型": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 0.2,
+          "context_tokens": 0,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        }
+      },
+      "passed": false,
+      "errors": [
+        "未命中当前 approved B 卡或主锚点 provenance 不完整"
+      ]
+    },
+    {
+      "id": "exp-cjson-anchor",
+      "type": "已审核经验复用",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "深层嵌套解析经验当前绑定的主函数和源码范围是什么？",
+      "permalink": "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1368-L1420",
+      "expected_card_title": "cJSON 深层嵌套输入审查示例",
+      "main_anchor": {
+        "symbol": "parse_value",
+        "path": "cJSON.c",
+        "line_start": 1368
+      },
+      "rationale": "B 卡引用必须携带当前主锚点而不是历史行号或 stale 页面。",
+      "attempts": {
+        "仅 BM25": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 0.5,
+          "context_tokens": 3151,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "BM25 + 符号": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 0.5,
+          "context_tokens": 3151,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "+ 本地向量": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 0.8,
+          "context_tokens": 3151,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "+ certain 图扩展": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 1.9,
+          "context_tokens": 4533,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "完整无模型": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 2.4,
+          "context_tokens": 4533,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        }
+      },
+      "passed": false,
+      "errors": [
+        "未命中当前 approved B 卡或主锚点 provenance 不完整"
+      ]
+    }
+  ],
+  "acceptance": {
+    "recall_gain_pt": 40.0,
+    "mrr_delta": 0.319,
+    "passed": true
+  },
+  "out": "docs/TASK-EVAL-CJSON.md",
+  "generated_at": "2026-09-05T04:34:36+00:00",
+  "reproducibility": {
+    "task_manifest_sha256": "2758b81110f499690b3ab5acb03b8bbc598d72bef2cbc7250ffabe2c51a3142c",
+    "build_config_hash": "240ae1fe5d1045e372d41a963151dd895ebcb9e177bc8aa7e7428ab9861552d4",
+    "parse_stats": {
+      "diag_error": 0,
+      "translation_units": 28,
+      "tu_failed": 0,
+      "tu_ok": 28
+    },
+    "codeatlas": {
+      "revision": "1b1f1d8bd66bf05fc15f1f62d7a97715e77fc3b4",
+      "branch": "feat/portfolio-core-evidence",
+      "dirty": true,
+      "dirty_entries": 90,
+      "origin": "https://github.com/g18042663173-a11y/codeatlas-c.git",
+      "implementation_hash": "9b78e0d4fbd07e21eae0bfda03b2a7e384f2eed17a463758852da4d6404a470e"
+    }
+  },
+  "summary": {
+    "baseline": {
+      "n": 10,
+      "recall": 60.0,
+      "mrr": 0.392,
+      "evidence": 60.0,
+      "context": 3835,
+      "p50": 0.7,
+      "p95": 2.5
+    },
+    "full": {
+      "n": 10,
+      "recall": 100.0,
+      "mrr": 0.711,
+      "evidence": 100.0,
+      "context": 5157,
+      "p50": 3.8,
+      "p95": 6.0
+    },
+    "impact": {
+      "n": 2,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "p50": 0.3,
+      "p95": 0.4
+    },
+    "refusal": {
+      "n": 3,
+      "accuracy": 100.0,
+      "p50": 1.7,
+      "p95": 2.1
+    },
+    "experience": {
+      "n": 5,
+      "recall": 0.0,
+      "mrr": 0.0,
+      "evidence": 0.0,
+      "context": 3944,
+      "p50": 2.4,
+      "p95": 4.6
+    },
+    "passed_tasks": 15,
+    "total_tasks": 20,
+    "blocked_by_review": [
+      "exp-cjson-symptom",
+      "exp-cjson-dead-end",
+      "exp-cjson-fix",
+      "exp-cjson-verify",
+      "exp-cjson-anchor"
+    ],
+    "unexpected_failures": [],
+    "failures": [
+      {
+        "id": "exp-cjson-symptom",
+        "type": "已审核经验复用",
+        "errors": [
+          "未命中当前 approved B 卡或主锚点 provenance 不完整"
+        ]
+      },
+      {
+        "id": "exp-cjson-dead-end",
+        "type": "已审核经验复用",
+        "errors": [
+          "未命中当前 approved B 卡或主锚点 provenance 不完整"
+        ]
+      },
+      {
+        "id": "exp-cjson-fix",
+        "type": "已审核经验复用",
+        "errors": [
+          "未命中当前 approved B 卡或主锚点 provenance 不完整"
+        ]
+      },
+      {
+        "id": "exp-cjson-verify",
+        "type": "已审核经验复用",
+        "errors": [
+          "未命中当前 approved B 卡或主锚点 provenance 不完整"
+        ]
+      },
+      {
+        "id": "exp-cjson-anchor",
+        "type": "已审核经验复用",
+        "errors": [
+          "未命中当前 approved B 卡或主锚点 provenance 不完整"
+        ]
+      }
+    ]
+  }
+}

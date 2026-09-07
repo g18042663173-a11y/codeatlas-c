@@ -1,0 +1,607 @@
+schema_version: 2
+status: approved
+split: held_out
+task_set: eval/holdout_cjson.yaml
+task_set_hash: 29558110537c4cf68f0ac950641173b326ee74b0a360fc020be3d3ccfb5cefad
+frozen_at: "2026-09-05T20:46:17+08:00"
+not_used_for_tuning: true
+provenance:
+  author: holdout-author-agent
+  author_kind: agent
+  reviewer_kind: agent
+  review_status: ai_reviewed
+  human_reviewed: false
+  method: "由固定 revision 的公开源码独立起草，并以同一源码与只读 DB 锚点重审本轮替换机制；未读取 CodeAtlas Wiki、docs、提示词、既有答案或运行得分。"
+  release_note: "两名独立 agent 已完成源码核验，可用于明确标注 AI 复核来源的效果实验；不构成人类复核，历史未曝光仍不可由哈希证明。"
+review:
+  reviewer_kind: agent
+  independent_reviews:
+    - reviewer_kind: agent
+      reviewer: holdout-source-validator
+      provider: OpenAI
+      model: GPT-5
+      agent: /root/holdout_source_validator
+      prompt_hash: d10ed500762923bd4804d419fc08b70d32af3eccf68bb3dd39a4e872b3912565
+      input_hash: 6f4894fb3fad572f95d3d843ed7819dc280d35ac31e12c17456e512a72d98be6
+      independent: true
+      peer_reviews_visible: false
+      verdict: approved
+      reviewed_at: "2026-09-05"
+      note: Current fixed-source facts, forbidden claims, evidence, anchors, category balance and zero development-mechanism overlap passed; no human or historical non-exposure claim.
+      validation_report: eval/holdout_validation.json
+      validation_report_hash: dc9621dc3b3ac0ef223f0ed6837906a900870223640aba1c039e1d8e5171156e
+    - reviewer_kind: agent
+      reviewer: holdout-source-validator-b
+      provider: OpenAI
+      model: gpt-5
+      agent: /root/holdout_source_validator_b
+      prompt_hash: 0081b41a01ea716181bd33a4c8d39cfff513baecab254907f2ce1be3ba939a70
+      input_hash: 6f4894fb3fad572f95d3d843ed7819dc280d35ac31e12c17456e512a72d98be6
+      independent: true
+      peer_reviews_visible: false
+      verdict: approved
+      reviewed_at: "2026-09-05"
+      note: Independently approved all current holdout source/evidence/anchor contracts; no human review or historical non-exposure claim.
+      validation_report: eval/holdout_validation_b.json
+      validation_report_hash: e2d3bc87798571a8e7307a90f5df0e79817d1fe0d7ba318f44c54e023c508a96
+tasks:
+  ho-cjson-flow-minify-inplace:
+    expected_points:
+      - id: scan-dispatch
+        text: "主循环让 json 作为读游标、into 作为写游标；空白只推进读游标，普通字节才复制并同时推进两者。"
+        evidence: "cJSON.c:2924-2965"
+      - id: comments-outside-string
+        text: "只有主循环看到 / 后紧跟 / 或 * 才调用对应跳过器；单行注释越过换行，多行注释越过 */，两者都不写入输出。"
+        evidence: "cJSON.c:2875-2900,2944-2955"
+      - id: quoted-region
+        text: "看到双引号后由 minify_string 复制该段内容；当当前字节恰为反斜杠且下一字节为引号时，它一次写入这两个字节并跨过该引号。该实现只识别相邻二字节模式，没有统计引号前连续反斜杠的奇偶性。"
+        evidence: "cJSON.c:2902-2922,2957-2959"
+      - id: termination
+        text: "扫描结束后在最终写游标写入 NUL，所以结果留在原缓冲区前缀。"
+        evidence: "cJSON.c:2966-2969"
+    forbidden_claims:
+      - "不得声称 cJSON_Minify 会验证 JSON 语法或报告未闭合注释/字符串错误。"
+      - "不得声称字符串内的 // 或 /* 会被删除。"
+      - "不得把相邻反斜杠+引号的局部处理外推为偶数个连续反斜杠后引号也一定被正确识别为字符串终止符。"
+    evidence_payload:
+      source:
+        - {path: cJSON.c, lines: "2875-2970", permalink: "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L2875-L2970"}
+      experiment:
+        kind: static_counterexample
+        executed: false
+        setup: "一组输入含字符串内的 //、/* 和单个反斜杠+引号；另一组把候选终止引号放在偶数个连续反斜杠之后。"
+        expected: "前一组按局部规则复制且字符串外注释消失；后一组暴露源码未跟踪反斜杠奇偶性，答案不得宣称其终止判断普遍正确。"
+
+  ho-cjson-flow-json-pointer-walk:
+    expected_points:
+      - id: entry
+        text: "cJSONUtils_GetPointer 以 case_sensitive=false 调用 get_item_from_pointer；current_element 初始就是根。"
+        evidence: "cJSON_Utils.c:301-303,348-351"
+      - id: token-walk
+        text: "每个以 / 开头的 token：数组先用 decode_array_index_from_pointer 解码下标再按 next 链取元素，对象从 child 起用支持 ~0/~1 的 compare_pointers 寻键；随后推进到下一斜杠。"
+        evidence: "cJSON_Utils.c:120-154,274-345"
+      - id: empty-array-token
+        text: "decode_array_index_from_pointer 没有要求至少出现一个数字；空 token 时循环执行零次，终止字符为 NUL 或 /，因而成功解码为 0。所以对非空数组根使用 pointer=\"/\" 会取第一个元素。"
+        evidence: "cJSON_Utils.c:274-298,311-323"
+      - id: empty-and-nonslash
+        text: "pointer==NULL 返回 NULL；空字符串和任何不以 / 开头的非空字符串都不会进入循环，源码会原样返回根节点。"
+        evidence: "cJSON_Utils.c:303-311,343-345"
+      - id: leaf-failure
+        text: "在标量上仍有后续 token、数组下标非法或链上元素不存在时返回 NULL。"
+        evidence: "cJSON_Utils.c:314-335"
+    forbidden_claims:
+      - "不得声称非空且不以 / 开头的 pointer 必然被拒绝；当前实现返回根。"
+      - "不得声称数组下标解码器接受的 token 必须含至少一个十进制数字；空 token 会成功解码为 0。"
+      - "不得把 GetPointer 的对象 token 解码描述为先原地改写输入字符串。"
+    evidence_payload:
+      source:
+        - {path: cJSON_Utils.c, lines: "120-154,274-351", permalink: "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON_Utils.c#L274-L351"}
+      experiment:
+        kind: static_table
+        executed: false
+        setup: "对同一根对象分别传 NULL、\"\"、\"abc\"、\"/arr/0\" 和 \"/arr/00\"；另对一个非空数组根传 \"/\"。"
+        expected: "前五项依次为 NULL、根、根、首个数组元素、NULL；数组根的 \"/\" 也返回首元素。"
+
+  ho-cjson-flow-detach-list-rewire:
+    expected_points:
+      - id: lookup
+        text: "cJSON_DetachItemFromObject 先用默认大小写不敏感的 cJSON_GetObjectItem 找成员，再把找到的节点交给 ViaPointer。"
+        evidence: "cJSON.c:2309-2314"
+      - id: middle-links
+        text: "非首节点令 prev->next 越过 item；非尾节点令 next->prev 指向 item->prev。"
+        evidence: "cJSON.c:2265-2274"
+      - id: head-tail
+        text: "摘首节点时 parent->child 前移；摘非首尾节点中的尾节点时更新 parent->child->prev 为新尾。"
+        evidence: "cJSON.c:2276-2285"
+      - id: detached-state
+        text: "返回前把被摘节点的 prev 和 next 都清为 NULL，不释放节点本身，所有权转给调用者。"
+        evidence: "cJSON.c:2287-2291"
+    forbidden_claims:
+      - "不得声称 Detach 会释放返回节点。"
+      - "不得声称 ViaPointer 完整验证任意 item 确实属于 parent；入口只检查空值及首节点/prev 条件。"
+    evidence_payload:
+      source:
+        - {path: cJSON.c, lines: "2258-2314", permalink: "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L2258-L2314"}
+      experiment:
+        kind: static_list_case
+        executed: false
+        setup: "分别从三节点对象链中摘除首、中、尾成员。"
+        expected: "剩余 next/prev 连通，首节点 prev 继续指向尾，被摘节点两个链接均为 NULL。"
+
+  ho-cjson-flow-replace-object-item:
+    expected_points:
+      - id: wrapper-and-key
+        text: "公开入口选择不区分大小写模式；帮助函数先释放 replacement 自有的旧键名、复制目标键名并清掉 StringIsConst。"
+        evidence: "cJSON.c:2427-2453"
+      - id: locate-and-splice
+        text: "帮助函数用同一大小写模式查找旧成员，再由 cJSON_ReplaceItemViaPointer 复制旧节点的 next/prev 并回连相邻节点。"
+        evidence: "cJSON.c:2368-2408,2445-2447"
+      - id: head-tail
+        text: "替换首节点时更新 parent->child，单节点链让 replacement->prev 指向自身；替换尾节点时更新 parent->child->prev。"
+        evidence: "cJSON.c:2387-2407"
+      - id: old-disposal
+        text: "成功后先清旧 item 的 next/prev，再 cJSON_Delete(item)，因此旧节点被消费。"
+        evidence: "cJSON.c:2410-2414"
+    forbidden_claims:
+      - "不得声称找不到旧键时 replacement 完全保持原样；它的键名可能已被替换。"
+      - "不得声称成功替换后旧节点仍归调用者。"
+    evidence_payload:
+      source:
+        - {path: cJSON.c, lines: "2368-2453", permalink: "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L2368-L2453"}
+      experiment:
+        kind: failure_injection
+        executed: false
+        setup: "分别替换单节点、尾节点，并让目标键不存在。"
+        expected: "成功分支保持尾指针并释放旧节点；不存在键返回 false，但 replacement 已可能持有复制后的键。"
+
+  ho-cjson-flow-merge-patch:
+    expected_points:
+      - id: nonobject-patch
+        text: "patch 不是对象时，merge_patch 删除整个 target 并递归复制 patch 作为结果。"
+        evidence: "cJSON_Utils.c:1325-1330"
+      - id: normalize-target
+        text: "patch 是对象而 target 不是对象时，先删除 target 并创建空对象再逐成员合并。"
+        evidence: "cJSON_Utils.c:1332-1336"
+      - id: null-delete
+        text: "patch 子项为 null 表示删除同名成员，大小写敏感与否由 case_sensitive 选择对应删除入口。"
+        evidence: "cJSON_Utils.c:1338-1351"
+      - id: recursive-replace
+        text: "普通成员先从 target 摘下同名旧值，递归合并后再加入；递归失败会删除整个当前 target 并返回 NULL。"
+        evidence: "cJSON_Utils.c:1353-1377"
+    forbidden_claims:
+      - "不得把 patch 中的 null 当作写入 JSON null；这里它表示删除成员。"
+      - "不得声称合并失败保留原 target 不变。"
+    evidence_payload:
+      source:
+        - {path: cJSON_Utils.c, lines: "1321-1384", permalink: "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON_Utils.c#L1321-L1384"}
+      experiment:
+        kind: static_counterexample
+        executed: false
+        setup: "target={a:1,b:{x:1}}，patch={a:null,b:{y:2}}；另以数组 patch 覆盖对象 target。"
+        expected: "a 被删除、b 递归成为含 x/y 的对象；数组 patch 则整值替换。"
+
+  ho-cjson-cond-set-valuestring:
+    expected_points:
+      - id: guards
+        text: "object 必须非 NULL、基础类型含 cJSON_String、不能带 cJSON_IsReference，且旧 valuestring 与新 valuestring 均非 NULL。"
+        evidence: "cJSON.c:435-449"
+      - id: short-inplace
+        text: "新值长度不大于旧缓冲区时可 strcpy 原地写入，但源码检测到两段地址范围重叠就返回 NULL。"
+        evidence: "cJSON.c:451-462"
+      - id: long-reallocate
+        text: "新值更长时先 strdup；成功后释放旧字符串并替换指针，分配失败则保留旧值并返回 NULL。"
+        evidence: "cJSON.c:464-476"
+    forbidden_claims:
+      - "不得声称 reference 字符串会被复制后修改。"
+      - "不得声称所有较短的新值都能成功；重叠内存是反例。"
+    evidence_payload:
+      source:
+        - {path: cJSON.c, lines: "435-476", permalink: "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L435-L476"}
+      experiment:
+        kind: boundary_matrix
+        executed: false
+        setup: "普通字符串节点分别传短的不重叠字面量、object->valuestring+1、较长字面量；再对 StringReference 调用。"
+        expected: "仅短且不重叠原地成功、长值分配后成功；重叠与 reference 返回 NULL。"
+
+  ho-cjson-cond-array-insert-boundaries:
+    expected_points:
+      - id: explicit-failures
+        text: "which<0 或 newitem==NULL 立即返回 false；array==NULL 最终也由 add_item_to_array 拒绝。"
+        evidence: "cJSON.c:2334-2341,2027-2034"
+      - id: indexed-splice
+        text: "命中已有节点时把 newitem 插到它之前，并更新首节点或前驱链接。"
+        evidence: "cJSON.c:2343-2365"
+      - id: positive-out-of-range
+        text: "get_array_item 对任意达到或超过尾后的正下标都返回 NULL，公开实现随后调用 add_item_to_array，所以正越界退化为追加而不是必然失败。"
+        evidence: "cJSON.c:1922-1938,2343-2347"
+    forbidden_claims:
+      - "不得声称大于数组长度的正下标一定报错。"
+      - "不得声称插入总会复制 newitem。"
+    evidence_payload:
+      source:
+        - {path: cJSON.c, lines: "1922-1938,2027-2058,2334-2366", permalink: "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L2334-L2366"}
+      experiment:
+        kind: boundary_matrix
+        executed: false
+        setup: "长度 2 数组分别 which=-1,0,1,2,99。"
+        expected: "-1 失败；0/1 前插；2 与 99 都追加。"
+
+  ho-cjson-cond-pointer-array-index:
+    expected_points:
+      - id: leading-zero
+        text: "token 以 0 开头时，第二字符只能是 NUL 或 /；因此 0 和 0/ 可接受，00 与 01 被拒绝。"
+        evidence: "cJSON_Utils.c:274-283"
+      - id: digits-and-boundary
+        text: "循环只累计十进制数字，停止字符必须为 NUL 或 /；纯数字后接 / 可把剩余段留给遍历器。"
+        evidence: "cJSON_Utils.c:285-298"
+      - id: dash
+        text: "- 在第一字符就不是数字且也不是终止符，解码失败；GetPointer 不实现 JSON Patch 的追加语义。"
+        evidence: "cJSON_Utils.c:285-294,314-323"
+    forbidden_claims:
+      - "不得把 /- 描述为 GetPointer 的数组尾追加或末元素查询。"
+      - "不得声称当前解码循环显式检查 size_t 十进制溢出。"
+    evidence_payload:
+      source:
+        - {path: cJSON_Utils.c, lines: "274-323", permalink: "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON_Utils.c#L274-L323"}
+      experiment:
+        kind: token_table
+        executed: false
+        setup: "逐个解码 0、00、01、12/next、-。"
+        expected: "接受 0 与 12/next；拒绝 00、01、-。"
+
+  ho-cjson-cond-reference-alias:
+    expected_points:
+      - id: shallow-copy
+        text: "create_reference 新分配一个 cJSON 结构并 memcpy 原节点；child、valuestring 等载荷指针被保留，因此不是深拷贝。"
+        evidence: "cJSON.c:2006-2022"
+      - id: reference-shape
+        text: "新节点把 string 清为 NULL、置 cJSON_IsReference，并把 next/prev 清零后再尝试挂入数组。"
+        evidence: "cJSON.c:2020-2024"
+      - id: null-conditions
+        text: "array==NULL 直接失败；item==NULL 或 reference 节点分配失败会让 create_reference 返回 NULL，随后 add_item_to_array 返回 false。"
+        evidence: "cJSON.c:2009-2017,2031-2034,2130-2138"
+    forbidden_claims:
+      - "不得声称加入 reference 会转移或深复制原 item 的 child/valuestring。"
+      - "不得声称返回 false 时函数会释放原 item。"
+    evidence_payload:
+      source:
+        - {path: cJSON.c, lines: "2006-2058,2130-2138", permalink: "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L2006-L2025"}
+      experiment:
+        kind: alias_probe
+        executed: false
+        setup: "向数组加入一个带 valuestring/child 的 item reference，再比较原节点和新节点的载荷指针。"
+        expected: "结构体地址不同，载荷指针相同，新节点带 IsReference 且链接由目标数组设置。"
+
+  ho-cjson-cond-array-size-structural:
+    expected_points:
+      - id: null-result
+        text: "参数为 NULL 时入口立即返回 0。"
+        evidence: "cJSON.c:1904-1907"
+      - id: no-type-guard
+        text: "函数不读取或验证 type，非 NULL 参数直接从 array->child 开始。"
+        evidence: "cJSON.c:1899-1910"
+      - id: chain-count
+        text: "计数只沿 child->next 前进，每个到达的节点加一，遇到 NULL 结束。"
+        evidence: "cJSON.c:1911-1916"
+      - id: object-counterexample
+        text: "因为对象成员也位于 child->next 链，带两个成员的对象返回 2，不会因基础类型是 Object 而返回 0。"
+        evidence: "cJSON.c:1909-1916"
+      - id: zero-ambiguity
+        text: "NULL、child 为 NULL 的空数组、空对象或普通标量节点都返回 0，所以 0 不能证明参数是有效的空数组。"
+        evidence: "cJSON.c:1904-1919"
+      - id: termination-and-range-boundary
+        text: "正常终止需要 child->next 链最终到达 NULL；源码还明示警告 size_t 转 int 可溢出。"
+        evidence: "cJSON.c:1911-1919"
+    forbidden_claims:
+      - "不得声称 cJSON_GetArraySize 会先调用 cJSON_IsArray 或拒绝 Object。"
+      - "不得声称返回 0 足以区分空数组、空对象、无 child 标量与 NULL 参数。"
+      - "不得声称对象的成员不被计数。"
+      - "不得声称该函数能安全检测 child->next 循环或保证返回 int 不溢出。"
+    evidence_payload:
+      source:
+        - {path: cJSON.c, lines: "1899-1920", permalink: "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1899-L1920"}
+      experiment:
+        kind: structural_count_matrix
+        executed: false
+        setup: "分别传入 NULL、空数组、空对象、数字节点、含两个成员的对象和含两个元素的数组。"
+        expected: "前四者返回 0；两成员对象与两元素数组都返回 2。"
+
+  ho-cjson-error-string-array-cleanup:
+    expected_points:
+      - id: preconditions
+        text: "count<0 或 strings==NULL 直接返回 NULL；之后先创建数组容器。"
+        evidence: "cJSON.c:2741-2754"
+      - id: partial-cleanup
+        text: "任一 cJSON_CreateString 失败时调用 cJSON_Delete(a)，递归释放已链接进 a 的此前字符串节点，然后返回 NULL。"
+        evidence: "cJSON.c:2755-2762"
+      - id: tail-invariant
+        text: "成功构造时相邻节点由 suffix_object 串联，最终把 a->child->prev 设为最后节点以建立快速尾指针。"
+        evidence: "cJSON.c:2763-2778"
+    forbidden_claims:
+      - "不得声称部分失败会返回含前 k-1 个元素的数组。"
+      - "不得声称 child->prev 是普通意义上的前驱；对首节点它保存尾指针。"
+    evidence_payload:
+      source:
+        - {path: cJSON.c, lines: "2741-2779", permalink: "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L2741-L2779"}
+      experiment:
+        kind: allocator_failure_injection
+        executed: false
+        setup: "让第 k 次字符串分配失败并记录分配/释放计数。"
+        expected: "容器及前 k-1 个节点均被释放，函数返回 NULL。"
+
+  ho-cjson-error-duplicate-cleanup:
+    expected_points:
+      - id: copied-fields
+        text: "新节点清掉 IsReference，复制数值；valuestring 总是 strdup，键若 StringIsConst 则沿用指针，否则 strdup。"
+        evidence: "cJSON.c:2801-2825"
+      - id: shallow-mode
+        text: "recurse=false 在复制当前节点字段后直接返回，不复制 child 链。"
+        evidence: "cJSON.c:2827-2831"
+      - id: recursive-links-and-limit
+        text: "递归模式逐 child 调用 cJSON_Duplicate_rec、重建 next/prev，并在 depth>=CJSON_CIRCULAR_LIMIT 时失败。"
+        evidence: "cJSON.c:2832-2862"
+      - id: unified-fail
+        text: "坏指针、节点/字符串/子节点分配失败和深度限制都汇入 fail；若已有 newitem 就 cJSON_Delete 整棵部分副本后返回 NULL。"
+        evidence: "cJSON.c:2796-2805,2811-2825,2834-2843,2866-2872"
+    forbidden_claims:
+      - "不得声称 recurse=false 会保留或复制 child 指针；新节点由清零构造器创建且该分支不赋 child。"
+      - "不得声称深拷贝保留 IsReference 标志。"
+    evidence_payload:
+      source:
+        - {path: cJSON.c, lines: "2784-2873", permalink: "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L2784-L2873"}
+      experiment:
+        kind: allocator_failure_injection
+        executed: false
+        setup: "分别在 valuestring、第二个 child 和超过循环深度处失败。"
+        expected: "三者都返回 NULL 且已构造副本被统一删除。"
+
+  ho-cjson-error-generate-merge-null:
+    expected_points:
+      - id: delete-target-patch
+        text: "to 为 NULL 时，生成器直接调用 cJSON_CreateNull，这代表“删除整个目标”的 JSON null patch，而不是无差异哨兵。"
+        evidence: "cJSON_Utils.c:1396-1400"
+      - id: replacement-copy
+        text: "to 或 from 任一个不是对象时，返回 to 的深复制；这个分支的 NULL 可来自 cJSON_Duplicate 分配失败。"
+        evidence: "cJSON_Utils.c:1401-1404"
+      - id: object-container-failure
+        text: "两输入都是对象时，先排序两个对象，再分配 patch 对象；cJSON_CreateObject 返回 NULL 时立即将 NULL 传给调用者。"
+        evidence: "cJSON_Utils.c:1406-1415"
+      - id: no-change-null
+        text: "遍历后若 patch 没有任何 child，源码删除这个空 patch 并返回 NULL。"
+        evidence: "cJSON_Utils.c:1416-1471"
+      - id: public-null-ambiguity
+        text: "公开包装器只透传 generate_merge_patch 的指针，因而对对象输入，无 patch 与初始 patch 容器分配失败共用 NULL 结果。"
+        evidence: "cJSON_Utils.c:1411-1415,1463-1476"
+    forbidden_claims:
+      - "不得声称 GenerateMergePatch 返回 NULL 必然表示两个对象无差异。"
+      - "不得声称 GenerateMergePatch 返回 NULL 必然表示分配失败。"
+      - "不得声称 to==NULL 分支的设计结果是 C 空指针；它尝试构造 JSON null 节点。"
+      - "不得由此推导内部所有递归创建或成员挂接失败都被完整检测并传播。"
+    evidence_payload:
+      source:
+        - {path: cJSON_Utils.c, lines: "1391-1476", permalink: "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON_Utils.c#L1391-L1476"}
+      experiment:
+        kind: allocator_failure_and_identity_case
+        executed: false
+        setup: "分别对两个内容相同的对象正常生成 patch，以及对有差异的两对象让首次 cJSON_CreateObject 分配失败。"
+        expected: "两种对对象调用都向公开调用者返回 NULL；前者先创建后删除空 patch，后者在初始 patch 容器分配处立即失败。"
+
+  ho-cjson-error-convenience-add:
+    expected_points:
+      - id: create-then-attach
+        text: "cJSON_AddStringToObject 先用 cJSON_CreateString 创建并拥有 string_item，再调用 add_item_to_object。"
+        evidence: "cJSON.c:2210-2214"
+      - id: success
+        text: "挂接成功返回该节点指针，此后节点属于对象链。"
+        evidence: "cJSON.c:2213-2216"
+      - id: failure-cleanup
+        text: "键复制或挂接失败时帮助函数返回 false，便捷入口调用 cJSON_Delete(string_item) 并返回 NULL。"
+        evidence: "cJSON.c:2213-2220"
+    forbidden_claims:
+      - "不得声称返回 NULL 时临时 string_item 仍由调用者释放或仍在对象中。"
+      - "不得声称该入口返回布尔值。"
+    evidence_payload:
+      source:
+        - {path: cJSON.c, lines: "2210-2220", permalink: "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L2210-L2220"}
+      experiment:
+        kind: allocator_failure_injection
+        executed: false
+        setup: "让 string_item 成功而键名 strdup 失败。"
+        expected: "入口删除临时节点并返回 NULL，对象链不新增成员。"
+
+  ho-cjson-error-find-pointer-ownership:
+    expected_points:
+      - id: base-result
+        text: "object==target 时返回新分配的空字符串；递归命中后每层为数组下标或编码对象键分配更长字符串。"
+        evidence: "cJSON_Utils.c:198-224,240-248"
+      - id: ownership-transfer
+        text: "每层拼出 full_pointer 后释放下层 target_pointer 并返回新字符串；最终调用者应使用 cJSON_free 释放。"
+        evidence: "cJSON_Utils.c:224-248"
+      - id: visible-oom-gap
+        text: "full_pointer 的 cJSON_malloc 结果在数组分支直接传给 sprintf、对象分支直接写 full_pointer[0]，没有先判 NULL；因此不能声称该处 OOM 被完整防护。"
+        evidence: "cJSON_Utils.c:223-245"
+      - id: not-found
+        text: "未命中 target 时返回 NULL；到叶节点若下层临时指针存在但父非数组/对象，会先释放它。"
+        evidence: "cJSON_Utils.c:251-258"
+    forbidden_claims:
+      - "不得声称所有分配失败都会安全返回 NULL。"
+      - "不得声称返回字符串是静态内存或由 object 管理。"
+    evidence_payload:
+      source:
+        - {path: cJSON_Utils.c, lines: "198-259", permalink: "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON_Utils.c#L198-L259"}
+      experiment:
+        kind: allocator_failure_injection
+        executed: false
+        setup: "让递归命中后用于 full_pointer 的 cJSON_malloc 返回 NULL。"
+        expected: "源码会在 NULL 上 sprintf/写入，不能期待优雅的 NULL 返回；该用例应由安全测试捕获。"
+
+  ho-cjson-state-hooks-realloc:
+    expected_points:
+      - id: reset
+        text: "cJSON_InitHooks(NULL) 把 allocate/deallocate/reallocate 全部恢复为 malloc/free/realloc。"
+        evidence: "cJSON.c:209-218"
+      - id: partial-hooks
+        text: "非 NULL hooks 先把 allocate/deallocate 设为标准函数，再分别采用非空 malloc_fn/free_fn；没有提供的一侧仍是标准函数。"
+        evidence: "cJSON.c:220-230"
+      - id: realloc-gate
+        text: "随后 reallocate 先清为 NULL，只有最终 allocate==malloc 且 deallocate==free 时才恢复 realloc；任一侧自定义都会禁用。"
+        evidence: "cJSON.c:232-237"
+    forbidden_claims:
+      - "不得声称自定义 malloc/free 会自动得到兼容的 realloc。"
+      - "不得声称 hooks==NULL 保留之前配置。"
+    evidence_payload:
+      source:
+        - {path: cJSON.c, lines: "209-238", permalink: "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L209-L238"}
+      experiment:
+        kind: configuration_matrix
+        executed: false
+        setup: "依次传 NULL、仅自定义 malloc_fn、同时自定义 malloc_fn/free_fn。"
+        expected: "reallocate 状态依次为 realloc、NULL、NULL。"
+
+  ho-cjson-state-list-tail-invariant:
+    expected_points:
+      - id: empty
+        text: "空数组首次插入令 array->child=item、item->prev=item、item->next=NULL；首节点 prev 同时就是尾指针。"
+        evidence: "cJSON.c:2036-2045"
+      - id: append
+        text: "非空数组通过 child->prev 直接取得旧尾，suffix_object 设置 old_tail->next 与 item->prev，再令 child->prev=item。"
+        evidence: "cJSON.c:1999-2003,2047-2054"
+      - id: invariants
+        text: "追加后 array->child 仍指首节点，child->prev 指新尾，新尾 next 为 NULL；首节点的 prev 不是普通前驱。"
+        evidence: "cJSON.c:2040-2054"
+    forbidden_claims:
+      - "不得把该结构描述为以 NULL 作为首节点 prev 的普通双向链表。"
+      - "不得声称追加需要从 child 线性扫描到尾。"
+    evidence_payload:
+      source:
+        - {path: cJSON.c, lines: "1999-2058", permalink: "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L2027-L2058"}
+      experiment:
+        kind: invariant_probe
+        executed: false
+        setup: "向空数组连续追加 a、b、c。"
+        expected: "child=a，a.prev=c，a.next=b，b.prev=a，b.next=c，c.prev=b，c.next=NULL。"
+
+  ho-cjson-state-number-saturation:
+    expected_points:
+      - id: null-object
+        text: "object==NULL 返回 NAN，不访问字段。"
+        evidence: "cJSON.c:411-416"
+      - id: integer-view
+        text: "number>=INT_MAX 时 valueint=INT_MAX，number<=INT_MIN 时 valueint=INT_MIN，其余通过 C 强制转换写入 int。"
+        evidence: "cJSON.c:418-429"
+      - id: double-view
+        text: "无论 valueint 是否饱和，valuedouble 都保存传入 double 并作为返回值；饱和不截断 valuedouble。"
+        evidence: "cJSON.c:431-432"
+    forbidden_claims:
+      - "不得声称超范围输入会让 valuedouble 也钳位到 INT_MAX/INT_MIN。"
+      - "不得声称函数会检查 object 的基础类型是否为 Number。"
+    evidence_payload:
+      source:
+        - {path: cJSON.c, lines: "411-432", permalink: "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L411-L432"}
+      experiment:
+        kind: boundary_matrix
+        executed: false
+        setup: "输入 INT_MAX+1024.0、-3.75、NULL object。"
+        expected: "valueint 分别饱和、转换为 -3；valuedouble 保留原 double；NULL 返回 NAN。"
+
+  ho-cjson-state-string-reference:
+    expected_points:
+      - id: construction
+        text: "构造器只分配 cJSON 节点，把 type 设为 cJSON_String|cJSON_IsReference，并直接保存传入字符串指针。"
+        evidence: "cJSON.c:2548-2557"
+      - id: no-copy
+        text: "没有调用 cJSON_strdup，因此外部字符串寿命必须覆盖 reference 节点的使用期。"
+        evidence: "cJSON.c:2548-2557"
+      - id: mutation-guard
+        text: "cJSON_SetValuestring 明确拒绝带 cJSON_IsReference 的字符串，返回 NULL。"
+        evidence: "cJSON.c:440-444"
+    forbidden_claims:
+      - "不得声称 CreateStringReference 复制或接管输入字节。"
+      - "不得声称 SetValuestring 会解除 reference 后修改。"
+    evidence_payload:
+      source:
+        - {path: cJSON.c, lines: "435-476,2548-2558", permalink: "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L2548-L2558"}
+      experiment:
+        kind: alias_probe
+        executed: false
+        setup: "用可变外部 char[] 创建 StringReference，比较 valuestring 地址并调用 SetValuestring。"
+        expected: "地址相同；SetValuestring 返回 NULL，节点仍指向原数组。"
+
+  ho-cjson-state-sort-mutation:
+    expected_points:
+      - id: inplace
+        text: "sort_object 把 object->child 直接改写为 sort_list 的返回链表，API 不创建或返回对象副本。"
+        evidence: "cJSON_Utils.c:595-602"
+      - id: mode
+        text: "cJSONUtils_SortObject 传 case_sensitive=false；CaseSensitive 版本传 true。"
+        evidence: "cJSON_Utils.c:1311-1319"
+      - id: null-object
+        text: "object==NULL 时底层直接返回，不修改状态。"
+        evidence: "cJSON_Utils.c:595-600"
+    forbidden_claims:
+      - "不得声称排序 API 返回独立排序副本。"
+      - "不得声称普通版使用大小写敏感比较。"
+    evidence_payload:
+      source:
+        - {path: cJSON_Utils.c, lines: "484-602,1311-1319", permalink: "https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON_Utils.c#L595-L602"}
+      experiment:
+        kind: mutation_probe
+        executed: false
+        setup: "保存 object->child 原顺序后调用普通版与 CaseSensitive 版。"
+        expected: "同一 object 的 child 顺序改变；两版仅比较模式不同。"
+
+  ho-cjson-refuse-rust-borrow:
+    expected_points:
+      - id: boundary
+        text: "明确说明固定证据集是 cJSON 的 C 源码，不包含 Rust 编译器、借用检查器或 Polonius 实现。"
+        evidence: "task manifest repository/revision boundary"
+      - id: response
+        text: "拒绝给出机制结论，并请求 rustc/Polonius 的固定 revision 源码或权威材料后再分析。"
+        evidence: "no resolvable cJSON source anchor for requested mechanism"
+    forbidden_claims:
+      - "不得基于常识编造 rustc 生命周期推导或 Polonius 算法细节。"
+    evidence_payload:
+      source_boundary: {repository: "https://github.com/DaveGamble/cJSON", revision: fb16e5cf358798aabb049655975cde8427101056}
+      experiment: {kind: repository_symbol_search, executed: true, query: "Polonius|borrow checker|rustc", result: "no matching implementation evidence in permitted C corpus"}
+
+  ho-cjson-refuse-ebpf-verifier:
+    expected_points:
+      - id: boundary
+        text: "说明 cJSON 语料没有 Linux 内核 eBPF verifier 的控制流或指针抽象状态代码。"
+        evidence: "task manifest repository/revision boundary"
+      - id: response
+        text: "拒绝回答具体算法，建议提供对应 Linux revision 的 kernel/bpf/verifier.c 等证据。"
+        evidence: "no resolvable cJSON source anchor for requested mechanism"
+    forbidden_claims:
+      - "不得声称 cJSON 源码能证明 verifier 的状态合并或安全规则。"
+    evidence_payload:
+      source_boundary: {repository: "https://github.com/DaveGamble/cJSON", revision: fb16e5cf358798aabb049655975cde8427101056}
+      experiment: {kind: repository_symbol_search, executed: true, query: "eBPF|verifier|BPF", result: "no matching implementation evidence in permitted C corpus"}
+
+  ho-cjson-refuse-sqlite-wal:
+    expected_points:
+      - id: boundary
+        text: "说明固定 cJSON 语料不含 SQLite WAL、checkpoint 或其锁状态机。"
+        evidence: "task manifest repository/revision boundary"
+      - id: response
+        text: "拒绝区分 PASSIVE/FULL/RESTART 细节，并请求 SQLite 固定 revision 源码。"
+        evidence: "no resolvable cJSON source anchor for requested mechanism"
+    forbidden_claims:
+      - "不得把外部 SQLite 行为写成 cJSON 源码可验证事实。"
+    evidence_payload:
+      source_boundary: {repository: "https://github.com/DaveGamble/cJSON", revision: fb16e5cf358798aabb049655975cde8427101056}
+      experiment: {kind: repository_symbol_search, executed: true, query: "sqlite3WalCheckpoint|WAL_CHECKPOINT_PASSIVE|WAL_CHECKPOINT_RESTART", result: "no matching implementation evidence in permitted C corpus"}
+
+  ho-cjson-refuse-react-concurrent:
+    expected_points:
+      - id: boundary
+        text: "说明 cJSON C 源码没有 React Fiber、lanes 或并发调度器。"
+        evidence: "task manifest repository/revision boundary"
+      - id: response
+        text: "拒绝机制性回答，并请求 React 对应 revision 源码作为新证据集。"
+        evidence: "no resolvable cJSON source anchor for requested mechanism"
+    forbidden_claims:
+      - "不得生成 lanes 优先级、抢占或恢复流程的无来源答案。"
+    evidence_payload:
+      source_boundary: {repository: "https://github.com/DaveGamble/cJSON", revision: fb16e5cf358798aabb049655975cde8427101056}
+      experiment: {kind: repository_symbol_search, executed: true, query: "React|Fiber|lanes", result: "no matching implementation evidence in permitted C corpus"}

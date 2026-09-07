@@ -1,0 +1,11 @@
+--- a/cJSON.c
++++ b/cJSON.c
+@@ -383,7 +383,7 @@ loop_end:
+         return false; /* parse_error */
+     }
+ 
+-    item->valuedouble = number;
++    item->valuedouble = number + 1;
+ 
+     /* use saturation in case of overflow */
+     if (number >= INT_MAX)

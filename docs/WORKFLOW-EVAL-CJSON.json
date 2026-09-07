@@ -1,0 +1,49 @@
+{
+  "repository": "https://github.com/DaveGamble/cJSON",
+  "revision": "fb16e5cf358798aabb049655975cde8427101056",
+  "metrics": {
+    "tool_trace_legal_rate": 100.0,
+    "wiki_first_order_rate": 100.0,
+    "a_anchor_complete_rate": 100.0,
+    "card_gate_correct_rate": 100.0,
+    "markdown_rebuild_consistency_rate": 100.0,
+    "refusal_accuracy": 100.0,
+    "raw_session_indexed_count": 0,
+    "p50_ms": 10,
+    "p95_ms": 160
+  },
+  "cases": [
+    {
+      "id": "session-import",
+      "passed": true,
+      "detail": "public source/license/hash validated; duplicate rejected; raw session chunks=0"
+    },
+    {
+      "id": "agent-trace",
+      "passed": true,
+      "detail": "impact=3 read-only calls; wiki-first=True; draft is explicit"
+    },
+    {
+      "id": "pending-gate",
+      "passed": true,
+      "detail": "pending card has no B-level retrieval visibility"
+    },
+    {
+      "id": "approval-anchor",
+      "passed": true,
+      "detail": "USR + range + definition hash bound before B evidence appeared"
+    },
+    {
+      "id": "stale-isolation",
+      "passed": true,
+      "detail": "definition hash mismatch hid stale B evidence; supersede=True; markdown rebuild=True"
+    },
+    {
+      "id": "no-evidence-refusal",
+      "passed": true,
+      "detail": "insufficient and unrelated requests refused without card persistence"
+    }
+  ],
+  "review_mode": "synthetic_test_review",
+  "generated_at": "2026-09-05T06:58:17+00:00"
+}

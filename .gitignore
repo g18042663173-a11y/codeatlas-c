@@ -9,3 +9,17 @@ __pycache__/
 .pytest_cache/
 *.db
 *.npy
+/build/
+
+# Local Codex working notes and explicitly excluded historical drafts.
+/README 2.md
+/docs/ARCHITECTURE 2.md
+/design-qa.md
+/task_plan.md
+/findings.md
+/progress.md
+
+# Local proof-campaign transcripts can be very large and may contain complete
+# model prompts/responses.  Keep only the concise, curated status report.
+/docs/runs/**
+!/docs/runs/PROOF-LUNA-20260907-STATUS.md

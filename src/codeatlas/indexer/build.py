@@ -16,6 +16,8 @@ import re
 import sqlite3
 from pathlib import Path
 
+from .. import db as dbm
+
 log = logging.getLogger(__name__)
 
 CODE_CHUNK_MAX_LINES = 160
@@ -88,6 +90,60 @@ class TfidfSvdEmbedder:
         return e
 
 
+class LocalHashEmbedder:
+    """Dependency-light deterministic local semantic baseline.
+
+    Character n-grams and identifier tokens are projected into a signed hashing
+    space. It is weaker than a trained language model but requires no network,
+    pickle or scikit-learn import, and its vectors are exactly reproducible.
+    """
+
+    def __init__(self, dim: int = 384) -> None:
+        self.dim = dim
+        self.name = f"local-hash-{dim}"
+
+    @staticmethod
+    def _features(text: str):
+        lowered = text.lower()
+        for token in re.findall(r"[a-z_][a-z0-9_]{1,}|[\u4e00-\u9fff]{1,4}", lowered):
+            yield "t:" + token
+        compact = re.sub(r"\s+", " ", lowered[:1800])
+        for size in (3, 4, 5):
+            for index in range(max(0, len(compact) - size + 1)):
+                yield f"c:{compact[index:index + size]}"
+
+    def encode(self, texts: list[str]):
+        import hashlib
+        import numpy as np
+        matrix = np.zeros((len(texts), self.dim), dtype="float32")
+        for row, text in enumerate(texts):
+            for feature in self._features(text):
+                digest = hashlib.blake2b(feature.encode("utf-8"), digest_size=8).digest()
+                value = int.from_bytes(digest, "little")
+                matrix[row, value % self.dim] += -1.0 if value & 1 else 1.0
+        norm = np.linalg.norm(matrix, axis=1, keepdims=True)
+        return matrix / np.maximum(norm, 1e-9)
+
+    def fit(self, texts: list[str]):
+        return self.encode(texts)
+
+    def save(self, out_dir):
+        Path(out_dir).mkdir(parents=True, exist_ok=True)
+        (Path(out_dir) / "local_hash_model.json").write_text(
+            json.dumps({"kind": "local-hash", "dim": self.dim}), encoding="utf-8"
+        )
+
+    @classmethod
+    def load(cls, out_dir):
+        path = Path(out_dir) / "local_hash_model.json"
+        if not path.exists():
+            return cls()
+        try:
+            return cls(json.loads(path.read_text(encoding="utf-8"))["dim"])
+        except (OSError, ValueError, KeyError, json.JSONDecodeError):
+            return cls()
+
+
 class SentenceTransformerEmbedder:
     """可选：bge-small-zh-v1.5 约 100MB，CPU 可跑。"""
 
@@ -106,7 +162,9 @@ class SentenceTransformerEmbedder:
 def get_embedder(kind: str = "null", data_dir: str = "data"):
     if kind in ("null", "none", ""):
         return NullEmbedder()
-    if kind == "tfidf":
+    if kind in ("tfidf", "local"):
+        return LocalHashEmbedder.load(data_dir)
+    if kind == "tfidf-svd":
         return TfidfSvdEmbedder.load(data_dir) or TfidfSvdEmbedder()
     try:
         return SentenceTransformerEmbedder(kind if "/" in kind else "BAAI/bge-small-zh-v1.5")
@@ -170,9 +228,16 @@ def build(conn: sqlite3.Connection, repo: str, *, embedder_kind: str = "null",
             source_ref=f"{fn['path']}#L{fn['line_start']}-L{fn['line_end']}",
             evidence_level="A", visible=1))
 
-    # ---- B 级：经验条目（★ pending 的 visible=0，检索完全不可见）----
+    # ---- B 级：经审核且拥有 active 精确锚点的知识卡 ----
+    active_scope = dbm.get_meta(conn, "evaluation_scope", "formal")
     for ex in conn.execute("SELECT * FROM experience"):
-        visible = 1 if ex["status"] == "approved" else 0
+        anchored = conn.execute(
+            "SELECT 1 FROM experience_anchor WHERE exp_id=? AND active=1", (ex["id"],)
+        ).fetchone() is not None
+        from ..experience.store import approved_current
+        visible = 1 if (ex["status"] == "approved" and anchored
+                        and (ex["artifact_scope"] or "formal") == active_scope
+                        and approved_current(conn, ex["id"])[0]) else 0
         text = "\n".join(filter(None, [
             ex["symptom"], ex["root_cause"], ex["fix_steps"], ex["verification"],
             " ".join(json.loads(ex["dead_ends"] or "[]")),
@@ -199,14 +264,19 @@ def build(conn: sqlite3.Connection, repo: str, *, embedder_kind: str = "null",
     conn.commit()
 
     # ---- 向量索引（可选）----
-    emb = get_embedder(embedder_kind, out_dir)
+    # A build always fits a fresh local baseline. Loading a previous pickle here
+    # can both leak an old vocabulary into a new snapshot and hang on incompatible
+    # scikit-learn versions before the rebuild even starts.
+    emb = (LocalHashEmbedder() if embedder_kind in ("tfidf", "local")
+           else (TfidfSvdEmbedder() if embedder_kind == "tfidf-svd"
+                 else get_embedder(embedder_kind, out_dir)))
     vec_n = 0
     if not isinstance(emb, NullEmbedder):
         import numpy as np
         vis = conn.execute(
             "SELECT rowid, uid, title, text FROM chunk WHERE visible=1 ORDER BY rowid").fetchall()
         texts = [f"{r['title']}\n{r['text'][:1200]}" for r in vis]
-        if isinstance(emb, TfidfSvdEmbedder):
+        if isinstance(emb, (TfidfSvdEmbedder, LocalHashEmbedder)):
             Path(out_dir).mkdir(parents=True, exist_ok=True)
             mat = emb.fit(texts)          # 语料自建，无需下载
             emb.save(out_dir)
@@ -229,15 +299,26 @@ def build(conn: sqlite3.Connection, repo: str, *, embedder_kind: str = "null",
 
 
 def refresh_visibility(conn: sqlite3.Connection) -> None:
-    """经验条目审核状态变更后，同步 chunk 可见性与 FTS 索引。
+    """同步知识卡/Wiki 生命周期与 chunk 可见性、FTS 索引。
 
     ★ 这是 D4「审核闸门」在检索层的落点。
     """
     conn.execute("""
         UPDATE chunk SET visible = (
-            SELECT CASE WHEN ex.status='approved' THEN 1 ELSE 0 END
+            SELECT CASE WHEN ex.status='approved'
+              AND COALESCE(ex.artifact_scope,'formal')=COALESCE(
+                (SELECT value FROM meta WHERE key='evaluation_scope'),'formal')
+              AND EXISTS (
+                SELECT 1 FROM experience_anchor a WHERE a.exp_id=ex.id AND a.active=1
+            ) THEN 1 ELSE 0 END
               FROM experience ex WHERE 'exp:' || ex.id = chunk.uid)
          WHERE kind='experience'""")
+    conn.execute("""
+        UPDATE chunk SET visible = COALESCE((
+            SELECT CASE WHEN w.status='ok' THEN 1 ELSE 0 END
+              FROM wiki_page w WHERE 'wiki:' || w.id = chunk.uid
+        ), 0)
+         WHERE kind='wiki'""")
     conn.execute("INSERT INTO chunk_fts(chunk_fts) VALUES('delete-all')")
     conn.execute("INSERT INTO chunk_fts(rowid,title,text) "
                  "SELECT rowid,title,text FROM chunk WHERE visible=1")

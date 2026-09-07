@@ -1,0 +1,627 @@
+{
+  "schema_version": 1,
+  "version": "same-source-model-production-v1",
+  "status": "frozen",
+  "review_status": "ai_reviewed",
+  "artifact_scope": "isolated_experiment",
+  "campaign_id": "knowledge-production-18019a9c7b7e8893",
+  "generated_at": "2026-09-06T02:54:25+00:00",
+  "manifest_hash": "c8c2504f8429ca7a235e0f9b858ac294fbe86de2bad5afedc3c781e2031a82a1",
+  "source_materials_hash": "cb8d14eedf54161f9cefce9927435d32c2d301144f4d6a0c6779dbc3e44fe41f",
+  "prompt_hash": "3870549549ed4fccc6bd8f7f55388dfa7ac10242300c3a8ca67989c29ad5d27b",
+  "products": [
+    {
+      "id": "cjson-nesting:generic_summary",
+      "case_id": "cjson-nesting",
+      "arm": "generic_summary",
+      "model": "deepseek-v4-flash",
+      "session_id": "knowledge-production-18019a9c7b7e8893:generic_summary:cjson-nesting",
+      "sections": [
+        {
+          "id": "cjson-nesting:generic_summary:s1",
+          "heading": "结论",
+          "content": "在固定 revision fb16e5c 下，深度超过 CJSON_NESTING_LIMIT 时 cJSON_ParseWithOpts 返回 NULL；这是解析器主动边界保护，而非进程栈不足或内存耗尽。该结论仅适用于该版本及默认宏设置。",
+          "evidence_tags": [
+            "E1",
+            "E2",
+            "E3",
+            "T1",
+            "T5"
+          ]
+        },
+        {
+          "id": "cjson-nesting:generic_summary:s2",
+          "heading": "机制",
+          "content": "parse_array 与 parse_object 在进入下一层前检查 input_buffer->depth >= CJSON_NESTING_LIMIT，超过则返回 false；默认限制为 1000。cJSON_ParseWithOpts 通过 return_parse_end 返回停止位置。",
+          "evidence_tags": [
+            "E1",
+            "E2",
+            "E3",
+            "E4",
+            "T4"
+          ]
+        },
+        {
+          "id": "cjson-nesting:generic_summary:s3",
+          "heading": "复现结果",
+          "content": "固定深度测试中，深度 999 和 1000 解析成功，深度 1001 返回 NULL，parse_end 为 1000，输入长度 2003。结果由 run.sh 与 result.txt 比对验证。",
+          "evidence_tags": [
+            "E6",
+            "E7",
+            "E8",
+            "T7"
+          ]
+        },
+        {
+          "id": "cjson-nesting:generic_summary:s4",
+          "heading": "处理建议",
+          "content": "调用方应校验输入深度并处理 NULL；仅当明确接受递归与资源风险且补齐边界测试时，才可调整编译期 CJSON_NESTING_LIMIT。此为建议，非源码验证。",
+          "evidence_tags": [
+            "T6"
+          ]
+        },
+        {
+          "id": "cjson-nesting:generic_summary:s5",
+          "heading": "验证边界",
+          "content": "复现脚本固定 revision 为 fb16e5cf358798aabb049655975cde8427101056，若实际 revision 不匹配则退出。结果仅对该 revision 有效。",
+          "evidence_tags": [
+            "E7"
+          ]
+        },
+        {
+          "id": "cjson-nesting:generic_summary:s6",
+          "heading": "初始假设排除",
+          "content": "初始假设为进程栈空间不足，但仅增大进程栈不会改变编译期嵌套限制，不能据此修复。该排除基于源码检查，未做栈大小实验。",
+          "evidence_tags": [
+            "T2",
+            "T3"
+          ]
+        }
+      ],
+      "text": "结论\n在固定 revision fb16e5c 下，深度超过 CJSON_NESTING_LIMIT 时 cJSON_ParseWithOpts 返回 NULL；这是解析器主动边界保护，而非进程栈不足或内存耗尽。该结论仅适用于该版本及默认宏设置。 [E1] [E2] [E3] [T1] [T5]\n\n机制\nparse_array 与 parse_object 在进入下一层前检查 input_buffer->depth >= CJSON_NESTING_LIMIT，超过则返回 false；默认限制为 1000。cJSON_ParseWithOpts 通过 return_parse_end 返回停止位置。 [E1] [E2] [E3] [E4] [T4]\n\n复现结果\n固定深度测试中，深度 999 和 1000 解析成功，深度 1001 返回 NULL，parse_end 为 1000，输入长度 2003。结果由 run.sh 与 result.txt 比对验证。 [E6] [E7] [E8] [T7]\n\n处理建议\n调用方应校验输入深度并处理 NULL；仅当明确接受递归与资源风险且补齐边界测试时，才可调整编译期 CJSON_NESTING_LIMIT。此为建议，非源码验证。 [T6]\n\n验证边界\n复现脚本固定 revision 为 fb16e5cf358798aabb049655975cde8427101056，若实际 revision 不匹配则退出。结果仅对该 revision 有效。 [E7]\n\n初始假设排除\n初始假设为进程栈空间不足，但仅增大进程栈不会改变编译期嵌套限制，不能据此修复。该排除基于源码检查，未做栈大小实验。 [T2] [T3]",
+      "usage": {
+        "requests": 1,
+        "input_tokens": 2044,
+        "output_tokens": 1407,
+        "tokens": 3451,
+        "usage_complete": true,
+        "cost_usd": 0.0,
+        "cost_upper_bound_usd": 0.0
+      }
+    },
+    {
+      "id": "cjson-nesting:structured_card",
+      "case_id": "cjson-nesting",
+      "arm": "structured_card",
+      "model": "deepseek-v4-flash",
+      "session_id": "knowledge-production-18019a9c7b7e8893:structured_card:cjson-nesting",
+      "sections": [
+        {
+          "id": "cjson-nesting:structured_card:s1",
+          "heading": "现象",
+          "content": "在固定版本 fb16e5c 的公开复现实验中，深层嵌套 JSON 在深度 999 和 1000 时解析成功，深度 1001 时 cJSON_ParseWithOpts 返回 NULL，并记录 parse_end 与输入长度。",
+          "evidence_tags": [
+            "E6",
+            "E8",
+            "T1",
+            "T7"
+          ]
+        },
+        {
+          "id": "cjson-nesting:structured_card:s2",
+          "heading": "假设",
+          "content": "初始假设是进程栈空间不足，也可能是解析器主动限制递归深度。",
+          "evidence_tags": [
+            "T2"
+          ]
+        },
+        {
+          "id": "cjson-nesting:structured_card:s3",
+          "heading": "排除项",
+          "content": "仅增大进程栈不会改变 cJSON 的编译期嵌套限制，不能据此修复问题；失败并非本实验中的内存耗尽或进程栈不足。",
+          "evidence_tags": [
+            "T3",
+            "T5"
+          ]
+        },
+        {
+          "id": "cjson-nesting:structured_card:s4",
+          "heading": "根因",
+          "content": "固定版本中 parse_array 与 parse_object 在进入下一层前检查 input_buffer->depth >= CJSON_NESTING_LIMIT，超过则返回 false，最终使解析失败并返回 NULL。",
+          "evidence_tags": [
+            "E1",
+            "E2",
+            "E3",
+            "E5",
+            "T4"
+          ]
+        },
+        {
+          "id": "cjson-nesting:structured_card:s5",
+          "heading": "处理步骤",
+          "content": "调用方应校验输入深度并处理 NULL；只有明确接受递归与资源风险且补齐边界测试时，才调整编译期 CJSON_NESTING_LIMIT。",
+          "evidence_tags": [
+            "T6"
+          ]
+        },
+        {
+          "id": "cjson-nesting:structured_card:s6",
+          "heading": "验证和边界",
+          "content": "固定 revision 下运行 run.sh 验证：深度 999 和 1000 成功，1001 返回 NULL；边界由 CJSON_NESTING_LIMIT 默认 1000 决定。",
+          "evidence_tags": [
+            "E1",
+            "E7",
+            "E8",
+            "T7"
+          ]
+        }
+      ],
+      "text": "现象\n在固定版本 fb16e5c 的公开复现实验中，深层嵌套 JSON 在深度 999 和 1000 时解析成功，深度 1001 时 cJSON_ParseWithOpts 返回 NULL，并记录 parse_end 与输入长度。 [E6] [E8] [T1] [T7]\n\n假设\n初始假设是进程栈空间不足，也可能是解析器主动限制递归深度。 [T2]\n\n排除项\n仅增大进程栈不会改变 cJSON 的编译期嵌套限制，不能据此修复问题；失败并非本实验中的内存耗尽或进程栈不足。 [T3] [T5]\n\n根因\n固定版本中 parse_array 与 parse_object 在进入下一层前检查 input_buffer->depth >= CJSON_NESTING_LIMIT，超过则返回 false，最终使解析失败并返回 NULL。 [E1] [E2] [E3] [E5] [T4]\n\n处理步骤\n调用方应校验输入深度并处理 NULL；只有明确接受递归与资源风险且补齐边界测试时，才调整编译期 CJSON_NESTING_LIMIT。 [T6]\n\n验证和边界\n固定 revision 下运行 run.sh 验证：深度 999 和 1000 成功，1001 返回 NULL；边界由 CJSON_NESTING_LIMIT 默认 1000 决定。 [E1] [E7] [E8] [T7]",
+      "usage": {
+        "requests": 1,
+        "input_tokens": 2047,
+        "output_tokens": 716,
+        "tokens": 2763,
+        "usage_complete": true,
+        "cost_usd": 0.0,
+        "cost_upper_bound_usd": 0.0
+      }
+    },
+    {
+      "id": "lwip-netif:generic_summary",
+      "case_id": "lwip-netif",
+      "arm": "generic_summary",
+      "model": "deepseek-v4-flash",
+      "session_id": "knowledge-production-18019a9c7b7e8893:generic_summary:lwip-netif",
+      "sections": [
+        {
+          "id": "lwip-netif:generic_summary:s1",
+          "heading": "核心行为",
+          "content": "在固定revision及该复现配置下，netif_add仅将接口插入netif_list并返回接口，不会自动设置netif_default；netif_set_default是独立修改netif_default的函数。",
+          "evidence_tags": [
+            "E1",
+            "E3",
+            "E4",
+            "T4"
+          ]
+        },
+        {
+          "id": "lwip-netif:generic_summary:s2",
+          "heading": "复现结果",
+          "content": "运行run.sh得到：初始list=none/default=none；添加first后list=first/default=none；调用netif_set_default后default=first；添加second后list=second/default仍为first。",
+          "evidence_tags": [
+            "E9",
+            "T7"
+          ]
+        },
+        {
+          "id": "lwip-netif:generic_summary:s3",
+          "heading": "代码路径",
+          "content": "netif_add在非LWIP_SINGLE_NETIF下执行插入链表操作，并调用init；netif_set_default直接赋值netif_default。本配置未定义LWIP_SINGLE_NETIF。",
+          "evidence_tags": [
+            "E1",
+            "E2",
+            "E3",
+            "E4"
+          ]
+        },
+        {
+          "id": "lwip-netif:generic_summary:s4",
+          "heading": "配置条件",
+          "content": "复现使用最小配置：NO_SYS=1、LWIP_IPV4=1、LWIP_IPV6=0等。该行为仅在未定义LWIP_SINGLE_NETIF时验证；若定义，netif_add在已有默认接口时返回NULL。",
+          "evidence_tags": [
+            "E1",
+            "E8"
+          ]
+        },
+        {
+          "id": "lwip-netif:generic_summary:s5",
+          "heading": "根因与建议",
+          "content": "会话判断根因是调用方混淆“加入链表”与“选择默认接口”；此因果判断未被源码直接验证，属待验证。建议在netif_add成功后显式调用netif_set_default，避免最后添加接口覆盖默认接口。",
+          "evidence_tags": [
+            "T5",
+            "T6"
+          ]
+        },
+        {
+          "id": "lwip-netif:generic_summary:s6",
+          "heading": "验证边界",
+          "content": "结果仅针对固定revision 3d896ba...和run.sh中的编译配置；未覆盖LWIP_SINGLE_NETIF、IPv6、多线程等场景。",
+          "evidence_tags": [
+            "E7",
+            "T1"
+          ]
+        }
+      ],
+      "text": "核心行为\n在固定revision及该复现配置下，netif_add仅将接口插入netif_list并返回接口，不会自动设置netif_default；netif_set_default是独立修改netif_default的函数。 [E1] [E3] [E4] [T4]\n\n复现结果\n运行run.sh得到：初始list=none/default=none；添加first后list=first/default=none；调用netif_set_default后default=first；添加second后list=second/default仍为first。 [E9] [T7]\n\n代码路径\nnetif_add在非LWIP_SINGLE_NETIF下执行插入链表操作，并调用init；netif_set_default直接赋值netif_default。本配置未定义LWIP_SINGLE_NETIF。 [E1] [E2] [E3] [E4]\n\n配置条件\n复现使用最小配置：NO_SYS=1、LWIP_IPV4=1、LWIP_IPV6=0等。该行为仅在未定义LWIP_SINGLE_NETIF时验证；若定义，netif_add在已有默认接口时返回NULL。 [E1] [E8]\n\n根因与建议\n会话判断根因是调用方混淆“加入链表”与“选择默认接口”；此因果判断未被源码直接验证，属待验证。建议在netif_add成功后显式调用netif_set_default，避免最后添加接口覆盖默认接口。 [T5] [T6]\n\n验证边界\n结果仅针对固定revision 3d896ba...和run.sh中的编译配置；未覆盖LWIP_SINGLE_NETIF、IPv6、多线程等场景。 [E7] [T1]",
+      "usage": {
+        "requests": 1,
+        "input_tokens": 2819,
+        "output_tokens": 1340,
+        "tokens": 4159,
+        "usage_complete": true,
+        "cost_usd": 0.0,
+        "cost_upper_bound_usd": 0.0
+      }
+    },
+    {
+      "id": "lwip-netif:structured_card",
+      "case_id": "lwip-netif",
+      "arm": "structured_card",
+      "model": "deepseek-v4-flash",
+      "session_id": "knowledge-production-18019a9c7b7e8893:structured_card:lwip-netif",
+      "sections": [
+        {
+          "id": "lwip-netif:structured_card:s1",
+          "heading": "现象",
+          "content": "在固定版本 3d896ba 的公开复现中，新增网络接口后 netif_list 更新，但 netif_default 未自动指向新接口；例如首个接口加入后 list=first、default=none，追加第二个后 list=second、default 仍为 first。",
+          "evidence_tags": [
+            "E6",
+            "E9",
+            "T1"
+          ]
+        },
+        {
+          "id": "lwip-netif:structured_card:s2",
+          "heading": "假设与排除",
+          "content": "初始假设 netif_add 会在加入首个接口时顺带设置默认接口。但代码显示 netif_add 仅将接口插入链表（E3），未修改 netif_default；netif_set_default 是独立函数（E4）。反复调用 netif_add 只改变链表，不能代替显式设置默认接口。",
+          "evidence_tags": [
+            "E3",
+            "E4",
+            "T2",
+            "T3"
+          ]
+        },
+        {
+          "id": "lwip-netif:structured_card:s3",
+          "heading": "根因",
+          "content": "根因是调用方把“加入接口链表”和“选择默认接口”当成同一步；在该固定多接口配置中 netif_add 不会自动设置 netif_default。此判断基于固定版本代码与复现输出，未验证其他配置。",
+          "evidence_tags": [
+            "E1",
+            "E3",
+            "E4",
+            "T5"
+          ]
+        },
+        {
+          "id": "lwip-netif:structured_card:s4",
+          "heading": "处理步骤",
+          "content": "netif_add 成功后，根据路由策略显式调用 netif_set_default 来选择默认接口；不要默认让最后添加的接口覆盖既有默认接口。示例中先 netif_add 再 netif_set_default(&first)。",
+          "evidence_tags": [
+            "E4",
+            "E6",
+            "T6"
+          ]
+        },
+        {
+          "id": "lwip-netif:structured_card:s5",
+          "heading": "验证",
+          "content": "在固定 revision 运行 examples/reproductions/lwip-netif/run.sh，脚本会编译并执行 reproduce，输出与 result.txt 比对。结果：初始 none/none；add_first 后 list=first/default=none；set_default 后 default=first；add_second 后 list=second/default=first。",
+          "evidence_tags": [
+            "E7",
+            "E9",
+            "T7"
+          ]
+        },
+        {
+          "id": "lwip-netif:structured_card:s6",
+          "heading": "边界",
+          "content": "结论仅适用于固定 revision 3d896ba 且未定义 LWIP_SINGLE_NETIF 的多接口配置（E8 未定义该宏）。若启用 LWIP_SINGLE_NETIF，netif_add 在已有默认接口时会返回 NULL（E1）。本观察来自公开复现实验，非生产事故，不推广到其他版本或配置。",
+          "evidence_tags": [
+            "E1",
+            "E8",
+            "T1"
+          ]
+        }
+      ],
+      "text": "现象\n在固定版本 3d896ba 的公开复现中，新增网络接口后 netif_list 更新，但 netif_default 未自动指向新接口；例如首个接口加入后 list=first、default=none，追加第二个后 list=second、default 仍为 first。 [E6] [E9] [T1]\n\n假设与排除\n初始假设 netif_add 会在加入首个接口时顺带设置默认接口。但代码显示 netif_add 仅将接口插入链表（E3），未修改 netif_default；netif_set_default 是独立函数（E4）。反复调用 netif_add 只改变链表，不能代替显式设置默认接口。 [E3] [E4] [T2] [T3]\n\n根因\n根因是调用方把“加入接口链表”和“选择默认接口”当成同一步；在该固定多接口配置中 netif_add 不会自动设置 netif_default。此判断基于固定版本代码与复现输出，未验证其他配置。 [E1] [E3] [E4] [T5]\n\n处理步骤\nnetif_add 成功后，根据路由策略显式调用 netif_set_default 来选择默认接口；不要默认让最后添加的接口覆盖既有默认接口。示例中先 netif_add 再 netif_set_default(&first)。 [E4] [E6] [T6]\n\n验证\n在固定 revision 运行 examples/reproductions/lwip-netif/run.sh，脚本会编译并执行 reproduce，输出与 result.txt 比对。结果：初始 none/none；add_first 后 list=first/default=none；set_default 后 default=first；add_second 后 list=second/default=first。 [E7] [E9] [T7]\n\n边界\n结论仅适用于固定 revision 3d896ba 且未定义 LWIP_SINGLE_NETIF 的多接口配置（E8 未定义该宏）。若启用 LWIP_SINGLE_NETIF，netif_add 在已有默认接口时会返回 NULL（E1）。本观察来自公开复现实验，非生产事故，不推广到其他版本或配置。 [E1] [E8] [T1]",
+      "usage": {
+        "requests": 1,
+        "input_tokens": 2822,
+        "output_tokens": 2035,
+        "tokens": 4857,
+        "usage_complete": true,
+        "cost_usd": 0.0,
+        "cost_upper_bound_usd": 0.0
+      }
+    }
+  ],
+  "production_cost": {
+    "model_requests": 4,
+    "input_tokens": 9732,
+    "output_tokens": 5498,
+    "cost_usd": 0,
+    "human_edit_seconds": null,
+    "latency_ms": 79450.1
+  },
+  "boundary": "Model-produced materials are isolated and unusable until dual review; follow-up questions and answer keys were not model inputs.",
+  "artifact_hash": "ac8f621efb5350a7177ef34a5a69b388daab48e6de5583a73893d6b49a8838d9",
+  "material_reviews": {
+    "artifact_hash": "ac8f621efb5350a7177ef34a5a69b388daab48e6de5583a73893d6b49a8838d9",
+    "independent_reviews": [
+      {
+        "reviewer_kind": "agent",
+        "agent": "material_v2_a",
+        "session_id": "material_v2_a-45d97c43-0881-42aa-a1ef-e46c6b0913be",
+        "peer_reviews_visible": false,
+        "items": [
+          {
+            "section_id": "cjson-nesting:generic_summary:s1",
+            "verdict": "supported",
+            "evidence_note": "固定版本源码定义默认限制 1000 并在递归入口主动拒绝；1001 层复现于偏移 1000 返回 NULL。"
+          },
+          {
+            "section_id": "cjson-nesting:generic_summary:s2",
+            "verdict": "supported",
+            "evidence_note": "cJSON.h、parse_array、parse_object 与失败路径的 return_parse_end 赋值共同支持该机制。"
+          },
+          {
+            "section_id": "cjson-nesting:generic_summary:s3",
+            "verdict": "supported",
+            "evidence_note": "result.txt 精确记录 999/1000 成功、1001 失败、parse_end=1000、input_len=2003，run.sh 执行 diff。"
+          },
+          {
+            "section_id": "cjson-nesting:generic_summary:s4",
+            "verdict": "supported",
+            "evidence_note": "公开会话明确给出处理 NULL、谨慎调整编译期限制并补齐边界测试的建议，且正文正确标注为建议。"
+          },
+          {
+            "section_id": "cjson-nesting:generic_summary:s5",
+            "verdict": "supported",
+            "evidence_note": "run.sh 固定完整 revision，并在实际 revision 不匹配时退出 2。"
+          },
+          {
+            "section_id": "cjson-nesting:generic_summary:s6",
+            "verdict": "supported",
+            "evidence_note": "会话记录栈空间初始假设与死路；源码中的编译期检查说明单纯增大进程栈不改变该边界。"
+          },
+          {
+            "section_id": "cjson-nesting:structured_card:s1",
+            "verdict": "supported",
+            "evidence_note": "固定深度 harness 与 result.txt 支持三个边界结果，并记录停止位置及输入长度。"
+          },
+          {
+            "section_id": "cjson-nesting:structured_card:s2",
+            "verdict": "supported",
+            "evidence_note": "公开会话的 hypothesis 消息逐项陈述栈空间不足与解析器主动限深两种假设。"
+          },
+          {
+            "section_id": "cjson-nesting:structured_card:s3",
+            "verdict": "supported",
+            "evidence_note": "源码在深度阈值处显式返回 false，复现正常返回 NULL 而非崩溃，支持排除本实验中的栈不足及内存耗尽。"
+          },
+          {
+            "section_id": "cjson-nesting:structured_card:s4",
+            "verdict": "supported",
+            "evidence_note": "数组和对象解析入口均检查 depth >= CJSON_NESTING_LIMIT 并返回 false，失败最终传递为 NULL。"
+          },
+          {
+            "section_id": "cjson-nesting:structured_card:s5",
+            "verdict": "supported",
+            "evidence_note": "处理步骤与公开会话的 reviewer fix 一致，且与源码所示编译期限制及栈溢出保护注释相符。"
+          },
+          {
+            "section_id": "cjson-nesting:structured_card:s6",
+            "verdict": "supported",
+            "evidence_note": "run.sh 固定 revision 并比对预期输出；cJSON.h 给出默认阈值 1000，结果恰好覆盖边界。"
+          },
+          {
+            "section_id": "lwip-netif:generic_summary:s1",
+            "verdict": "supported",
+            "evidence_note": "多接口路径把新接口置于 netif_list 表头；netif_set_default 另行赋值 netif_default，复现确认 add 不改默认项。"
+          },
+          {
+            "section_id": "lwip-netif:generic_summary:s2",
+            "verdict": "supported",
+            "evidence_note": "result.txt 逐行精确匹配初始、add_first、set_default、add_second 四阶段状态。"
+          },
+          {
+            "section_id": "lwip-netif:generic_summary:s3",
+            "verdict": "supported",
+            "evidence_note": "netif.c 显示 init 调用、非单接口链表插入和独立默认项赋值；复现配置未定义 LWIP_SINGLE_NETIF。"
+          },
+          {
+            "section_id": "lwip-netif:generic_summary:s4",
+            "verdict": "supported",
+            "evidence_note": "lwipopts.h 与所列最小配置一致；netif_add 的单接口条件分支在已有默认接口时明确返回 NULL。"
+          },
+          {
+            "section_id": "lwip-netif:generic_summary:s5",
+            "verdict": "supported",
+            "evidence_note": "会话确实给出调用方混淆的根因判断与显式设默认项建议；正文也如实标明该因果判断未被源码直接验证。"
+          },
+          {
+            "section_id": "lwip-netif:generic_summary:s6",
+            "verdict": "supported",
+            "evidence_note": "run.sh 固定 3d896ba0...，配置关闭 IPv6 且使用 NO_SYS=1；附件实验未覆盖所列其他场景。"
+          },
+          {
+            "section_id": "lwip-netif:structured_card:s1",
+            "verdict": "supported",
+            "evidence_note": "公开复现输出显示首个 add 后 list=first/default=none，第二个 add 后 list=second/default=first。"
+          },
+          {
+            "section_id": "lwip-netif:structured_card:s2",
+            "verdict": "supported",
+            "evidence_note": "会话记录该初始假设；源码和复现均表明 netif_add 的链表变更不能替代 netif_set_default。"
+          },
+          {
+            "section_id": "lwip-netif:structured_card:s3",
+            "verdict": "supported",
+            "evidence_note": "根因表述与公开会话的 reviewer 结论一致，并由固定多接口路径及复现输出支持其限定范围。"
+          },
+          {
+            "section_id": "lwip-netif:structured_card:s4",
+            "verdict": "supported",
+            "evidence_note": "netif_set_default 独立赋值默认接口，harness 的 first 调用顺序与会话建议均支持按路由策略显式选择。"
+          },
+          {
+            "section_id": "lwip-netif:structured_card:s5",
+            "verdict": "supported",
+            "evidence_note": "run.sh 编译执行 reproduce 并与 result.txt 比对，正文列出的完整输出序列准确。"
+          },
+          {
+            "section_id": "lwip-netif:structured_card:s6",
+            "verdict": "supported",
+            "evidence_note": "revision、未定义 LWIP_SINGLE_NETIF 的配置及单接口分支返回 NULL 均由会话、配置和源码直接支持。"
+          }
+        ]
+      },
+      {
+        "reviewer_kind": "agent",
+        "agent": "material_v2_b",
+        "session_id": "1E058CFF-CA8A-49E4-8384-976DB5E21562",
+        "peer_reviews_visible": false,
+        "items": [
+          {
+            "section_id": "cjson-nesting:generic_summary:s1",
+            "verdict": "supported",
+            "evidence_note": "固定 revision 的源码在深度达到默认上限 1000 时主动返回 false，复现的 1001 层输入在偏移 1000 返回 NULL，且会话明确将其归因于边界保护。"
+          },
+          {
+            "section_id": "cjson-nesting:generic_summary:s2",
+            "verdict": "supported",
+            "evidence_note": "cJSON.h 定义默认 CJSON_NESTING_LIMIT=1000；parse_array、parse_object 均先检查 depth>=上限，失败路径会设置 return_parse_end。"
+          },
+          {
+            "section_id": "cjson-nesting:generic_summary:s3",
+            "verdict": "supported",
+            "evidence_note": "result.txt 精确记录 999/1000 成功、1001 返回 NULL、parse_end=1000、input_len=2003，run.sh 将实际输出与该文件作 diff。"
+          },
+          {
+            "section_id": "cjson-nesting:generic_summary:s4",
+            "verdict": "supported",
+            "evidence_note": "处理建议与公开会话的 fix 消息一致，并明确标注为建议而非源码验证；源码中的编译期上限和 NULL 失败路径为其提供依据。"
+          },
+          {
+            "section_id": "cjson-nesting:generic_summary:s5",
+            "verdict": "supported",
+            "evidence_note": "run.sh 固定并校验完整 revision fb16e5cf358798aabb049655975cde8427101056，不匹配即退出。"
+          },
+          {
+            "section_id": "cjson-nesting:generic_summary:s6",
+            "verdict": "supported",
+            "evidence_note": "公开会话将栈不足列为初始假设并明确记录该 dead end；源码证明不改编译期上限时，增大进程栈不会绕过 depth 检查。"
+          },
+          {
+            "section_id": "cjson-nesting:structured_card:s1",
+            "verdict": "supported",
+            "evidence_note": "会话与 result.txt 均支持固定版本下 999/1000 成功、1001 返回 NULL，并由复现程序记录 parse_end 和输入长度。"
+          },
+          {
+            "section_id": "cjson-nesting:structured_card:s2",
+            "verdict": "supported",
+            "evidence_note": "该表述忠实复述公开会话中的初始 hypothesis，同时列出栈不足与解析器主动限制两种可能。"
+          },
+          {
+            "section_id": "cjson-nesting:structured_card:s3",
+            "verdict": "supported",
+            "evidence_note": "源码中的显式 depth 上限检查与 1001 层的确定性边界输出支持本实验失败来自主动限制；会话也明确排除了以增大栈作为修复。"
+          },
+          {
+            "section_id": "cjson-nesting:structured_card:s4",
+            "verdict": "supported",
+            "evidence_note": "parse_array 和 parse_object 均在递增深度前执行 depth>=CJSON_NESTING_LIMIT 检查并返回 false，符合所述失败路径。"
+          },
+          {
+            "section_id": "cjson-nesting:structured_card:s5",
+            "verdict": "supported",
+            "evidence_note": "步骤与公开会话 fix 一致；要求处理 NULL、谨慎调整编译期上限并补充边界测试，均与已验证机制相符。"
+          },
+          {
+            "section_id": "cjson-nesting:structured_card:s6",
+            "verdict": "supported",
+            "evidence_note": "run.sh 校验固定 revision 后编译运行，result.txt 给出 999、1000、1001 三个边界结果；cJSON.h 证明默认上限为 1000。"
+          },
+          {
+            "section_id": "lwip-netif:generic_summary:s1",
+            "verdict": "supported",
+            "evidence_note": "就接口注册与默认接口的关系而言，源码显示 netif_add 插入 netif_list，而 netif_set_default 独立写入 netif_default；复现验证添加操作不自动改默认接口。"
+          },
+          {
+            "section_id": "lwip-netif:generic_summary:s2",
+            "verdict": "supported",
+            "evidence_note": "result.txt 逐行精确给出初始 none/none、添加 first 后 first/none、显式设置后 first/first、添加 second 后 second/first。"
+          },
+          {
+            "section_id": "lwip-netif:generic_summary:s3",
+            "verdict": "supported",
+            "evidence_note": "netif.c 显示调用 init、在多接口分支将节点插入链表，以及 netif_set_default 直接赋值；复现配置未定义 LWIP_SINGLE_NETIF。"
+          },
+          {
+            "section_id": "lwip-netif:generic_summary:s4",
+            "verdict": "supported",
+            "evidence_note": "lwipopts.h 对所列最小配置有明确宏定义且未定义 LWIP_SINGLE_NETIF；netif_add 的单接口条件分支会在 netif_default 非空时返回 NULL。"
+          },
+          {
+            "section_id": "lwip-netif:generic_summary:s5",
+            "verdict": "supported",
+            "evidence_note": "公开会话明确给出调用方混淆两步的 root_cause 判断和显式 netif_set_default 的 fix；本节也正确保留因果判断待验证的限定。"
+          },
+          {
+            "section_id": "lwip-netif:generic_summary:s6",
+            "verdict": "supported",
+            "evidence_note": "run.sh 固定并校验完整 revision 3d896ba0a37ff3ce73270ca5e230707fe47f60e3，配置附件确为该最小多接口复现，未覆盖所列其他场景。"
+          },
+          {
+            "section_id": "lwip-netif:structured_card:s1",
+            "verdict": "supported",
+            "evidence_note": "公开会话与 result.txt 均证明 first 加入后 list=first/default=none，显式设置 first 后再加入 second 时 list=second/default=first。"
+          },
+          {
+            "section_id": "lwip-netif:structured_card:s2",
+            "verdict": "supported",
+            "evidence_note": "初始假设和 dead end 均来自公开会话；源码与复现共同显示 netif_add 更新链表但不替代独立的 netif_set_default。"
+          },
+          {
+            "section_id": "lwip-netif:structured_card:s3",
+            "verdict": "supported",
+            "evidence_note": "root_cause 表述与公开会话一致，固定配置下的源码和输出支持 netif_add 不自动设置 default，且本节明确不外推到其他配置。"
+          },
+          {
+            "section_id": "lwip-netif:structured_card:s4",
+            "verdict": "supported",
+            "evidence_note": "公开会话的 fix 明确要求按路由策略显式调用 netif_set_default；复现程序也采用先添加 first、再 netif_set_default(&first) 的顺序。"
+          },
+          {
+            "section_id": "lwip-netif:structured_card:s5",
+            "verdict": "supported",
+            "evidence_note": "run.sh 编译并运行复现程序且与 result.txt 比对，所列四阶段状态与观测文件完全一致。"
+          },
+          {
+            "section_id": "lwip-netif:structured_card:s6",
+            "verdict": "supported",
+            "evidence_note": "会话标明公开合成复现而非生产事故；脚本固定 revision，配置未定义 LWIP_SINGLE_NETIF，源码证明启用该宏且已有默认接口时返回 NULL。"
+          }
+        ]
+      }
+    ]
+  },
+  "section_verdicts": {
+    "lwip-netif:structured_card:s1": "supported",
+    "lwip-netif:generic_summary:s2": "supported",
+    "cjson-nesting:structured_card:s1": "supported",
+    "cjson-nesting:structured_card:s3": "supported",
+    "lwip-netif:generic_summary:s1": "supported",
+    "lwip-netif:structured_card:s2": "supported",
+    "lwip-netif:structured_card:s6": "supported",
+    "cjson-nesting:generic_summary:s3": "supported",
+    "cjson-nesting:generic_summary:s5": "supported",
+    "lwip-netif:generic_summary:s4": "supported",
+    "cjson-nesting:structured_card:s5": "supported",
+    "lwip-netif:generic_summary:s5": "supported",
+    "cjson-nesting:generic_summary:s4": "supported",
+    "cjson-nesting:structured_card:s4": "supported",
+    "cjson-nesting:generic_summary:s6": "supported",
+    "lwip-netif:structured_card:s3": "supported",
+    "cjson-nesting:structured_card:s6": "supported",
+    "lwip-netif:structured_card:s4": "supported",
+    "lwip-netif:generic_summary:s3": "supported",
+    "lwip-netif:structured_card:s5": "supported",
+    "cjson-nesting:generic_summary:s1": "supported",
+    "cjson-nesting:generic_summary:s2": "supported",
+    "cjson-nesting:structured_card:s2": "supported",
+    "lwip-netif:generic_summary:s6": "supported"
+  },
+  "reviewed_artifact_hash": "6d5380b98dc839960b1fa52fcebb8905565039d21f69c5651b318795bf87dff6"
+}

@@ -1,0 +1,285 @@
+schema_version: 1
+name: cjson-held-out-mechanism-eval-v1
+repository: https://github.com/DaveGamble/cJSON
+revision: fb16e5cf358798aabb049655975cde8427101056
+public_source: https://github.com/DaveGamble/cJSON
+reviewer: holdout-author-agent
+reviewer_kind: agent
+review_status: ai_reviewed
+approval_scope: "approved 仅表示 AI 已核对题面格式、源码 revision 与 DB anchor；不表示人类复核或答案键可用于效果声明"
+reviewed_at: "2026-09-05"
+failure_policy: "代码题必须以固定 revision 源码解释机制并命中 expected_anchors；拒答题不得编造仓库外事实或代码 gold，应明确说明证据边界。"
+tasks:
+  - id: ho-cjson-flow-minify-inplace
+    type: 语义检索
+    status: approved
+    mechanism_id: cjson-minify-inplace
+    category: 跨函数流程
+    question: "cJSON_Minify 如何在同一缓冲区内删除空白和两类注释、复制字符串内容？minify_string 对相邻的反斜杠+引号做了什么，这是否足以覆盖偶数个连续反斜杠后的引号边界？"
+    rationale: "要求串联主扫描器、注释跳过器和字符串复制器，并区分源码的局部二字节检查与完整的反斜杠奇偶转义判断。"
+    source_permalink: https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L2875-L2970
+    expected_anchors:
+      - {symbol: cJSON_Minify, path: cJSON.c, line_start: 2924}
+      - {symbol: skip_oneline_comment, path: cJSON.c, line_start: 2875}
+      - {symbol: skip_multiline_comment, path: cJSON.c, line_start: 2888}
+      - {symbol: minify_string, path: cJSON.c, line_start: 2902}
+
+  - id: ho-cjson-flow-json-pointer-walk
+    type: 语义检索
+    status: approved
+    mechanism_id: cjson-json-pointer-walk
+    category: 跨函数流程
+    question: "cJSONUtils_GetPointer 从根节点解析多段 JSON Pointer 时，数组下标和对象键分别怎样推进，空指针字符串与不以 / 开头的字符串又会得到什么结果？"
+    rationale: "覆盖公开入口、逐段遍历、数组下标解码和对象键转义比较，而不是只定位一个函数。"
+    source_permalink: https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON_Utils.c#L274-L351
+    expected_anchors:
+      - {symbol: cJSONUtils_GetPointer, path: cJSON_Utils.c, line_start: 348}
+      - {symbol: get_item_from_pointer, path: cJSON_Utils.c, line_start: 301}
+      - {symbol: decode_array_index_from_pointer, path: cJSON_Utils.c, line_start: 274}
+      - {symbol: compare_pointers, path: cJSON_Utils.c, line_start: 120}
+
+  - id: ho-cjson-flow-detach-list-rewire
+    type: 语义检索
+    status: approved
+    mechanism_id: cjson-detach-list-rewire
+    category: 跨函数流程
+    question: "cJSON_DetachItemFromObject 找到成员后，cJSON_DetachItemViaPointer 怎样分别重连首、中、尾节点，并把被摘节点变成可独立持有的节点？"
+    rationale: "考查对象查找到双向链表重连的跨函数所有权流程。"
+    source_permalink: https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L2258-L2314
+    expected_anchors:
+      - {symbol: cJSON_DetachItemFromObject, path: cJSON.c, line_start: 2309}
+      - {symbol: cJSON_DetachItemViaPointer, path: cJSON.c, line_start: 2258}
+
+  - id: ho-cjson-flow-replace-object-item
+    type: 语义检索
+    status: approved
+    mechanism_id: cjson-replace-object-item
+    category: 跨函数流程
+    question: "cJSON_ReplaceItemInObject 如何为 replacement 复制键名、找到旧成员、保持兄弟链表和尾指针不变量，并处置旧节点？"
+    rationale: "要求说明包装入口、对象替换帮助函数和按指针替换三层行为。"
+    source_permalink: https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L2368-L2453
+    expected_anchors:
+      - {symbol: cJSON_ReplaceItemInObject, path: cJSON.c, line_start: 2450}
+      - {symbol: replace_item_in_object, path: cJSON.c, line_start: 2427}
+      - {symbol: cJSON_ReplaceItemViaPointer, path: cJSON.c, line_start: 2368}
+
+  - id: ho-cjson-flow-merge-patch
+    type: 语义检索
+    status: approved
+    mechanism_id: cjson-rfc7396-merge
+    category: 跨函数流程
+    question: "cJSONUtils_MergePatch 应用对象 patch 时如何处理 null 成员、递归合并普通成员；patch 不是对象或 target 不是对象时又怎样转换？"
+    rationale: "覆盖 RFC 7396 风格的入口、递归、删除和整值替换分支。"
+    source_permalink: https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON_Utils.c#L1321-L1384
+    expected_anchors:
+      - {symbol: cJSONUtils_MergePatch, path: cJSON_Utils.c, line_start: 1381}
+      - {symbol: merge_patch, path: cJSON_Utils.c, line_start: 1321}
+
+  - id: ho-cjson-cond-set-valuestring
+    type: 语义检索
+    status: approved
+    mechanism_id: cjson-set-valuestring-guards
+    category: 必要条件与反例
+    question: "cJSON_SetValuestring 成功的必要条件是什么？请用“reference 字符串”“源与目标内存重叠”“新值更长”三个反例说明其原地复制和重新分配边界。"
+    rationale: "以具体反例核对类型、所有权、重叠和长度条件。"
+    source_permalink: https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L435-L476
+    expected_anchors:
+      - {symbol: cJSON_SetValuestring, path: cJSON.c, line_start: 435}
+
+  - id: ho-cjson-cond-array-insert-boundaries
+    type: 语义检索
+    status: approved
+    mechanism_id: cjson-array-insert-boundaries
+    category: 必要条件与反例
+    question: "cJSON_InsertItemInArray 对负下标、NULL newitem、首元素、中间元素以及超过当前长度的正下标分别怎样处理？“越界正下标一定失败”是否成立？"
+    rationale: "通过边界反例区分显式失败、链表插入和退化为尾部追加。"
+    source_permalink: https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L2334-L2366
+    expected_anchors:
+      - {symbol: cJSON_InsertItemInArray, path: cJSON.c, line_start: 2334}
+      - {symbol: add_item_to_array, path: cJSON.c, line_start: 2027}
+
+  - id: ho-cjson-cond-pointer-array-index
+    type: 语义检索
+    status: approved
+    mechanism_id: cjson-json-pointer-walk
+    category: 必要条件与反例
+    question: "数组 JSON Pointer token 中，0、00、01、纯数字后接 /、以及 - 分别能否被 decode_array_index_from_pointer 接受？为什么 GetPointer 的 - 不能表示追加？"
+    rationale: "用正反例检验下标语法，而非泛泛描述 JSON Pointer。"
+    source_permalink: https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON_Utils.c#L274-L323
+    expected_anchors:
+      - {symbol: decode_array_index_from_pointer, path: cJSON_Utils.c, line_start: 274}
+      - {symbol: get_item_from_pointer, path: cJSON_Utils.c, line_start: 301}
+
+  - id: ho-cjson-cond-reference-alias
+    type: 语义检索
+    status: approved
+    mechanism_id: cjson-reference-alias-insertion
+    category: 必要条件与反例
+    question: "cJSON_AddItemReferenceToArray 插入的是深拷贝还是别名节点？成功前需要哪些非空条件，生成的 reference 会清理哪些链接和键字段、保留哪些载荷指针？"
+    rationale: "核对 reference 构造与数组插入之间的别名/所有权边界。"
+    source_permalink: https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L2006-L2025
+    expected_anchors:
+      - {symbol: cJSON_AddItemReferenceToArray, path: cJSON.c, line_start: 2130}
+      - {symbol: create_reference, path: cJSON.c, line_start: 2006}
+      - {symbol: add_item_to_array, path: cJSON.c, line_start: 2027}
+
+  - id: ho-cjson-cond-array-size-structural
+    type: 语义检索
+    status: approved
+    mechanism_id: cjson-array-size-child-chain
+    category: 必要条件与反例
+    question: "cJSON_GetArraySize 对参数的真正必要结构条件是什么？NULL、空数组、空对象、标量节点以及带两个成员的对象分别会得到什么计数？为什么“返回 0 证明参数是空数组”和“对象一定返回 0”都不成立？"
+    rationale: "用 NULL/空容器/对象成员反例检验 API 是按 child-next 链计数，而非先验证 Array 类型。"
+    source_permalink: https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1899-L1920
+    expected_anchors:
+      - {symbol: cJSON_GetArraySize, path: cJSON.c, line_start: 1899}
+
+  - id: ho-cjson-error-string-array-cleanup
+    type: 语义检索
+    status: approved
+    mechanism_id: cjson-string-array-cleanup
+    category: 资源/错误路径
+    question: "cJSON_CreateStringArray 在第 k 个字符串节点分配失败时如何避免泄漏此前节点？成功时 child->prev 为什么被设为最后一个节点？"
+    rationale: "同时核对部分构造失败清理和成功链表尾指针建立。"
+    source_permalink: https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L2741-L2779
+    expected_anchors:
+      - {symbol: cJSON_CreateStringArray, path: cJSON.c, line_start: 2741}
+
+  - id: ho-cjson-error-duplicate-cleanup
+    type: 语义检索
+    status: approved
+    mechanism_id: cjson-deep-duplicate-failure
+    category: 资源/错误路径
+    question: "cJSON_Duplicate 的递归复制在值字符串、键字符串、子节点分配失败或达到 CJSON_CIRCULAR_LIMIT 时怎样统一回收部分副本？非递归复制不会复制什么？"
+    rationale: "覆盖递归深拷贝的所有失败汇合点与 recurse=false 反例。"
+    source_permalink: https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L2784-L2873
+    expected_anchors:
+      - {symbol: cJSON_Duplicate, path: cJSON.c, line_start: 2784}
+      - {symbol: cJSON_Duplicate_rec, path: cJSON.c, line_start: 2789}
+
+  - id: ho-cjson-error-generate-merge-null
+    type: 语义检索
+    status: approved
+    mechanism_id: cjson-generate-merge-patch-null-result
+    category: 资源/错误路径
+    question: "cJSONUtils_GenerateMergePatch 在 to 为 NULL、任一输入非对象、两个对象时分别怎样产生结果？为什么对对象输入返回 NULL 无法单凭返回值区分“没有 patch”与容器分配失败？"
+    rationale: "聚焦生成器公开返回值的精确资源/语义歧义，不扩展为对内部所有递归挂接失败的总括结论。"
+    source_permalink: https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON_Utils.c#L1391-L1476
+    expected_anchors:
+      - {symbol: cJSONUtils_GenerateMergePatch, path: cJSON_Utils.c, line_start: 1473}
+      - {symbol: generate_merge_patch, path: cJSON_Utils.c, line_start: 1391}
+
+  - id: ho-cjson-error-convenience-add
+    type: 语义检索
+    status: approved
+    mechanism_id: cjson-convenience-add-cleanup
+    category: 资源/错误路径
+    question: "cJSON_AddStringToObject 已创建 string_item 后若键复制或挂接失败，谁负责释放该临时节点？调用者能否在返回 NULL 后继续把它当作已插入成员？"
+    rationale: "验证便捷构造器的失败所有权，而非旧题中的调用者枚举。"
+    source_permalink: https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L2210-L2220
+    expected_anchors:
+      - {symbol: cJSON_AddStringToObject, path: cJSON.c, line_start: 2210}
+
+  - id: ho-cjson-error-find-pointer-ownership
+    type: 语义检索
+    status: approved
+    mechanism_id: cjson-find-pointer-ownership
+    category: 资源/错误路径
+    question: "cJSONUtils_FindPointerFromObjectTo 递归找到 target 后如何逐层构造并转移返回字符串的所有权？源码对 full_pointer 分配失败是否有完整的 NULL 防护？"
+    rationale: "既考查成功返回值的释放责任，也要求忠实指出可见的分配失败边界。"
+    source_permalink: https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON_Utils.c#L198-L259
+    expected_anchors:
+      - {symbol: cJSONUtils_FindPointerFromObjectTo, path: cJSON_Utils.c, line_start: 198}
+
+  - id: ho-cjson-state-hooks-realloc
+    type: 语义检索
+    status: approved
+    mechanism_id: cjson-allocator-hook-state
+    category: 状态/配置约束
+    question: "cJSON_InitHooks(NULL)、只提供 malloc_fn、同时提供自定义 malloc_fn/free_fn 三种配置如何改变 global_hooks？何时 reallocate 会保持可用？"
+    rationale: "检验全局分配器状态与 realloc 启用条件。"
+    source_permalink: https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L209-L238
+    expected_anchors:
+      - {symbol: cJSON_InitHooks, path: cJSON.c, line_start: 209}
+
+  - id: ho-cjson-state-list-tail-invariant
+    type: 语义检索
+    status: approved
+    mechanism_id: cjson-array-tail-invariant
+    category: 状态/配置约束
+    question: "add_item_to_array 如何用 array->child->prev 充当尾指针？空数组第一次插入和后续追加后，child、首节点 prev、尾节点 next 各应满足什么不变量？"
+    rationale: "核对 cJSON 非典型双向链表表示的状态约束。"
+    source_permalink: https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1999-L2058
+    expected_anchors:
+      - {symbol: add_item_to_array, path: cJSON.c, line_start: 2027}
+
+  - id: ho-cjson-state-number-saturation
+    type: 语义检索
+    status: approved
+    mechanism_id: cjson-number-dual-representation
+    category: 状态/配置约束
+    question: "cJSON_SetNumberHelper 对超过 int 范围、范围内小数和 NULL object 如何同步 valuedouble/valueint？valueint 的饱和是否意味着 valuedouble 也被截断？"
+    rationale: "验证同一数值的双表示和饱和边界。"
+    source_permalink: https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L411-L432
+    expected_anchors:
+      - {symbol: cJSON_SetNumberHelper, path: cJSON.c, line_start: 411}
+
+  - id: ho-cjson-state-string-reference
+    type: 语义检索
+    status: approved
+    mechanism_id: cjson-string-reference-ownership
+    category: 状态/配置约束
+    question: "cJSON_CreateStringReference 如何标记并保存外部字符串？这个节点是否复制输入字节，后续是否允许 cJSON_SetValuestring 修改它？"
+    rationale: "考查 reference 标志形成的不可拥有、不可改写状态约束。"
+    source_permalink: https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L2548-L2558
+    expected_anchors:
+      - {symbol: cJSON_CreateStringReference, path: cJSON.c, line_start: 2548}
+      - {symbol: cJSON_SetValuestring, path: cJSON.c, line_start: 435}
+
+  - id: ho-cjson-state-sort-mutation
+    type: 语义检索
+    status: approved
+    mechanism_id: cjson-utils-sort-mutation
+    category: 状态/配置约束
+    question: "cJSONUtils_SortObject 是生成排序副本还是原地重排 object->child？普通版与 CaseSensitive 版把什么比较模式传给底层排序？"
+    rationale: "识别排序 API 的可观察状态修改和大小写配置。"
+    source_permalink: https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON_Utils.c#L595-L602
+    expected_anchors:
+      - {symbol: cJSONUtils_SortObject, path: cJSON_Utils.c, line_start: 1311}
+      - {symbol: sort_object, path: cJSON_Utils.c, line_start: 595}
+
+  - id: ho-cjson-refuse-rust-borrow
+    type: 无证据拒答
+    status: approved
+    mechanism_id: refusal-out-of-corpus-rust-borrow
+    category: 无证据拒答
+    question: "Rust 编译器如何推导闭包捕获变量的生命周期，并在 Polonius 模型下报告借用冲突？"
+    rationale: "固定语料仅为 cJSON C 源码；应拒绝生成 Rust 编译器机制答案。"
+    source_permalink: https://github.com/DaveGamble/cJSON/tree/fb16e5cf358798aabb049655975cde8427101056
+
+  - id: ho-cjson-refuse-ebpf-verifier
+    type: 无证据拒答
+    status: approved
+    mechanism_id: refusal-out-of-corpus-ebpf-verifier
+    category: 无证据拒答
+    question: "Linux eBPF verifier 如何合并控制流状态并证明指针算术安全？"
+    rationale: "固定语料不含 Linux 内核 verifier 实现；应指出证据不足。"
+    source_permalink: https://github.com/DaveGamble/cJSON/tree/fb16e5cf358798aabb049655975cde8427101056
+
+  - id: ho-cjson-refuse-sqlite-wal
+    type: 无证据拒答
+    status: approved
+    mechanism_id: refusal-out-of-corpus-sqlite-wal
+    category: 无证据拒答
+    question: "SQLite WAL 在 PASSIVE、FULL 与 RESTART checkpoint 模式下如何协调读写锁？"
+    rationale: "固定语料不含 SQLite WAL；不能借常识冒充源码证据。"
+    source_permalink: https://github.com/DaveGamble/cJSON/tree/fb16e5cf358798aabb049655975cde8427101056
+
+  - id: ho-cjson-refuse-react-concurrent
+    type: 无证据拒答
+    status: approved
+    mechanism_id: refusal-out-of-corpus-react-concurrent
+    category: 无证据拒答
+    question: "React 并发渲染如何通过 lanes 决定更新优先级并处理中断后的恢复？"
+    rationale: "固定语料不含 React 调度器；正确行为是拒答并请求相应源码。"
+    source_permalink: https://github.com/DaveGamble/cJSON/tree/fb16e5cf358798aabb049655975cde8427101056

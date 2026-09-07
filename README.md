@@ -1,334 +1,179 @@
 # CodeAtlas
 
-> 面向大型 C 工程的 AI 知识库：Clang AST 代码知识图谱 + 定长检索摘要头 + 混合检索 + 人机协同审核
+CodeAtlas 是一个面向复杂 C 工程的可信 AI 研发辅助原型。它先用编译器建立代码事实，再让检索和 Agent 在这些事实之上工作：回答能回到固定版本的源码，经验要经过人工审核，代码改变后旧经验会自动失效；没有可靠证据时直接拒答。
 
-> **公开边界：**这是基于公开开源语料构建的个人可复现工程，不是华为官方产品，
-> 不包含华为内部代码、数据、文档或生产指标。
+它是公开、单机、可复现的求职作品集，不包含内部代码、真实业务会话或历史汇报中的未复现实验数字。
 
-读一个十万行级的 C 仓库，靠 grep 逐行找效率太低；直接把代码丢给大模型，又会遇到
-上下文不足、同名符号混淆、答案无法追溯。CodeAtlas 把代码**离线编译成可查询的事实图谱**，
-在线用四路混合检索回答问题，**每个结论都带证据引用，证据不足时拒绝作答**。
+设计借鉴了 [Karpathy 的 LLM Wiki 模式](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)：把部分临时理解沉淀成持久知识。CodeAtlas 针对 C 工程增加编译器事实、固定快照和人工发布边界；不是 `nashsu/llm_wiki` 的 fork 或依赖，也不声称完整复现了模型自主综合与维护。原文的 raw/wiki/schema 三层，不等于这里的文件/模块/仓库三级页面。[来源与差异](docs/design/LLM-WIKI-LINEAGE.md)
 
+## 目前做到什么
+
+查询以不可变 `knowledge_set` 为单位：先冻结源码和实际编译输入，再在 staging 完成事实、Wiki、FTS 和向量构建。校验成功才切换 active；构建失败仍查旧版，一次 Agent 运行不会中途换版本。首次迁移会备份数据库与 Markdown。
+
+```text
+compile_commands.json + 固定 Git revision
+                    │
+                    ▼
+ libclang：符号 / USR / 定义哈希 / 代码关系
+                    │
+          ┌─────────┴─────────┐
+          ▼                   ▼
+ certain 编译器事实      candidate 排查线索
+          │             （不进入确定结论）
+          ▼
+ SQLite 图谱 + 分层 Wiki + FTS5 / 本地向量
+          │
+          ▼
+ 符号 + BM25 + 向量 + certain 图扩展
+          │
+          ▼
+ A/B/C 证据包 ──► 受限 Agent ──► 回答或拒答
+                         │
+                         ▼
+ 公开会话 → pending 知识卡 → 人工绑定与审核
+                         │
+             代码变化 ──┴──► stale / superseded
 ```
-C 工程 ──libclang──▶ 知识图谱(certain/candidate) ──▶ 摘要头 ──▶ BM25 + 向量索引
-                                                                      │
-                    四路召回 ─▶ RRF 融合 ─▶ 图多跳扩展 ─▶ 证据分级 ─▶ 带引用回答
-                                                                      ▲
-        会话/工单 ──▶ LLM 抽取 ──▶ pending ──【人工审核】──▶ approved ─┘
-```
 
-## 文档
+- 代码事实：提取函数、类型、字段、全局变量，以及 `calls`、`includes`、`contains`、`type_use`、`field_access`、`global_ref`。能被编译器确认的关系标为 `certain`；函数指针、取地址和未解析调用保留为 `candidate`。
+- 分层知识：为每个纳入索引的 `.c/.h` 文件生成文件页，再汇总模块页和仓库页；页面覆盖职责、入口、certain 调用、显式分支/错误路径、类型/字段/全局引用与 candidate 边界。每次构建校验页面覆盖、Markdown 链接和 `sources` 回链，失去依赖的旧页会变成 `stale` 并退出检索。
+- 版本化证据：A 级代码引用返回 repository、revision、USR、符号、文件范围和定义哈希；B 级只来自已审核且锚点仍有效的知识卡；C 级 Wiki 只能作为背景。
+- 经验治理：会话先设置目标，再确认候选。批准要求精确锚点、完整依赖、绑定当前材料哈希的 QA 和人工确认。Markdown 保存内容，发布日志保存提交事实；重建必须同时验证两者，不能把任意旧 Markdown 重新发布。回滚代码时仍应用当前审核、失效和替代状态。
+- 渐进 Agent：概念、功能和排障题先读 Wiki，再用源码核验；定位、调用链和影响题可直接走结构化工具。最多 6 次调用，只开放 `search_evidence`、`wiki_outline`、`wiki_section`、`resolve_symbol`、`code_read`、`analyze_impact`。非法 JSON、路径越界、伪造引用、超时或接口异常都会留下明确原因并安全回退。
+- 无 Key 可运行：解析、Wiki、检索、影响分析、审核、失效和全部离线评测都不依赖模型。API Key 只从环境变量读取，不进入数据库、日志、运行轨迹或网页。
 
-| 文件 | 内容 |
-|---|---|
-| [`docs/BRIEFING.md`](docs/BRIEFING.md) | **项目交接说明** —— 交给 AI 协助写简历时粘贴这份 |
-| [`docs/PLAN.md`](docs/PLAN.md) | 交付清单、剩余工作、掌握程度自测 |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md) | 13 条设计决策（ADR）+ 备选方案否决理由 |
-| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | 完整架构设计 |
-| [`docs/LANDSCAPE.md`](docs/LANDSCAPE.md) | 技术对标：SCIP / GraphRAG / CodeQL 等主流方案的位置关系 |
-| [`docs/EVAL.md`](docs/EVAL.md) | 评测索引、口径与复现环境 |
-| [`docs/EVAL-LWIP.md`](docs/EVAL-LWIP.md) | lwIP 58 题消融报告（自动生成） |
-| [`docs/EVAL-CJSON.md`](docs/EVAL-CJSON.md) | cJSON 59 题消融报告（自动生成） |
+引用合法不代表回答正确。结构化陈述必须匹配已保存的事实；模型自由叙述即使引用真实源码，也只能标为待人工复核。两种结果分开显示、分开评测。
 
-## 快速开始
+当前知识卡依赖采用“所有已解析实体 + 构建配置”的保守清单，会多触发复审；尚未把最小语义依赖集当成已解决问题。新快照全量解析，Wiki 按输入哈希复用并刷新引用；不宣传最小增量构建或语义等价判定。[本轮实现审计](docs/design/IMPLEMENTATION-AUDIT.md)
+
+## 已复现结果
+
+两套语料都固定到了公开 commit，并通过 `compile_commands.json` 解析；当前正式重跑中严重编译诊断为 0。
+cJSON 直接使用 Dave Gamble 的官方 GitHub 仓库；lwIP 的官方开发源是 GNU Savannah，测试拉取使用 `lwip-tcpip/lwip` GitHub 镜像。二者的来源关系、commit 和本地路径统一声明在 `eval/corpora.yaml`，不由脚本临时猜测。
+
+| 语料 | 编译单元 | Wiki（文件 / 模块 / 仓库） | 20 题结果 | 完整方案 vs BM25 | 结构与拒答 |
+|---|---:|---:|---:|---|---|
+| cJSON `fb16e5c` | 28 | 34 / 3 / 1 | 15/20 | Recall@10 100.0% vs 90.0%，+10pt；MRR +0.271 | 影响 F1 1.0；拒答 100% |
+| lwIP `3d896ba` | 124 | 266 / 18 / 1 | 15/20 | Recall@10 100.0% vs 80.0%，+20pt；MRR +0.397 | 影响 F1 1.0；拒答 100% |
+
+每套 20 题都含 10 道代码检索、2 道影响分析、3 道拒答和 5 道经验复用。当前两套代码检索均为 10/10，影响与拒答全部通过，真实检索失败为 0；旧任务报告中的 10 道经验复用题仍标记为 `blocked_by_review`，但这不再表示主数据库缺少 B 卡。两张正式卡已由用户确认并完成 QA、精确锚定和发布；旧任务清单冻结的是早期示例卡标题，其中部分 lwIP 问题也不属于本次默认接口案例。为避免看到结果后改 gold，旧结果保留为 30/40，并单独验证两张当前卡的 Top-10 检索与完整版本引用。统一状态仍是 `foundation_passed=true`、`task_complete=false`、`portfolio_ready=false`。
+
+仓库已加入两条可复现实验：cJSON 用固定的 999/1000/1001 层输入核对解析边界（输入不会跟随宏一起移动），lwIP 覆盖首个/第二个接口加入时 `netif_list`、`netif_default` 与返回值。实验脚本会校验固定 revision，并将输出与受控结果逐行比对。两张知识卡已按固定 `review_bundle_hash` 由用户集中确认，QA 记录为 `Guoshuaiqi / human / formal / passed`，并分别发布到已验证的 active 快照。审核正文、依赖、锚点、实验或 QA 任一变化都会使这次确认失效。完整材料见 [正式知识卡审核包](docs/review/CARD-REVIEW-20260906.md)。
+
+六个固定的 Agent / 知识卡场景也已重跑：工具轨迹合法率、A 级锚点完整率、审核/失效门禁正确率、无证据拒答准确率均为 100%，原始会话进入检索的数量为 0。详见：
+
+- [cJSON 人工任务报告](docs/TASK-EVAL-CJSON.md)
+- [lwIP 人工任务报告](docs/TASK-EVAL-LWIP.md)
+- [cJSON 六场景闭环](docs/WORKFLOW-EVAL-CJSON.md)
+- [lwIP 六场景闭环](docs/WORKFLOW-EVAL-LWIP.md)
+- [双语料统一验收](docs/ACCEPTANCE-CJSON-LWIP.md)
+- [三类价值证明协议](docs/design/VALUE-PROOF-PROTOCOL.md)
+- [会话同源对照（当前未运行模型）](docs/runs/PROOF-KNOWLEDGE-REUSE-20260906-v4.md)
+- [真实上游维护变异结果](docs/runs/PROOF-MAINTENANCE-UPSTREAM-20260906-v4.md)
+- [维护变异补充单元契约（CC0 合成）](docs/PROOF-MAINTENANCE.md)
+- [cJSON 自动回归消融](docs/EVAL-CJSON.md)
+- [lwIP 自动回归消融](docs/EVAL-LWIP.md)
+
+当前统一报告是本地未提交运行结果，因此状态只能是 `locally_verified_not_published`。只有实现内容、题集和报告哈希仍与 full 快照一致，工作区干净、当前 commit 已在远端且公开报告 URL 可读取时，`release` 才会标记 `publicly_verified`。
+
+旧检索回归集共 117 题（107 道自动结构题、10 道人工语义题），和新的 40 道正式人工任务分开报告。自动结构题的 gold 来自同一张 `certain` 图，因此不能拿来证明自然语言泛化能力。
+
+这 40 道人工任务也已用于调试与检索调整，属于开发回归集，不是独立留出集。上表只能证明这批固定任务的召回和门禁表现，不能证明加入 Wiki 后模型更理解代码。[三类价值证明协议](docs/design/VALUE-PROOF-PROTOCOL.md) 将 Wiki、会话组织和维护成本分成三个实验；48 道留出题、6 道经验题和 12 个校准样例已经过双 agent 源码核验，但历史未曝光仍只能作为声明，不能由哈希证明。真实模型答案及其双 agent 盲审尚未运行，新实验也不会自动把旧的十道审核阻塞改成通过。
+
+真实上游维护实验已在固定 cJSON/lwIP 副本上运行 24/24 个预登记场景，执行和报告完整性通过。首轮全仓指纹策略暴露了无关变化全部触发复审的问题；改为审核时声明“结论实际消费的函数、宏和配置”后，8 个有效变化全部重验证，8 个无关变化全部保留，语义决策为 16/16（漏放 0、误失效 0）。对照中，仅主锚点哈希为 13/16，漏放 2 个且误失效 1 个；全部失效为 8/16，误失效 8 个。本机本次 16 个场景的依赖指纹计算约 0.81 秒。发布中断和治理回滚场景实际调用了项目的持久化发布日志并完成恢复；该实验仍未测完整解析/索引重建和真人复核成本，因此证明的是这组冻结变更上的失效决策与恢复正确性，不是普遍的维护收益。
+
+## 快速运行
 
 ```bash
-pip install -e ".[dev]"
-bash demo.sh          # 主语料 lwIP（135k 行），约 1 分钟跑完全流程
-bash demo.sh cjson    # 小语料 cJSON，约 15 秒，快速验证
-pytest -q             # 76 项测试
+python -m pip install -e ".[dev]"
+pytest -q                         # 仓库内置小型 C fixture；不下载语料、不调用模型
+
+bash demo.sh cjson                # 固定 cJSON：解析、Wiki、索引、消融、20 题人工评测
+bash demo.sh lwip                 # 固定 lwIP：同一套正式流程
+bash demo.sh workflow             # cJSON + Agent/知识卡 6 场景隔离评测
+
+codeatlas acceptance-eval --mode fast    # PR：测试 + cJSON + cJSON 知识闭环
+codeatlas acceptance-eval --mode full    # 定时/手动：cJSON + lwIP 全链路
+codeatlas acceptance-eval --mode release # 发布前：只验证已提交 full 快照和公开 URL
+
+codeatlas eval knowledge-reuse          # 无 Key 时冻结并校验两例同源材料
+codeatlas eval maintenance --executor upstream \
+  --manifest eval/upstream_maintenance.yaml \
+  --out docs/PROOF-MAINTENANCE-UPSTREAM.json
 ```
 
-`demo.sh` 依次执行：解析 → 增量验证 → 摘要头 → 索引 → 分层文档 → 影响分析 → 消融实验。
-**README 里所有数字都由它产出。**
+`acceptance-eval` 同时原子生成 Markdown 与 JSON；任一固定 revision、compile database、构建哈希、Wiki 完整性、40 题门禁、知识闭环或声明校验失败都会返回非零退出码。`release` 输出到独立的 `docs/RELEASE-VERIFICATION.*`，不会覆盖作为依据的 full 报告。
 
-单步执行：
+单独运行人工任务：
 
 ```bash
-codeatlas parse corpus/lwip --compile-db corpus/lwip   # 默认增量，--force 全量
-codeatlas summary [--use-llm]
-codeatlas index --embedder tfidf
-codeatlas ask "netif 是怎么注册的"
-codeatlas impact netif_add --depth 3
-codeatlas serve                                        # http://127.0.0.1:8000
+codeatlas snapshot build corpus/cJSON corpus/cJSON/compile_commands.json --db data/kb.db --activate
+codeatlas snapshot status --db data/kb.db
+# build 不带 --activate 只准备新版；snapshot rollback <id> 以当前治理状态重投影旧事实
+
+codeatlas task-eval --db data/kb.db --tasks eval/tasks_cjson.yaml \
+  --data-dir data --out docs/TASK-EVAL-CJSON.md --require-approved
+
+codeatlas task-eval --db data/lwip.db --tasks eval/tasks_lwip.yaml \
+  --data-dir data/lw --out docs/TASK-EVAL-LWIP.md --require-approved
 ```
 
-**不需要 API key、不需要 GPU、不需要下载模型**，以上命令全部可跑通。
-此时系统退化为 BM25 + 图检索，`ask` 返回带引用的证据包而非自然语言回答。
-配置 `LLM_API_KEY` 后才启用 LLM 生成与经验抽取。
+## Agent 与模型
 
-## 实测结果
-
-### 检索消融（两个语料，各约 60 题）
-
-**lwIP**（135k 行 TCP/IP 协议栈，回调密集）
-
-| 配置 | Recall@10 | MRR@10 | 上下文 token |
-|---|---:|---:|---:|
-| 仅 BM25 | 64.4% | 0.471 | 2,924 |
-| BM25 + 符号精确 | 64.4% | 0.443 | 2,924 |
-| BM25 + 符号 + 向量 (RRF) | 70.0% | 0.452 | 3,740 |
-| + 图多跳（取函数体） | 71.9% | 0.451 | 5,379 |
-| + 图多跳（取摘要头） | **74.5%** | 0.456 | 5,685 |
-| + 特征重排 | 74.5% | 0.456 | 5,685 |
-
-> lwIP 上重排数字不变，是因为它 58 题里有 46 题是结构性查询，
-> 按意图路由**全部跳过重排** —— 这反而验证了路由生效。
-> 重排的收益体现在 cJSON 题集（含 10 道人工语义题）上：65.8% → 66.4%，MRR 0.449 → 0.460。
-
-> 以上数字由 `bash demo.sh` 在 2026-08-31 的 Linux/Clang 环境重跑；
-> 完整生成报告见 [`docs/EVAL-LWIP.md`](docs/EVAL-LWIP.md)。
-> 演示脚本固定 lwIP `3d896ba`、cJSON `fb16e5c` 语料提交与 `PYTHONHASHSEED=1`；
-> 两份题集的 SHA-256 分别以 `ff4f25a2`、`67793cff` 开头。
-
-**cJSON**（3.5k 行，作为小语料对照）
-
-| 配置 | Recall@10 | 上下文 token |
-|---|---|---|
-| 仅 BM25 | 55.9% | 2,637 |
-| + 向量 (RRF) | 58.1% | 3,860 |
-| + 图多跳（取函数体） | 59.2% | 5,537 |
-| + 图多跳（取摘要头） | 65.8% | 4,936 |
-| **+ 特征重排** ★ | **66.4%**（MRR 0.449→0.460） | 4,936 |
-
-> `bash demo.sh cjson` 复现；完整生成报告见
-> [`docs/EVAL-CJSON.md`](docs/EVAL-CJSON.md)。
-
-**结论要说准确**：摘要头带来的召回提升在两个语料上一致（lwIP +2.6、cJSON +6.6 个点），
-但**上下文 token 的变化方向不一致** —— cJSON 上降 10.9%，lwIP 上反而升 5.7%。
-
-这不是矛盾，是同一个机制的两种表现：摘要头把单节点成本从几百 token 压到 ~90，
-**在固定预算下能装进更多节点**。
-小语料里可扩展的节点本来就不够，预算装不满，总量就降下来了；
-大语料能把预算填满，总量自然持平。
-
-**单位 token 的召回效率**（每千 token 的 Recall 百分点）：
-cJSON 从 10.7 提升到 13.3；lwIP 从 13.4 到 13.1，基本持平 ——
-大语料上收益全部体现在绝对召回，而不是省 token。
-这两个数字方向不同，但指向同一个机制，**如实写出来比只报好看的那个更可信**。
-
-### 分题型消融：一个必须自己先说的方法论问题
-
-总分会骗人。自动生成题的 gold 取自 certain 边，而图扩展走的也是 certain 边 ——
-**"图扩展提升召回"这个结论有循环论证的嫌疑**。所以必须拆开看（cJSON，59 题）：
-
-| 题型 | 无图扩展 | 图-摘要头 | 增益 | 金标来自图？ |
-|---|---|---|---|---|
-| 间接影响(2跳) | 11.7% | 43.2% | **+31.5pt** | 是（循环） |
-| 影响面 | 61.7% | 74.4% | +12.7pt | 是（循环） |
-| 被调关系 | 65.8% | 76.9% | +11.1pt | 是（循环） |
-| 调用链 | 98.0% | 100.0% | +2.0pt | 是（循环） |
-| 符号定位 | 100.0% | 100.0% | **+0.0pt** | **否** |
-| 语义理解 | 15.0% | 15.0% | **+0.0pt** | **否** |
-
-重排那一行的增益只有 +0.6pt，但**拿到它的过程比数字重要**：
-第一版一律重排让 Recall 掉了 5.4 个点，根因是"内容相似度在结构性查询上是错误的排序信号"。
-完整过程见 `docs/DECISIONS.md` ADR-14。
-
-**结论要说准确**：图扩展的收益**全部**集中在结构性查询上，
-两类非循环题型的增益恰好为零。
-
-这不是缺陷，是符合机制的结果 —— 图扩展提供的本来就是**结构信息**，
-它没有理由改善自然语言语义理解。所以正确的表述是：
-
-- ✅ **"图多跳扩展使结构性查询（谁调用了 X / 改 X 影响谁 / 2 跳影响）召回提升 11~31 个点"**
-- ❌ ~~"混合检索使整体召回提升 12 个点"~~ —— 这个说法经不起追问
-
-`codeatlas eval` 会自动输出这张表，报告里也会写明哪些题型是循环的。
-**让评测工具自己揭短，比等着被人指出来强。**
-
-**语义理解只有 15%** 是当前最实在的短板。成因是向量通道用的是 TF-IDF+SVD，
-不具备真正的语义能力。换 `bge-small-zh-v1.5` 后这一行应该会明显改善 ——
-这是一个**可验证的假设**，不是辩解。
-
-金标来源：自动生成题的 gold 直接取自编译器确认的 AST 事实（客观可复现），
-语义题为人工标注（带主观性，是本评测主要局限）。两套完整报告见
-[`docs/EVAL-LWIP.md`](docs/EVAL-LWIP.md) 与
-[`docs/EVAL-CJSON.md`](docs/EVAL-CJSON.md)。
-
-### 增量解析
-
-2026-08-31 在 WSL2 Linux 本地 ext4、Clang 18 环境重跑 lwIP 124 个翻译单元：
-
-| 场景 | 重解析 TU 数 | 耗时 |
-|---|---|---|
-| 首次全量 | 124 | 29.6–35.7s |
-| 无任何变更 | 0 | **0.05–0.06s** |
-
-时间受硬件、文件系统和杀毒软件影响，公开简历只引用“无变更时复用全部 124 个 TU”的
-机制事实，不把单机耗时外推为生产性能。本轮未重跑单个 `.c` / `.h` 修改基准，旧数字不再作为公开主张。
-
-指纹算的是**依赖闭包**（TU 内所有仓库内头文件的内容哈希 + 编译参数哈希），
-不是单文件哈希 —— 否则改头文件不会失效依赖方。
-
-### 解析规模
-
-| | cJSON | lwIP | mbedtls |
-|---|---|---|---|
-| 源码规模 | 3.5k 行 | **135k 行** | 87k 行 |
-| 翻译单元 | 6 | 124 | 65 |
-| 编译诊断错误 | 1 | 5 | 84 |
-| 全量解析耗时 | 6.4s | 29.6–35.7s | 未在本轮重跑 |
-| 图节点 | 259 | **6,397** | 2,744 |
-| 函数定义 | 156 | **1,167** | 888 |
-| 逻辑边 | 650 | **11,753** | 4,944 |
-| 确定边 certain | 630 | 11,471 | 4,564 |
-| 候选边 candidate | 20 | 282 | 380 |
-| — 函数指针 | 6 | **84** | 6 |
-| — 取地址 | 8 | **166** | 5 |
-| — 未解析 | 12 | 32 | 369 |
-| candidate 占调用边 | 4.6% | **9.7%** | 27.2% |
-| USR 去重命中 | 552 | **147,068** | 48,305 |
-| 摘要头平均 token | 34.8 | 89.3 | 63.2 |
-
-**主语料选 lwIP** 而不是 cJSON，是因为 D1（区分 certain/candidate）的前提是
-"C 工程里函数指针密集"。cJSON 头文件里函数指针声明数为 0，
-用它验证等于**拿反例证明论点**。lwIP 是回调驱动的协议栈，头文件里 127 处函数指针声明，
-candidate 里函数指针 + 取地址占 250/282 —— 这才是这个设计要解决的场景。
-
-mbedtls 保留作对照：它的 candidate 有 369/380 是 `unresolved`（条件编译宏导致），
-和 lwIP 的分布完全不同，说明 candidate 占比本身反映的是代码风格，不能横向比较。
-
-`codeatlas impact netif_add --depth 3` 实测：确定影响面 7 个函数 / 6 个文件。
-
-## 五个核心设计
-
-每条设计的完整论证、备选方案否决理由、以及面试追问应答，见 **[`docs/DECISIONS.md`](docs/DECISIONS.md)**。
-
-### D1 事实与推断分离（certain / candidate）
-
-libclang 能 resolve 到具体 `FUNCTION_DECL` 的调用记为 `certain`；函数指针调用、取地址、
-宏展开后才成立的调用记为 `candidate` 并标注 `reason`。
-**candidate 不参与调用链查询、变更影响分析和检索上下文**，只在单独一栏展示。
-
-`graph/traverse.py` 里每条 SQL 都显式带 `AND confidence = 'certain'`，不依赖默认值。
-
-> 理由：影响分析的价值完全建立在准确性上。一个会给出错误回归范围的工具，
-> 被发现说谎一次就再没人用 —— 它比没有工具更糟，因为它让人基于错误信息做决策。
-
-### D2 定长检索摘要头（≤200 token）
-
-每个函数额外生成：一句话职责 + 被调(≤12) + 调用者(≤8) + 头文件 + 关键类型 + **已审核的踩坑点**。
-图多跳扩展时**只取摘要头，不取函数体**，解决"扩得更远"与"塞得进去"的矛盾。
-
-实测平均 34.8 token、最大 155，全部在 200 上限内（有断言测试）。
-超限时按 pitfalls → key_types → headers → callers → callees 顺序逐项裁剪。
-
-成本策略：规则版对全量函数生成（免费、秒级）；`--llm` 只对 `fan_in ≥ 3` 的高价值函数
-改写摘要 —— **成本按节点重要性分配，不是无差别全量调用**。
-
-### D3 确定性程序管边界，模型只管表达
-
-节点、边、生命周期、schema 全部由 Python 控制。LLM 只做两件事：写自然语言摘要、
-从会话抽结构化经验。模型输出必须过 JSON Schema 校验，不合格重试，超限降级为规则版。
-**模型永远不能写入事实层。**
-
-### D4 人工审核硬闸门
-
-LLM 抽取的经验一律 `status='pending'`，**审核前在检索中完全不可见** ——
-不是靠上层过滤，而是 `chunk.visible=0` 的行根本不进 FTS5 索引。
-
-> 理由：代码事实错了下次解析会覆盖；经验错了会被检索、被信、被写进新代码，
-> 再成为下一条经验的输入。错误经验会自我放大，比没有经验库更糟。
-
-### D5 证据分级与拒答
-
-| 级别 | 来源 | 可作结论依据 |
-|---|---|---|
-| A | 编译器确认的代码事实 | 是 |
-| B | 人工审核通过的经验 | 是 |
-| C | LLM 生成的 Wiki | 仅背景 |
-| D | candidate 关系、未审核内容 | **不进上下文** |
-
-上下文中 A/B 级为 0 时拒绝下结论，只返回排查线索。生成侧强制每句带 `[A1]`/`[B2]` 引用编号。
-
-## 检索流程
-
-```
-1. 路由        含 C 标识符/文件名 → symbol 模式，符号召回权重 ×1.5
-2. 三路召回    符号精确 / BM25(FTS5) / 向量           各 top-30
-3. RRF 融合    score(d) = Σ wᵢ / (60 + rankᵢ(d))
-4. 图多跳扩展  沿 certain 边扩 2 跳，decay=0.5，★ 只取摘要头
-5. 证据拼装    源码 40% / 摘要头 25% / 经验 20% / Wiki 15%
-6. 重排        特征线性打分，可解释；★ 结构性查询按意图跳过
-7. 生成        强制引用；A/B 级为 0 → 拒答
-```
-
-**为什么用 RRF 而不是加权分数相加**：BM25 分数无界、cosine 有界，量纲不同、分布随查询漂移，
-线性加权需要按语料调参。RRF 只用排名，无量纲、免调参、对异常分数鲁棒。
-
-**为什么不用 Neo4j**：单机十万级节点，SQLite 递归 CTE 毫秒级返回（P50 12ms），
-且图 / 全文索引 / 业务数据在同一事务内，不用处理跨库一致性。
-遍历逻辑全部封装在 `graph/traverse.py`，要换只改一个文件。
-
-## 命令
-
-```
-codeatlas init                                     建库
-codeatlas parse <repo> [--compile-db DIR] [--force]  解析（默认增量）
-codeatlas summary [--use-llm]                      生成摘要头
-codeatlas index [--embedder null|tfidf|BAAI/...]   建索引
-codeatlas wiki [--level file|module|repo|all]      生成分层 Wiki
-codeatlas ask "问题" [--no-graph|--no-vector|--no-bm25]
-codeatlas impact <symbol> [--depth 3]              变更影响分析
-codeatlas exp import <file.jsonl>                  导入经验（落 pending）
-codeatlas exp pending / review <id> approve|reject 审核
-codeatlas eval [--gen N] [--out REPORT]            消融实验 → 指定报告
-codeatlas stats [--as-json]                        统计
-codeatlas serve [--port 8000]                      Web 界面
-```
-
-## 测试
+不配置模型时，`auto` 会明确显示 `model_not_configured` 并执行同一组本地只读工具：
 
 ```bash
-pytest -q        # 76 passed
+codeatlas session import examples/conversations/cjson-nesting-review.json --db data/kb.db
+codeatlas session assess cjson-nesting-review --db data/kb.db
+codeatlas agent run "审查 parse_value 的改动影响范围" \
+  --session-id cjson-nesting-review --mode auto --db data/kb.db
 ```
 
-覆盖：双置信度约束、**遍历绝不走 candidate**、USR 去重、摘要头 token 预算、
-**审核闸门（pending 检索命中必须为 0）**、拒答、无 LLM/无向量降级、
-FTS 注入防护、幂等性、RRF 数学性质、Wiki 断点续写。
+真实证明实验固定使用 OpenCode Go 的 OpenAI-compatible 接口。Key 只在当前终端设置；开始前还需要在账户侧确认 `Use balance` 已关闭，CodeAtlas 无法替你读取或修改这项计费开关：
 
-## 目录
+```bash
+export LLM_PROVIDER="opencode-go"
+export LLM_BASE_URL="https://opencode.ai/zen/go/v1"
+export LLM_MODEL="deepseek-v4-flash"
+export LLM_API_KEY="..."
+# 可选硬预算；价格必须取当前服务的公开计费口径
+export LLM_MAX_REQUESTS="250"
+export LLM_MAX_COST_USD="5"
+export LLM_INPUT_USD_PER_MILLION="..."
+export LLM_OUTPUT_USD_PER_MILLION="..."
 
-```
-src/codeatlas/
-├── db.py                  DDL 与连接
-├── parser/
-│   ├── compile_db.py      compile_commands.json 加载 + 三级降级
-│   └── ast_walker.py      ★ AST 遍历，certain/candidate 判定
-├── graph/traverse.py      ★ 递归 CTE 多跳 + 影响分析
-├── summary/head.py        ★ 定长摘要头
-├── indexer/build.py       分块 + FTS5 + 可插拔向量
-├── retrieve/engine.py     ★ 四路召回 + RRF + 图扩展 + 证据分级
-├── experience/store.py    ★ 审核闸门
-├── wiki/generator.py      分层 Wiki + 断点续写
-├── eval/run.py            ★ 评测与消融
-├── server/app.py          FastAPI + 单页前端
-└── llm/client.py          OpenAI 兼容，无 key 时返回 None
+codeatlas agent run "parse_value 的影响范围" --mode auto --db data/kb.db
 
-docs/
-├── ARCHITECTURE.md        完整架构设计
-├── DECISIONS.md           ★ 设计决策 + 面试追问应答
-├── EVAL.md                评测索引与统一口径
-├── EVAL-LWIP.md           lwIP 评测报告（自动生成）
-└── EVAL-CJSON.md          cJSON 评测报告（自动生成）
+# 先生成同源摘要/知识卡；双审冻结前不能进入经验对照
+codeatlas eval knowledge-produce
+codeatlas eval knowledge-material-review \
+  eval/frozen/knowledge_reuse-v4.pending.json path/to/material-reviews.json
+
+# 统一证明 campaign：24 个独立开发冒烟试次 + 486 个正式答案试次
+codeatlas eval proof prepare data/proof/campaign-v1 --max-requests 5000
+codeatlas eval proof run --campaign data/proof/campaign-v1 --profile smoke
+codeatlas eval proof run --campaign data/proof/campaign-v1 --profile full --resume
+codeatlas eval proof review --campaign data/proof/campaign-v1 --out docs/PROOF-REVIEWS.json
+codeatlas eval proof report --campaign data/proof/campaign-v1
 ```
 
-带 ★ 的六个文件是核心，其余是胶水。**先读这六个。**
+证明 campaign 将开发冒烟和正式留出试次分开：冒烟只检查接口、工具与上下文是否完整，不是正式题的前缀，也不进入效果统计。正式 Wiki 对照 432 个答案试次，经验对照 54 个答案试次。所有回答、双评分和必要仲裁共用持久化 SQLite 账本；每个答案及评分角色使用独立上游 session，失败和不确定调用保留且不自动重跑，套餐耗尽可以断点续跑。按最坏六次答案调用、双评分、全量仲裁和三名评分角色的 12 项校准计算，campaign 会把 4554 次离线调用上界写入 `plan.json`；知识材料生产与复核另计。准确性、安全和规划率统计全部原始试次，只有延迟与 token 可取分布或中位数。每次完整模型输入最多 8,000 估算 token，输出最多 1,200 token；实际 provider token 另计。接口与套餐边界以 [OpenCode Go 官方文档](https://opencode.ai/docs/go/) 为准。
 
-## 已知局限
+报告把锚点召回、标签合法与答案 rubric 分开；未审准确率为 null，不按零分展示。`eval review <原报告> <评分JSON> <新报告JSON>` 导入带来源的逐点评审并同步 JSON、Markdown；AI 评审只能标为 `ai_reviewed`，不会冒充人审，原始试次也不覆盖。`eval reading` 在相同代码检索底座上比较无 Wiki、Wiki 自由阅读和渐进阅读，输出中性盲审包；旧名 `wiki_flat` 不代表全文平铺。对照采用固定 seed 的成对交错调度，先平均同题重复，再按机制等权汇总并 bootstrap。服务未给出完整 token 时记未测，经验题节省不计入代码题收益。
 
-诚实地讲，当前版本还有这些问题（详见 `docs/DECISIONS.md` 末尾）：
+锚点命中提升不能再解锁答案增益门禁。模型效果声明还需 `--answer-key` 绑定的独立语义金标、完整三次运行、通过校准的双 agent 盲审和必要的第三方仲裁；校准报告必须绑定当前 12 个样例以及实际评分 agent 的 provider、model、agent 和 prompt hash，不能换一个模型后复用旧凭据。这些结果始终标为 `ai_reviewed`，不会冒充人审。正式知识卡仍由用户单独确认，旧 40 题或 8 题冒烟不具备效果发布资格。源码/实现/题集/批准卡哈希变化会使报告过期；无 Key 只显示 `not_run`，不以规则结果代替。真实模型尚未运行。
 
-- **增量解析只覆盖 C 文件粒度**，宏定义变更导致的跨 TU 语义变化未做精确追踪
-- **评测集 59 题偏小**，分六类后每类 10 题左右，置信区间宽；且只评检索未评生成质量
-- **`unresolved` 类 candidate 占比过高**（mbedtls 上 369/380），基本都是条件编译宏导致，应进一步细分
-- **向量通道用的是 TF-IDF+SVD 降级实现**，不是真正的语义嵌入模型，该行数字偏保守
-- **符号精确召回未测出增益**（57.5% → 57.3%）—— 因为 FTS5 配了 `tokenchars '_'`，
-  BM25 本身已做到标识符精确匹配。它的价值在同名符号消歧场景，cJSON 语料太干净测不出来。
-  这一行没有因为数字不好看就删掉
-- 人工审核成本高；单用户、无权限、无审计
+## 本机交互演示
 
-## 许可
+```bash
+codeatlas serve --db data/kb.db --data-dir data
+# 浏览器打开 http://127.0.0.1:8000
+```
 
-MIT
+柔和蓝色的单页工作台展示代码事实、三级 Wiki、证据检索、Agent 时间线、会话沉淀、知识卡审核和验收结果。会话区完整呈现“质量评估 → 沉淀目标 → 候选 → accept/edit/correct/skip → pending”；回答可提交 `helpful/incorrect/incomplete` 反馈和错误证据标签，反馈只进入本地待处理队列，不会自动改知识或索引。网页只能导入与当前仓库和 revision 匹配的内置 CC0 合成会话，不能读取任意本地路径，也不能执行 shell、改源码或自行批准知识卡。
+
+## 项目边界
+
+当前版本不做多用户团队服务、生产权限审计、自动监听真实会话、IDE/MCP 插件或自动修改代码。模型是可选的规划与表达层，不是事实来源、审核者或发布者。下一阶段是由用户完成公开 B 卡审核，并在套餐额度可用且不启用余额扣费的前提下运行正式模型 campaign；此前不把经验复用、模型效果或维护摊销收益写成已完成指标。
+
+更多说明：[架构](docs/ARCHITECTURE.md) · [评测口径](docs/EVAL.md) · [Agent 与知识卡](docs/AGENT_WORKFLOW.md) · [面试 STAR](docs/INTERVIEW_STAR.md)

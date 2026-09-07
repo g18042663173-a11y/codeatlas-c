@@ -1,0 +1,787 @@
+# JSON is a strict YAML subset; artifact hashes bind every pre-registered input.
+{
+  "schema_version": 1,
+  "name": "CodeAtlas maintenance pre-registration",
+  "status": "specification_only_not_run",
+  "boundary": "24 CC0 standalone synthetic contract fixtures; no upstream mutation, human approval, or measured maintenance result is implied.",
+  "corpora": {
+    "cjson": {
+      "revision": "fb16e5cf358798aabb049655975cde8427101056",
+      "repository": "https://github.com/DaveGamble/cJSON"
+    },
+    "lwip": {
+      "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+      "repository": "https://git.savannah.nongnu.org/git/lwip.git"
+    }
+  },
+  "cases": [
+    {
+      "id": "cjson-nesting-limit",
+      "corpus": "cjson",
+      "classification": "effective",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; nesting-limit is a future upstream scenario topic, not an upstream result.",
+      "mutation": "nesting-limit",
+      "case_dir": "templates/maintenance_cases/cjson-nesting-limit",
+      "reference": {
+        "repository": "https://github.com/DaveGamble/cJSON",
+        "revision": "fb16e5cf358798aabb049655975cde8427101056",
+        "status": "upstream_mutation_not_implemented"
+      },
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "9a8fe9c150c68330382a74cc4d8e69797b829a0e2fe4bb3085db4a8c305996a5"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "b33405591610326059e1e5c0967e8643c61168d6bb84a1c3e080bda2e73c953b"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "f7195b0fe928edc6d2bf710a49fccf1acb7a6fcf3cc9999bedef9981a6ff8bf6"
+        }
+      }
+    },
+    {
+      "id": "cjson-child-ownership",
+      "corpus": "cjson",
+      "classification": "effective",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; child-ownership is a future upstream scenario topic, not an upstream result.",
+      "mutation": "child-ownership",
+      "case_dir": "templates/maintenance_cases/cjson-child-ownership",
+      "reference": {
+        "repository": "https://github.com/DaveGamble/cJSON",
+        "revision": "fb16e5cf358798aabb049655975cde8427101056",
+        "status": "upstream_mutation_not_implemented"
+      },
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "9a8fe9c150c68330382a74cc4d8e69797b829a0e2fe4bb3085db4a8c305996a5"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "01237d8e58e9b350651f4384007e534d4266c30bb05d574f236e25d8479dbd63"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "f7195b0fe928edc6d2bf710a49fccf1acb7a6fcf3cc9999bedef9981a6ff8bf6"
+        }
+      }
+    },
+    {
+      "id": "cjson-buffer-growth",
+      "corpus": "cjson",
+      "classification": "effective",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; buffer-growth is a future upstream scenario topic, not an upstream result.",
+      "mutation": "buffer-growth",
+      "case_dir": "templates/maintenance_cases/cjson-buffer-growth",
+      "reference": {
+        "repository": "https://github.com/DaveGamble/cJSON",
+        "revision": "fb16e5cf358798aabb049655975cde8427101056",
+        "status": "upstream_mutation_not_implemented"
+      },
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "9a8fe9c150c68330382a74cc4d8e69797b829a0e2fe4bb3085db4a8c305996a5"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "3e77241e145de5810ecdf04ca84a367ac1196843ef8d28c00abee6d86ee40ed7"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "f7195b0fe928edc6d2bf710a49fccf1acb7a6fcf3cc9999bedef9981a6ff8bf6"
+        }
+      }
+    },
+    {
+      "id": "cjson-failure-return",
+      "corpus": "cjson",
+      "classification": "effective",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; failure-return is a future upstream scenario topic, not an upstream result.",
+      "mutation": "failure-return",
+      "case_dir": "templates/maintenance_cases/cjson-failure-return",
+      "reference": {
+        "repository": "https://github.com/DaveGamble/cJSON",
+        "revision": "fb16e5cf358798aabb049655975cde8427101056",
+        "status": "upstream_mutation_not_implemented"
+      },
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "9a8fe9c150c68330382a74cc4d8e69797b829a0e2fe4bb3085db4a8c305996a5"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "ba7b101189e198664091e54f3285159a13d339ad4b7b48b57ebdead06333b7c9"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "f7195b0fe928edc6d2bf710a49fccf1acb7a6fcf3cc9999bedef9981a6ff8bf6"
+        }
+      }
+    },
+    {
+      "id": "cjson-comment-only",
+      "corpus": "cjson",
+      "classification": "unrelated_to_claim",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; comment-only is a future upstream scenario topic, not an upstream result.",
+      "mutation": "comment-only",
+      "case_dir": "templates/maintenance_cases/cjson-comment-only",
+      "reference": {
+        "repository": "https://github.com/DaveGamble/cJSON",
+        "revision": "fb16e5cf358798aabb049655975cde8427101056",
+        "status": "upstream_mutation_not_implemented"
+      },
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "9a8fe9c150c68330382a74cc4d8e69797b829a0e2fe4bb3085db4a8c305996a5"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "bd41681842baeecb190564f917269f3a670d2dabf869d4ae86a7c55f886c0587"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "72a4c1d98da29599bca3b1310a0bd1319e4c12dfa0071a4f50365b3ced7f77f4"
+        }
+      }
+    },
+    {
+      "id": "cjson-unrelated-helper",
+      "corpus": "cjson",
+      "classification": "unrelated_to_claim",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; unrelated-helper is a future upstream scenario topic, not an upstream result.",
+      "mutation": "unrelated-helper",
+      "case_dir": "templates/maintenance_cases/cjson-unrelated-helper",
+      "reference": {
+        "repository": "https://github.com/DaveGamble/cJSON",
+        "revision": "fb16e5cf358798aabb049655975cde8427101056",
+        "status": "upstream_mutation_not_implemented"
+      },
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "9a8fe9c150c68330382a74cc4d8e69797b829a0e2fe4bb3085db4a8c305996a5"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "803031c2f635b7d0901d970d04c71b779e73cb2204fce15bc892b4339dec3e39"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "72a4c1d98da29599bca3b1310a0bd1319e4c12dfa0071a4f50365b3ced7f77f4"
+        }
+      }
+    },
+    {
+      "id": "cjson-line-move",
+      "corpus": "cjson",
+      "classification": "unrelated_to_claim",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; line-move is a future upstream scenario topic, not an upstream result.",
+      "mutation": "line-move",
+      "case_dir": "templates/maintenance_cases/cjson-line-move",
+      "reference": {
+        "repository": "https://github.com/DaveGamble/cJSON",
+        "revision": "fb16e5cf358798aabb049655975cde8427101056",
+        "status": "upstream_mutation_not_implemented"
+      },
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "9a8fe9c150c68330382a74cc4d8e69797b829a0e2fe4bb3085db4a8c305996a5"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "4b7b3a3085753e5007dd8c9d3a456b37684723c7ffd50647f1d597f8cc2b0b41"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "72a4c1d98da29599bca3b1310a0bd1319e4c12dfa0071a4f50365b3ced7f77f4"
+        }
+      }
+    },
+    {
+      "id": "cjson-unused-macro",
+      "corpus": "cjson",
+      "classification": "unrelated_to_claim",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; unused-macro is a future upstream scenario topic, not an upstream result.",
+      "mutation": "unused-macro",
+      "case_dir": "templates/maintenance_cases/cjson-unused-macro",
+      "reference": {
+        "repository": "https://github.com/DaveGamble/cJSON",
+        "revision": "fb16e5cf358798aabb049655975cde8427101056",
+        "status": "upstream_mutation_not_implemented"
+      },
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "9a8fe9c150c68330382a74cc4d8e69797b829a0e2fe4bb3085db4a8c305996a5"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "9a3caa23dc875ae63f69aa2412d977685e1529f2d8e16c9ca1953615c4b3c981"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "72a4c1d98da29599bca3b1310a0bd1319e4c12dfa0071a4f50365b3ced7f77f4"
+        }
+      }
+    },
+    {
+      "id": "cjson-syntax-error",
+      "corpus": "cjson",
+      "classification": "failure",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; syntax-error is a future upstream scenario topic, not an upstream result.",
+      "mutation": "syntax-error",
+      "case_dir": "templates/maintenance_cases/cjson-syntax-error",
+      "reference": {
+        "repository": "https://github.com/DaveGamble/cJSON",
+        "revision": "fb16e5cf358798aabb049655975cde8427101056",
+        "status": "upstream_mutation_not_implemented"
+      },
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "9a8fe9c150c68330382a74cc4d8e69797b829a0e2fe4bb3085db4a8c305996a5"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "4fe73f248d3cc42c8f84a39446ac04108d4a3ee34bbb3ec42a2015dcc63b7115"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "d98b361f2876824495c28a3a2a4befce2959c743b361f82abe31d712266aadd2"
+        }
+      }
+    },
+    {
+      "id": "cjson-unknown-type",
+      "corpus": "cjson",
+      "classification": "failure",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; unknown-type is a future upstream scenario topic, not an upstream result.",
+      "mutation": "unknown-type",
+      "case_dir": "templates/maintenance_cases/cjson-unknown-type",
+      "reference": {
+        "repository": "https://github.com/DaveGamble/cJSON",
+        "revision": "fb16e5cf358798aabb049655975cde8427101056",
+        "status": "upstream_mutation_not_implemented"
+      },
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "9a8fe9c150c68330382a74cc4d8e69797b829a0e2fe4bb3085db4a8c305996a5"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "eb11bdf3726f9adc2103f4098888bcff7c0ddac081ce8bd9b6b1efa4d3c37937"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "d98b361f2876824495c28a3a2a4befce2959c743b361f82abe31d712266aadd2"
+        }
+      }
+    },
+    {
+      "id": "cjson-missing-include",
+      "corpus": "cjson",
+      "classification": "failure",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; missing-include is a future upstream scenario topic, not an upstream result.",
+      "mutation": "missing-include",
+      "case_dir": "templates/maintenance_cases/cjson-missing-include",
+      "reference": {
+        "repository": "https://github.com/DaveGamble/cJSON",
+        "revision": "fb16e5cf358798aabb049655975cde8427101056",
+        "status": "upstream_mutation_not_implemented"
+      },
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "9a8fe9c150c68330382a74cc4d8e69797b829a0e2fe4bb3085db4a8c305996a5"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "644a457e339e015050afb3b3100a07865b9b8b40d2a752e81307c66085d35681"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "d98b361f2876824495c28a3a2a4befce2959c743b361f82abe31d712266aadd2"
+        }
+      }
+    },
+    {
+      "id": "cjson-invalid-config",
+      "corpus": "cjson",
+      "classification": "failure",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; invalid-config is a future upstream scenario topic, not an upstream result.",
+      "mutation": "invalid-config",
+      "case_dir": "templates/maintenance_cases/cjson-invalid-config",
+      "reference": {
+        "repository": "https://github.com/DaveGamble/cJSON",
+        "revision": "fb16e5cf358798aabb049655975cde8427101056",
+        "status": "upstream_mutation_not_implemented"
+      },
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "9a8fe9c150c68330382a74cc4d8e69797b829a0e2fe4bb3085db4a8c305996a5"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "29058890f430a46bc9218ad499288a4e01ce0a2ccbdc5425fc8cbf44b98f4f83"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "d98b361f2876824495c28a3a2a4befce2959c743b361f82abe31d712266aadd2"
+        }
+      }
+    },
+    {
+      "id": "lwip-packet-refcount",
+      "corpus": "lwip",
+      "classification": "effective",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; packet-refcount is a future upstream scenario topic, not an upstream result.",
+      "mutation": "packet-refcount",
+      "case_dir": "templates/maintenance_cases/lwip-packet-refcount",
+      "reference": {
+        "repository": "https://git.savannah.nongnu.org/git/lwip.git",
+        "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+        "status": "upstream_mutation_not_implemented"
+      },
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "70707e9b18c2b4e9970175f46110574d8c11a55edb16125453f9d6134754d4c3"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "6fb80846963549147b7c2d96c331a64954a1654799f9c92b6065d91626f417a1"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "f7195b0fe928edc6d2bf710a49fccf1acb7a6fcf3cc9999bedef9981a6ff8bf6"
+        }
+      }
+    },
+    {
+      "id": "lwip-default-interface",
+      "corpus": "lwip",
+      "classification": "effective",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; default-interface is a future upstream scenario topic, not an upstream result.",
+      "mutation": "default-interface",
+      "case_dir": "templates/maintenance_cases/lwip-default-interface",
+      "reference": {
+        "repository": "https://git.savannah.nongnu.org/git/lwip.git",
+        "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+        "status": "upstream_mutation_not_implemented"
+      },
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "70707e9b18c2b4e9970175f46110574d8c11a55edb16125453f9d6134754d4c3"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "daed71df6cb2f3ae1207416f89bac3f16eae5bfce42f0765b1ef79d749d83fd8"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "f7195b0fe928edc6d2bf710a49fccf1acb7a6fcf3cc9999bedef9981a6ff8bf6"
+        }
+      }
+    },
+    {
+      "id": "lwip-interface-flag",
+      "corpus": "lwip",
+      "classification": "effective",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; interface-flag is a future upstream scenario topic, not an upstream result.",
+      "mutation": "interface-flag",
+      "case_dir": "templates/maintenance_cases/lwip-interface-flag",
+      "reference": {
+        "repository": "https://git.savannah.nongnu.org/git/lwip.git",
+        "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+        "status": "upstream_mutation_not_implemented"
+      },
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "70707e9b18c2b4e9970175f46110574d8c11a55edb16125453f9d6134754d4c3"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "4be13ce93cf24e3c0e90ccd08b40a1eb93f4d482c62ce225552bb4c67b712f0f"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "f7195b0fe928edc6d2bf710a49fccf1acb7a6fcf3cc9999bedef9981a6ff8bf6"
+        }
+      }
+    },
+    {
+      "id": "lwip-checksum-config",
+      "corpus": "lwip",
+      "classification": "effective",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; checksum-config is a future upstream scenario topic, not an upstream result.",
+      "mutation": "checksum-config",
+      "case_dir": "templates/maintenance_cases/lwip-checksum-config",
+      "reference": {
+        "repository": "https://git.savannah.nongnu.org/git/lwip.git",
+        "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+        "status": "upstream_mutation_not_implemented"
+      },
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "70707e9b18c2b4e9970175f46110574d8c11a55edb16125453f9d6134754d4c3"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "3f0e432cdbcd0c42acf77ea0696ca99c119655fb6d79e7afa6e6f4ececec444a"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "f7195b0fe928edc6d2bf710a49fccf1acb7a6fcf3cc9999bedef9981a6ff8bf6"
+        }
+      }
+    },
+    {
+      "id": "lwip-comment-only",
+      "corpus": "lwip",
+      "classification": "unrelated_to_claim",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; comment-only is a future upstream scenario topic, not an upstream result.",
+      "mutation": "comment-only",
+      "case_dir": "templates/maintenance_cases/lwip-comment-only",
+      "reference": {
+        "repository": "https://git.savannah.nongnu.org/git/lwip.git",
+        "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+        "status": "upstream_mutation_not_implemented"
+      },
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "70707e9b18c2b4e9970175f46110574d8c11a55edb16125453f9d6134754d4c3"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "cc5fe6f0e6e3f17fd16c00c92bd242a5473024d5aab428263cbfe73cbeff0f43"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "72a4c1d98da29599bca3b1310a0bd1319e4c12dfa0071a4f50365b3ced7f77f4"
+        }
+      }
+    },
+    {
+      "id": "lwip-unrelated-helper",
+      "corpus": "lwip",
+      "classification": "unrelated_to_claim",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; unrelated-helper is a future upstream scenario topic, not an upstream result.",
+      "mutation": "unrelated-helper",
+      "case_dir": "templates/maintenance_cases/lwip-unrelated-helper",
+      "reference": {
+        "repository": "https://git.savannah.nongnu.org/git/lwip.git",
+        "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+        "status": "upstream_mutation_not_implemented"
+      },
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "70707e9b18c2b4e9970175f46110574d8c11a55edb16125453f9d6134754d4c3"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "c638e06d67048ea8dea371ea1b3421ebb36c1cb0bdf1636fced18557fa06f4cc"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "72a4c1d98da29599bca3b1310a0bd1319e4c12dfa0071a4f50365b3ced7f77f4"
+        }
+      }
+    },
+    {
+      "id": "lwip-line-move",
+      "corpus": "lwip",
+      "classification": "unrelated_to_claim",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; line-move is a future upstream scenario topic, not an upstream result.",
+      "mutation": "line-move",
+      "case_dir": "templates/maintenance_cases/lwip-line-move",
+      "reference": {
+        "repository": "https://git.savannah.nongnu.org/git/lwip.git",
+        "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+        "status": "upstream_mutation_not_implemented"
+      },
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "70707e9b18c2b4e9970175f46110574d8c11a55edb16125453f9d6134754d4c3"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "d3bb7a590edfc3b4276f06e7f904e381a098423ff5a984545397ec84d55efce3"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "72a4c1d98da29599bca3b1310a0bd1319e4c12dfa0071a4f50365b3ced7f77f4"
+        }
+      }
+    },
+    {
+      "id": "lwip-unused-macro",
+      "corpus": "lwip",
+      "classification": "unrelated_to_claim",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; unused-macro is a future upstream scenario topic, not an upstream result.",
+      "mutation": "unused-macro",
+      "case_dir": "templates/maintenance_cases/lwip-unused-macro",
+      "reference": {
+        "repository": "https://git.savannah.nongnu.org/git/lwip.git",
+        "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+        "status": "upstream_mutation_not_implemented"
+      },
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "70707e9b18c2b4e9970175f46110574d8c11a55edb16125453f9d6134754d4c3"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "db5ff2e15279603fe07c5948f84bd0d74ac08cd361243f8d5b4bfc8a9c8a5d8b"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "72a4c1d98da29599bca3b1310a0bd1319e4c12dfa0071a4f50365b3ced7f77f4"
+        }
+      }
+    },
+    {
+      "id": "lwip-syntax-error",
+      "corpus": "lwip",
+      "classification": "failure",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; syntax-error is a future upstream scenario topic, not an upstream result.",
+      "mutation": "syntax-error",
+      "case_dir": "templates/maintenance_cases/lwip-syntax-error",
+      "reference": {
+        "repository": "https://git.savannah.nongnu.org/git/lwip.git",
+        "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+        "status": "upstream_mutation_not_implemented"
+      },
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "70707e9b18c2b4e9970175f46110574d8c11a55edb16125453f9d6134754d4c3"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "3a0ae59ae73bece4aeb7d63a613d69b1408523a4c2666c0fb046269d429c7cc2"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "d98b361f2876824495c28a3a2a4befce2959c743b361f82abe31d712266aadd2"
+        }
+      }
+    },
+    {
+      "id": "lwip-unknown-type",
+      "corpus": "lwip",
+      "classification": "failure",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; unknown-type is a future upstream scenario topic, not an upstream result.",
+      "mutation": "unknown-type",
+      "case_dir": "templates/maintenance_cases/lwip-unknown-type",
+      "reference": {
+        "repository": "https://git.savannah.nongnu.org/git/lwip.git",
+        "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+        "status": "upstream_mutation_not_implemented"
+      },
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "70707e9b18c2b4e9970175f46110574d8c11a55edb16125453f9d6134754d4c3"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "9767d97c2d512867ccd0e7bb1675f74a82cab35741f3264e0aa48e56508446d3"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "d98b361f2876824495c28a3a2a4befce2959c743b361f82abe31d712266aadd2"
+        }
+      }
+    },
+    {
+      "id": "lwip-missing-include",
+      "corpus": "lwip",
+      "classification": "failure",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; missing-include is a future upstream scenario topic, not an upstream result.",
+      "mutation": "missing-include",
+      "case_dir": "templates/maintenance_cases/lwip-missing-include",
+      "reference": {
+        "repository": "https://git.savannah.nongnu.org/git/lwip.git",
+        "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+        "status": "upstream_mutation_not_implemented"
+      },
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "70707e9b18c2b4e9970175f46110574d8c11a55edb16125453f9d6134754d4c3"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "376118ea9a9b19bcfcc66de9fea4f62df87ca248a7b25d6a6e5ad2016a49eb2b"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "d98b361f2876824495c28a3a2a4befce2959c743b361f82abe31d712266aadd2"
+        }
+      }
+    },
+    {
+      "id": "lwip-invalid-config",
+      "corpus": "lwip",
+      "classification": "failure",
+      "material_kind": "synthetic_fixture",
+      "claim": "Standalone probe output remains 3; invalid-config is a future upstream scenario topic, not an upstream result.",
+      "mutation": "invalid-config",
+      "case_dir": "templates/maintenance_cases/lwip-invalid-config",
+      "reference": {
+        "repository": "https://git.savannah.nongnu.org/git/lwip.git",
+        "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+        "status": "upstream_mutation_not_implemented"
+      },
+      "artifacts": {
+        "source": {
+          "path": "source.c",
+          "sha256": "70707e9b18c2b4e9970175f46110574d8c11a55edb16125453f9d6134754d4c3"
+        },
+        "patch": {
+          "path": "change.patch",
+          "sha256": "f5d74b9b143ebac9b979eedea727ef23c3a0bc001653b933171bac60bf5724db"
+        },
+        "compile_config": {
+          "path": "compile.json",
+          "sha256": "b77e40ad1c76ed642d1213796e3b6aef14680047c4b1b46a4b0bce4cb6c2b6ce"
+        },
+        "external_oracle": {
+          "path": "oracle.json",
+          "sha256": "d98b361f2876824495c28a3a2a4befce2959c743b361f82abe31d712266aadd2"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+schema_version: 1
+name: CodeAtlas Agent 与会话知识闭环（6 个固定公开场景）
+repository: https://github.com/DaveGamble/cJSON
+revision: fb16e5cf358798aabb049655975cde8427101056
+public_source: cJSON 固定公开快照 + CC0 公开合成会话
+anchor_symbol: parse_value
+wiki_question: parse_value 如何处理深层嵌套 JSON 的失败路径？
+diagnostic_question: 深层嵌套 JSON 输入审查 parse_value 的影响范围
+unrelated_question: 如何轮换 Kubernetes Ingress 的 TLS 证书？
+cases:
+  - id: session-import
+    purpose: 校验公开来源、许可证、固定版本和内容哈希去重；原始会话不入检索索引。
+  - id: agent-trace
+    purpose: 验证概念题遵守 Wiki-first，全部 Agent 只调用白名单只读工具且不超过六次。
+  - id: pending-gate
+    purpose: 验证显式保存的草稿在审核前不成为 B 级检索证据。
+  - id: approval-anchor
+    purpose: 验证审核前必须绑定 repository/revision/USR/range/definition hash。
+  - id: stale-isolation
+    purpose: 验证函数定义变化后卡片 stale 且立即退出 B 级检索。
+  - id: no-evidence-refusal
+    purpose: 验证证据不足和无关请求均拒答且不生成知识卡草稿。

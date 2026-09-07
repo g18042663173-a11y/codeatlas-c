@@ -1,0 +1,24 @@
+schema_version: 2
+status: draft
+split: held_out
+task_set_hash: REPLACE_WITH_SHA256
+review:
+  reviewer_kind: agent
+  verdict: pending
+  independent_reviews: []
+  adjudication: null
+frozen_at: null
+not_used_for_tuning: true
+tasks:
+  task_id:
+    mechanism_id: replace_me
+    question: replace_me
+    expected_points:
+      - id: necessary_condition
+        text: replace_me
+        evidence:
+          source_ref: replace_me
+          source_sha256: replace_me
+    forbidden_claims:
+      - replace_me
+    executable_oracle: null

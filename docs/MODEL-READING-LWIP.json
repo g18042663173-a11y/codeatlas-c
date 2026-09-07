@@ -1,0 +1,20 @@
+{
+  "report_kind": "reading",
+  "status": "not_run",
+  "arms": {
+    "source_only": [
+      "共享代码检索，无 Wiki",
+      "flat"
+    ],
+    "wiki_flat": [
+      "共享代码检索 + Wiki 自由阅读",
+      "flat"
+    ],
+    "wiki_progressive": [
+      "共享代码检索 + Wiki 渐进阅读",
+      "progressive"
+    ]
+  },
+  "reason": "model_not_configured",
+  "passed": false
+}

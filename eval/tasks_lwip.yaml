@@ -1,0 +1,268 @@
+schema_version: 1
+name: lwIP 精选开发任务集（20 题）
+repository: https://github.com/lwip-tcpip/lwip
+revision: 3d896ba0a37ff3ce73270ca5e230707fe47f60e3
+public_source: lwIP 公开源码固定快照
+reviewer: Guoshuaiqi
+reviewed_at: "2026-09-04"
+failure_policy: 运行时未命中固定锚点、provenance 不完整或门禁不满足即记录为失败，不调整 gold 隐藏失败。
+
+tasks:
+  - id: locate-netif-add
+    type: 定位
+    status: approved
+    question: netif_add 在哪里定义，它负责哪段网络接口初始化？
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L286-L458
+    expected_anchors:
+      - symbol: netif_add
+        path: src/core/netif.c
+        line_start: 286
+    rationale: 固定快照中的公开网络接口添加入口，定义位置唯一。
+
+  - id: locate-tcp-input
+    type: 定位
+    status: approved
+    question: TCP 收包主入口 tcp_input 在哪里实现？
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/tcp_in.c#L117-L592
+    expected_anchors:
+      - symbol: tcp_input
+        path: src/core/tcp_in.c
+        line_start: 117
+    rationale: 固定快照中 TCP 输入处理主函数的定义锚点唯一。
+
+  - id: callers-netif-add
+    type: 调用链
+    status: approved
+    question: 哪些函数直接调用 netif_add？
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L286-L458
+    expected_anchors:
+      - symbol: netif_init
+        path: src/core/netif.c
+        line_start: 187
+      - symbol: netif_add_noaddr
+        path: src/core/netif.c
+        line_start: 249
+      - symbol: ppp_new
+        path: src/netif/ppp/ppp.c
+        line_start: 649
+    rationale: 三个调用者均由 compile database 下的 certain AST 调用边确认。
+
+  - id: callers-tcp-input
+    type: 调用链
+    status: approved
+    question: IPv4 和 IPv6 输入路径中谁直接调用 tcp_input？
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/tcp_in.c#L117-L592
+    expected_anchors:
+      - symbol: ip4_input
+        path: src/core/ipv4/ip4.c
+        line_start: 459
+      - symbol: ip6_input
+        path: src/core/ipv6/ip6.c
+        line_start: 508
+    rationale: 两条 IP 输入路径到 TCP 主入口的调用均为 certain 编译器事实。
+
+  - id: impact-netif-add
+    type: 影响分析
+    status: approved
+    question: 修改 netif_add 后，2 跳内哪些 certain 调用者需要回归检查？
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L286-L458
+    target:
+      symbol: netif_add
+      path: src/core/netif.c
+      line_start: 286
+    depth: 2
+    expected_certain:
+      - symbol: netif_init
+        path: src/core/netif.c
+        line_start: 187
+      - symbol: netif_add_noaddr
+        path: src/core/netif.c
+        line_start: 249
+      - symbol: ppp_new
+        path: src/netif/ppp/ppp.c
+        line_start: 649
+      - symbol: lwip_init
+        path: src/core/init.c
+        line_start: 341
+      - symbol: pppos_create
+        path: src/netif/ppp/pppos.c
+        line_start: 174
+    rationale: 金标为当前固定快照中 netif_add 的 2 跳 certain 反向可达集。
+
+  - id: impact-tcp-input
+    type: 影响分析
+    status: approved
+    question: 修改 tcp_input 后，2 跳内哪些协议输入入口会受影响？
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/tcp_in.c#L117-L592
+    target:
+      symbol: tcp_input
+      path: src/core/tcp_in.c
+      line_start: 117
+    depth: 2
+    expected_certain:
+      - symbol: ip4_input
+        path: src/core/ipv4/ip4.c
+        line_start: 459
+      - symbol: ip6_input
+        path: src/core/ipv6/ip6.c
+        line_start: 508
+      - symbol: ppp_input
+        path: src/netif/ppp/ppp.c
+        line_start: 779
+      - symbol: ethernet_input
+        path: src/netif/ethernet.c
+        line_start: 80
+      - symbol: rfc7668_input
+        path: src/netif/lowpan6_ble.c
+        line_start: 346
+      - symbol: ip_input
+        path: src/core/ip.c
+        line_start: 153
+      - symbol: lowpan6_input
+        path: src/netif/lowpan6.c
+        line_start: 646
+    rationale: 金标为 TCP 输入主函数在 2 跳内的完整 certain 调用者集合。
+
+  - id: semantic-pbuf-release
+    type: 语义检索
+    status: approved
+    question: packet buffer 的引用计数归零后如何释放，并怎样去掉链表头部？
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/pbuf.c#L675-L804
+    expected_anchors:
+      - symbol: pbuf_free
+        path: src/core/pbuf.c
+        line_start: 728
+      - symbol: pbuf_free_header
+        path: src/core/pbuf.c
+        line_start: 675
+      - symbol: pbuf_dechain
+        path: src/core/pbuf.c
+        line_start: 916
+    rationale: 查询不直接给出函数名，检查缓冲区释放、去头和解链语义能否回到源码。
+
+  - id: semantic-netif-state
+    type: 语义检索
+    status: approved
+    question: 网络接口怎样切换为 up、down 并设置默认接口？
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L850-L981
+    expected_anchors:
+      - symbol: netif_set_default
+        path: src/core/netif.c
+        line_start: 850
+      - symbol: netif_set_up
+        path: src/core/netif.c
+        line_start: 872
+      - symbol: netif_set_down
+        path: src/core/netif.c
+        line_start: 950
+    rationale: 自然语言状态切换问题对应三个公开接口，不依赖图生成题模板。
+
+  - id: refuse-postgresql-index
+    type: 无证据拒答
+    status: approved
+    question: PostgreSQL 慢查询应该怎样设计联合索引？
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/README#L1-L20
+    rationale: 数据库优化不属于 lwIP 固定源码或已审核经验范围，必须拒答。
+
+  - id: refuse-kubernetes-ingress
+    type: 无证据拒答
+    status: approved
+    question: Kubernetes Ingress 证书轮换失败怎样排查？
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/README#L1-L20
+    rationale: 集群运维问题不属于 lwIP 代码知识范围，不能用相似网络词拼凑回答。
+
+  - id: locate-pbuf-free
+    type: 定位
+    status: approved
+    question: pbuf 引用计数释放入口 pbuf_free 在哪里定义？
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/pbuf.c#L728-L804
+    expected_anchors:
+      - symbol: pbuf_free
+        path: src/core/pbuf.c
+        line_start: 728
+    rationale: 固定 revision 中 pbuf 释放入口的定义唯一。
+
+  - id: locate-netif-up
+    type: 定位
+    status: approved
+    question: 网络接口设置为 up 的函数在哪里实现？
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L872-L949
+    expected_anchors:
+      - symbol: netif_set_up
+        path: src/core/netif.c
+        line_start: 872
+    rationale: 自然语言状态操作对应公开 API 的唯一实现。
+
+  - id: locate-tcp-write
+    type: 定位
+    status: approved
+    question: TCP 发送数据的 tcp_write 入口在哪里定义？
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/tcp_out.c#L392-L531
+    expected_anchors:
+      - symbol: tcp_write
+        path: src/core/tcp_out.c
+        line_start: 392
+    rationale: 固定构建配置下 TCP 写入接口的定义锚点唯一。
+
+  - id: semantic-tcp-send-queue
+    type: 语义检索
+    status: approved
+    question: TCP 怎样把应用数据放入发送队列并处理缓冲区限制？
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/tcp_out.c#L392-L531
+    expected_anchors:
+      - symbol: tcp_write
+        path: src/core/tcp_out.c
+        line_start: 392
+    rationale: 不直接依赖符号名，检查发送队列语义能否定位到实现。
+
+  - id: refuse-nginx-cache
+    type: 无证据拒答
+    status: approved
+    question: Nginx 反向代理缓存击穿应该如何排查？
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/README#L1-L20
+    rationale: Web 代理运维不属于 lwIP 代码或审核经验边界。
+
+  - id: exp-lwip-symptom
+    type: 已审核经验复用
+    status: approved
+    question: netif_add 初始化异常的已审核记录描述了什么现象？
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L286-L458
+    expected_card_title: lwIP netif_add 初始化路径审查
+    main_anchor: {symbol: netif_add, path: src/core/netif.c, line_start: 286}
+    rationale: 必须命中 approved B 卡并返回当前 netif_add 主锚点。
+
+  - id: exp-lwip-hypothesis
+    type: 已审核经验复用
+    status: approved
+    question: netif_add 排障时应优先核对哪些初始化假设？
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L286-L458
+    expected_card_title: lwIP netif_add 初始化路径审查
+    main_anchor: {symbol: netif_add, path: src/core/netif.c, line_start: 286}
+    rationale: 排查假设必须来自审核卡，不由相似网络词推断。
+
+  - id: exp-lwip-fix
+    type: 已审核经验复用
+    status: approved
+    question: 已审核经验建议怎样复核 netif_add 的初始化路径？
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L286-L458
+    expected_card_title: lwIP netif_add 初始化路径审查
+    main_anchor: {symbol: netif_add, path: src/core/netif.c, line_start: 286}
+    rationale: 解决步骤要由 B 卡和当前源码锚点共同支持。
+
+  - id: exp-lwip-verify
+    type: 已审核经验复用
+    status: approved
+    question: netif_add 初始化经验应如何验证回归结果？
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L286-L458
+    expected_card_title: lwIP netif_add 初始化路径审查
+    main_anchor: {symbol: netif_add, path: src/core/netif.c, line_start: 286}
+    rationale: 验证步骤来自审核知识，不以模型自然语言作为金标。
+
+  - id: exp-lwip-anchor
+    type: 已审核经验复用
+    status: approved
+    question: netif_add 初始化经验当前绑定哪个函数与源码范围？
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L286-L458
+    expected_card_title: lwIP netif_add 初始化路径审查
+    main_anchor: {symbol: netif_add, path: src/core/netif.c, line_start: 286}
+    rationale: B 级引用必须携带当前 definition hash 和精确主锚点。

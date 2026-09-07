@@ -1,0 +1,1015 @@
+schema_version: 2
+status: approved
+split: held_out
+artifact_scope: isolated_experiment
+pilot: true
+task_set_hash: c8c2504f8429ca7a235e0f9b858ac294fbe86de2bad5afedc3c781e2031a82a1
+frozen_at: "2026-09-05T13:07:09Z"
+not_used_for_tuning: true
+provenance:
+  author_agent: /root/reuse_gold_reviewer
+  author_type: ai_agent
+  source_review_only: true
+  inputs_reviewed:
+    - eval/knowledge_reuse.yaml
+    - corpus/cJSON/cJSON.h
+    - corpus/cJSON/cJSON.c
+    - examples/reproductions/cjson-nesting/reproduce.c
+    - examples/reproductions/cjson-nesting/run.sh
+    - examples/reproductions/cjson-nesting/result.txt
+    - corpus/lwip/src/core/netif.c
+    - corpus/lwip/src/include/lwip/netif.h
+    - examples/reproductions/lwip-netif/reproduce.c
+    - examples/reproductions/lwip-netif/run.sh
+    - examples/reproductions/lwip-netif/include/lwipopts.h
+    - examples/reproductions/lwip-netif/result.txt
+  not_used_as_answer_evidence:
+    - frozen presentation template
+    - CodeAtlas Wiki and docs
+    - model answers and evaluation scores
+    - prior answer keys and calibration assets
+  frozen_presentation_template_read: false
+  human_reviewed: false
+  second_reviewer_complete: true
+  shared_session_claim_boundary:
+    reference: cJSON session round 5
+    status: unverified_source_assertion
+    shared_across_groups: true
+    part_of_gold: false
+    policy: Re-verify against the frozen public source and reproduction before scoring; do not treat the session assertion itself as gold evidence.
+  review_boundary: AI-authored pilot gold approved by two source-grounded agents for effect evaluation only; independent human review remains outstanding.
+
+review:
+  reviewer_kind: agent
+  independent_reviews:
+    - reviewer_kind: agent
+      reviewer: proof-fixture-review
+      provider: OpenAI
+      model: runtime-model-undisclosed
+      agent: /root/proof_fixture_review
+      prompt_hash: 30216e72dc907a839e91ba8b4dbc328c56383330511bd3d8367687ddca180cdd
+      input_hash: 2be7645e69c77b1d5bf3f05c8de6cbc49ee81ef28acac100dcfcf6a502a113bc
+      independent: true
+      peer_reviews_visible: false
+      verdict: approved
+      reviewed_at: "2026-09-05"
+      note: 6 questions, 33 answer points, 26 forbidden claims, 45 frozen evidence items and both reproduction identities passed; no human review or historical non-exposure claim.
+      validation_report: eval/knowledge_reuse_validation.json
+      validation_report_hash: 462a681c9af4c8bb157f62f3c3cd96cf87457e77eeda0560681c49a6c965d7c9
+    - reviewer_kind: agent
+      reviewer: holdout-source-validator-b
+      provider: OpenAI
+      model: gpt-5
+      agent: /root/holdout_source_validator_b
+      prompt_hash: 750880167c277c03b3f054c1ba337c1b1c510a77dff70e2f6fc2d2a0209a5166
+      input_hash: 2be7645e69c77b1d5bf3f05c8de6cbc49ee81ef28acac100dcfcf6a502a113bc
+      independent: true
+      peer_reviews_visible: false
+      verdict: approved
+      reviewed_at: "2026-09-05"
+      note: Independently re-ran the two reproductions and auxiliary probes and approved the same source contract; human review and prior-exposure claims remain false.
+      validation_report: eval/knowledge_reuse_validation_b.json
+      validation_report_hash: 6e09b3363d1a88db12b22d411d4572dce0e6046aa9e8adaa482948fd60550a33
+
+tasks:
+  kr-v2-cjson-condition-limit-1001:
+    expected_points:
+      - id: c1-condition
+        text: The comparison keeps fixed_depths={999,1000,1001}, require_null_terminated=1, the source revision, and the harness unchanged; the only treatment is defining CJSON_NESTING_LIMIT=1001 for the cJSON.c translation unit.
+        kind: condition
+        evidence: [c1-harness-cases, c1-harness-call, c1-revision-check, c1-build-default, c1-default-limit]
+      - id: c1-input-lengths
+        text: input_len remains 1999, 2001, and 2003 for depths 999, 1000, and 1001 respectively because the macro does not alter nested_array's 2*depth+1-byte JSON text.
+        kind: fact
+        evidence: [c1-generator, c1-current-output]
+      - id: c1-lower-cases
+        text: The depth=999 and depth=1000 lines remain result=ok with parse_end equal to input_len (1999 and 2001 respectively).
+        kind: fact
+        evidence: [c1-current-output, c1-array-guard]
+      - id: c1-depth-1001
+        text: The depth=1001 line changes from result=NULL parse_end=1000 input_len=2003 to result=ok parse_end=2003 input_len=2003.
+        kind: fact
+        evidence: [c1-current-output, c1-array-guard, c1-generator]
+      - id: c1-boundary
+        text: The boundary moves by one level because parse_array and parse_object both test current depth >= limit before incrementing it; this array-only harness exercises parse_array, where limit 1001 admits entries at current depths 0 through 1000 and the old limit 1000 rejected the entry at current depth 1000.
+        kind: fact
+        evidence: [c1-array-guard, c1-object-guard, c1-default-limit]
+    forbidden_claims:
+      - With CJSON_NESTING_LIMIT=1001, depth 1001 still returns NULL at parse_end 1000.
+      - Changing only CJSON_NESTING_LIMIT changes the three generated input lengths.
+      - Either depth 999 or depth 1000 becomes a failure in the 1001-limit build.
+      - The boundary shift is caused by changing the harness inputs or require_null_terminated.
+    evidence_payload:
+      - id: c1-harness-cases
+        source: public_harness
+        path: examples/reproductions/cjson-nesting/reproduce.c
+        line_start: 43
+        line_end: 54
+        lines: "43-54"
+        hash: sha256:cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784
+        sha256: cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784
+        snippet: |2-
+          int main(void)
+          {
+              /*
+               * These depths are deliberately fixed instead of being derived from the
+               * library macro.  That makes a future CJSON_NESTING_LIMIT change observable
+               * rather than silently moving both the treatment and the test inputs.
+               */
+              static const size_t fixed_depths[] = {999u, 1000u, 1001u};
+              size_t index;
+              int status = 0;
+              for (index = 0; index < sizeof(fixed_depths) / sizeof(fixed_depths[0]); ++index) {
+                  status |= run_case(fixed_depths[index]);
+      - id: c1-harness-call
+        source: public_harness
+        path: examples/reproductions/cjson-nesting/reproduce.c
+        line_start: 34
+        line_end: 37
+        lines: "34-37"
+        hash: sha256:cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784
+        sha256: cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784
+        snippet: |2-
+              value = cJSON_ParseWithOpts(input, &parse_end, 1);
+              offset = parse_end == NULL ? 0 : (size_t)(parse_end - input);
+              printf("depth=%zu result=%s parse_end=%zu input_len=%zu\n",
+                     depth, value == NULL ? "NULL" : "ok", offset, strlen(input));
+      - id: c1-build-default
+        source: public_command
+        path: examples/reproductions/cjson-nesting/run.sh
+        line_start: 16
+        line_end: 20
+        lines: "16-20"
+        hash: sha256:529274dbbd63556db765061836196cc91af288bcff2d449fc03c3bf9843cf481
+        sha256: 529274dbbd63556db765061836196cc91af288bcff2d449fc03c3bf9843cf481
+        snippet: |2-
+          cc -std=c99 -Wall -Wextra -Werror \
+            -I "$source_root" \
+            "$source_root/cJSON.c" \
+            "$project_root/examples/reproductions/cjson-nesting/reproduce.c" \
+            -lm -o "$build_dir/reproduce"
+      - id: c1-revision-check
+        source: public_command
+        path: examples/reproductions/cjson-nesting/run.sh
+        line_start: 10
+        line_end: 14
+        lines: "10-14"
+        hash: sha256:529274dbbd63556db765061836196cc91af288bcff2d449fc03c3bf9843cf481
+        sha256: 529274dbbd63556db765061836196cc91af288bcff2d449fc03c3bf9843cf481
+        snippet: |2-
+          actual_revision="$(git -C "$source_root" rev-parse HEAD)"
+          if [[ "$actual_revision" != "$expected_revision" ]]; then
+            printf 'cJSON revision mismatch: expected %s, got %s\n' "$expected_revision" "$actual_revision" >&2
+            exit 2
+          fi
+      - id: c1-default-limit
+        source: public_source
+        path: corpus/cJSON/cJSON.h
+        line_start: 134
+        line_end: 138
+        lines: "134-138"
+        hash: sha256:25b0145150d500498e4d209cec69c18c42cf818bffcc54690be3b895a2a16dee
+        sha256: 25b0145150d500498e4d209cec69c18c42cf818bffcc54690be3b895a2a16dee
+        snippet: |2-
+          /* Limits how deeply nested arrays/objects can be before cJSON rejects to parse them.
+           * This is to prevent stack overflows. */
+          #ifndef CJSON_NESTING_LIMIT
+          #define CJSON_NESTING_LIMIT 1000
+          #endif
+      - id: c1-generator
+        source: public_harness
+        path: examples/reproductions/cjson-nesting/reproduce.c
+        line_start: 10
+        line_end: 21
+        lines: "10-21"
+        hash: sha256:cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784
+        sha256: cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784
+        snippet: |2-
+              char *text = malloc(depth * 2 + 2);
+              if (text == NULL) {
+                  return NULL;
+              }
+              for (index = 0; index < depth; ++index) {
+                  text[index] = '[';
+              }
+              text[depth] = '0';
+              for (index = 0; index < depth; ++index) {
+                  text[depth + 1 + index] = ']';
+              }
+              text[depth * 2 + 1] = '\0';
+      - id: c1-current-output
+        source: public_observation
+        path: examples/reproductions/cjson-nesting/result.txt
+        line_start: 1
+        line_end: 3
+        lines: "1-3"
+        hash: sha256:ed76b1069221053876dd4995aaee6e228f4983ad8f97717d51bf1ff02be0b133
+        sha256: ed76b1069221053876dd4995aaee6e228f4983ad8f97717d51bf1ff02be0b133
+        snippet: |2-
+          depth=999 result=ok parse_end=1999 input_len=1999
+          depth=1000 result=ok parse_end=2001 input_len=2001
+          depth=1001 result=NULL parse_end=1000 input_len=2003
+      - id: c1-array-guard
+        source: public_source
+        path: corpus/cJSON/cJSON.c
+        line_start: 1496
+        line_end: 1506
+        lines: "1496-1506"
+        hash: sha256:607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+        sha256: 607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+        snippet: |2-
+          /* Build an array from input text. */
+          static cJSON_bool parse_array(cJSON * const item, parse_buffer * const input_buffer)
+          {
+              cJSON *head = NULL; /* head of the linked list */
+              cJSON *current_item = NULL;
+
+              if (input_buffer->depth >= CJSON_NESTING_LIMIT)
+              {
+                  return false; /* to deeply nested */
+              }
+              input_buffer->depth++;
+      - id: c1-object-guard
+        source: public_source
+        path: corpus/cJSON/cJSON.c
+        line_start: 1661
+        line_end: 1671
+        lines: "1661-1671"
+        hash: sha256:607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+        sha256: 607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+        snippet: |2-
+          /* Build an object from the text. */
+          static cJSON_bool parse_object(cJSON * const item, parse_buffer * const input_buffer)
+          {
+              cJSON *head = NULL; /* linked list head */
+              cJSON *current_item = NULL;
+
+              if (input_buffer->depth >= CJSON_NESTING_LIMIT)
+              {
+                  return false; /* to deeply nested */
+              }
+              input_buffer->depth++;
+
+  kr-v2-cjson-exclude-error-causes:
+    expected_points:
+      - id: c2-fixed-shape
+        text: The current cases are balanced arrays generated as depth opening brackets, one zero, depth closing brackets, and a terminating NUL; the parser is called with require_null_terminated=1.
+        kind: condition
+        evidence: [c2-generator, c2-call]
+      - id: c2-nul-excluded
+        text: A missing terminal NUL is excluded for these generated inputs because nested_array writes the NUL and cJSON_ParseWithOpts includes it in buffer_length before enforcing require_null_terminated.
+        kind: fact
+        evidence: [c2-generator, c2-length-wrapper, c2-null-check]
+      - id: c2-brackets-excluded
+        text: Mismatched brackets are excluded for these generated inputs because the generator emits equal counts of '[' and ']', and the depth=1000 instance of the same shape parses successfully.
+        kind: fact
+        evidence: [c2-generator, c2-output]
+      - id: c2-limit-supported
+        text: "Hitting the nesting limit is supported: the default is 1000, parse_array rejects when current depth is >= that limit before incrementing, and the observed transition is success at 1000 to failure at 1001 with failure offset 1000."
+        kind: fact
+        evidence: [c2-default-limit, c2-array-guard, c2-output]
+      - id: c2-allocation-unresolved
+        text: Ordinary internal allocation failure is neither established as the cause nor fully ruled out by the current run because cJSON has independent root/item allocation failure paths and the harness records no allocator event.
+        kind: fact
+        evidence: [c2-root-allocation, c2-child-allocation, c2-output]
+      - id: c2-allocation-test
+        text: Distinguishing ordinary allocation failure requires an additional controlled experiment, such as allocator fault injection/telemetry or the limit-shift A/B while holding the input and build otherwise fixed.
+        kind: action
+        evidence: [c2-root-allocation, c2-child-allocation, c2-output]
+      - id: c2-offset-boundary
+        text: parse_end=1000 is the recorded buffer.offset on failure and is consistent with the limit guard, but that offset alone is not a universal proof that every NULL result has the same cause.
+        kind: fact
+        evidence: [c2-failure-position, c2-array-guard, c2-output]
+    forbidden_claims:
+      - The generated depth=1001 input lacks a terminating NUL.
+      - The generated depth=1001 input has unbalanced brackets.
+      - One successful reproduction definitively excludes every internal allocation failure.
+      - parse_end=1000 proves that every possible NULL result is caused by CJSON_NESTING_LIMIT.
+      - Ordinary allocation failure is established as the cause of the observed 1000/1001 boundary.
+    evidence_payload:
+      - id: c2-generator
+        source: public_harness
+        path: examples/reproductions/cjson-nesting/reproduce.c
+        line_start: 14
+        line_end: 22
+        lines: "14-22"
+        hash: sha256:cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784
+        sha256: cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784
+        snippet: |2-
+              for (index = 0; index < depth; ++index) {
+                  text[index] = '[';
+              }
+              text[depth] = '0';
+              for (index = 0; index < depth; ++index) {
+                  text[depth + 1 + index] = ']';
+              }
+              text[depth * 2 + 1] = '\0';
+              return text;
+      - id: c2-call
+        source: public_harness
+        path: examples/reproductions/cjson-nesting/reproduce.c
+        line_start: 34
+        line_end: 37
+        lines: "34-37"
+        hash: sha256:cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784
+        sha256: cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784
+        snippet: |2-
+              value = cJSON_ParseWithOpts(input, &parse_end, 1);
+              offset = parse_end == NULL ? 0 : (size_t)(parse_end - input);
+              printf("depth=%zu result=%s parse_end=%zu input_len=%zu\n",
+                     depth, value == NULL ? "NULL" : "ok", offset, strlen(input));
+      - id: c2-length-wrapper
+        source: public_source
+        path: corpus/cJSON/cJSON.c
+        line_start: 1140
+        line_end: 1143
+        lines: "1140-1143"
+        hash: sha256:607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+        sha256: 607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+        snippet: |2-
+              /* Adding null character size due to require_null_terminated. */
+              buffer_length = strlen(value) + sizeof("");
+
+              return cJSON_ParseWithLengthOpts(value, buffer_length, return_parse_end, require_null_terminated);
+      - id: c2-null-check
+        source: public_source
+        path: corpus/cJSON/cJSON.c
+        line_start: 1178
+        line_end: 1185
+        lines: "1178-1185"
+        hash: sha256:607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+        sha256: 607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+        snippet: |2-
+              /* if we require null-terminated JSON without appended garbage, skip and then check for a null terminator */
+              if (require_null_terminated)
+              {
+                  buffer_skip_whitespace(&buffer);
+                  if ((buffer.offset >= buffer.length) || buffer_at_offset(&buffer)[0] != '\0')
+                  {
+                      goto fail;
+                  }
+      - id: c2-output
+        source: public_observation
+        path: examples/reproductions/cjson-nesting/result.txt
+        line_start: 1
+        line_end: 3
+        lines: "1-3"
+        hash: sha256:ed76b1069221053876dd4995aaee6e228f4983ad8f97717d51bf1ff02be0b133
+        sha256: ed76b1069221053876dd4995aaee6e228f4983ad8f97717d51bf1ff02be0b133
+        snippet: |2-
+          depth=999 result=ok parse_end=1999 input_len=1999
+          depth=1000 result=ok parse_end=2001 input_len=2001
+          depth=1001 result=NULL parse_end=1000 input_len=2003
+      - id: c2-default-limit
+        source: public_source
+        path: corpus/cJSON/cJSON.h
+        line_start: 134
+        line_end: 138
+        lines: "134-138"
+        hash: sha256:25b0145150d500498e4d209cec69c18c42cf818bffcc54690be3b895a2a16dee
+        sha256: 25b0145150d500498e4d209cec69c18c42cf818bffcc54690be3b895a2a16dee
+        snippet: |2-
+          /* Limits how deeply nested arrays/objects can be before cJSON rejects to parse them.
+           * This is to prevent stack overflows. */
+          #ifndef CJSON_NESTING_LIMIT
+          #define CJSON_NESTING_LIMIT 1000
+          #endif
+      - id: c2-array-guard
+        source: public_source
+        path: corpus/cJSON/cJSON.c
+        line_start: 1502
+        line_end: 1506
+        lines: "1502-1506"
+        hash: sha256:607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+        sha256: 607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+        snippet: |2-
+              if (input_buffer->depth >= CJSON_NESTING_LIMIT)
+              {
+                  return false; /* to deeply nested */
+              }
+              input_buffer->depth++;
+      - id: c2-root-allocation
+        source: public_source
+        path: corpus/cJSON/cJSON.c
+        line_start: 1166
+        line_end: 1170
+        lines: "1166-1170"
+        hash: sha256:607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+        sha256: 607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+        snippet: |2-
+              item = cJSON_New_Item(&global_hooks);
+              if (item == NULL) /* memory fail */
+              {
+                  goto fail;
+              }
+      - id: c2-child-allocation
+        source: public_source
+        path: corpus/cJSON/cJSON.c
+        line_start: 1533
+        line_end: 1539
+        lines: "1533-1539"
+        hash: sha256:607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+        sha256: 607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+        snippet: |2-
+              {
+                  /* allocate next item */
+                  cJSON *new_item = cJSON_New_Item(&(input_buffer->hooks));
+                  if (new_item == NULL)
+                  {
+                      goto fail; /* allocation failure */
+                  }
+      - id: c2-failure-position
+        source: public_source
+        path: corpus/cJSON/cJSON.c
+        line_start: 1200
+        line_end: 1218
+        lines: "1200-1218"
+        hash: sha256:607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+        sha256: 607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+        snippet: |2-
+              if (value != NULL)
+              {
+                  error local_error;
+                  local_error.json = (const unsigned char*)value;
+                  local_error.position = 0;
+
+                  if (buffer.offset < buffer.length)
+                  {
+                      local_error.position = buffer.offset;
+                  }
+                  else if (buffer.length > 0)
+                  {
+                      local_error.position = buffer.length - 1;
+                  }
+
+                  if (return_parse_end != NULL)
+                  {
+                      *return_parse_end = (const char*)local_error.json + local_error.position;
+                  }
+
+  kr-v2-cjson-verify-limit-ab:
+    expected_points:
+      - id: c3-controlled-ab
+        text: A and B use the same checked source revision, compiler flags, include path, and reproduce.c; B's only semantic difference is CJSON_NESTING_LIMIT=1001 applied when cJSON.c is compiled.
+        kind: condition
+        evidence: [c3-revision-check, c3-run-command, c3-fixed-cases, c3-default-limit]
+      - id: c3-build-a
+        text: |-
+          From the repository root, an immediately executable A setup is:
+            build_dir="$(mktemp -d "${TMPDIR:-/tmp}/codeatlas-cjson-ab.XXXXXX")"
+            cc -std=c99 -Wall -Wextra -Werror -I corpus/cJSON -c examples/reproductions/cjson-nesting/reproduce.c -o "$build_dir/harness.o"
+            cc -std=c99 -Wall -Wextra -Werror -I corpus/cJSON -c corpus/cJSON/cJSON.c -o "$build_dir/cjson-a.o"
+            cc "$build_dir/cjson-a.o" "$build_dir/harness.o" -lm -o "$build_dir/a"
+            "$build_dir/a"
+        kind: action
+        evidence: [c3-run-command]
+      - id: c3-build-b
+        text: |-
+          Reuse the same harness.o and build/run B with the define scoped to cJSON.c:
+            cc -std=c99 -Wall -Wextra -Werror -I corpus/cJSON -DCJSON_NESTING_LIMIT=1001 -c corpus/cJSON/cJSON.c -o "$build_dir/cjson-b.o"
+            cc "$build_dir/cjson-b.o" "$build_dir/harness.o" -lm -o "$build_dir/b"
+            "$build_dir/b"
+          Compare stdout directly; run.sh's diff still names the old A result and is not the B oracle.
+        kind: action
+        evidence: [c3-run-command, c3-default-limit]
+      - id: c3-output-a
+        text: "A must print the current three lines: 999 ok/end 1999/len 1999; 1000 ok/end 2001/len 2001; 1001 NULL/end 1000/len 2003."
+        kind: fact
+        evidence: [c3-output]
+      - id: c3-output-b
+        text: B should leave the 999 and 1000 lines unchanged and print depth=1001 result=ok parse_end=2003 input_len=2003.
+        kind: fact
+        evidence: [c3-output, c3-guard, c3-generator]
+      - id: c3-falsifier
+        text: A same-boundary B failure falsifies the nesting limit as a sufficient explanation only after confirming the macro override reached cJSON.c, holding the input and all other build factors fixed, and independently excluding a B-only allocation failure or another new failure through allocator telemetry and/or guard instrumentation; B failing by itself is inconclusive and requires diagnosis.
+        kind: condition
+        evidence: [c3-default-limit, c3-guard, c3-root-allocation, c3-child-allocation, c3-failure-position, c3-output]
+    forbidden_claims:
+      - Change reproduce.c or its tested depths between A and B.
+      - Apply the macro only to the harness while compiling cJSON.c separately without it.
+      - Treat run.sh's expected diff against the old result.txt as the B result oracle.
+      - Predict that B changes input_len for any tested depth.
+      - Treat a B failure at the same boundary as direct falsification before independently excluding allocation failure or another newly introduced failure.
+    evidence_payload:
+      - id: c3-run-command
+        source: public_command
+        path: examples/reproductions/cjson-nesting/run.sh
+        line_start: 16
+        line_end: 25
+        lines: "16-25"
+        hash: sha256:529274dbbd63556db765061836196cc91af288bcff2d449fc03c3bf9843cf481
+        sha256: 529274dbbd63556db765061836196cc91af288bcff2d449fc03c3bf9843cf481
+        snippet: |2-
+          cc -std=c99 -Wall -Wextra -Werror \
+            -I "$source_root" \
+            "$source_root/cJSON.c" \
+            "$project_root/examples/reproductions/cjson-nesting/reproduce.c" \
+            -lm -o "$build_dir/reproduce"
+
+          output="$("$build_dir/reproduce")"
+          printf '%s\n' "$output"
+          diff -u "$project_root/examples/reproductions/cjson-nesting/result.txt" \
+            <(printf '%s\n' "$output")
+      - id: c3-revision-check
+        source: public_command
+        path: examples/reproductions/cjson-nesting/run.sh
+        line_start: 10
+        line_end: 14
+        lines: "10-14"
+        hash: sha256:529274dbbd63556db765061836196cc91af288bcff2d449fc03c3bf9843cf481
+        sha256: 529274dbbd63556db765061836196cc91af288bcff2d449fc03c3bf9843cf481
+        snippet: |2-
+          actual_revision="$(git -C "$source_root" rev-parse HEAD)"
+          if [[ "$actual_revision" != "$expected_revision" ]]; then
+            printf 'cJSON revision mismatch: expected %s, got %s\n' "$expected_revision" "$actual_revision" >&2
+            exit 2
+          fi
+      - id: c3-fixed-cases
+        source: public_harness
+        path: examples/reproductions/cjson-nesting/reproduce.c
+        line_start: 45
+        line_end: 54
+        lines: "45-54"
+        hash: sha256:cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784
+        sha256: cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784
+        snippet: |2-
+              /*
+               * These depths are deliberately fixed instead of being derived from the
+               * library macro.  That makes a future CJSON_NESTING_LIMIT change observable
+               * rather than silently moving both the treatment and the test inputs.
+               */
+              static const size_t fixed_depths[] = {999u, 1000u, 1001u};
+              size_t index;
+              int status = 0;
+              for (index = 0; index < sizeof(fixed_depths) / sizeof(fixed_depths[0]); ++index) {
+                  status |= run_case(fixed_depths[index]);
+      - id: c3-default-limit
+        source: public_source
+        path: corpus/cJSON/cJSON.h
+        line_start: 134
+        line_end: 138
+        lines: "134-138"
+        hash: sha256:25b0145150d500498e4d209cec69c18c42cf818bffcc54690be3b895a2a16dee
+        sha256: 25b0145150d500498e4d209cec69c18c42cf818bffcc54690be3b895a2a16dee
+        snippet: |2-
+          /* Limits how deeply nested arrays/objects can be before cJSON rejects to parse them.
+           * This is to prevent stack overflows. */
+          #ifndef CJSON_NESTING_LIMIT
+          #define CJSON_NESTING_LIMIT 1000
+          #endif
+      - id: c3-output
+        source: public_observation
+        path: examples/reproductions/cjson-nesting/result.txt
+        line_start: 1
+        line_end: 3
+        lines: "1-3"
+        hash: sha256:ed76b1069221053876dd4995aaee6e228f4983ad8f97717d51bf1ff02be0b133
+        sha256: ed76b1069221053876dd4995aaee6e228f4983ad8f97717d51bf1ff02be0b133
+        snippet: |2-
+          depth=999 result=ok parse_end=1999 input_len=1999
+          depth=1000 result=ok parse_end=2001 input_len=2001
+          depth=1001 result=NULL parse_end=1000 input_len=2003
+      - id: c3-guard
+        source: public_source
+        path: corpus/cJSON/cJSON.c
+        line_start: 1502
+        line_end: 1506
+        lines: "1502-1506"
+        hash: sha256:607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+        sha256: 607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+        snippet: |2-
+              if (input_buffer->depth >= CJSON_NESTING_LIMIT)
+              {
+                  return false; /* to deeply nested */
+              }
+              input_buffer->depth++;
+      - id: c3-generator
+        source: public_harness
+        path: examples/reproductions/cjson-nesting/reproduce.c
+        line_start: 17
+        line_end: 21
+        lines: "17-21"
+        hash: sha256:cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784
+        sha256: cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784
+        snippet: |2-
+              text[depth] = '0';
+              for (index = 0; index < depth; ++index) {
+                  text[depth + 1 + index] = ']';
+              }
+              text[depth * 2 + 1] = '\0';
+      - id: c3-root-allocation
+        source: public_source
+        path: corpus/cJSON/cJSON.c
+        line_start: 1166
+        line_end: 1170
+        lines: "1166-1170"
+        hash: sha256:607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+        sha256: 607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+        snippet: |2-
+              item = cJSON_New_Item(&global_hooks);
+              if (item == NULL) /* memory fail */
+              {
+                  goto fail;
+              }
+      - id: c3-child-allocation
+        source: public_source
+        path: corpus/cJSON/cJSON.c
+        line_start: 1533
+        line_end: 1539
+        lines: "1533-1539"
+        hash: sha256:607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+        sha256: 607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+        snippet: |2-
+              {
+                  /* allocate next item */
+                  cJSON *new_item = cJSON_New_Item(&(input_buffer->hooks));
+                  if (new_item == NULL)
+                  {
+                      goto fail; /* allocation failure */
+                  }
+      - id: c3-failure-position
+        source: public_source
+        path: corpus/cJSON/cJSON.c
+        line_start: 1200
+        line_end: 1218
+        lines: "1200-1218"
+        hash: sha256:607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+        sha256: 607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+        snippet: |2-
+              if (value != NULL)
+              {
+                  error local_error;
+                  local_error.json = (const unsigned char*)value;
+                  local_error.position = 0;
+
+                  if (buffer.offset < buffer.length)
+                  {
+                      local_error.position = buffer.offset;
+                  }
+                  else if (buffer.length > 0)
+                  {
+                      local_error.position = buffer.length - 1;
+                  }
+
+                  if (return_parse_end != NULL)
+                  {
+                      *return_parse_end = (const char*)local_error.json + local_error.position;
+                  }
+
+  kr-v2-lwip-condition-second-init-fails:
+    expected_points:
+      - id: l4-condition
+        text: Keep lwipopts.h and the call order unchanged, but make test_init return ERR_OK on its first invocation and ERR_IF on its second invocation.
+        kind: condition
+        evidence: [l4-current-init, l4-harness-order]
+      - id: l4-second-return
+        text: add_first remains ok, while add_second prints failed because netif_add returns NULL when the second init call returns ERR_IF.
+        kind: fact
+        evidence: [l4-init-before-insert, l4-harness-order]
+      - id: l4-after-second
+        text: after_second prints list=first default=first.
+        kind: fact
+        evidence: [l4-current-output, l4-init-before-insert, l4-list-insert]
+      - id: l4-order-reason
+        text: netif_add calls init before it prepends the candidate to netif_list, so the failed second candidate never replaces first as the list head.
+        kind: fact
+        evidence: [l4-init-before-insert, l4-list-insert]
+      - id: l4-first-preserved
+        text: The already-linked first interface and the explicitly selected netif_default remain unchanged because the second failure returns before global list insertion and the harness does not call netif_set_default again; this does not imply every field written on the rejected second struct is rolled back.
+        kind: fact
+        evidence: [l4-harness-order, l4-init-before-insert, l4-set-default]
+    forbidden_claims:
+      - The failed second interface is still inserted at the head of netif_list.
+      - A failed second initialization changes netif_default to second or none.
+      - The second failure removes or resets the already-linked first interface.
+      - netif_add guarantees rollback of every field that init may have written on the rejected second struct.
+    evidence_payload:
+      - id: l4-current-init
+        source: public_harness
+        path: examples/reproductions/lwip-netif/reproduce.c
+        line_start: 6
+        line_end: 12
+        lines: "6-12"
+        hash: sha256:cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a
+        sha256: cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a
+        snippet: |2-
+          static err_t test_init(struct netif *netif)
+          {
+              netif->name[0] = 'c';
+              netif->name[1] = 'a';
+              netif->mtu = 1500;
+              return ERR_OK;
+          }
+      - id: l4-harness-order
+        source: public_harness
+        path: examples/reproductions/lwip-netif/reproduce.c
+        line_start: 46
+        line_end: 56
+        lines: "46-56"
+        hash: sha256:cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a
+        sha256: cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a
+        snippet: |2-
+              printf("add_first=%s\n",
+                     netif_add_noaddr(&first, NULL, test_init, test_input) == &first ? "ok" : "failed");
+              printf("after_first list=%s default=%s\n",
+                     which(netif_list, &first, &second), which(netif_default, &first, &second));
+              netif_set_default(&first);
+              printf("after_set_default list=%s default=%s\n",
+                     which(netif_list, &first, &second), which(netif_default, &first, &second));
+              printf("add_second=%s\n",
+                     netif_add_noaddr(&second, NULL, test_init, test_input) == &second ? "ok" : "failed");
+              printf("after_second list=%s default=%s\n",
+                     which(netif_list, &first, &second), which(netif_default, &first, &second));
+      - id: l4-init-before-insert
+        source: public_source
+        path: corpus/lwip/src/core/netif.c
+        line_start: 387
+        line_end: 390
+        lines: "387-390"
+        hash: sha256:a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78
+        sha256: a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78
+        snippet: |2-
+            /* call user specified initialization function for netif */
+            if (init(netif) != ERR_OK) {
+              return NULL;
+            }
+      - id: l4-list-insert
+        source: public_source
+        path: corpus/lwip/src/core/netif.c
+        line_start: 430
+        line_end: 433
+        lines: "430-433"
+        hash: sha256:a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78
+        sha256: a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78
+        snippet: |2-
+            /* add this netif to the list */
+            netif->next = netif_list;
+            netif_list = netif;
+          #endif /* "LWIP_SINGLE_NETIF */
+      - id: l4-current-output
+        source: public_observation
+        path: examples/reproductions/lwip-netif/result.txt
+        line_start: 2
+        line_end: 6
+        lines: "2-6"
+        hash: sha256:8102733501276cd10303a81dc15877f7e5386b1dacb48c535f2960562f95414f
+        sha256: 8102733501276cd10303a81dc15877f7e5386b1dacb48c535f2960562f95414f
+        snippet: |2-
+          add_first=ok
+          after_first list=first default=none
+          after_set_default list=first default=first
+          add_second=ok
+          after_second list=second default=first
+      - id: l4-set-default
+        source: public_source
+        path: corpus/lwip/src/core/netif.c
+        line_start: 851
+        line_end: 862
+        lines: "851-862"
+        hash: sha256:a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78
+        sha256: a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78
+        snippet: |2-
+          netif_set_default(struct netif *netif)
+          {
+            LWIP_ASSERT_CORE_LOCKED();
+
+            if (netif == NULL) {
+              /* remove default route */
+              mib2_remove_route_ip4(1, netif);
+            } else {
+              /* install default route */
+              mib2_add_route_ip4(1, netif);
+            }
+            netif_default = netif;
+
+  kr-v2-lwip-exclude-default-alias:
+    expected_points:
+      - id: l5-which-identity
+        text: "The printed names are pointer-identity observations: which maps NULL to none, &first to first, and &second to second."
+        kind: condition
+        evidence: [l5-which]
+      - id: l5-no-auto-default
+        text: The hypothesis that netif_add automatically sets the default is excluded by add_first=ok followed by after_first list=first default=none.
+        kind: fact
+        evidence: [l5-output]
+      - id: l5-not-head-alias
+        text: The hypothesis that default is always an alias of the list head is excluded by after_second list=second default=first after first was explicitly made default.
+        kind: fact
+        evidence: [l5-output]
+      - id: l5-second-linked
+        text: The hypothesis that the second add did not link second is excluded by add_second=ok and the immediate pointer-identity observation list=second.
+        kind: fact
+        evidence: [l5-which, l5-output]
+      - id: l5-source-separation
+        text: "The mechanism matches the observations: successful netif_add prepends only netif_list, while netif_set_default assigns netif_default separately."
+        kind: fact
+        evidence: [l5-list-insert, l5-set-default, l5-globals]
+    forbidden_claims:
+      - netif_add automatically made first the default despite after_first default=none.
+      - netif_default must always equal netif_list.
+      - The successful second add was not linked even though which(netif_list) returned second.
+      - The labels first and second are inferred from interface names rather than pointer identity.
+    evidence_payload:
+      - id: l5-which
+        source: public_harness
+        path: examples/reproductions/lwip-netif/reproduce.c
+        line_start: 21
+        line_end: 35
+        lines: "21-35"
+        hash: sha256:cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a
+        sha256: cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a
+        snippet: |2-
+          static const char *which(const struct netif *value,
+                                   const struct netif *first,
+                                   const struct netif *second)
+          {
+              if (value == NULL) {
+                  return "none";
+              }
+              if (value == first) {
+                  return "first";
+              }
+              if (value == second) {
+                  return "second";
+              }
+              return "other";
+          }
+      - id: l5-output
+        source: public_observation
+        path: examples/reproductions/lwip-netif/result.txt
+        line_start: 1
+        line_end: 6
+        lines: "1-6"
+        hash: sha256:8102733501276cd10303a81dc15877f7e5386b1dacb48c535f2960562f95414f
+        sha256: 8102733501276cd10303a81dc15877f7e5386b1dacb48c535f2960562f95414f
+        snippet: |2-
+          initial list=none default=none
+          add_first=ok
+          after_first list=first default=none
+          after_set_default list=first default=first
+          add_second=ok
+          after_second list=second default=first
+      - id: l5-list-insert
+        source: public_source
+        path: corpus/lwip/src/core/netif.c
+        line_start: 430
+        line_end: 432
+        lines: "430-432"
+        hash: sha256:a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78
+        sha256: a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78
+        snippet: |2-
+            /* add this netif to the list */
+            netif->next = netif_list;
+            netif_list = netif;
+      - id: l5-set-default
+        source: public_source
+        path: corpus/lwip/src/core/netif.c
+        line_start: 851
+        line_end: 862
+        lines: "851-862"
+        hash: sha256:a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78
+        sha256: a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78
+        snippet: |2-
+          netif_set_default(struct netif *netif)
+          {
+            LWIP_ASSERT_CORE_LOCKED();
+
+            if (netif == NULL) {
+              /* remove default route */
+              mib2_remove_route_ip4(1, netif);
+            } else {
+              /* install default route */
+              mib2_add_route_ip4(1, netif);
+            }
+            netif_default = netif;
+      - id: l5-globals
+        source: public_source
+        path: corpus/lwip/src/include/lwip/netif.h
+        line_start: 422
+        line_end: 427
+        lines: "422-427"
+        hash: sha256:6e958aa1bd23b7381c09a873f7af919323f87ec50a2d3055a46f75275c2a121b
+        sha256: 6e958aa1bd23b7381c09a873f7af919323f87ec50a2d3055a46f75275c2a121b
+        snippet: |2-
+          /** The list of network interfaces. */
+          extern struct netif *netif_list;
+          #define NETIF_FOREACH(netif) for ((netif) = netif_list; (netif) != NULL; (netif) = (netif)->next)
+          #endif /* LWIP_SINGLE_NETIF */
+          /** The default network interface. */
+          extern struct netif *netif_default;
+
+  kr-v2-lwip-verify-clear-default:
+    expected_points:
+      - id: l6-insertion-condition
+        text: Insert the probe immediately after the existing after_second print and before either netif_remove call, with all earlier operations unchanged.
+        kind: condition
+        evidence: [l6-harness-site]
+      - id: l6-code-change
+        text: The minimal change is netif_set_default(NULL) followed by a printf that passes netif_list and netif_default through which, for example after_clear_default list=%s default=%s.
+        kind: action
+        evidence: [l6-harness-site, l6-which]
+      - id: l6-output
+        text: The new line should be after_clear_default list=second default=none.
+        kind: fact
+        evidence: [l6-current-output, l6-set-default]
+      - id: l6-source-effect
+        text: netif_set_default(NULL) assigns NULL only to netif_default (aside from route bookkeeping) and contains no write to netif_list, whose declaration is a separate global.
+        kind: fact
+        evidence: [l6-set-default, l6-globals]
+      - id: l6-falsifier
+        text: If this isolated call also made the printed list become none, it would falsify the source-based mechanism claim that clearing the default leaves netif_list unchanged and that the two observed pointer states can be varied independently; it would require investigating an unaccounted side effect, build/configuration mismatch, or other operation.
+        kind: condition
+        evidence: [l6-set-default, l6-globals, l6-current-output]
+    forbidden_claims:
+      - The expected post-clear list is none.
+      - The expected post-clear default remains first.
+      - netif_set_default(NULL) removes second or first from netif_list.
+      - A list=none observation would confirm that list and default are independent.
+    evidence_payload:
+      - id: l6-harness-site
+        source: public_harness
+        path: examples/reproductions/lwip-netif/reproduce.c
+        line_start: 53
+        line_end: 58
+        lines: "53-58"
+        hash: sha256:cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a
+        sha256: cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a
+        snippet: |2-
+              printf("add_second=%s\n",
+                     netif_add_noaddr(&second, NULL, test_init, test_input) == &second ? "ok" : "failed");
+              printf("after_second list=%s default=%s\n",
+                     which(netif_list, &first, &second), which(netif_default, &first, &second));
+              netif_remove(&second);
+              netif_remove(&first);
+      - id: l6-which
+        source: public_harness
+        path: examples/reproductions/lwip-netif/reproduce.c
+        line_start: 21
+        line_end: 35
+        lines: "21-35"
+        hash: sha256:cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a
+        sha256: cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a
+        snippet: |2-
+          static const char *which(const struct netif *value,
+                                   const struct netif *first,
+                                   const struct netif *second)
+          {
+              if (value == NULL) {
+                  return "none";
+              }
+              if (value == first) {
+                  return "first";
+              }
+              if (value == second) {
+                  return "second";
+              }
+              return "other";
+          }
+      - id: l6-current-output
+        source: public_observation
+        path: examples/reproductions/lwip-netif/result.txt
+        line_start: 4
+        line_end: 6
+        lines: "4-6"
+        hash: sha256:8102733501276cd10303a81dc15877f7e5386b1dacb48c535f2960562f95414f
+        sha256: 8102733501276cd10303a81dc15877f7e5386b1dacb48c535f2960562f95414f
+        snippet: |2-
+          after_set_default list=first default=first
+          add_second=ok
+          after_second list=second default=first
+      - id: l6-set-default
+        source: public_source
+        path: corpus/lwip/src/core/netif.c
+        line_start: 851
+        line_end: 862
+        lines: "851-862"
+        hash: sha256:a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78
+        sha256: a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78
+        snippet: |2-
+          netif_set_default(struct netif *netif)
+          {
+            LWIP_ASSERT_CORE_LOCKED();
+
+            if (netif == NULL) {
+              /* remove default route */
+              mib2_remove_route_ip4(1, netif);
+            } else {
+              /* install default route */
+              mib2_add_route_ip4(1, netif);
+            }
+            netif_default = netif;
+      - id: l6-globals
+        source: public_source
+        path: corpus/lwip/src/include/lwip/netif.h
+        line_start: 422
+        line_end: 427
+        lines: "422-427"
+        hash: sha256:6e958aa1bd23b7381c09a873f7af919323f87ec50a2d3055a46f75275c2a121b
+        sha256: 6e958aa1bd23b7381c09a873f7af919323f87ec50a2d3055a46f75275c2a121b
+        snippet: |2-
+          /** The list of network interfaces. */
+          extern struct netif *netif_list;
+          #define NETIF_FOREACH(netif) for ((netif) = netif_list; (netif) != NULL; (netif) = (netif)->next)
+          #endif /* LWIP_SINGLE_NETIF */
+          /** The default network interface. */
+          extern struct netif *netif_default;

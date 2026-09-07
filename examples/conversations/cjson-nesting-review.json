@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "cjson-nesting-review",
+  "source_type": "public_synthetic",
+  "source_ref": "examples/conversations/cjson-nesting-review.json",
+  "license": "CC0-1.0",
+  "repository": "https://github.com/DaveGamble/cJSON",
+  "revision": "fb16e5cf358798aabb049655975cde8427101056",
+  "messages": [
+    {"role": "user", "knowledge_role": "symptom", "content": "公开复现实验中，深层嵌套 JSON 在超过限定深度后返回 NULL；这不是生产事故。"},
+    {"role": "assistant", "knowledge_role": "hypothesis", "content": "初始假设是进程栈空间不足，也可能是解析器主动限制递归深度。"},
+    {"role": "assistant", "knowledge_role": "dead_end", "content": "仅增大进程栈不会改变 cJSON 的编译期嵌套限制，不能据此修复问题。"},
+    {"role": "tool", "knowledge_role": "evidence", "content": "固定 revision 中 parse_value 分派数组和对象解析；parse_array 与 parse_object 在进入下一层前检查 CJSON_NESTING_LIMIT；cJSON_ParseWithOpts 通过 parse_end 返回停止位置。"},
+    {"role": "reviewer", "knowledge_role": "root_cause", "content": "失败来自 cJSON 对 CJSON_NESTING_LIMIT 的主动边界保护，而不是本实验中的内存耗尽或进程栈不足。"},
+    {"role": "reviewer", "knowledge_role": "fix", "content": "调用方应校验输入深度并处理 NULL；只有明确接受递归与资源风险且补齐边界测试时，才调整编译期 CJSON_NESTING_LIMIT。"},
+    {"role": "reviewer", "knowledge_role": "verification", "content": "在固定 revision 运行 examples/reproductions/cjson-nesting/run.sh：深度 999 和 1000 解析成功，深度 1001 返回 NULL，并记录 parse_end 与输入长度。"}
+  ]
+}

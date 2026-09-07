@@ -1,0 +1,32 @@
+schema_version: 1
+name: CodeAtlas 三类价值证明清单
+experiments:
+  - id: wiki-cjson
+    kind: wiki_knowledge
+    corpus: cjson
+    manifest: eval/holdout_cjson.yaml
+    answer_key: eval/holdout_cjson.answers.yaml
+    report: docs/runs/PROOF-WIKI-CJSON-20260906-v5.json
+    required_for_effect: true
+  - id: wiki-lwip
+    kind: wiki_knowledge
+    corpus: lwip
+    manifest: eval/holdout_lwip.yaml
+    answer_key: eval/holdout_lwip.answers.yaml
+    report: docs/runs/PROOF-WIKI-LWIP-20260906-v5.json
+    required_for_effect: true
+  - id: knowledge-reuse
+    kind: knowledge_reuse
+    corpus: combined
+    manifest: eval/knowledge_reuse.yaml
+    answer_key: eval/knowledge_reuse.answers.yaml
+    production_mode: model_generated_dual_reviewed
+    generated_artifact: eval/frozen/knowledge_reuse-v4.json
+    report: docs/runs/PROOF-KNOWLEDGE-REUSE-20260906-v4.json
+    required_for_effect: true
+  - id: maintenance
+    kind: maintenance
+    corpus: combined
+    manifest: eval/upstream_maintenance.yaml
+    report: docs/runs/PROOF-MAINTENANCE-UPSTREAM-20260906-v4.json
+    required_for_effect: true

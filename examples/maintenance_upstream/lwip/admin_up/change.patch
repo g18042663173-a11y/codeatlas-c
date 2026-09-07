@@ -1,0 +1,11 @@
+--- a/src/core/netif.c
++++ b/src/core/netif.c
+@@ -877,7 +877,7 @@ netif_set_up(struct netif *netif)
+   LWIP_ERROR("netif_set_up: invalid netif", netif != NULL, return);
+ 
+   if (!(netif->flags & NETIF_FLAG_UP)) {
+-    netif_set_flags(netif, NETIF_FLAG_UP);
++    netif_set_flags(netif, NETIF_FLAG_LINK_UP);
+ 
+     MIB2_COPY_SYSUPTIME_TO(&netif->ts);
+ 

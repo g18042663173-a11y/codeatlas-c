@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "id": "lwip-netif-review",
+  "source_type": "public_synthetic",
+  "source_ref": "examples/conversations/lwip-netif-review.json",
+  "license": "CC0-1.0",
+  "repository": "https://github.com/lwip-tcpip/lwip",
+  "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+  "messages": [
+    {
+      "role": "user",
+      "knowledge_role": "symptom",
+      "content": "公开复现实验中，新增网络接口后 netif_list 更新了，但 netif_default 没有自动指向新接口；这不是生产事故。"
+    },
+    {
+      "role": "assistant",
+      "knowledge_role": "hypothesis",
+      "content": "初始假设是 netif_add 会在加入首个接口时顺带设置默认接口。"
+    },
+    {
+      "role": "assistant",
+      "knowledge_role": "dead_end",
+      "content": "反复调用 netif_add 只会改变接口链表，不能代替显式的 netif_set_default。"
+    },
+    {
+      "role": "tool",
+      "knowledge_role": "evidence",
+      "content": "固定 revision 的 netif_add 将接口插入 netif_list 并返回接口；多接口配置下，netif_set_default 是修改 netif_default 的独立函数。"
+    },
+    {
+      "role": "reviewer",
+      "knowledge_role": "root_cause",
+      "content": "根因是调用方把“加入接口链表”和“选择默认接口”当成了同一步；在该固定多接口配置中 netif_add 不会自动设置 netif_default。"
+    },
+    {
+      "role": "reviewer",
+      "knowledge_role": "fix",
+      "content": "netif_add 成功后，根据路由策略显式调用 netif_set_default；不要默认让最后添加的接口覆盖既有默认接口。"
+    },
+    {
+      "role": "reviewer",
+      "knowledge_role": "verification",
+      "content": "在固定 revision 运行 examples/reproductions/lwip-netif/run.sh：首个接口加入后 list=first/default=none；调用 netif_set_default 后 default=first；追加第二个接口后 list=second/default 仍为 first。"
+    }
+  ]
+}

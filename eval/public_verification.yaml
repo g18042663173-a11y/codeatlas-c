@@ -1,0 +1,37 @@
+schema_version: 1
+name: CodeAtlas 公开声明验证
+claims:
+  - id: cjson-official-source
+    kind: source_identity
+    corpus: cjson
+    claim: cJSON 测试快照来自 Dave Gamble 维护的官方 GitHub 仓库。
+    expected_relation: official
+
+  - id: lwip-upstream-and-mirror
+    kind: source_identity
+    corpus: lwip
+    claim: lwIP 官方开发源位于 Savannah，测试使用 lwip-tcpip/lwip GitHub 镜像。
+    expected_relation: mirror
+
+  - id: cjson-task-count
+    kind: task_count
+    corpus: cjson
+    claim: cJSON 正式人工任务集包含 20 道题。
+    asserted: 20
+
+  - id: lwip-task-count
+    kind: task_count
+    corpus: lwip
+    claim: lwIP 正式人工任务集包含 20 道题。
+    asserted: 20
+
+  - id: lwip-two-failures
+    kind: failure_count
+    corpus: lwip
+    required: false
+    claim: 当前 lwIP 20 道题中只有 2 道失败。
+    asserted: 2
+
+  - id: codeatlas-report-publication
+    kind: publication
+    claim: 当前 CodeAtlas 双语料评测已经可以由公众从远端 commit 独立读取和复核。

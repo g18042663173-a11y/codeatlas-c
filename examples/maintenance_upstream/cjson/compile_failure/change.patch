@@ -1,0 +1,11 @@
+--- a/cJSON.c
++++ b/cJSON.c
+@@ -1917,7 +1917,7 @@ CJSON_PUBLIC(int) cJSON_GetArraySize(const cJSON *array)
+ 
+     /* FIXME: Can overflow here. Cannot be fixed without breaking the API */
+ 
+-    return (int)size;
++    return (int)size + codeatlas_missing_symbol;
+ }
+ 
+ static cJSON* get_array_item(const cJSON *array, size_t index)

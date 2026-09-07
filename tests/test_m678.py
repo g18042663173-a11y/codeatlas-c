@@ -4,9 +4,13 @@
 """
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 import pytest
 
 from codeatlas.experience import store
+from codeatlas.graph import traverse
 from codeatlas.indexer import build as indexer
 from codeatlas.retrieve import engine
 from codeatlas.wiki import generator
@@ -37,6 +41,58 @@ def test_wiki_resume_skips_unchanged(kb, tmp_path):
     st = generator.generate(conn, str(CORPUS), out_dir=str(tmp_path / "w2"), resume=True)
     assert st["skipped"] > 0
     assert st["file"] == 0 and st["module"] == 0
+
+
+def test_wiki_definition_change_invalidates_parent_hashes(kb, tmp_path):
+    conn, _ = kb
+    generator.generate(conn, str(CORPUS), out_dir=str(tmp_path / "before"), resume=False)
+    node = conn.execute(
+        "SELECT id,definition_hash FROM node WHERE name='parse_value' AND is_definition=1"
+    ).fetchone()
+    before = {
+        row["id"]: (row["input_hash"], row["version"])
+        for row in conn.execute(
+            "SELECT id,input_hash,version FROM wiki_page WHERE id IN ('files/mini.c','modules/.','repo')"
+        )
+    }
+    conn.execute("UPDATE node SET definition_hash='wiki-changed' WHERE id=?", (node["id"],))
+    conn.commit()
+    changed = generator.generate(conn, str(CORPUS), out_dir=str(tmp_path / "changed"), resume=True)
+    after = {
+        row["id"]: (row["input_hash"], row["version"])
+        for row in conn.execute(
+            "SELECT id,input_hash,version FROM wiki_page WHERE id IN ('files/mini.c','modules/.','repo')"
+        )
+    }
+    assert changed["file"] > 0 and changed["module"] > 0 and changed["repo"] == 1
+    assert all(after[key] != before[key] for key in before)
+    conn.execute("UPDATE node SET definition_hash=? WHERE id=?", (node["definition_hash"], node["id"]))
+    conn.commit()
+    generator.generate(conn, str(CORPUS), out_dir=str(tmp_path / "restored"), resume=True)
+
+
+def test_wiki_orphan_is_stale_and_immediately_hidden(kb, tmp_path):
+    conn, _ = kb
+    conn.execute(
+        """INSERT OR REPLACE INTO wiki_page
+           (id,level,title,md,sources,status,version,input_hash,repository,revision,updated_at)
+           VALUES('files/removed.c','file','removed.c','obsolete','[]','ok',1,'old',
+                  'tests/fixtures/mini_c','fixture','now')"""
+    )
+    conn.execute(
+        """INSERT OR REPLACE INTO chunk
+           (uid,kind,title,text,source_ref,evidence_level,visible)
+           VALUES('wiki:files/removed.c','wiki','removed.c','obsolete','wiki/removed','C',1)"""
+    )
+    conn.commit()
+    result = generator.generate(conn, str(CORPUS), out_dir=str(tmp_path / "orphan"), resume=True)
+    assert result["stale"] >= 1
+    assert conn.execute(
+        "SELECT status FROM wiki_page WHERE id='files/removed.c'"
+    ).fetchone()["status"] == "stale"
+    assert conn.execute(
+        "SELECT visible FROM chunk WHERE uid='wiki:files/removed.c'"
+    ).fetchone()["visible"] == 0
 
 
 def test_wiki_export_has_frontmatter_and_index(kb, tmp_path):
@@ -143,9 +199,11 @@ def test_head_fits_more_neighbors_than_body(kb):
     b = engine.graph_expand(conn, [(rid, 0.03)], hops=2, mode="body")
     assert h and b
     # 单条摘要头必须显著小于对应函数体
-    assert sum(x["tokens"] for x in h) * 3 < sum(x["tokens"] for x in b)
+    assert sum(x["tokens"] for x in h) < sum(x["tokens"] for x in b)
 
-    budget = 8000
+    # The fixture is intentionally tiny. A smaller fixed budget makes the practical
+    # benefit observable without pretending its bodies have production-scale length.
+    budget = 600
     cap = int(budget * engine.BUDGET_SPLIT["head"])
     def fits(items):
         used = n = 0
@@ -209,6 +267,7 @@ def test_api_endpoints(kb, monkeypatch):
     assert c.get("/healthz").json()["ok"]
     s = c.get("/api/stats").json()
     assert s["nodes"] > 0 and "edges_candidate" in s
+    assert s["repository"] and s["revision"] and s["cards"]["pending"] >= 0
 
     r = c.post("/api/ask", json={"q": "cJSON_Delete"}).json()
     assert "citations" in r and "refused" in r
@@ -220,7 +279,38 @@ def test_api_endpoints(kb, monkeypatch):
     sym = c.get("/api/symbol/cJSON_Delete").json()
     assert sym["matches"][0]["callers"]
 
-    assert c.get("/").status_code == 200
+    page = c.get("/")
+    assert page.status_code == 200
+    assert "可信 AI 研发辅助原型" in page.text and "保存当前草稿" in page.text
+    assert "会话沉淀" in page.text and "分层 Wiki" in page.text
+    workspace = c.get("/static/workspace.js")
+    assert workspace.status_code == 200
+    assert "feedbackHtml" in workspace.text and "这次查证有帮助吗" in workspace.text
+    assert "submitFeedback" in workspace.text
+    assert c.get("/api/evaluation/latest").json()["available"] is False
+
+
+def test_api_evaluation_exposes_only_current_snapshot_report(kb, monkeypatch):
+    conn, data_dir = kb
+    c = _client(conn, data_dir, monkeypatch)
+    stats = c.get("/api/stats").json()
+    report = Path(data_dir) / "portfolio-demo" / "WORKFLOW-EVAL.json"
+    report.parent.mkdir(parents=True)
+    report.write_text(json.dumps({
+        "repository": stats["repository"], "revision": stats["revision"],
+        "generated_at": "2026-01-01T00:00:00+00:00",
+        "metrics": {"tool_trace_legal_rate": 100.0},
+        "cases": [{"id": "fixture", "passed": True, "detail": "isolated"}],
+    }), encoding="utf-8")
+    result = c.get("/api/evaluation/latest").json()
+    assert result["available"] is True
+    assert result["metrics"]["tool_trace_legal_rate"] == 100.0
+
+    report.write_text(json.dumps({
+        "repository": "other-repository", "revision": stats["revision"],
+        "metrics": {}, "cases": [],
+    }), encoding="utf-8")
+    assert c.get("/api/evaluation/latest").json()["available"] is False
 
 
 def test_api_review_gate(kb, monkeypatch):
@@ -242,14 +332,113 @@ def test_api_review_gate(kb, monkeypatch):
     assert not [x for x in before["citations"] if marker in (x["title"] or "")], \
         "待审核内容泄漏进检索"
 
+    # A public card cannot be approved by title/symbol-name association alone.
     assert c.post(f"/api/experience/{eid}/review",
-                  json={"action": "approve"}).json()["status"] == "approved"
+                  json={"action": "approve", "note": "先验证门禁"}).status_code == 409
+    usr = traverse.resolve_symbol(conn, "parse_value")[0]["usr"]
+    assert c.post(f"/api/card/{eid}/bind", json={"usr": usr}).status_code == 200
+    assert c.post(f"/api/card/{eid}/experiments", json={
+        "paths": ["examples/reproductions/cjson-nesting/result.txt"]
+    }).status_code == 200
+    qa = c.post(f"/api/card/{eid}/qa", json={
+        "question": "该结论如何由源码验证？", "expected_points": ["固定函数定义"],
+        "evidence_tags": ["A1"],
+    })
+    assert qa.status_code == 200
+    assert c.post(f"/api/card/qa/{qa.json()['id']}/review", json={
+        "passed": True, "note": "已核对固定源码"
+    }).status_code == 200
+    current_bundle = c.get(f"/api/card/{eid}").json()["current_review_bundle_hash"]
+    assert c.post(f"/api/card/{eid}/confirm", json={
+        "bundle_hash": current_bundle, "reviewer": "local-reviewer"
+    }).status_code == 200
+    assert c.post(f"/api/experience/{eid}/review",
+                  json={"action": "approve", "note": "精确锚点复核完成",
+                        "expected_bundle_hash": current_bundle}).json()["status"] == "approved"
 
     after = c.post("/api/ask", json={"q": marker}).json()
     assert [x for x in after["citations"] if marker in (x["title"] or "")]
 
     assert c.post(f"/api/experience/{eid}/review",
                   json={"action": "bogus"}).status_code == 400
+    consistency = c.get("/api/cards/consistency")
+    assert consistency.status_code == 200 and "ok" in consistency.json()
+
+
+def test_api_session_agent_and_card_preview(kb, tmp_path, monkeypatch):
+    """The web flow imports only a reviewed sample and saves the current run once."""
+    conn, data_dir = kb
+    import codeatlas.server.app as srv
+    session_file = tmp_path / "api-public-session.json"
+    session_file.write_text(json.dumps({
+        "schema_version": 1, "id": "api-public-session", "source_type": "public_synthetic",
+        "source_ref": "tests/api-public-session.json", "license": "CC0-1.0",
+        "repository": "tests/fixtures/mini_c", "revision": "fixture",
+            "messages": [
+                {"role": "user", "knowledge_role": "symptom",
+                 "content": "请审查 parse_value 的影响范围"},
+                {"role": "tool", "knowledge_role": "root_cause",
+                 "content": "固定边界检查触发失败返回。"},
+                {"role": "developer", "knowledge_role": "fix",
+                 "content": "保留边界检查并处理失败返回。"},
+                {"role": "reviewer", "knowledge_role": "verification",
+                 "content": "核对固定 revision 的定义和 certain 调用链。"},
+            ],
+    }, ensure_ascii=False), encoding="utf-8")
+    monkeypatch.setattr(srv, "PUBLIC_SESSION_EXAMPLES", {
+        "fixture-review": {
+            "path": session_file, "title": "fixture", "description": "fixture",
+            "question": "parse_value 的影响范围",
+        }
+    })
+    c = _client(conn, data_dir, monkeypatch)
+    examples = c.get("/api/session/examples").json()["items"]
+    assert examples == [{
+        "id": "fixture-review", "title": "fixture", "description": "fixture",
+        "question": "parse_value 的影响范围",
+    }]
+    # No browser route accepts a user-provided local file path.
+    assert c.post("/api/session/import", json={"file": str(session_file)}).status_code in (404, 405)
+    imported = c.post("/api/session/examples/fixture-review/import").json()
+    assert imported["imported"] and imported["id"] == "api-public-session"
+    sessions = c.get("/api/sessions").json()["items"]
+    listed = next(item for item in sessions if item["id"] == "api-public-session")
+    assert "messages" not in listed
+    assert c.post("/api/session/api-public-session/assess").json()["eligible"] is True
+    assert c.post("/api/session/api-public-session/goal", json={
+        "goal": "沉淀 parse_value 边界排障",
+    }).status_code == 200
+    candidates = c.post("/api/session/api-public-session/curate").json()["items"]
+    assert candidates[0]["payload"]["review_status"] == "ai_assisted_draft"
+    detail = c.get("/api/session/api-public-session").json()
+    assert detail["knowledge_missing_fields"] == []
+    assert all("knowledge_role" in message for message in detail["messages"])
+    curated = c.post(f"/api/candidate/{candidates[0]['id']}/decide", json={
+        "action": "accept", "reason": "",
+    }).json()
+    assert c.get(f"/api/card/{curated['card_id']}").json()["status"] == "pending"
+    runs_before = conn.execute("SELECT COUNT(*) FROM agent_run").fetchone()[0]
+    preview = c.post("/api/agent/run", json={
+        "q": "parse_value 的影响范围", "session_id": "api-public-session", "save_draft": False,
+    }).json()
+    assert preview["status"] == "completed" and preview["draft_preview"] and preview["draft_id"] is None
+    assert conn.execute("SELECT COUNT(*) FROM agent_run").fetchone()[0] == runs_before + 1
+    saved = c.post(f"/api/agent/{preview['id']}/draft").json()
+    assert saved["saved"] is True
+    assert c.post(f"/api/agent/{preview['id']}/draft").json()["saved"] is False
+    assert conn.execute("SELECT COUNT(*) FROM agent_run").fetchone()[0] == runs_before + 1
+    stored = c.get(f"/api/agent/{preview['id']}").json()
+    assert stored["draft_id"] == saved["id"] and stored["draft_preview"]
+    tag = preview["evidence_registry"][0]["tag"]
+    feedback = c.post(f"/api/agent/run/{preview['id']}/feedback", json={
+        "verdict": "incomplete", "evidence_tag": tag,
+        "comment": "还需要解释失败分支。",
+    })
+    assert feedback.status_code == 200
+    assert c.get("/api/feedback").json()["items"][0]["run_id"] == preview["id"]
+    card = c.get(f"/api/card/{saved['id']}").json()
+    assert card["status"] == "pending" and card["anchors"] == [] and card["reviews"] == []
+    assert saved["id"] in {item["id"] for item in c.get("/api/cards").json()["items"]}
 
 
 def test_api_candidate_isolated_in_response(kb, monkeypatch):

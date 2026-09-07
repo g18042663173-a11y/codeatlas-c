@@ -29,6 +29,7 @@ from collections import defaultdict
 import time
 from pathlib import Path
 
+from .. import db as dbm
 from ..retrieve import engine
 
 log = logging.getLogger(__name__)
@@ -311,7 +312,7 @@ def run_config(conn, questions: list[dict], cfg: dict, embedder, data_dir: str):
 
 def main(conn: sqlite3.Connection, questions_path: str, *, data_dir: str = "data",
          embedder_kind: str = "tfidf", ablation: bool = True,
-         out: str = "docs/EVAL.md", console=None) -> dict:
+         out: str = "docs/EVAL.md", db_path: str | None = None, console=None) -> dict:
     from ..indexer.build import get_embedder
 
     qs = load_questions(conn, questions_path)
@@ -347,7 +348,17 @@ def main(conn: sqlite3.Connection, questions_path: str, *, data_dir: str = "data
             console.print(f"  {r['type']:<14} 无图{r['无图扩展']:>6.1f}%  "
                           f"摘要头{r['图-摘要头']:>6.1f}%  增益{r['gain']:+6.1f}pt  {mark}")
 
-    md = _render_md(qs, by_type, rows, embedder_kind, bt_rows)
+    metadata = dict(
+        repository=dbm.get_meta(conn, "repository_id", dbm.get_meta(conn, "repo", "")),
+        revision=dbm.get_meta(conn, "revision", "unversioned"),
+        parser_mode=("degraded" if dbm.get_meta(conn, "degraded", "0") == "1" else "compile database"),
+        questions=questions_path,
+        command=(f"codeatlas eval{' --db ' + db_path if db_path else ''} "
+                 f"--questions {questions_path} "
+                 f"{('--data-dir ' + data_dir + ' ') if not Path(data_dir).is_absolute() else ''}"
+                 f"--embedder {embedder_kind} --out {out}"),
+    )
+    md = _render_md(qs, by_type, rows, embedder_kind, bt_rows, metadata)
     Path(out).parent.mkdir(parents=True, exist_ok=True)
     Path(out).write_text(md, encoding="utf-8")
     if console:
@@ -355,9 +366,17 @@ def main(conn: sqlite3.Connection, questions_path: str, *, data_dir: str = "data
     return dict(rows=rows, n=len(qs))
 
 
-def _render_md(qs, by_type, rows, embedder_kind, bt_rows=None) -> str:
+def _render_md(qs, by_type, rows, embedder_kind, bt_rows=None, metadata=None) -> str:
     auto = sum(1 for q in qs if q.get("auto"))
+    metadata = metadata or {}
     L = ["# 评测报告", "",
+         "## 可复现快照", "",
+         "| 项目 | 值 |", "|---|---|",
+         f"| 语料仓库 | `{metadata.get('repository', '')}` |",
+         f"| Git revision | `{metadata.get('revision', 'unversioned')}` |",
+         f"| 解析模式 | {metadata.get('parser_mode', '')} |",
+         f"| 题集 | `{metadata.get('questions', '')}` |",
+         f"| 命令 | `{metadata.get('command', '')}` |", "",
          f"题目 {len(qs)} 道（自动生成 {auto} / 人工标注 {len(qs)-auto}）"
          f"，向量通道 `{embedder_kind}`。", "",
          "## 题目构成", "", "| 类型 | 题数 |", "|---|---|"]

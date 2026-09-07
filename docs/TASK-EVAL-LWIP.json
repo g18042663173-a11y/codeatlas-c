@@ -1,0 +1,1836 @@
+{
+  "benchmark_role": "development_regression",
+  "proves_answer_quality": false,
+  "manifest": {
+    "schema_version": 1,
+    "name": "lwIP 精选开发任务集（20 题）",
+    "repository": "https://github.com/lwip-tcpip/lwip",
+    "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+    "public_source": "lwIP 公开源码固定快照",
+    "reviewer": "Guoshuaiqi",
+    "reviewed_at": "2026-09-04",
+    "failure_policy": "运行时未命中固定锚点、provenance 不完整或门禁不满足即记录为失败，不调整 gold 隐藏失败。",
+    "tasks": [
+      {
+        "id": "locate-netif-add",
+        "type": "定位",
+        "status": "approved",
+        "question": "netif_add 在哪里定义，它负责哪段网络接口初始化？",
+        "source_permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L286-L458",
+        "expected_anchors": [
+          {
+            "symbol": "netif_add",
+            "path": "src/core/netif.c",
+            "line_start": 286
+          }
+        ],
+        "rationale": "固定快照中的公开网络接口添加入口，定义位置唯一。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "locate-tcp-input",
+        "type": "定位",
+        "status": "approved",
+        "question": "TCP 收包主入口 tcp_input 在哪里实现？",
+        "source_permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/tcp_in.c#L117-L592",
+        "expected_anchors": [
+          {
+            "symbol": "tcp_input",
+            "path": "src/core/tcp_in.c",
+            "line_start": 117
+          }
+        ],
+        "rationale": "固定快照中 TCP 输入处理主函数的定义锚点唯一。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "callers-netif-add",
+        "type": "调用链",
+        "status": "approved",
+        "question": "哪些函数直接调用 netif_add？",
+        "source_permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L286-L458",
+        "expected_anchors": [
+          {
+            "symbol": "netif_init",
+            "path": "src/core/netif.c",
+            "line_start": 187
+          },
+          {
+            "symbol": "netif_add_noaddr",
+            "path": "src/core/netif.c",
+            "line_start": 249
+          },
+          {
+            "symbol": "ppp_new",
+            "path": "src/netif/ppp/ppp.c",
+            "line_start": 649
+          }
+        ],
+        "rationale": "三个调用者均由 compile database 下的 certain AST 调用边确认。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "callers-tcp-input",
+        "type": "调用链",
+        "status": "approved",
+        "question": "IPv4 和 IPv6 输入路径中谁直接调用 tcp_input？",
+        "source_permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/tcp_in.c#L117-L592",
+        "expected_anchors": [
+          {
+            "symbol": "ip4_input",
+            "path": "src/core/ipv4/ip4.c",
+            "line_start": 459
+          },
+          {
+            "symbol": "ip6_input",
+            "path": "src/core/ipv6/ip6.c",
+            "line_start": 508
+          }
+        ],
+        "rationale": "两条 IP 输入路径到 TCP 主入口的调用均为 certain 编译器事实。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "impact-netif-add",
+        "type": "影响分析",
+        "status": "approved",
+        "question": "修改 netif_add 后，2 跳内哪些 certain 调用者需要回归检查？",
+        "source_permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L286-L458",
+        "target": {
+          "symbol": "netif_add",
+          "path": "src/core/netif.c",
+          "line_start": 286
+        },
+        "depth": 2,
+        "expected_certain": [
+          {
+            "symbol": "netif_init",
+            "path": "src/core/netif.c",
+            "line_start": 187
+          },
+          {
+            "symbol": "netif_add_noaddr",
+            "path": "src/core/netif.c",
+            "line_start": 249
+          },
+          {
+            "symbol": "ppp_new",
+            "path": "src/netif/ppp/ppp.c",
+            "line_start": 649
+          },
+          {
+            "symbol": "lwip_init",
+            "path": "src/core/init.c",
+            "line_start": 341
+          },
+          {
+            "symbol": "pppos_create",
+            "path": "src/netif/ppp/pppos.c",
+            "line_start": 174
+          }
+        ],
+        "rationale": "金标为当前固定快照中 netif_add 的 2 跳 certain 反向可达集。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "impact-tcp-input",
+        "type": "影响分析",
+        "status": "approved",
+        "question": "修改 tcp_input 后，2 跳内哪些协议输入入口会受影响？",
+        "source_permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/tcp_in.c#L117-L592",
+        "target": {
+          "symbol": "tcp_input",
+          "path": "src/core/tcp_in.c",
+          "line_start": 117
+        },
+        "depth": 2,
+        "expected_certain": [
+          {
+            "symbol": "ip4_input",
+            "path": "src/core/ipv4/ip4.c",
+            "line_start": 459
+          },
+          {
+            "symbol": "ip6_input",
+            "path": "src/core/ipv6/ip6.c",
+            "line_start": 508
+          },
+          {
+            "symbol": "ppp_input",
+            "path": "src/netif/ppp/ppp.c",
+            "line_start": 779
+          },
+          {
+            "symbol": "ethernet_input",
+            "path": "src/netif/ethernet.c",
+            "line_start": 80
+          },
+          {
+            "symbol": "rfc7668_input",
+            "path": "src/netif/lowpan6_ble.c",
+            "line_start": 346
+          },
+          {
+            "symbol": "ip_input",
+            "path": "src/core/ip.c",
+            "line_start": 153
+          },
+          {
+            "symbol": "lowpan6_input",
+            "path": "src/netif/lowpan6.c",
+            "line_start": 646
+          }
+        ],
+        "rationale": "金标为 TCP 输入主函数在 2 跳内的完整 certain 调用者集合。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "semantic-pbuf-release",
+        "type": "语义检索",
+        "status": "approved",
+        "question": "packet buffer 的引用计数归零后如何释放，并怎样去掉链表头部？",
+        "source_permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/pbuf.c#L675-L804",
+        "expected_anchors": [
+          {
+            "symbol": "pbuf_free",
+            "path": "src/core/pbuf.c",
+            "line_start": 728
+          },
+          {
+            "symbol": "pbuf_free_header",
+            "path": "src/core/pbuf.c",
+            "line_start": 675
+          },
+          {
+            "symbol": "pbuf_dechain",
+            "path": "src/core/pbuf.c",
+            "line_start": 916
+          }
+        ],
+        "rationale": "查询不直接给出函数名，检查缓冲区释放、去头和解链语义能否回到源码。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "semantic-netif-state",
+        "type": "语义检索",
+        "status": "approved",
+        "question": "网络接口怎样切换为 up、down 并设置默认接口？",
+        "source_permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L850-L981",
+        "expected_anchors": [
+          {
+            "symbol": "netif_set_default",
+            "path": "src/core/netif.c",
+            "line_start": 850
+          },
+          {
+            "symbol": "netif_set_up",
+            "path": "src/core/netif.c",
+            "line_start": 872
+          },
+          {
+            "symbol": "netif_set_down",
+            "path": "src/core/netif.c",
+            "line_start": 950
+          }
+        ],
+        "rationale": "自然语言状态切换问题对应三个公开接口，不依赖图生成题模板。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "refuse-postgresql-index",
+        "type": "无证据拒答",
+        "status": "approved",
+        "question": "PostgreSQL 慢查询应该怎样设计联合索引？",
+        "source_permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/README#L1-L20",
+        "rationale": "数据库优化不属于 lwIP 固定源码或已审核经验范围，必须拒答。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "refuse-kubernetes-ingress",
+        "type": "无证据拒答",
+        "status": "approved",
+        "question": "Kubernetes Ingress 证书轮换失败怎样排查？",
+        "source_permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/README#L1-L20",
+        "rationale": "集群运维问题不属于 lwIP 代码知识范围，不能用相似网络词拼凑回答。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "locate-pbuf-free",
+        "type": "定位",
+        "status": "approved",
+        "question": "pbuf 引用计数释放入口 pbuf_free 在哪里定义？",
+        "source_permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/pbuf.c#L728-L804",
+        "expected_anchors": [
+          {
+            "symbol": "pbuf_free",
+            "path": "src/core/pbuf.c",
+            "line_start": 728
+          }
+        ],
+        "rationale": "固定 revision 中 pbuf 释放入口的定义唯一。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "locate-netif-up",
+        "type": "定位",
+        "status": "approved",
+        "question": "网络接口设置为 up 的函数在哪里实现？",
+        "source_permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L872-L949",
+        "expected_anchors": [
+          {
+            "symbol": "netif_set_up",
+            "path": "src/core/netif.c",
+            "line_start": 872
+          }
+        ],
+        "rationale": "自然语言状态操作对应公开 API 的唯一实现。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "locate-tcp-write",
+        "type": "定位",
+        "status": "approved",
+        "question": "TCP 发送数据的 tcp_write 入口在哪里定义？",
+        "source_permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/tcp_out.c#L392-L531",
+        "expected_anchors": [
+          {
+            "symbol": "tcp_write",
+            "path": "src/core/tcp_out.c",
+            "line_start": 392
+          }
+        ],
+        "rationale": "固定构建配置下 TCP 写入接口的定义锚点唯一。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "semantic-tcp-send-queue",
+        "type": "语义检索",
+        "status": "approved",
+        "question": "TCP 怎样把应用数据放入发送队列并处理缓冲区限制？",
+        "source_permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/tcp_out.c#L392-L531",
+        "expected_anchors": [
+          {
+            "symbol": "tcp_write",
+            "path": "src/core/tcp_out.c",
+            "line_start": 392
+          }
+        ],
+        "rationale": "不直接依赖符号名，检查发送队列语义能否定位到实现。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "refuse-nginx-cache",
+        "type": "无证据拒答",
+        "status": "approved",
+        "question": "Nginx 反向代理缓存击穿应该如何排查？",
+        "source_permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/README#L1-L20",
+        "rationale": "Web 代理运维不属于 lwIP 代码或审核经验边界。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "exp-lwip-symptom",
+        "type": "已审核经验复用",
+        "status": "approved",
+        "question": "netif_add 初始化异常的已审核记录描述了什么现象？",
+        "source_permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L286-L458",
+        "expected_card_title": "lwIP netif_add 初始化路径审查",
+        "main_anchor": {
+          "symbol": "netif_add",
+          "path": "src/core/netif.c",
+          "line_start": 286
+        },
+        "rationale": "必须命中 approved B 卡并返回当前 netif_add 主锚点。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "exp-lwip-hypothesis",
+        "type": "已审核经验复用",
+        "status": "approved",
+        "question": "netif_add 排障时应优先核对哪些初始化假设？",
+        "source_permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L286-L458",
+        "expected_card_title": "lwIP netif_add 初始化路径审查",
+        "main_anchor": {
+          "symbol": "netif_add",
+          "path": "src/core/netif.c",
+          "line_start": 286
+        },
+        "rationale": "排查假设必须来自审核卡，不由相似网络词推断。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "exp-lwip-fix",
+        "type": "已审核经验复用",
+        "status": "approved",
+        "question": "已审核经验建议怎样复核 netif_add 的初始化路径？",
+        "source_permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L286-L458",
+        "expected_card_title": "lwIP netif_add 初始化路径审查",
+        "main_anchor": {
+          "symbol": "netif_add",
+          "path": "src/core/netif.c",
+          "line_start": 286
+        },
+        "rationale": "解决步骤要由 B 卡和当前源码锚点共同支持。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "exp-lwip-verify",
+        "type": "已审核经验复用",
+        "status": "approved",
+        "question": "netif_add 初始化经验应如何验证回归结果？",
+        "source_permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L286-L458",
+        "expected_card_title": "lwIP netif_add 初始化路径审查",
+        "main_anchor": {
+          "symbol": "netif_add",
+          "path": "src/core/netif.c",
+          "line_start": 286
+        },
+        "rationale": "验证步骤来自审核知识，不以模型自然语言作为金标。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      {
+        "id": "exp-lwip-anchor",
+        "type": "已审核经验复用",
+        "status": "approved",
+        "question": "netif_add 初始化经验当前绑定哪个函数与源码范围？",
+        "source_permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L286-L458",
+        "expected_card_title": "lwIP netif_add 初始化路径审查",
+        "main_anchor": {
+          "symbol": "netif_add",
+          "path": "src/core/netif.c",
+          "line_start": 286
+        },
+        "rationale": "B 级引用必须携带当前 definition hash 和精确主锚点。",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      }
+    ],
+    "db_repository": "https://github.com/lwip-tcpip/lwip",
+    "db_revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3"
+  },
+  "retrieval": [
+    {
+      "id": "locate-netif-add",
+      "type": "定位",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "netif_add 在哪里定义，它负责哪段网络接口初始化？",
+      "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L286-L458",
+      "anchors": [
+        {
+          "symbol": "netif_add",
+          "path": "src/core/netif.c",
+          "line_start": 286
+        }
+      ],
+      "rationale": "固定快照中的公开网络接口添加入口，定义位置唯一。",
+      "attempts": {
+        "仅 BM25": {
+          "hit": true,
+          "mrr": 0.25,
+          "evidence_complete": true,
+          "latency_ms": 14.2,
+          "context_tokens": 3909,
+          "errors": [],
+          "matched_tag": "A3",
+          "refused": false
+        },
+        "BM25 + 符号": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 11.1,
+          "context_tokens": 3911,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "+ 本地向量": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 31.4,
+          "context_tokens": 3911,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "+ certain 图扩展": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 8.9,
+          "context_tokens": 5808,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "完整无模型": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 9.2,
+          "context_tokens": 5808,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        }
+      },
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "locate-tcp-input",
+      "type": "定位",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "TCP 收包主入口 tcp_input 在哪里实现？",
+      "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/tcp_in.c#L117-L592",
+      "anchors": [
+        {
+          "symbol": "tcp_input",
+          "path": "src/core/tcp_in.c",
+          "line_start": 117
+        }
+      ],
+      "rationale": "固定快照中 TCP 输入处理主函数的定义锚点唯一。",
+      "attempts": {
+        "仅 BM25": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 3.4,
+          "context_tokens": 3765,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "BM25 + 符号": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 14.9,
+          "context_tokens": 3765,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "+ 本地向量": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 18.2,
+          "context_tokens": 3764,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "+ certain 图扩展": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 13.1,
+          "context_tokens": 5684,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "完整无模型": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 12.4,
+          "context_tokens": 5684,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        }
+      },
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "callers-netif-add",
+      "type": "调用链",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "哪些函数直接调用 netif_add？",
+      "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L286-L458",
+      "anchors": [
+        {
+          "symbol": "netif_init",
+          "path": "src/core/netif.c",
+          "line_start": 187
+        },
+        {
+          "symbol": "netif_add_noaddr",
+          "path": "src/core/netif.c",
+          "line_start": 249
+        },
+        {
+          "symbol": "ppp_new",
+          "path": "src/netif/ppp/ppp.c",
+          "line_start": 649
+        }
+      ],
+      "rationale": "三个调用者均由 compile database 下的 certain AST 调用边确认。",
+      "attempts": {
+        "仅 BM25": {
+          "hit": true,
+          "mrr": 0.167,
+          "evidence_complete": true,
+          "latency_ms": 2.2,
+          "context_tokens": 3856,
+          "errors": [],
+          "matched_tag": "A5",
+          "refused": false
+        },
+        "BM25 + 符号": {
+          "hit": true,
+          "mrr": 0.5,
+          "evidence_complete": true,
+          "latency_ms": 6.2,
+          "context_tokens": 3911,
+          "errors": [],
+          "matched_tag": "A2",
+          "refused": false
+        },
+        "+ 本地向量": {
+          "hit": true,
+          "mrr": 0.5,
+          "evidence_complete": true,
+          "latency_ms": 8.0,
+          "context_tokens": 3911,
+          "errors": [],
+          "matched_tag": "A2",
+          "refused": false
+        },
+        "+ certain 图扩展": {
+          "hit": true,
+          "mrr": 0.5,
+          "evidence_complete": true,
+          "latency_ms": 7.6,
+          "context_tokens": 4095,
+          "errors": [],
+          "matched_tag": "A2",
+          "refused": false
+        },
+        "完整无模型": {
+          "hit": true,
+          "mrr": 0.5,
+          "evidence_complete": true,
+          "latency_ms": 9.1,
+          "context_tokens": 4095,
+          "errors": [],
+          "matched_tag": "A2",
+          "refused": false
+        }
+      },
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "callers-tcp-input",
+      "type": "调用链",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "IPv4 和 IPv6 输入路径中谁直接调用 tcp_input？",
+      "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/tcp_in.c#L117-L592",
+      "anchors": [
+        {
+          "symbol": "ip4_input",
+          "path": "src/core/ipv4/ip4.c",
+          "line_start": 459
+        },
+        {
+          "symbol": "ip6_input",
+          "path": "src/core/ipv6/ip6.c",
+          "line_start": 508
+        }
+      ],
+      "rationale": "两条 IP 输入路径到 TCP 主入口的调用均为 certain 编译器事实。",
+      "attempts": {
+        "仅 BM25": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 4.4,
+          "context_tokens": 3770,
+          "errors": [
+            "top-10 未命中预期代码锚点"
+          ],
+          "matched_tag": null,
+          "refused": false
+        },
+        "BM25 + 符号": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 17.3,
+          "context_tokens": 4195,
+          "errors": [
+            "top-10 未命中预期代码锚点"
+          ],
+          "matched_tag": null,
+          "refused": false
+        },
+        "+ 本地向量": {
+          "hit": true,
+          "mrr": 0.2,
+          "evidence_complete": true,
+          "latency_ms": 15.6,
+          "context_tokens": 4195,
+          "errors": [],
+          "matched_tag": "A5",
+          "refused": false
+        },
+        "+ certain 图扩展": {
+          "hit": true,
+          "mrr": 0.5,
+          "evidence_complete": true,
+          "latency_ms": 18.0,
+          "context_tokens": 4345,
+          "errors": [],
+          "matched_tag": "A2",
+          "refused": false
+        },
+        "完整无模型": {
+          "hit": true,
+          "mrr": 0.5,
+          "evidence_complete": true,
+          "latency_ms": 17.3,
+          "context_tokens": 4345,
+          "errors": [],
+          "matched_tag": "A2",
+          "refused": false
+        }
+      },
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "semantic-pbuf-release",
+      "type": "语义检索",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "packet buffer 的引用计数归零后如何释放，并怎样去掉链表头部？",
+      "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/pbuf.c#L675-L804",
+      "anchors": [
+        {
+          "symbol": "pbuf_free",
+          "path": "src/core/pbuf.c",
+          "line_start": 728
+        },
+        {
+          "symbol": "pbuf_free_header",
+          "path": "src/core/pbuf.c",
+          "line_start": 675
+        },
+        {
+          "symbol": "pbuf_dechain",
+          "path": "src/core/pbuf.c",
+          "line_start": 916
+        }
+      ],
+      "rationale": "查询不直接给出函数名，检查缓冲区释放、去头和解链语义能否回到源码。",
+      "attempts": {
+        "仅 BM25": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 4.6,
+          "context_tokens": 3780,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "BM25 + 符号": {
+          "hit": true,
+          "mrr": 0.5,
+          "evidence_complete": true,
+          "latency_ms": 10.7,
+          "context_tokens": 3735,
+          "errors": [],
+          "matched_tag": "A2",
+          "refused": false
+        },
+        "+ 本地向量": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 12.5,
+          "context_tokens": 3804,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "+ certain 图扩展": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 19.1,
+          "context_tokens": 5788,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "完整无模型": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 20.3,
+          "context_tokens": 5788,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        }
+      },
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "semantic-netif-state",
+      "type": "语义检索",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "网络接口怎样切换为 up、down 并设置默认接口？",
+      "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L850-L981",
+      "anchors": [
+        {
+          "symbol": "netif_set_default",
+          "path": "src/core/netif.c",
+          "line_start": 850
+        },
+        {
+          "symbol": "netif_set_up",
+          "path": "src/core/netif.c",
+          "line_start": 872
+        },
+        {
+          "symbol": "netif_set_down",
+          "path": "src/core/netif.c",
+          "line_start": 950
+        }
+      ],
+      "rationale": "自然语言状态切换问题对应三个公开接口，不依赖图生成题模板。",
+      "attempts": {
+        "仅 BM25": {
+          "hit": true,
+          "mrr": 0.333,
+          "evidence_complete": true,
+          "latency_ms": 3.0,
+          "context_tokens": 3711,
+          "errors": [],
+          "matched_tag": "A3",
+          "refused": false
+        },
+        "BM25 + 符号": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 7.8,
+          "context_tokens": 3792,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "+ 本地向量": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 10.0,
+          "context_tokens": 3792,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "+ certain 图扩展": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 13.3,
+          "context_tokens": 5708,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "完整无模型": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 14.1,
+          "context_tokens": 5708,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        }
+      },
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "locate-pbuf-free",
+      "type": "定位",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "pbuf 引用计数释放入口 pbuf_free 在哪里定义？",
+      "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/pbuf.c#L728-L804",
+      "anchors": [
+        {
+          "symbol": "pbuf_free",
+          "path": "src/core/pbuf.c",
+          "line_start": 728
+        }
+      ],
+      "rationale": "固定 revision 中 pbuf 释放入口的定义唯一。",
+      "attempts": {
+        "仅 BM25": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 3.8,
+          "context_tokens": 3716,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "BM25 + 符号": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 11.5,
+          "context_tokens": 3817,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "+ 本地向量": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 11.5,
+          "context_tokens": 3723,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "+ certain 图扩展": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 18.9,
+          "context_tokens": 5682,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "完整无模型": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 18.2,
+          "context_tokens": 5682,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        }
+      },
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "locate-netif-up",
+      "type": "定位",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "网络接口设置为 up 的函数在哪里实现？",
+      "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L872-L949",
+      "anchors": [
+        {
+          "symbol": "netif_set_up",
+          "path": "src/core/netif.c",
+          "line_start": 872
+        }
+      ],
+      "rationale": "自然语言状态操作对应公开 API 的唯一实现。",
+      "attempts": {
+        "仅 BM25": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 1.4,
+          "context_tokens": 3686,
+          "errors": [
+            "top-10 未命中预期代码锚点"
+          ],
+          "matched_tag": null,
+          "refused": false
+        },
+        "BM25 + 符号": {
+          "hit": true,
+          "mrr": 0.25,
+          "evidence_complete": true,
+          "latency_ms": 4.7,
+          "context_tokens": 3790,
+          "errors": [],
+          "matched_tag": "A4",
+          "refused": false
+        },
+        "+ 本地向量": {
+          "hit": true,
+          "mrr": 0.143,
+          "evidence_complete": true,
+          "latency_ms": 8.8,
+          "context_tokens": 3793,
+          "errors": [],
+          "matched_tag": "A7",
+          "refused": false
+        },
+        "+ certain 图扩展": {
+          "hit": true,
+          "mrr": 0.143,
+          "evidence_complete": true,
+          "latency_ms": 7.3,
+          "context_tokens": 5709,
+          "errors": [],
+          "matched_tag": "A7",
+          "refused": false
+        },
+        "完整无模型": {
+          "hit": true,
+          "mrr": 0.143,
+          "evidence_complete": true,
+          "latency_ms": 7.7,
+          "context_tokens": 5709,
+          "errors": [],
+          "matched_tag": "A7",
+          "refused": false
+        }
+      },
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "locate-tcp-write",
+      "type": "定位",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "TCP 发送数据的 tcp_write 入口在哪里定义？",
+      "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/tcp_out.c#L392-L531",
+      "anchors": [
+        {
+          "symbol": "tcp_write",
+          "path": "src/core/tcp_out.c",
+          "line_start": 392
+        }
+      ],
+      "rationale": "固定构建配置下 TCP 写入接口的定义锚点唯一。",
+      "attempts": {
+        "仅 BM25": {
+          "hit": true,
+          "mrr": 0.167,
+          "evidence_complete": true,
+          "latency_ms": 3.3,
+          "context_tokens": 3820,
+          "errors": [],
+          "matched_tag": "A6",
+          "refused": false
+        },
+        "BM25 + 符号": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 6.5,
+          "context_tokens": 3820,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "+ 本地向量": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 6.4,
+          "context_tokens": 4291,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "+ certain 图扩展": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 8.0,
+          "context_tokens": 6221,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "完整无模型": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 11.9,
+          "context_tokens": 6221,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        }
+      },
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "semantic-tcp-send-queue",
+      "type": "语义检索",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "TCP 怎样把应用数据放入发送队列并处理缓冲区限制？",
+      "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/tcp_out.c#L392-L531",
+      "anchors": [
+        {
+          "symbol": "tcp_write",
+          "path": "src/core/tcp_out.c",
+          "line_start": 392
+        }
+      ],
+      "rationale": "不直接依赖符号名，检查发送队列语义能否定位到实现。",
+      "attempts": {
+        "仅 BM25": {
+          "hit": true,
+          "mrr": 0.25,
+          "evidence_complete": true,
+          "latency_ms": 2.5,
+          "context_tokens": 3100,
+          "errors": [],
+          "matched_tag": "A4",
+          "refused": false
+        },
+        "BM25 + 符号": {
+          "hit": true,
+          "mrr": 0.25,
+          "evidence_complete": true,
+          "latency_ms": 5.4,
+          "context_tokens": 3100,
+          "errors": [],
+          "matched_tag": "A4",
+          "refused": false
+        },
+        "+ 本地向量": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 6.5,
+          "context_tokens": 3199,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "+ certain 图扩展": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 8.9,
+          "context_tokens": 5157,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        },
+        "完整无模型": {
+          "hit": true,
+          "mrr": 1.0,
+          "evidence_complete": true,
+          "latency_ms": 10.1,
+          "context_tokens": 5157,
+          "errors": [],
+          "matched_tag": "A1",
+          "refused": false
+        }
+      },
+      "passed": true,
+      "errors": []
+    }
+  ],
+  "impacts": [
+    {
+      "id": "impact-netif-add",
+      "type": "影响分析",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "修改 netif_add 后，2 跳内哪些 certain 调用者需要回归检查？",
+      "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L286-L458",
+      "target": {
+        "symbol": "netif_add",
+        "path": "src/core/netif.c",
+        "line_start": 286
+      },
+      "expected_certain": [
+        {
+          "symbol": "netif_init",
+          "path": "src/core/netif.c",
+          "line_start": 187
+        },
+        {
+          "symbol": "netif_add_noaddr",
+          "path": "src/core/netif.c",
+          "line_start": 249
+        },
+        {
+          "symbol": "ppp_new",
+          "path": "src/netif/ppp/ppp.c",
+          "line_start": 649
+        },
+        {
+          "symbol": "lwip_init",
+          "path": "src/core/init.c",
+          "line_start": 341
+        },
+        {
+          "symbol": "pppos_create",
+          "path": "src/netif/ppp/pppos.c",
+          "line_start": 174
+        }
+      ],
+      "rationale": "金标为当前固定快照中 netif_add 的 2 跳 certain 反向可达集。",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "latency_ms": 0.3,
+      "depth": 2,
+      "predicted_count": 5,
+      "candidate_count": 0,
+      "candidate_independent": true,
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "impact-tcp-input",
+      "type": "影响分析",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "修改 tcp_input 后，2 跳内哪些协议输入入口会受影响？",
+      "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/tcp_in.c#L117-L592",
+      "target": {
+        "symbol": "tcp_input",
+        "path": "src/core/tcp_in.c",
+        "line_start": 117
+      },
+      "expected_certain": [
+        {
+          "symbol": "ip4_input",
+          "path": "src/core/ipv4/ip4.c",
+          "line_start": 459
+        },
+        {
+          "symbol": "ip6_input",
+          "path": "src/core/ipv6/ip6.c",
+          "line_start": 508
+        },
+        {
+          "symbol": "ppp_input",
+          "path": "src/netif/ppp/ppp.c",
+          "line_start": 779
+        },
+        {
+          "symbol": "ethernet_input",
+          "path": "src/netif/ethernet.c",
+          "line_start": 80
+        },
+        {
+          "symbol": "rfc7668_input",
+          "path": "src/netif/lowpan6_ble.c",
+          "line_start": 346
+        },
+        {
+          "symbol": "ip_input",
+          "path": "src/core/ip.c",
+          "line_start": 153
+        },
+        {
+          "symbol": "lowpan6_input",
+          "path": "src/netif/lowpan6.c",
+          "line_start": 646
+        }
+      ],
+      "rationale": "金标为 TCP 输入主函数在 2 跳内的完整 certain 调用者集合。",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "latency_ms": 0.2,
+      "depth": 2,
+      "predicted_count": 7,
+      "candidate_count": 0,
+      "candidate_independent": true,
+      "passed": true,
+      "errors": []
+    }
+  ],
+  "refusals": [
+    {
+      "id": "refuse-postgresql-index",
+      "type": "无证据拒答",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "PostgreSQL 慢查询应该怎样设计联合索引？",
+      "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/README#L1-L20",
+      "rationale": "数据库优化不属于 lwIP 固定源码或已审核经验范围，必须拒答。",
+      "refused": true,
+      "ab_evidence": 0,
+      "latency_ms": 10.1,
+      "context_tokens": 0,
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "refuse-kubernetes-ingress",
+      "type": "无证据拒答",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "Kubernetes Ingress 证书轮换失败怎样排查？",
+      "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/README#L1-L20",
+      "rationale": "集群运维问题不属于 lwIP 代码知识范围，不能用相似网络词拼凑回答。",
+      "refused": true,
+      "ab_evidence": 0,
+      "latency_ms": 21.2,
+      "context_tokens": 0,
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "refuse-nginx-cache",
+      "type": "无证据拒答",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "Nginx 反向代理缓存击穿应该如何排查？",
+      "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/README#L1-L20",
+      "rationale": "Web 代理运维不属于 lwIP 代码或审核经验边界。",
+      "refused": true,
+      "ab_evidence": 0,
+      "latency_ms": 5.0,
+      "context_tokens": 0,
+      "passed": true,
+      "errors": []
+    }
+  ],
+  "experiences": [
+    {
+      "id": "exp-lwip-symptom",
+      "type": "已审核经验复用",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "netif_add 初始化异常的已审核记录描述了什么现象？",
+      "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L286-L458",
+      "expected_card_title": "lwIP netif_add 初始化路径审查",
+      "main_anchor": {
+        "symbol": "netif_add",
+        "path": "src/core/netif.c",
+        "line_start": 286
+      },
+      "rationale": "必须命中 approved B 卡并返回当前 netif_add 主锚点。",
+      "attempts": {
+        "仅 BM25": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 2.1,
+          "context_tokens": 3937,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "BM25 + 符号": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 10.4,
+          "context_tokens": 3911,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "+ 本地向量": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 9.2,
+          "context_tokens": 4148,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "+ certain 图扩展": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 13.7,
+          "context_tokens": 6075,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "完整无模型": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 8.6,
+          "context_tokens": 6075,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        }
+      },
+      "passed": false,
+      "errors": [
+        "未命中当前 approved B 卡或主锚点 provenance 不完整"
+      ],
+      "blocked_by_review": true
+    },
+    {
+      "id": "exp-lwip-hypothesis",
+      "type": "已审核经验复用",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "netif_add 排障时应优先核对哪些初始化假设？",
+      "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L286-L458",
+      "expected_card_title": "lwIP netif_add 初始化路径审查",
+      "main_anchor": {
+        "symbol": "netif_add",
+        "path": "src/core/netif.c",
+        "line_start": 286
+      },
+      "rationale": "排查假设必须来自审核卡，不由相似网络词推断。",
+      "attempts": {
+        "仅 BM25": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 2.0,
+          "context_tokens": 3937,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "BM25 + 符号": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 5.3,
+          "context_tokens": 3911,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "+ 本地向量": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 6.8,
+          "context_tokens": 3911,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "+ certain 图扩展": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 9.3,
+          "context_tokens": 5808,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "完整无模型": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 8.7,
+          "context_tokens": 5808,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        }
+      },
+      "passed": false,
+      "errors": [
+        "未命中当前 approved B 卡或主锚点 provenance 不完整"
+      ],
+      "blocked_by_review": true
+    },
+    {
+      "id": "exp-lwip-fix",
+      "type": "已审核经验复用",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "已审核经验建议怎样复核 netif_add 的初始化路径？",
+      "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L286-L458",
+      "expected_card_title": "lwIP netif_add 初始化路径审查",
+      "main_anchor": {
+        "symbol": "netif_add",
+        "path": "src/core/netif.c",
+        "line_start": 286
+      },
+      "rationale": "解决步骤要由 B 卡和当前源码锚点共同支持。",
+      "attempts": {
+        "仅 BM25": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 2.0,
+          "context_tokens": 3937,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "BM25 + 符号": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 7.4,
+          "context_tokens": 3911,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "+ 本地向量": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 6.6,
+          "context_tokens": 3911,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "+ certain 图扩展": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 8.0,
+          "context_tokens": 5808,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "完整无模型": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 8.8,
+          "context_tokens": 5808,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        }
+      },
+      "passed": false,
+      "errors": [
+        "未命中当前 approved B 卡或主锚点 provenance 不完整"
+      ],
+      "blocked_by_review": true
+    },
+    {
+      "id": "exp-lwip-verify",
+      "type": "已审核经验复用",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "netif_add 初始化经验应如何验证回归结果？",
+      "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L286-L458",
+      "expected_card_title": "lwIP netif_add 初始化路径审查",
+      "main_anchor": {
+        "symbol": "netif_add",
+        "path": "src/core/netif.c",
+        "line_start": 286
+      },
+      "rationale": "验证步骤来自审核知识，不以模型自然语言作为金标。",
+      "attempts": {
+        "仅 BM25": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 1.7,
+          "context_tokens": 3937,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "BM25 + 符号": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 5.7,
+          "context_tokens": 3911,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "+ 本地向量": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 7.5,
+          "context_tokens": 3911,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "+ certain 图扩展": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 12.8,
+          "context_tokens": 5808,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "完整无模型": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 8.2,
+          "context_tokens": 5808,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        }
+      },
+      "passed": false,
+      "errors": [
+        "未命中当前 approved B 卡或主锚点 provenance 不完整"
+      ],
+      "blocked_by_review": true
+    },
+    {
+      "id": "exp-lwip-anchor",
+      "type": "已审核经验复用",
+      "status": "approved",
+      "reviewer": "Guoshuaiqi",
+      "reviewed_at": "2026-09-04",
+      "question": "netif_add 初始化经验当前绑定哪个函数与源码范围？",
+      "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L286-L458",
+      "expected_card_title": "lwIP netif_add 初始化路径审查",
+      "main_anchor": {
+        "symbol": "netif_add",
+        "path": "src/core/netif.c",
+        "line_start": 286
+      },
+      "rationale": "B 级引用必须携带当前 definition hash 和精确主锚点。",
+      "attempts": {
+        "仅 BM25": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 2.2,
+          "context_tokens": 3936,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "BM25 + 符号": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 6.5,
+          "context_tokens": 3911,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "+ 本地向量": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 6.7,
+          "context_tokens": 3911,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "+ certain 图扩展": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 8.0,
+          "context_tokens": 5808,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        },
+        "完整无模型": {
+          "hit": false,
+          "mrr": 0.0,
+          "evidence_complete": false,
+          "latency_ms": 10.3,
+          "context_tokens": 5808,
+          "errors": [
+            "未命中当前 approved B 卡或主锚点 provenance 不完整"
+          ]
+        }
+      },
+      "passed": false,
+      "errors": [
+        "未命中当前 approved B 卡或主锚点 provenance 不完整"
+      ],
+      "blocked_by_review": true
+    }
+  ],
+  "acceptance": {
+    "recall_gain_pt": 20.0,
+    "mrr_delta": 0.397,
+    "passed": true
+  },
+  "out": "docs/TASK-EVAL-LWIP.md",
+  "generated_at": "2026-09-06T14:26:50+00:00",
+  "reproducibility": {
+    "task_manifest_sha256": "39932189415eb5e65a4380f0af1df269d92a8aec9700680a1afa680d42d8874d",
+    "build_config_hash": "80071ae3b0549c3e3b740247f881261a67173142bf3c7d9aba7c7fa73f0cd2dd",
+    "parse_stats": {
+      "diag_error": 0,
+      "translation_units": 124,
+      "tu_failed": 0,
+      "tu_ok": 124
+    },
+    "codeatlas": {
+      "revision": "1b1f1d8bd66bf05fc15f1f62d7a97715e77fc3b4",
+      "branch": "feat/portfolio-core-evidence",
+      "dirty": true,
+      "dirty_entries": 402,
+      "origin": "https://github.com/g18042663173-a11y/codeatlas-c.git",
+      "implementation_hash": "1b0add1cb8912dd557ae4c228cf9ba23563067fedd336ad483ae642d611a84d8"
+    }
+  },
+  "summary": {
+    "baseline": {
+      "n": 10,
+      "recall": 80.0,
+      "mrr": 0.417,
+      "evidence": 80.0,
+      "context": 3711,
+      "p50": 3.3,
+      "p95": 14.2
+    },
+    "full": {
+      "n": 10,
+      "recall": 100.0,
+      "mrr": 0.814,
+      "evidence": 100.0,
+      "context": 5420,
+      "p50": 11.9,
+      "p95": 20.3
+    },
+    "impact": {
+      "n": 2,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "p50": 0.2,
+      "p95": 0.3
+    },
+    "refusal": {
+      "n": 3,
+      "accuracy": 100.0,
+      "p50": 10.1,
+      "p95": 21.2
+    },
+    "experience": {
+      "n": 5,
+      "recall": 0.0,
+      "mrr": 0.0,
+      "evidence": 0.0,
+      "context": 5861,
+      "p50": 8.7,
+      "p95": 10.3
+    },
+    "passed_tasks": 15,
+    "total_tasks": 20,
+    "blocked_by_review": [
+      "exp-lwip-symptom",
+      "exp-lwip-hypothesis",
+      "exp-lwip-fix",
+      "exp-lwip-verify",
+      "exp-lwip-anchor"
+    ],
+    "unexpected_failures": [],
+    "failures": [
+      {
+        "id": "exp-lwip-symptom",
+        "type": "已审核经验复用",
+        "errors": [
+          "未命中当前 approved B 卡或主锚点 provenance 不完整"
+        ]
+      },
+      {
+        "id": "exp-lwip-hypothesis",
+        "type": "已审核经验复用",
+        "errors": [
+          "未命中当前 approved B 卡或主锚点 provenance 不完整"
+        ]
+      },
+      {
+        "id": "exp-lwip-fix",
+        "type": "已审核经验复用",
+        "errors": [
+          "未命中当前 approved B 卡或主锚点 provenance 不完整"
+        ]
+      },
+      {
+        "id": "exp-lwip-verify",
+        "type": "已审核经验复用",
+        "errors": [
+          "未命中当前 approved B 卡或主锚点 provenance 不完整"
+        ]
+      },
+      {
+        "id": "exp-lwip-anchor",
+        "type": "已审核经验复用",
+        "errors": [
+          "未命中当前 approved B 卡或主锚点 provenance 不完整"
+        ]
+      }
+    ]
+  },
+  "json_report": "docs/TASK-EVAL-LWIP.json",
+  "knowledge_set_id": "ks-156288ba49fa42bb",
+  "source_content_hash": "d8673af54b0f984dbc2ea23264f1c85df6b2d9830b2ebd5fa3d56624fc1e46d9",
+  "build_config_hash": "80071ae3b0549c3e3b740247f881261a67173142bf3c7d9aba7c7fa73f0cd2dd",
+  "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+  "implementation_hash": "91f053d6ede9d7c153edb7e264bdacad0ef3ec649bfd13f73b68bc4fcaf2dcce"
+}

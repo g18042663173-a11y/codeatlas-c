@@ -124,6 +124,8 @@ def purge_tu(conn: sqlite3.Connection, tus: list[str]) -> int:
         return 0
     qs = ",".join("?" * len(tus))
     conn.execute(f"DELETE FROM edge_source WHERE tu IN ({qs})", tus)
+    conn.execute(f"DELETE FROM branch_fact WHERE tu IN ({qs})", tus)
+    conn.execute(f"DELETE FROM semantic_fact WHERE tu IN ({qs})", tus)
     # ★ 引用计数回收：没有任何 TU 再观察到的逻辑边才真正删除。
     #   这一步保证了"某个 TU 删掉了一个调用"能反映到图里，
     #   同时不会误删其它 TU 仍然观察得到的同一条边。

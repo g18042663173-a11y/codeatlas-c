@@ -23,12 +23,21 @@ import logging
 import os
 from collections import Counter
 from dataclasses import dataclass, field
+from itertools import islice
+from contextvars import ContextVar
 
 from clang import cindex
 
 log = logging.getLogger(__name__)
 
 CK = cindex.CursorKind
+_ROOT = ContextVar("codeatlas_parser_root", default=None)
+_CONFIG = ContextVar("codeatlas_parser_config", default="unknown")
+
+
+def _identity_path(path):
+    root = _ROOT.get()
+    return repo_relpath(path, root) if root else os.path.abspath(path)
 # ★ 不加这个 flag，宏定义和 #include 指令完全不会出现在 AST 里
 PARSE_OPTS = cindex.TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD
 
@@ -49,16 +58,31 @@ def nid(*parts: str) -> str:
 
 
 def node_id_for(cur: cindex.Cursor) -> str:
+    if cur.kind == CK.MACRO_DEFINITION and cur.location.file:
+        # The ordinal distinguishes same-name redefinitions without line-offset identity.
+        import re
+        from pathlib import Path
+        prefix = Path(cur.location.file.name).read_bytes()[:cur.extent.start.offset].decode("utf-8", "replace")
+        ordinal = len(re.findall(r"(?m)^\s*#\s*define\s+" + re.escape(cur.spelling) + r"\b", prefix))
+        return nid("macro", _identity_path(cur.location.file.name), cur.spelling, str(ordinal), _CONFIG.get())
     usr = cur.get_usr()
     if usr:
+        # A compile database can contain several executable targets. Clang gives
+        # every external ``main`` the same USR, even when the definitions belong
+        # to independent fuzz/test programs. Path-scope this special entry point
+        # so one target cannot overwrite another and inherit its call edges.
+        loc = cur.location
+        if (cur.kind == CK.FUNCTION_DECL and cur.spelling == "main"
+                and loc.file is not None):
+            return nid("usr-path", usr, _identity_path(loc.file.name))
         return nid("usr", usr)
     loc = cur.location
     fname = loc.file.name if loc.file else "?"
-    return nid("loc", os.path.abspath(fname), cur.kind.name, cur.spelling or "?", str(loc.line))
+    return nid("loc", _identity_path(fname), cur.kind.name, cur.spelling or "?", str(loc.line))
 
 
 def file_id(path: str) -> str:
-    return nid("file", os.path.abspath(path))
+    return nid("file", _identity_path(path))
 
 
 def repo_relpath(path: str, repo: str) -> str:
@@ -70,6 +94,9 @@ def repo_relpath(path: str, repo: str) -> str:
 class ParseResult:
     nodes: dict[str, dict] = field(default_factory=dict)
     edges: dict[tuple, dict] = field(default_factory=dict)
+    branch_facts: dict[str, dict] = field(default_factory=dict)
+    semantic_facts: dict[str, dict] = field(default_factory=dict)
+    build_configs: set[str] = field(default_factory=set)
     stats: Counter = field(default_factory=Counter)
 
     def add_node(self, node: dict) -> None:
@@ -97,12 +124,19 @@ class ParseResult:
                                sources={tu} if tu else set())
         self.stats[f"edge_{confidence}"] += 1
 
+    def add_branch_fact(self, fact: dict) -> None:
+        self.branch_facts[fact["id"]] = fact
+        self.stats[f"branch_{fact['kind']}"] += 1
+
 
 class AstWalker:
     """遍历一批翻译单元，累积到同一个 ParseResult。"""
 
     def __init__(self, repo: str, result: ParseResult | None = None) -> None:
         self.repo = os.path.abspath(repo)
+        _ROOT.set(self.repo)
+        self.config_hash = "unknown"
+        self.build_config_override = None
         self.result = result or ParseResult()
         self.index = cindex.Index.create()
         self._seen_files: set[str] = set()
@@ -114,6 +148,11 @@ class AstWalker:
     def walk_unit(self, source: str, args: list[str], directory: str = ".") -> int:
         """解析一个 TU。返回该 TU 的严重诊断数量。"""
         cwd = os.getcwd()
+        _ROOT.set(self.repo)
+        from ..contracts import digest
+        self.config_hash = self.build_config_override or digest([a.replace(self.repo, "${REPO}") for a in args])
+        _CONFIG.set(self.config_hash)
+        self.result.build_configs.add(self.config_hash)
         try:
             self._cur_tu = os.path.abspath(source)
             os.chdir(directory)  # compile_commands 里的 -I 常是相对路径
@@ -229,6 +268,9 @@ class AstWalker:
         if cur.is_definition():
             self.result.stats["node_function_def"] += 1
             self._scan_body(cur, node["id"], path)
+            from .semantics import extract
+            for fact in extract(cur, node["id"], node["path"], self._cur_tu, self.config_hash):
+                self.result.semantic_facts[fact["id"]] = fact
 
     def _scan_body(self, fn: cindex.Cursor, caller_id: str, path: str) -> None:
         """在函数体里找调用边 —— D1 的判定逻辑全在这里。"""
@@ -247,6 +289,9 @@ class AstWalker:
         """
         k = cur.kind
 
+        if k in (CK.IF_STMT, CK.SWITCH_STMT, CK.CONDITIONAL_OPERATOR, CK.RETURN_STMT):
+            self._record_branch(cur, caller_id, rel)
+
         if k == CK.CALL_EXPR:
             self._classify_call(cur, caller_id, rel)
             # 第 0 个 child 是被调表达式，其余是实参
@@ -255,13 +300,51 @@ class AstWalker:
             return
 
         if k == CK.DECL_REF_EXPR:
-            if not callee_pos:      # 只有非被调位置的函数引用才算取地址
-                self._classify_addr_taken(cur, caller_id, rel)
+            if not callee_pos:
+                # Function references become candidate calls; compiler-resolved
+                # repository globals become a separate certain fact.
+                self._classify_reference(cur, caller_id, rel)
+            return
+
+        if k == CK.MEMBER_REF_EXPR:
+            self._classify_member_access(cur, caller_id, rel)
+
+        if k == CK.TYPE_REF:
+            self._classify_type_use(cur, caller_id, rel)
             return
 
         # 其余节点：callee_pos 需要穿透 UNEXPOSED_EXPR / 隐式转换等包装层
         for ch in cur.get_children():
             self._walk_expr(ch, caller_id, rel, callee_pos=callee_pos)
+
+    def _record_branch(self, cur: cindex.Cursor, function_id: str, rel: str) -> None:
+        """Record only the source span the compiler exposed.
+
+        These rows deliberately do not claim reachability or full control-flow
+        semantics.  They are C-level background facts for Wiki pages.
+        """
+        kind_map = {
+            CK.IF_STMT: "if", CK.SWITCH_STMT: "switch",
+            CK.CONDITIONAL_OPERATOR: "conditional", CK.RETURN_STMT: "early_return",
+        }
+        kind = kind_map[cur.kind]
+        # IF_STMT tokens include the whole body. Materialising them all for every
+        # nested branch becomes quadratic on large functions, so only retain the
+        # short evidence prefix shown in the Wiki.
+        tokens = [token.spelling for token in islice(cur.get_tokens(), 80)]
+        text = " ".join(tokens[:80])
+        if cur.kind == CK.RETURN_STMT and any(
+            marker in text.lower() for marker in ("null", "false", "err", "-1", "error")
+        ):
+            kind = "error_return"
+        start, end = cur.extent.start.line, cur.extent.end.line
+        source_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()
+        fact_id = nid("branch", function_id, rel, str(start), str(end), kind, source_hash)
+        self.result.add_branch_fact({
+            "id": fact_id, "function_id": function_id, "tu": self._cur_tu,
+            "path": rel, "line_start": start, "line_end": end, "kind": kind,
+            "condition_text": text[:500], "source_hash": source_hash,
+        })
 
     def _classify_call(self, cur: cindex.Cursor, caller_id: str, rel: str) -> None:
         ref = cur.referenced
@@ -279,7 +362,7 @@ class AstWalker:
             # ★ 必须为这个"指针载体"建节点：局部变量和形参不在常规节点采集范围内，
             #   不建的话这条边会在 persist 的孤儿清理里被静默删掉，
             #   而函数指针恰恰是 candidate 里最有价值的一类。
-            self.result.add_edge(caller_id, self._ensure_ref_node(ref), "calls", "candidate",
+            self.result.add_edge(caller_id, self._ensure_reference_node(ref), "calls", "candidate",
                                  reason="fn_pointer", evidence=ev, tu=self._cur_tu)
             self.result.stats["call_candidate_fnptr"] += 1
             return
@@ -310,41 +393,123 @@ class AstWalker:
         toks = [t.spelling for t in cur.get_tokens()]
         return toks[0] if toks else ""
 
-    def _ensure_ref_node(self, ref: cindex.Cursor) -> str:
-        """为函数指针的载体（局部变量/形参/结构体字段）补建节点。"""
+    def _ensure_reference_node(self, ref: cindex.Cursor) -> str:
+        """Ensure a compiler-resolved reference target survives edge persistence."""
         rid = node_id_for(ref)
         loc = ref.location
         path = loc.file.name if loc.file else None
         rel = (repo_relpath(path, self.repo)
                if path and self._in_repo(path) else None)
-        kind = {CK.PARM_DECL: "param", CK.FIELD_DECL: "field"}.get(ref.kind, "local_var")
+        if ref.kind == CK.VAR_DECL and self._is_global(ref):
+            kind = "global"
+        else:
+            kind = {
+                CK.PARM_DECL: "param", CK.FIELD_DECL: "field",
+                CK.STRUCT_DECL: "struct", CK.UNION_DECL: "struct",
+                CK.ENUM_DECL: "enum", CK.TYPEDEF_DECL: "typedef",
+            }.get(ref.kind, "local_var")
         self.result.add_node(dict(
             id=rid, kind=kind, name=ref.spelling or "<anon>", usr=ref.get_usr() or None,
             repo=self.repo, path=rel, line_start=loc.line, line_end=loc.line,
             signature=ref.type.spelling if ref.type else None,
-            is_definition=0, is_static=0, extra='{"note":"函数指针载体"}'))
+            is_definition=int(ref.is_definition()), is_static=0,
+            extra='{"note":"编译器解析的引用目标"}'))
         return rid
 
-    def _classify_addr_taken(self, cur: cindex.Cursor, caller_id: str, rel: str) -> None:
-        """函数名被引用但不是直接调用 → 取地址，日后可能通过指针调用。"""
+    def _classify_reference(self, cur: cindex.Cursor, caller_id: str, rel: str) -> None:
         ref = cur.referenced
-        if ref is None or ref.kind != CK.FUNCTION_DECL:
+        if ref is None or not self._in_repo(ref.location.file.name if ref.location.file else None):
             return
-        self.result.add_edge(caller_id, node_id_for(ref), "calls", "candidate",
-                             reason="address_taken", tu=self._cur_tu,
-                             evidence=f'{{"file":"{rel}","line":{cur.location.line}}}')
-        self.result.stats["call_candidate_addrtaken"] += 1
+        evidence = f'{{"file":"{rel}","line":{cur.location.line}}}'
+        if ref.kind == CK.FUNCTION_DECL:
+            # A function name outside the callee position is an address-taken hint,
+            # not proof that an indirect call reaches that function.
+            self.result.add_edge(caller_id, node_id_for(ref), "calls", "candidate",
+                                 reason="address_taken", tu=self._cur_tu,
+                                 evidence=evidence)
+            self.result.stats["call_candidate_addrtaken"] += 1
+        elif ref.kind == CK.VAR_DECL and self._is_global(ref):
+            self.result.add_edge(
+                caller_id, self._ensure_reference_node(ref), "global_ref", "certain",
+                reason="ast", evidence=evidence, tu=self._cur_tu,
+            )
+            self.result.stats["global_ref_certain"] += 1
+
+    def _classify_member_access(self, cur: cindex.Cursor, caller_id: str, rel: str) -> None:
+        ref = cur.referenced
+        if ref is None or ref.kind != CK.FIELD_DECL:
+            return
+        if not self._in_repo(ref.location.file.name if ref.location.file else None):
+            return
+        self.result.add_edge(
+            caller_id, self._ensure_reference_node(ref), "field_access", "certain",
+            reason="ast", tu=self._cur_tu,
+            evidence=f'{{"file":"{rel}","line":{cur.location.line}}}',
+        )
+        self.result.stats["field_access_certain"] += 1
+
+    def _classify_type_use(self, cur: cindex.Cursor, caller_id: str, rel: str) -> None:
+        ref = cur.referenced
+        if ref is None or ref.kind not in (
+            CK.STRUCT_DECL, CK.UNION_DECL, CK.ENUM_DECL, CK.TYPEDEF_DECL,
+        ):
+            return
+        if not self._in_repo(ref.location.file.name if ref.location.file else None):
+            return
+        self.result.add_edge(
+            caller_id, self._ensure_reference_node(ref), "type_use", "certain",
+            reason="ast", tu=self._cur_tu,
+            evidence=f'{{"file":"{rel}","line":{cur.location.line}}}',
+        )
+        self.result.stats["type_use_certain"] += 1
 
 
 # ---------------- 落库 ----------------
 
+def _definition_hash(node: dict) -> str | None:
+    """Hash the exact definition span used as a reviewed source anchor.
+
+    The hash deliberately covers only the function definition, not its surrounding
+    line number. A function can move without invalidating a reviewed knowledge card;
+    a body/signature edit cannot.
+    """
+    if node.get("kind") != "function" or not node.get("is_definition"):
+        return None
+    repo, path = node.get("repo"), node.get("path")
+    start, end = node.get("line_start"), node.get("line_end")
+    if not repo or not path or not start or not end:
+        return None
+    try:
+        raw = os.path.join(repo, path)
+        with open(raw, "rb") as source_file:
+            lines = source_file.read().splitlines(keepends=True)
+    except OSError:
+        return None
+    if start < 1 or end < start or start > len(lines):
+        return None
+    return hashlib.sha256(b"".join(lines[start - 1:end])).hexdigest()
+
+
 def persist(conn, result: ParseResult) -> None:
+    from .. import db as dbm
+    from ..contracts import digest
+    if not dbm.get_meta(conn, "build_config_hash"):
+        dbm.set_meta(conn, "build_config_hash", digest(sorted(result.build_configs)))
+    conn.executemany(
+        "INSERT OR REPLACE INTO semantic_fact VALUES(:id,:function_id,:kind,:payload_json,:confidence,:path,:line_start,:line_end,:tu)",
+        result.semantic_facts.values())
+    nodes = []
+    for raw in result.nodes.values():
+        node = dict(raw)
+        node["definition_hash"] = _definition_hash(node)
+        nodes.append(node)
     conn.executemany(
         "INSERT OR REPLACE INTO node"
-        "(id,kind,name,usr,repo,path,line_start,line_end,signature,is_definition,is_static,extra)"
+        "(id,kind,name,usr,repo,path,line_start,line_end,signature,definition_hash,"
+        "is_definition,is_static,extra)"
         " VALUES(:id,:kind,:name,:usr,:repo,:path,:line_start,:line_end,:signature,"
-        ":is_definition,:is_static,:extra)",
-        list(result.nodes.values()),
+        ":definition_hash,:is_definition,:is_static,:extra)",
+        nodes,
     )
     edges = list(result.edges.values())
     conn.executemany(
@@ -364,6 +529,13 @@ def persist(conn, result: ParseResult) -> None:
             pairs += [(row[0], tu) for tu in e["sources"]]
     conn.executemany(
         "INSERT OR IGNORE INTO edge_source(edge_id, tu) VALUES(?,?)", pairs)
+    if result.branch_facts:
+        conn.executemany(
+            """INSERT OR REPLACE INTO branch_fact
+               (id,function_id,tu,path,line_start,line_end,kind,condition_text,source_hash)
+               VALUES(:id,:function_id,:tu,:path,:line_start,:line_end,:kind,:condition_text,:source_hash)""",
+            list(result.branch_facts.values()),
+        )
     # 孤儿边清理。★ 这里必须报数：曾经因为漏建局部变量节点，
     # 导致全部 fn_pointer 边被静默删光，candidate 集看起来"很干净"其实是空的。
     orphan = conn.execute(
@@ -372,4 +544,20 @@ def persist(conn, result: ParseResult) -> None:
         log.warning("清理孤儿边 %d 条（目标节点不存在）", orphan)
         result.stats["edge_orphan_dropped"] = orphan
     conn.execute("DELETE FROM edge WHERE dst NOT IN (SELECT id FROM node)")
+    from ..dependencies import normalized
+    for node in nodes:
+        source_hash = node.get("definition_hash")
+        if node.get("path") and node.get("line_start"):
+            try:
+                with open(os.path.join(node["repo"], node["path"]), encoding="utf-8", errors="replace") as stream:
+                    span = "".join(stream.readlines()[node["line_start"]-1:node["line_end"]])
+                semantic = digest(normalized(span))
+            except OSError:
+                semantic = "unknown"
+        else:
+            semantic = "unknown"
+        skeleton = [f["payload_json"] for f in result.semantic_facts.values() if f["function_id"] == node["id"]]
+        conn.execute("INSERT OR REPLACE INTO entity_fingerprint VALUES(?,?,?,?,?,?)",
+                     (node["id"], digest(node.get("signature")), semantic, digest(skeleton),
+                      dbm.get_meta(conn, "build_config_hash"), int(semantic != "unknown")))
     conn.commit()

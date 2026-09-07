@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "status": "not_run",
+  "manifest_sha256": null,
+  "case_id": null,
+  "compile_exit": null,
+  "run_exit": null,
+  "assertions": [],
+  "expected_revalidation": null,
+  "adapters": {
+    "current": {"decision": null, "citation_refreshed": null, "wiki_updated": null, "elapsed_ms": null, "cost": null},
+    "main_anchor_hash": {"decision": null, "citation_refreshed": null, "wiki_updated": null, "elapsed_ms": null, "cost": null},
+    "invalidate_all": {"decision": null, "citation_refreshed": null, "wiki_updated": null, "elapsed_ms": null, "cost": null}
+  },
+  "build_cost": null,
+  "baseline_query_cost": null,
+  "candidate_query_cost": null,
+  "quality_comparable": false,
+  "break_even_queries": null
+}

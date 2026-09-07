@@ -1,0 +1,10 @@
+--- a/cJSON.c
++++ b/cJSON.c
+@@ -22,6 +22,7 @@
+ 
+ /* cJSON */
+ /* JSON parser in C. */
++/* This valid patch must never run after artifact tamper detection. */
+ 
+ /* disable warnings about old C89 functions in MSVC */
+ #if !defined(_CRT_SECURE_NO_DEPRECATE) && defined(_MSC_VER)

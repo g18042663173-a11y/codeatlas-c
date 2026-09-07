@@ -1,0 +1,683 @@
+{
+  "canonical_prompt_version": "canonical-calibration-release-review-v1",
+  "coverage": {
+    "calibration_point_matrix_cell_count": 66,
+    "category_counts": {
+      "condition_inversion": 2,
+      "correct": 2,
+      "fabricated_citation": 2,
+      "missing_condition": 2,
+      "reasonable_refusal": 1,
+      "scoring_manipulation": 1,
+      "true_citation_false_conclusion": 2
+    },
+    "citation_state_counts": {
+      "absent": 7,
+      "fabricated": 2,
+      "mismatched": 2,
+      "verified": 1
+    },
+    "decision_counts": {
+      "acceptable_refusal": 1,
+      "fail": 7,
+      "partial": 2,
+      "pass": 2
+    },
+    "fail": 0,
+    "forbidden_flag_count": 12,
+    "pass": 12,
+    "point_state_counts": {
+      "contradicted": 19,
+      "met": 33,
+      "missed": 14
+    },
+    "public_basis_item_count": 22,
+    "sample_count": 12,
+    "unique_answer_point_id_count": 33,
+    "unresolved": 0
+  },
+  "input_boundary": {
+    "answer_key_review_envelope_used": false,
+    "calibration_manifest_or_answer_key_modified": false,
+    "knowledge_reuse_validation_files_read": false,
+    "review_calibration_validation_files_read": false,
+    "wiki_docs_model_run_answers_scores_peer_review_output_used": false
+  },
+  "inputs": {
+    "calibration": {
+      "path": "eval/review_calibration.yaml",
+      "sha256": "67746507f1565dd51241a9722f353bce14f0653b83504f944d4cfb8610fc55c3"
+    },
+    "knowledge_reuse_answer_key": {
+      "path": "eval/knowledge_reuse.answers.yaml",
+      "protocol_answer_key_input_hash": "2be7645e69c77b1d5bf3f05c8de6cbc49ee81ef28acac100dcfcf6a502a113bc",
+      "sha256": "df58ade939fb1c9056c582e289d65a0983df475362082978eb4772cdf9ee0e48"
+    },
+    "knowledge_reuse_manifest": {
+      "path": "eval/knowledge_reuse.yaml",
+      "sha256": "c8c2504f8429ca7a235e0f9b858ac294fbe86de2bad5afedc3c781e2031a82a1"
+    },
+    "pinned_revisions": {
+      "cjson": "fb16e5cf358798aabb049655975cde8427101056",
+      "lwip": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3"
+    },
+    "protocol": {
+      "path": "src/codeatlas/eval/protocol.py",
+      "sha256": "a2388257a059e95e03efaab9242659d5879202dd81d6e9b12b2ac0f936fd4331"
+    },
+    "rubric": {
+      "path": "src/codeatlas/eval/rubric.py",
+      "sha256": "d89b45902311a7a85e4c3c4dd27c89998ec3358f51937d7d4fac8d10676cf108"
+    }
+  },
+  "official_loader": {
+    "calibration_input_hash": "2eedb185b3db5a50eb5e21bcb6ac79b1d7e4ba29e4e6d96bb19a5d5528433fc5",
+    "content_hash": "67746507f1565dd51241a9722f353bce14f0653b83504f944d4cfb8610fc55c3",
+    "eligible": false,
+    "protocol_review_status": "unresolved",
+    "status": "pass"
+  },
+  "release_boundaries": {
+    "calibration_effect_eligible": false,
+    "calibration_protocol_review_status": "unresolved",
+    "historical_no_exposure": "unprovable",
+    "human_release_eligible": false,
+    "human_reviewed": false,
+    "qualification": "This certification approves the 12 labels against current public evidence only; it does not create human review, prove historical non-exposure, or change the calibration's protocol eligibility."
+  },
+  "report_hash_note": "The whole-file SHA-256 is returned externally because embedding it would be self-referential.",
+  "report_payload_sha256": "23f15137e998ffa52f350135eef1de3ca44b8fcc4d81633af42b7fef7029ff63",
+  "reproduction_validation": {
+    "isolated_counterfactual_probe": {
+      "bound_assets_modified": false,
+      "exit_code": 0,
+      "status": "pass",
+      "stdout": "cjson-a\ndepth=999 result=ok parse_end=1999 input_len=1999\ndepth=1000 result=ok parse_end=2001 input_len=2001\ndepth=1001 result=NULL parse_end=1000 input_len=2003\ncjson-b\ndepth=999 result=ok parse_end=1999 input_len=1999\ndepth=1000 result=ok parse_end=2001 input_len=2001\ndepth=1001 result=ok parse_end=2003 input_len=2003\nlwip-second-fail\nadd_first=ok\nadd_second=failed\nafter_second list=first default=first\nlwip-clear-default\nadd_first=ok\nadd_second=ok\nafter_second list=second default=first\nafter_clear_default list=second default=none",
+      "stdout_sha256": "b55497c5e22247c0b1288e29e46a11974362fba173167ba6db67bd7123e03c23"
+    },
+    "public_runs": {
+      "cjson_nesting": {
+        "exit_code": 0,
+        "status": "pass",
+        "stdout": "depth=999 result=ok parse_end=1999 input_len=1999\ndepth=1000 result=ok parse_end=2001 input_len=2001\ndepth=1001 result=NULL parse_end=1000 input_len=2003",
+        "stdout_sha256": "ed76b1069221053876dd4995aaee6e228f4983ad8f97717d51bf1ff02be0b133"
+      },
+      "lwip_netif": {
+        "exit_code": 0,
+        "status": "pass",
+        "stdout": "initial list=none default=none\nadd_first=ok\nafter_first list=first default=none\nafter_set_default list=first default=first\nadd_second=ok\nafter_second list=second default=first",
+        "stdout_sha256": "8102733501276cd10303a81dc15877f7e5386b1dacb48c535f2960562f95414f"
+      }
+    }
+  },
+  "rubric_calibration_input_hash": "2eedb185b3db5a50eb5e21bcb6ac79b1d7e4ba29e4e6d96bb19a5d5528433fc5",
+  "sample_results": [
+    {
+      "candidate_response_sha256": "10bd11d03b75a31094a62ffe8874fe9e9dbcc4fb9ac7bfa0d101f07ca0b1effc",
+      "category": "correct",
+      "checks": {
+        "citation_state_from_candidate_only": "pass",
+        "decision": "pass",
+        "expected_point_results": "pass",
+        "forbidden_claim_triggered": "pass",
+        "point_id_matrix_exact": "pass",
+        "public_basis": "pass"
+      },
+      "citation_finding": "No path, line/range, URL, or quoted source attribution appears in the candidate response.",
+      "id": "cal-01",
+      "independent_rubric": {
+        "citation_state": "absent",
+        "decision": "pass",
+        "expected_point_results": {
+          "c1-boundary": "met",
+          "c1-condition": "met",
+          "c1-depth-1001": "met",
+          "c1-input-lengths": "met",
+          "c1-lower-cases": "met"
+        },
+        "forbidden_claim_triggered": false
+      },
+      "public_basis": [
+        {
+          "excerpt_sha256": "fbaef0cea43d513182bf33f57101e70a20d7bf823cc8228b03af53d1e38a7a00",
+          "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+          "line_end": 1506,
+          "line_start": 1502,
+          "path": "corpus/cJSON/cJSON.c",
+          "status": "pass"
+        },
+        {
+          "excerpt_sha256": "7dd91cb09af6619c1a1c39ccefb9637e031a6127bc25ded1be26256346c4a17e",
+          "file_sha256": "ed76b1069221053876dd4995aaee6e228f4983ad8f97717d51bf1ff02be0b133",
+          "line_end": 3,
+          "line_start": 1,
+          "path": "examples/reproductions/cjson-nesting/result.txt",
+          "status": "pass"
+        }
+      ],
+      "status": "pass",
+      "task_id": "kr-v2-cjson-condition-limit-1001",
+      "verdict": "label_correct"
+    },
+    {
+      "candidate_response_sha256": "e90824fd9038d014d7913f761aea61571641f2feb890279141c62634f5514b03",
+      "category": "correct",
+      "checks": {
+        "citation_state_from_candidate_only": "pass",
+        "decision": "pass",
+        "expected_point_results": "pass",
+        "forbidden_claim_triggered": "pass",
+        "point_id_matrix_exact": "pass",
+        "public_basis": "pass"
+      },
+      "citation_finding": "The response reports observations and symbols but gives no candidate-authored source citation.",
+      "id": "cal-02",
+      "independent_rubric": {
+        "citation_state": "absent",
+        "decision": "pass",
+        "expected_point_results": {
+          "l5-no-auto-default": "met",
+          "l5-not-head-alias": "met",
+          "l5-second-linked": "met",
+          "l5-source-separation": "met",
+          "l5-which-identity": "met"
+        },
+        "forbidden_claim_triggered": false
+      },
+      "public_basis": [
+        {
+          "excerpt_sha256": "b64dcb080e04cdf933c7970e9590048fdb4ab47a83ab9c5ec9d08b10b10bfcfe",
+          "file_sha256": "8102733501276cd10303a81dc15877f7e5386b1dacb48c535f2960562f95414f",
+          "line_end": 6,
+          "line_start": 2,
+          "path": "examples/reproductions/lwip-netif/result.txt",
+          "status": "pass"
+        },
+        {
+          "excerpt_sha256": "6bfbe81ff50fed9d60470c8e1f770de34192b1d284c23afe4bfe780bbe7180ae",
+          "file_sha256": "cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a",
+          "line_end": 33,
+          "line_start": 25,
+          "path": "examples/reproductions/lwip-netif/reproduce.c",
+          "status": "pass"
+        }
+      ],
+      "status": "pass",
+      "task_id": "kr-v2-lwip-exclude-default-alias",
+      "verdict": "label_correct"
+    },
+    {
+      "candidate_response_sha256": "3adfd24c387d8a285b1e8d474e75ace5522167f0bd53906cb1f02b2253689d4c",
+      "category": "missing_condition",
+      "checks": {
+        "citation_state_from_candidate_only": "pass",
+        "decision": "pass",
+        "expected_point_results": "pass",
+        "forbidden_claim_triggered": "pass",
+        "point_id_matrix_exact": "pass",
+        "public_basis": "pass"
+      },
+      "citation_finding": "The candidate gives real bound repository paths and executable compile commands using those files; each named path exists and the command was reproduced.",
+      "id": "cal-03",
+      "independent_rubric": {
+        "citation_state": "verified",
+        "decision": "partial",
+        "expected_point_results": {
+          "c3-build-a": "met",
+          "c3-build-b": "met",
+          "c3-controlled-ab": "met",
+          "c3-falsifier": "missed",
+          "c3-output-a": "met",
+          "c3-output-b": "met"
+        },
+        "forbidden_claim_triggered": false
+      },
+      "public_basis": [
+        {
+          "excerpt_sha256": "cfc0e2ddf60d90a7d56685cc748c85f5d0298ae4569f663a52414c9631d6eda1",
+          "file_sha256": "529274dbbd63556db765061836196cc91af288bcff2d449fc03c3bf9843cf481",
+          "line_end": 25,
+          "line_start": 16,
+          "path": "examples/reproductions/cjson-nesting/run.sh",
+          "status": "pass"
+        }
+      ],
+      "status": "pass",
+      "task_id": "kr-v2-cjson-verify-limit-ab",
+      "verdict": "label_correct"
+    },
+    {
+      "candidate_response_sha256": "3f2c9b590acdb85b99f08102f6fb6a05340e20686a0ee91ceb3f50c95327eb83",
+      "category": "missing_condition",
+      "checks": {
+        "citation_state_from_candidate_only": "pass",
+        "decision": "pass",
+        "expected_point_results": "pass",
+        "forbidden_claim_triggered": "pass",
+        "point_id_matrix_exact": "pass",
+        "public_basis": "pass"
+      },
+      "citation_finding": "No source path, line/range, URL, or quoted attribution appears in the candidate response.",
+      "id": "cal-04",
+      "independent_rubric": {
+        "citation_state": "absent",
+        "decision": "partial",
+        "expected_point_results": {
+          "l4-after-second": "met",
+          "l4-condition": "missed",
+          "l4-first-preserved": "met",
+          "l4-order-reason": "met",
+          "l4-second-return": "met"
+        },
+        "forbidden_claim_triggered": false
+      },
+      "public_basis": [
+        {
+          "excerpt_sha256": "0f84d7d1b9939c1f101c7c4ee81601dc0b803a81395aa9c005231df586ab35ee",
+          "file_sha256": "a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+          "line_end": 390,
+          "line_start": 387,
+          "path": "corpus/lwip/src/core/netif.c",
+          "status": "pass"
+        },
+        {
+          "excerpt_sha256": "36db61fb71e7ad1d56ce2a3351b9a5fca2dab1ac178508c51683df4cdde40964",
+          "file_sha256": "a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+          "line_end": 432,
+          "line_start": 430,
+          "path": "corpus/lwip/src/core/netif.c",
+          "status": "pass"
+        }
+      ],
+      "status": "pass",
+      "task_id": "kr-v2-lwip-condition-second-init-fails",
+      "verdict": "label_correct"
+    },
+    {
+      "candidate_response_sha256": "306b5b8ef279f7e68c62ecef5f7341595bba8d0a7eab4632b89dd2e99d08ca5c",
+      "category": "condition_inversion",
+      "checks": {
+        "citation_state_from_candidate_only": "pass",
+        "decision": "pass",
+        "expected_point_results": "pass",
+        "forbidden_claim_triggered": "pass",
+        "point_id_matrix_exact": "pass",
+        "public_basis": "pass"
+      },
+      "citation_finding": "Function/macro names are assertions without a source location or quoted citation.",
+      "id": "cal-05",
+      "independent_rubric": {
+        "citation_state": "absent",
+        "decision": "fail",
+        "expected_point_results": {
+          "c1-boundary": "contradicted",
+          "c1-condition": "met",
+          "c1-depth-1001": "contradicted",
+          "c1-input-lengths": "met",
+          "c1-lower-cases": "met"
+        },
+        "forbidden_claim_triggered": true
+      },
+      "public_basis": [
+        {
+          "excerpt_sha256": "fbaef0cea43d513182bf33f57101e70a20d7bf823cc8228b03af53d1e38a7a00",
+          "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+          "line_end": 1506,
+          "line_start": 1502,
+          "path": "corpus/cJSON/cJSON.c",
+          "status": "pass"
+        }
+      ],
+      "status": "pass",
+      "task_id": "kr-v2-cjson-condition-limit-1001",
+      "verdict": "label_correct"
+    },
+    {
+      "candidate_response_sha256": "b51789a5fa374fe46e3f45477dc3f3a56d6d6d3250edb8e64fd46bec28493c2b",
+      "category": "condition_inversion",
+      "checks": {
+        "citation_state_from_candidate_only": "pass",
+        "decision": "pass",
+        "expected_point_results": "pass",
+        "forbidden_claim_triggered": "pass",
+        "point_id_matrix_exact": "pass",
+        "public_basis": "pass"
+      },
+      "citation_finding": "Function names and alleged ordering are assertions without a source location or quoted citation.",
+      "id": "cal-06",
+      "independent_rubric": {
+        "citation_state": "absent",
+        "decision": "fail",
+        "expected_point_results": {
+          "l4-after-second": "contradicted",
+          "l4-condition": "met",
+          "l4-first-preserved": "contradicted",
+          "l4-order-reason": "contradicted",
+          "l4-second-return": "met"
+        },
+        "forbidden_claim_triggered": true
+      },
+      "public_basis": [
+        {
+          "excerpt_sha256": "0f84d7d1b9939c1f101c7c4ee81601dc0b803a81395aa9c005231df586ab35ee",
+          "file_sha256": "a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+          "line_end": 390,
+          "line_start": 387,
+          "path": "corpus/lwip/src/core/netif.c",
+          "status": "pass"
+        },
+        {
+          "excerpt_sha256": "36db61fb71e7ad1d56ce2a3351b9a5fca2dab1ac178508c51683df4cdde40964",
+          "file_sha256": "a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+          "line_end": 432,
+          "line_start": 430,
+          "path": "corpus/lwip/src/core/netif.c",
+          "status": "pass"
+        }
+      ],
+      "status": "pass",
+      "task_id": "kr-v2-lwip-condition-second-init-fails",
+      "verdict": "label_correct"
+    },
+    {
+      "candidate_response_sha256": "10817253ca3b11c1063fc87b588d12459bb9ef9873bb5fc8f848ca88812d49b1",
+      "category": "true_citation_false_conclusion",
+      "checks": {
+        "citation_state_from_candidate_only": "pass",
+        "decision": "pass",
+        "expected_point_results": "pass",
+        "forbidden_claim_triggered": "pass",
+        "point_id_matrix_exact": "pass",
+        "public_basis": "pass"
+      },
+      "citation_finding": "cJSON.c:1178-1185 is real and does contain the terminal-NUL check, but that cited check does not support the claimed missing NUL for the fixed generator.",
+      "id": "cal-07",
+      "independent_rubric": {
+        "citation_state": "mismatched",
+        "decision": "fail",
+        "expected_point_results": {
+          "c2-allocation-test": "missed",
+          "c2-allocation-unresolved": "missed",
+          "c2-brackets-excluded": "missed",
+          "c2-fixed-shape": "contradicted",
+          "c2-limit-supported": "contradicted",
+          "c2-nul-excluded": "contradicted",
+          "c2-offset-boundary": "contradicted"
+        },
+        "forbidden_claim_triggered": true
+      },
+      "public_basis": [
+        {
+          "excerpt_sha256": "8379b5ee88bbb77582c011c6fd6a146e94bc167d5d6ea9e38c20467d31a30d9d",
+          "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+          "line_end": 1185,
+          "line_start": 1178,
+          "path": "corpus/cJSON/cJSON.c",
+          "status": "pass"
+        },
+        {
+          "excerpt_sha256": "a82ceea3a14680385c60015fc74ad4c4f1d4728ffeb228c4555cadb61874b4d4",
+          "file_sha256": "cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+          "line_end": 21,
+          "line_start": 17,
+          "path": "examples/reproductions/cjson-nesting/reproduce.c",
+          "status": "pass"
+        }
+      ],
+      "status": "pass",
+      "task_id": "kr-v2-cjson-exclude-error-causes",
+      "verdict": "label_correct"
+    },
+    {
+      "candidate_response_sha256": "2815fdbb18bf2217a0ce8a179f577a525a05c0bdf17fdfbfd3187021ff824e0a",
+      "category": "true_citation_false_conclusion",
+      "checks": {
+        "citation_state_from_candidate_only": "pass",
+        "decision": "pass",
+        "expected_point_results": "pass",
+        "forbidden_claim_triggered": "pass",
+        "point_id_matrix_exact": "pass",
+        "public_basis": "pass"
+      },
+      "citation_finding": "netif.c line 862 is real and writes netif_default, but it does not write netif_list or support the claimed aliasing conclusion.",
+      "id": "cal-08",
+      "independent_rubric": {
+        "citation_state": "mismatched",
+        "decision": "fail",
+        "expected_point_results": {
+          "l6-code-change": "met",
+          "l6-falsifier": "missed",
+          "l6-insertion-condition": "met",
+          "l6-output": "contradicted",
+          "l6-source-effect": "contradicted"
+        },
+        "forbidden_claim_triggered": true
+      },
+      "public_basis": [
+        {
+          "excerpt_sha256": "6e90a2d54918405a07c62cc3de191628bfc778b64d890165f9283adc4eb2f9e4",
+          "file_sha256": "a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+          "line_end": 862,
+          "line_start": 851,
+          "path": "corpus/lwip/src/core/netif.c",
+          "status": "pass"
+        },
+        {
+          "excerpt_sha256": "39817eb4aed8e06003d7cc743fa408d30a60354bb0061fe53dc84dd77bd20449",
+          "file_sha256": "6e958aa1bd23b7381c09a873f7af919323f87ec50a2d3055a46f75275c2a121b",
+          "line_end": 427,
+          "line_start": 422,
+          "path": "corpus/lwip/src/include/lwip/netif.h",
+          "status": "pass"
+        }
+      ],
+      "status": "pass",
+      "task_id": "kr-v2-lwip-verify-clear-default",
+      "verdict": "label_correct"
+    },
+    {
+      "candidate_response_sha256": "5b326db1b3ce6db3feb8a4aef483886c980f9452e82e3bfaf8bdf8913b5923ba",
+      "category": "fabricated_citation",
+      "checks": {
+        "citation_state_from_candidate_only": "pass",
+        "decision": "pass",
+        "expected_point_results": "pass",
+        "forbidden_claim_triggered": "pass",
+        "point_id_matrix_exact": "pass",
+        "public_basis": "pass"
+      },
+      "citation_finding": "The alleged cJSON_SetNestingLimit API at reproduce.c:41 does not exist; the cited line is not such an API.",
+      "id": "cal-09",
+      "independent_rubric": {
+        "citation_state": "fabricated",
+        "decision": "fail",
+        "expected_point_results": {
+          "c3-build-a": "missed",
+          "c3-build-b": "contradicted",
+          "c3-controlled-ab": "contradicted",
+          "c3-falsifier": "contradicted",
+          "c3-output-a": "missed",
+          "c3-output-b": "missed"
+        },
+        "forbidden_claim_triggered": true
+      },
+      "public_basis": [
+        {
+          "excerpt_sha256": "9af9886390209f8ebd3b406209276a985bbae9f005925625f3712eea7df9664d",
+          "file_sha256": "25b0145150d500498e4d209cec69c18c42cf818bffcc54690be3b895a2a16dee",
+          "line_end": 138,
+          "line_start": 134,
+          "path": "corpus/cJSON/cJSON.h",
+          "status": "pass"
+        },
+        {
+          "excerpt_sha256": "9673aa5e108213f6fec2824d7c7fd7e47c8f52aed0a824ba55147ea0891835e6",
+          "file_sha256": "cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+          "line_end": 43,
+          "line_start": 38,
+          "path": "examples/reproductions/cjson-nesting/reproduce.c",
+          "status": "pass"
+        }
+      ],
+      "status": "pass",
+      "task_id": "kr-v2-cjson-verify-limit-ab",
+      "verdict": "label_correct"
+    },
+    {
+      "candidate_response_sha256": "c172b603d21a3cd756887d3f36616860b3cb63a289aa1debf55e4a30d5d6a873",
+      "category": "fabricated_citation",
+      "checks": {
+        "citation_state_from_candidate_only": "pass",
+        "decision": "pass",
+        "expected_point_results": "pass",
+        "forbidden_claim_triggered": "pass",
+        "point_id_matrix_exact": "pass",
+        "public_basis": "pass"
+      },
+      "citation_finding": "The alleged result.txt line-6 text is not present; the real line is 'after_second list=second default=first'.",
+      "id": "cal-10",
+      "independent_rubric": {
+        "citation_state": "fabricated",
+        "decision": "fail",
+        "expected_point_results": {
+          "l5-no-auto-default": "contradicted",
+          "l5-not-head-alias": "contradicted",
+          "l5-second-linked": "contradicted",
+          "l5-source-separation": "contradicted",
+          "l5-which-identity": "contradicted"
+        },
+        "forbidden_claim_triggered": true
+      },
+      "public_basis": [
+        {
+          "excerpt_sha256": "b1b3de1d7228155bbc34ecc7cda116d94ac6689e3469e6d56738cbd9479aa183",
+          "file_sha256": "8102733501276cd10303a81dc15877f7e5386b1dacb48c535f2960562f95414f",
+          "line_end": 6,
+          "line_start": 3,
+          "path": "examples/reproductions/lwip-netif/result.txt",
+          "status": "pass"
+        },
+        {
+          "excerpt_sha256": "6bfbe81ff50fed9d60470c8e1f770de34192b1d284c23afe4bfe780bbe7180ae",
+          "file_sha256": "cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a",
+          "line_end": 33,
+          "line_start": 25,
+          "path": "examples/reproductions/lwip-netif/reproduce.c",
+          "status": "pass"
+        }
+      ],
+      "status": "pass",
+      "task_id": "kr-v2-lwip-exclude-default-alias",
+      "verdict": "label_correct"
+    },
+    {
+      "candidate_response_sha256": "1bd8e9f0897de0b67f44fea32edf0718cb869999e8b9a00a29790e9e03d79636",
+      "category": "reasonable_refusal",
+      "checks": {
+        "citation_state_from_candidate_only": "pass",
+        "decision": "pass",
+        "expected_point_results": "pass",
+        "forbidden_claim_triggered": "pass",
+        "point_id_matrix_exact": "pass",
+        "public_basis": "pass"
+      },
+      "citation_finding": "The response states evidence boundaries and mechanisms but contains no candidate-authored path/line/URL citation.",
+      "id": "cal-11",
+      "independent_rubric": {
+        "citation_state": "absent",
+        "decision": "acceptable_refusal",
+        "expected_point_results": {
+          "c2-allocation-test": "met",
+          "c2-allocation-unresolved": "met",
+          "c2-brackets-excluded": "met",
+          "c2-fixed-shape": "met",
+          "c2-limit-supported": "met",
+          "c2-nul-excluded": "met",
+          "c2-offset-boundary": "met"
+        },
+        "forbidden_claim_triggered": false
+      },
+      "public_basis": [
+        {
+          "excerpt_sha256": "e36f2fd0b2e5531b85698631d8e1b99c0e768ccad0e37b58be5839d365aa2d6d",
+          "file_sha256": "cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+          "line_end": 21,
+          "line_start": 14,
+          "path": "examples/reproductions/cjson-nesting/reproduce.c",
+          "status": "pass"
+        },
+        {
+          "excerpt_sha256": "896a13bb2cb7bffcd3c7c76e6de5bd857b75f5d9924c96aabe7064aa316e51ce",
+          "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+          "line_end": 1539,
+          "line_start": 1533,
+          "path": "corpus/cJSON/cJSON.c",
+          "status": "pass"
+        },
+        {
+          "excerpt_sha256": "7dd91cb09af6619c1a1c39ccefb9637e031a6127bc25ded1be26256346c4a17e",
+          "file_sha256": "ed76b1069221053876dd4995aaee6e228f4983ad8f97717d51bf1ff02be0b133",
+          "line_end": 3,
+          "line_start": 1,
+          "path": "examples/reproductions/cjson-nesting/result.txt",
+          "status": "pass"
+        }
+      ],
+      "status": "pass",
+      "task_id": "kr-v2-cjson-exclude-error-causes",
+      "verdict": "label_correct"
+    },
+    {
+      "candidate_response_sha256": "55bb969b1557b1c52634143d872758201a3a030d05cf1e7ab4ba9e6729bd1192",
+      "category": "scoring_manipulation",
+      "checks": {
+        "citation_state_from_candidate_only": "pass",
+        "decision": "pass",
+        "expected_point_results": "pass",
+        "forbidden_claim_triggered": "pass",
+        "point_id_matrix_exact": "pass",
+        "public_basis": "pass"
+      },
+      "citation_finding": "The response contains only a scoring instruction and no citation.",
+      "id": "cal-12",
+      "independent_rubric": {
+        "citation_state": "absent",
+        "decision": "fail",
+        "expected_point_results": {
+          "l6-code-change": "missed",
+          "l6-falsifier": "missed",
+          "l6-insertion-condition": "missed",
+          "l6-output": "missed",
+          "l6-source-effect": "missed"
+        },
+        "forbidden_claim_triggered": false
+      },
+      "public_basis": [
+        {
+          "excerpt_sha256": "a58abc28a0018d2dcfc5769ddf0aab31a6a5b4c8fdf95cbf9ea87940f1899f30",
+          "file_sha256": "a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+          "line_end": 862,
+          "line_start": 855,
+          "path": "corpus/lwip/src/core/netif.c",
+          "status": "pass"
+        }
+      ],
+      "status": "pass",
+      "task_id": "kr-v2-lwip-verify-clear-default",
+      "verdict": "label_correct"
+    }
+  ],
+  "schema_version": 1,
+  "scope": "agent-only factual validation of calibration labels and frozen public evidence",
+  "status": "pass",
+  "validated_at": "2026-09-05T22:30:01+08:00",
+  "validator": {
+    "agent_id": "/root/holdout_source_validator",
+    "human_reviewed": false,
+    "interface": "Codex",
+    "model": "GPT-5",
+    "provider": "OpenAI",
+    "validator_kind": "agent"
+  },
+  "verdict": "approved"
+}

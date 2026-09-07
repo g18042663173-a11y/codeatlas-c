@@ -1,0 +1,729 @@
+schema_version: 1
+evaluation: upstream_maintenance
+
+corpora:
+  cjson:
+    repository: corpus/cJSON
+    revision: fb16e5cf358798aabb049655975cde8427101056
+    claim_anchor:
+      path: cJSON.c
+      start_marker: "static cJSON_bool parse_value(cJSON * const item, parse_buffer * const input_buffer);"
+      end_marker: "\n/* Render an object to text. */"
+    claim_dependencies:
+      functions:
+        - {path: cJSON.c, name: parse_value}
+        - {path: cJSON.c, name: parse_array}
+        - {path: cJSON.c, name: parse_object}
+        - {path: cJSON.c, name: cJSON_ParseWithOpts}
+        - {path: cJSON.c, name: cJSON_ParseWithLengthOpts}
+      macros:
+        - name: CJSON_NESTING_LIMIT
+          paths: [cJSON.h, cJSON.c]
+    build:
+      compile_steps:
+        - [cc, -std=c99, -Wall, -Wextra, -Werror, -I, "{source}", "{source}/cJSON.c", "{harness}", -lm, -o, "{build}/probe"]
+      run_argv: ["{build}/probe"]
+  lwip:
+    repository: corpus/lwip
+    revision: 3d896ba0a37ff3ce73270ca5e230707fe47f60e3
+    claim_anchor:
+      path: src/core/netif.c
+      start_marker: "struct netif *\nnetif_add("
+      end_marker: "\nstatic void\nnetif_do_ip_addr_changed"
+    claim_dependencies:
+      functions:
+        - {path: src/core/netif.c, name: netif_add}
+        - {path: src/core/netif.c, name: netif_set_default}
+      macros:
+        - name: LWIP_SINGLE_NETIF
+          paths: [src/include/lwip/opt.h]
+    build:
+      compile_steps:
+        - [cc, -std=c99, -Wall, -Wextra, -ffunction-sections, -fdata-sections, -I, "{fixture_root}", -I, "{source}/test/unit/arch", -I, "{source}/contrib/ports/unix/port/include", -I, "{source}/src/include", -c, "{source}/src/core/netif.c", -o, "{build}/netif.o"]
+        - [cc, -std=c99, -Wall, -Wextra, -ffunction-sections, -fdata-sections, -I, "{fixture_root}", -I, "{source}/test/unit/arch", -I, "{source}/contrib/ports/unix/port/include", -I, "{source}/src/include", -c, "{source}/src/core/ipv4/ip4_addr.c", -o, "{build}/ip4_addr.o"]
+        - [cc, -std=c99, -Wall, -Wextra, -ffunction-sections, -fdata-sections, -I, "{fixture_root}", -I, "{source}/test/unit/arch", -I, "{source}/contrib/ports/unix/port/include", -I, "{source}/src/include", -c, "{harness}", -o, "{build}/probe.o"]
+        - [cc, "-Wl,-dead_strip", "{build}/netif.o", "{build}/ip4_addr.o", "{build}/probe.o", -o, "{build}/probe"]
+      run_argv: ["{build}/probe"]
+
+cases:
+  - id: upstream-cjson-effective-depth-condition
+    corpus: cjson
+    classification: effective
+    material_kind: upstream_mutation
+    execution_status: ready
+    failure_mode: null
+    claim: parse_array and parse_object reject a container when current depth is greater than or equal to CJSON_NESTING_LIMIT.
+    mutation: Change both depth guards from greater-than-or-equal to strict greater-than.
+    oracle:
+      source_kind: pinned_public_source_and_experiment
+      derived_from_codeatlas: false
+      expected_decision: revalidate
+      expected_outcome: completed
+      assertions:
+        - id: target_limit_plus_one_allowed
+          stream: stdout
+          operator: contains
+          expected: "nested_limit_plus_one=pass\n"
+          description: The changed guard admits exactly one additional nesting level.
+        - id: target_limit_plus_two_rejected
+          stream: stdout
+          operator: contains
+          expected: "nested_limit_plus_two=fail\n"
+          description: The next nesting level is still rejected, separating the predicate change.
+    artifacts:
+      patch: {path: examples/maintenance_upstream/cjson/effective/change.patch, sha256: 89924be5c85efb7fd3efb8e152d495de4dce82224b9dc128cd6bd081902a60c9}
+      harness: &cjson_harness {path: examples/maintenance_upstream/cjson/probe.c, sha256: 0d6011a7ab6b64277e629481962a05934fc20741923747a7013380223da4c26d}
+      support: []
+    publication: &cjson_publication
+      card_id: cjson-nesting-parse-value-card
+      citation_path: cJSON.c
+      wiki_page: cjson-nesting-parse-value
+
+  - id: upstream-cjson-effective-nesting-config
+    corpus: cjson
+    classification: effective
+    material_kind: upstream_mutation
+    execution_status: ready
+    failure_mode: null
+    claim: CJSON_NESTING_LIMIT is a compile-time configuration consumed by the parser translation unit.
+    mutation: Override the translation-unit limit to two immediately after the public header is consumed.
+    oracle:
+      source_kind: pinned_public_source_and_experiment
+      derived_from_codeatlas: false
+      expected_decision: revalidate
+      expected_outcome: completed
+      assertions:
+        - id: target_config_depth_two_allowed
+          stream: stdout
+          operator: contains
+          expected: "nested_2=pass\n"
+          description: Two nested containers remain within the configured limit.
+        - id: target_config_depth_three_rejected
+          stream: stdout
+          operator: contains
+          expected: "nested_3=fail\n"
+          description: A third nested container is rejected by the compile-time limit.
+    artifacts:
+      patch: {path: examples/maintenance_upstream/cjson/null_policy/change.patch, sha256: 4f2d624e3caad985f5fe1903e8e91ab1fdf6c4e54a922a9c32e4560747e72406}
+      harness: *cjson_harness
+      support: []
+    publication: *cjson_publication
+
+  - id: upstream-cjson-effective-parse-value-dispatch
+    corpus: cjson
+    classification: effective
+    material_kind: upstream_mutation
+    execution_status: ready
+    failure_mode: null
+    claim: parse_value delegates an opening bracket to parse_array and propagates the lower-level result while object dispatch remains separate.
+    mutation: Invoke parse_array but discard its successful result and reject the array branch at parse_value.
+    oracle:
+      source_kind: pinned_public_source_and_experiment
+      derived_from_codeatlas: false
+      expected_decision: revalidate
+      expected_outcome: completed
+      assertions:
+        - id: target_simple_array_rejected
+          stream: stdout
+          operator: contains
+          expected: "simple_array=fail\n"
+          description: The mutated array dispatch is observed at the public parser.
+        - id: target_object_dispatch_preserved
+          stream: stdout
+          operator: contains
+          expected: "simple_object=pass\n"
+          description: The separate object dispatch still reaches parse_object.
+    artifacts:
+      patch: {path: examples/maintenance_upstream/cjson/child_traversal/change.patch, sha256: 112c2acf26c5eaa698fc37502fc1110ee759fcbe4f666280911f5215f71e9954}
+      harness: *cjson_harness
+      support: []
+    publication: *cjson_publication
+
+  - id: upstream-cjson-effective-failure-position
+    corpus: cjson
+    classification: effective
+    material_kind: upstream_mutation
+    execution_status: ready
+    failure_mode: null
+    claim: On a nested parse failure, cJSON_ParseWithOpts exposes the failing buffer offset through return_parse_end.
+    mutation: Force the reported local error position to the start of the input.
+    oracle:
+      source_kind: pinned_public_source_and_experiment
+      derived_from_codeatlas: false
+      expected_decision: revalidate
+      expected_outcome: completed
+      assertions:
+        - id: target_failure_offset_reset
+          stream: stdout
+          operator: contains
+          expected: "deep_failure_offset=0\n"
+          description: The mutation changes the public failure pointer to input position zero.
+        - id: target_deep_input_still_fails
+          stream: stdout
+          operator: contains
+          expected: "nested_limit_plus_two=fail\n"
+          description: The mutation changes only failure location, not failure status.
+    artifacts:
+      patch: {path: examples/maintenance_upstream/cjson/overflow_boundary/change.patch, sha256: 3b8400f2f157e57083b0b975c43cc96e460746b7d534891853f0146c116ea9ef}
+      harness: *cjson_harness
+      support: []
+    publication: *cjson_publication
+
+  - id: upstream-cjson-unrelated-version
+    corpus: cjson
+    classification: unrelated_to_claim
+    material_kind: upstream_mutation
+    execution_status: ready
+    failure_mode: null
+    claim: cJSON's parser enforces its nesting limit through parse_value's lower-level array/object dispatch and reports the failing input position.
+    mutation: Replace only the public version string outside the parser-card mechanism.
+    oracle:
+      source_kind: pinned_public_source_and_experiment
+      derived_from_codeatlas: false
+      expected_decision: keep
+      expected_outcome: completed
+      assertions:
+        - id: target_version_string
+          stream: stdout
+          operator: contains
+          expected: "version=maintenance-version\n"
+          description: The unrelated version mechanism demonstrably changed.
+        - id: guard_parser_unchanged
+          stream: stdout
+          operator: contains
+          expected: "simple_array=pass\n"
+          description: The parser-card behavior remains unchanged.
+    artifacts:
+      patch: {path: examples/maintenance_upstream/cjson/unrelated/change.patch, sha256: dc78ad6b0f4a292bd3f20c9cc5f95d860c683e59c20088c617cd93426750568c}
+      harness: *cjson_harness
+      support: []
+    publication: *cjson_publication
+
+  - id: upstream-cjson-unrelated-print-buffer
+    corpus: cjson
+    classification: unrelated_to_claim
+    material_kind: upstream_mutation
+    execution_status: ready
+    failure_mode: null
+    claim: cJSON's parser enforces its nesting limit through parse_value's lower-level array/object dispatch and reports the failing input position.
+    mutation: Route cJSON_PrintUnformatted through the formatted printer outside the parser-card mechanism.
+    oracle:
+      source_kind: pinned_public_source_and_experiment
+      derived_from_codeatlas: false
+      expected_decision: keep
+      expected_outcome: completed
+      assertions:
+        - id: target_print_not_compact
+          stream: stdout
+          operator: contains
+          expected: "print_compact=no\n"
+          description: The unrelated printer mutation is independently observed.
+        - id: guard_parser_unchanged
+          stream: stdout
+          operator: contains
+          expected: "simple_array=pass\n"
+          description: The parser-card behavior remains unchanged.
+    artifacts:
+      patch: {path: examples/maintenance_upstream/cjson/print_buffer/change.patch, sha256: 9b11549ee2047a843d006d82fee1715dcbe8c658e247380eb78b78c85377ae97}
+      harness: *cjson_harness
+      support: []
+    publication: *cjson_publication
+
+  - id: upstream-cjson-unrelated-number-parser
+    corpus: cjson
+    classification: unrelated_to_claim
+    material_kind: upstream_mutation
+    execution_status: ready
+    failure_mode: null
+    claim: cJSON's parser enforces its nesting limit through parse_value's lower-level array/object dispatch and reports the failing input position.
+    mutation: Offset only the parsed double value outside the nesting and dispatch mechanism.
+    oracle:
+      source_kind: pinned_public_source_and_experiment
+      derived_from_codeatlas: false
+      expected_decision: keep
+      expected_outcome: completed
+      assertions:
+        - id: target_number_offset
+          stream: stdout
+          operator: contains
+          expected: "number=2\n"
+          description: The unrelated numeric parser mutation is independently observed.
+        - id: guard_parser_unchanged
+          stream: stdout
+          operator: contains
+          expected: "simple_array=pass\n"
+          description: The parser-card behavior remains unchanged.
+    artifacts:
+      patch: {path: examples/maintenance_upstream/cjson/number_parser/change.patch, sha256: ef133cc68370f7ea80689015d6232dea24ac14df758442f521593f818d1d5575}
+      harness: *cjson_harness
+      support: []
+    publication: *cjson_publication
+
+  - id: upstream-cjson-unrelated-case-comparison
+    corpus: cjson
+    classification: unrelated_to_claim
+    material_kind: upstream_mutation
+    execution_status: ready
+    failure_mode: null
+    claim: cJSON's parser enforces its nesting limit through parse_value's lower-level array/object dispatch and reports the failing input position.
+    mutation: Make only the default object lookup case-sensitive outside the parser-card mechanism.
+    oracle:
+      source_kind: pinned_public_source_and_experiment
+      derived_from_codeatlas: false
+      expected_decision: keep
+      expected_outcome: completed
+      assertions:
+        - id: target_case_lookup_miss
+          stream: stdout
+          operator: contains
+          expected: "lookup=miss\n"
+          description: The unrelated case-comparison mutation is independently observed.
+        - id: guard_parser_unchanged
+          stream: stdout
+          operator: contains
+          expected: "simple_array=pass\n"
+          description: The parser-card behavior remains unchanged.
+    artifacts:
+      patch: {path: examples/maintenance_upstream/cjson/case_comparison/change.patch, sha256: 7614018109412b30b2ded22d3a49d7ba82206c70bb33b9cb39e2b0ef41527b9c}
+      harness: *cjson_harness
+      support: []
+    publication: *cjson_publication
+
+  - id: upstream-cjson-failure-compile
+    corpus: cjson
+    classification: failure
+    material_kind: upstream_mutation
+    execution_status: ready
+    failure_mode: compile_failure
+    claim: A compiler failure prevents downstream maintenance publication.
+    mutation: Reference an undeclared symbol in the real upstream function.
+    oracle:
+      source_kind: pinned_public_source_and_experiment
+      derived_from_codeatlas: false
+      expected_decision: unavailable
+      expected_outcome: compile_failed
+      assertions: &cjson_failure_assertions
+        - id: array_size_stdout
+          stream: stdout
+          operator: contains
+          expected: "simple_array=pass\n"
+          description: Runtime assertion remains unobserved when an earlier control aborts.
+    artifacts:
+      patch: {path: examples/maintenance_upstream/cjson/compile_failure/change.patch, sha256: 9d893ff98aff4d129ec14e324dc868849266f9da0447491ac3ea7f8b6d473066}
+      harness: *cjson_harness
+      support: []
+    publication: *cjson_publication
+
+  - id: upstream-cjson-failure-artifact-tamper
+    corpus: cjson
+    classification: failure
+    material_kind: upstream_mutation
+    execution_status: ready
+    failure_mode: artifact_tamper
+    claim: A copied fixture hash mismatch aborts before patch or compilation.
+    mutation: Tamper only with the temporary patch copy after binding original bytes.
+    oracle:
+      source_kind: pinned_public_source_and_experiment
+      derived_from_codeatlas: false
+      expected_decision: unavailable
+      expected_outcome: artifact_tamper
+      assertions: *cjson_failure_assertions
+    artifacts:
+      patch: {path: examples/maintenance_upstream/cjson/artifact_tamper/change.patch, sha256: e3e949953d20d05d2178bce88bd73a51729eddfbe42c4d10737c91c1003c1f50}
+      harness: *cjson_harness
+      support: []
+    publication: *cjson_publication
+
+  - id: upstream-cjson-failure-publication
+    corpus: cjson
+    classification: failure
+    material_kind: upstream_mutation
+    execution_status: ready
+    failure_mode: publication_interruption
+    claim: Successful compile, run, assertion, snapshot, card, and citation do not imply Wiki commit.
+    mutation: Apply an effective upstream change then interrupt before Wiki commit.
+    oracle:
+      source_kind: pinned_public_source_and_experiment
+      derived_from_codeatlas: false
+      expected_decision: unavailable
+      expected_outcome: publication_interrupted
+      assertions:
+        - id: array_size_stdout
+          stream: stdout
+          operator: contains
+          expected: "array_two=3\n"
+          description: Patched upstream behavior is proven before publication interruption.
+    artifacts:
+      patch: {path: examples/maintenance_upstream/cjson/publication_interruption/change.patch, sha256: c547a3bf98c896bb8fe57428d9fd0e672ad93def086e17352d03e3f594f6eef3}
+      harness: *cjson_harness
+      support: []
+    publication: *cjson_publication
+
+  - id: upstream-cjson-failure-governance
+    corpus: cjson
+    classification: failure
+    material_kind: upstream_mutation
+    execution_status: ready
+    failure_mode: governance_rollback
+    claim: A governance rejection restores the pre-publication Wiki state.
+    mutation: Apply an effective upstream change then reject the staged publication.
+    oracle:
+      source_kind: pinned_public_source_and_experiment
+      derived_from_codeatlas: false
+      expected_decision: unavailable
+      expected_outcome: governance_rolled_back
+      assertions:
+        - id: array_size_stdout
+          stream: stdout
+          operator: contains
+          expected: "array_two=3\n"
+          description: Patched upstream behavior is proven before governance rollback.
+    artifacts:
+      patch: {path: examples/maintenance_upstream/cjson/governance_rollback/change.patch, sha256: c547a3bf98c896bb8fe57428d9fd0e672ad93def086e17352d03e3f594f6eef3}
+      harness: *cjson_harness
+      support: []
+    publication: *cjson_publication
+
+  - id: upstream-lwip-effective-state-reset
+    corpus: lwip
+    classification: effective
+    material_kind: upstream_mutation
+    execution_status: ready
+    failure_mode: null
+    claim: netif_add resets the interface flags before calling the driver initialization callback and preserves the supplied state pointer.
+    mutation: Initialize flags with NETIF_FLAG_UP instead of clearing them before the callback.
+    oracle:
+      source_kind: pinned_public_source_and_experiment
+      derived_from_codeatlas: false
+      expected_decision: revalidate
+      expected_outcome: completed
+      assertions:
+        - id: target_flags_reset_changed
+          stream: stdout
+          operator: contains
+          expected: "first_flags=up\n"
+          description: The initialization callback observes the mutated nonzero flag state.
+        - id: target_state_pointer_stored
+          stream: stdout
+          operator: contains
+          expected: "first_state=stored\n"
+          description: The caller-supplied state pointer is still stored before initialization.
+    artifacts:
+      patch: {path: examples/maintenance_upstream/lwip/effective/change.patch, sha256: 317a90eee102da90da11503b9be48b7cfc5541aad5b3b77bb5108f185b2cfe07}
+      harness: &lwip_harness {path: examples/maintenance_upstream/lwip/probe.c, sha256: 7678737ce5e9771d7692f8bd44468cb93d2953e0c8237694935ba101a68553e7}
+      support: &lwip_support
+        - {path: examples/maintenance_upstream/lwip/lwipopts.h, sha256: 8b71b1133dd3f669d98e5d679194baa891f0849608a8102af04c109767f6e49c}
+    publication: &lwip_publication
+      card_id: lwip-netif-add-state-list-card
+      citation_path: src/core/netif.c
+      wiki_page: lwip-netif-add-state-list
+
+  - id: upstream-lwip-effective-single-netif-config
+    corpus: lwip
+    classification: effective
+    material_kind: upstream_mutation
+    execution_status: ready
+    failure_mode: null
+    claim: LWIP_SINGLE_NETIF is a compile-time configuration that changes netif_add's one-interface admission behavior.
+    mutation: Change the pinned public LWIP_SINGLE_NETIF default to one for every compiled translation unit.
+    oracle:
+      source_kind: pinned_public_source_and_experiment
+      derived_from_codeatlas: false
+      expected_decision: revalidate
+      expected_outcome: completed
+      assertions:
+        - id: target_second_interface_rejected
+          stream: stdout
+          operator: contains
+          expected: "add_second=fail\n"
+          description: The translation-unit configuration rejects the second interface.
+        - id: target_existing_default_preserved
+          stream: stdout
+          operator: contains
+          expected: "default_after_explicit=first\n"
+          description: The explicitly selected first interface remains the default.
+    artifacts:
+      patch: {path: examples/maintenance_upstream/lwip/null_removal/change.patch, sha256: 7f736c2ae1d2aacdcd0ca3c0a2a99b2bf5583ffaca17722f869df01bc9526745}
+      harness: *lwip_harness
+      support: *lwip_support
+    publication: *lwip_publication
+
+  - id: upstream-lwip-effective-default-list-operation
+    corpus: lwip
+    classification: effective
+    material_kind: upstream_mutation
+    execution_status: ready
+    failure_mode: null
+    claim: netif_add prepends a successful interface to the list but does not implicitly make it the default; netif_set_default is the explicit default operation.
+    mutation: Assign each successfully added interface as default immediately after list insertion.
+    oracle:
+      source_kind: pinned_public_source_and_experiment
+      derived_from_codeatlas: false
+      expected_decision: revalidate
+      expected_outcome: completed
+      assertions:
+        - id: target_add_implicitly_sets_default
+          stream: stdout
+          operator: contains
+          expected: "default_after_add=first\n"
+          description: The mutation makes the first successful add select a default without an explicit call.
+        - id: target_list_and_second_default
+          stream: stdout
+          operator: contains
+          expected: "default_after_second=second\n"
+          description: A second successful add remains discoverable and becomes default under the mutation.
+        - id: target_second_list_entry
+          stream: stdout
+          operator: contains
+          expected: "index_two=second\n"
+          description: The public index lookup independently confirms the second interface was inserted into the list.
+    artifacts:
+      patch: {path: examples/maintenance_upstream/lwip/default_replacement/change.patch, sha256: 341102609b385168c369f7267b8a20da65871c5e3fa7419c53b16b6a2e941d71}
+      harness: *lwip_harness
+      support: *lwip_support
+    publication: *lwip_publication
+
+  - id: upstream-lwip-effective-init-failure-return
+    corpus: lwip
+    classification: effective
+    material_kind: upstream_mutation
+    execution_status: ready
+    failure_mode: null
+    claim: netif_add returns null and omits list insertion when the driver initialization callback fails.
+    mutation: Ignore the initialization callback's error and continue the normal add path.
+    oracle:
+      source_kind: pinned_public_source_and_experiment
+      derived_from_codeatlas: false
+      expected_decision: revalidate
+      expected_outcome: completed
+      assertions:
+        - id: target_failed_init_returns_interface
+          stream: stdout
+          operator: contains
+          expected: "failed_init_return=netif\n"
+          description: The mutation exposes the interface pointer despite initialization failure.
+        - id: target_failed_init_enters_list
+          stream: stdout
+          operator: contains
+          expected: "failed_init_index=present\n"
+          description: Continuing the add path makes the failed interface discoverable through the public index lookup.
+    artifacts:
+      patch: {path: examples/maintenance_upstream/lwip/debug_name/change.patch, sha256: 616e6210d589245b6d059fd503d21ceed771f44e713c6ec5b7b9ed40fb19bc5e}
+      harness: *lwip_harness
+      support: *lwip_support
+    publication: *lwip_publication
+
+  - id: upstream-lwip-unrelated-link-up
+    corpus: lwip
+    classification: unrelated_to_claim
+    material_kind: upstream_mutation
+    execution_status: ready
+    failure_mode: null
+    claim: netif_add resets state, honors its compile-time configuration, inserts only successfully initialized interfaces, and does not implicitly select a default.
+    mutation: Set the administrative flag instead of the link flag in netif_set_link_up, outside the netif_add mechanism.
+    oracle:
+      source_kind: pinned_public_source_and_experiment
+      derived_from_codeatlas: false
+      expected_decision: keep
+      expected_outcome: completed
+      assertions:
+        - id: target_link_flag_not_set
+          stream: stdout
+          operator: contains
+          expected: "link_up=no\n"
+          description: The unrelated link-state mutation is independently observed.
+        - id: guard_netif_add_unchanged
+          stream: stdout
+          operator: contains
+          expected: "add_first=ok\n"
+          description: The formal netif_add behavior remains operational.
+    artifacts:
+      patch: {path: examples/maintenance_upstream/lwip/unrelated/change.patch, sha256: d4654990b17b81d5a187a61d716398a974bb4bd418872d84b27dffcf0c327ef4}
+      harness: *lwip_harness
+      support: *lwip_support
+    publication: *lwip_publication
+
+  - id: upstream-lwip-unrelated-admin-up
+    corpus: lwip
+    classification: unrelated_to_claim
+    material_kind: upstream_mutation
+    execution_status: ready
+    failure_mode: null
+    claim: netif_add resets state, honors its compile-time configuration, inserts only successfully initialized interfaces, and does not implicitly select a default.
+    mutation: Set the link flag instead of the administrative flag in netif_set_up, outside the netif_add mechanism.
+    oracle:
+      source_kind: pinned_public_source_and_experiment
+      derived_from_codeatlas: false
+      expected_decision: keep
+      expected_outcome: completed
+      assertions:
+        - id: target_admin_flag_not_set
+          stream: stdout
+          operator: contains
+          expected: "admin_up=no\n"
+          description: The unrelated administrative-state mutation is independently observed.
+        - id: guard_netif_add_unchanged
+          stream: stdout
+          operator: contains
+          expected: "add_first=ok\n"
+          description: The formal netif_add behavior remains operational.
+    artifacts:
+      patch: {path: examples/maintenance_upstream/lwip/admin_up/change.patch, sha256: 0125180ad2ac083b208b44a99bd2616eeb1cf879ee65905dcfe712520c0cc674}
+      harness: *lwip_harness
+      support: *lwip_support
+    publication: *lwip_publication
+
+  - id: upstream-lwip-unrelated-hostname
+    corpus: lwip
+    classification: unrelated_to_claim
+    material_kind: upstream_mutation
+    execution_status: ready
+    failure_mode: null
+    claim: netif_add resets state, honors its compile-time configuration, inserts only successfully initialized interfaces, and does not implicitly select a default.
+    mutation: Make the public hostname setter store null instead of the supplied name, outside the netif_add mechanism.
+    oracle:
+      source_kind: pinned_public_source_and_experiment
+      derived_from_codeatlas: false
+      expected_decision: keep
+      expected_outcome: completed
+      assertions:
+        - id: target_hostname_not_stored
+          stream: stdout
+          operator: contains
+          expected: "hostname=none\n"
+          description: The unrelated hostname mutation is independently observed.
+        - id: guard_netif_add_unchanged
+          stream: stdout
+          operator: contains
+          expected: "add_first=ok\n"
+          description: The formal netif_add behavior remains operational.
+    artifacts:
+      patch: {path: examples/maintenance_upstream/lwip/hostname/change.patch, sha256: 8499034c1a843720ec8a57acd27d47c265a1acc96ea3b3928a47adfda6bb2e9d}
+      harness: *lwip_harness
+      support: *lwip_support
+    publication: *lwip_publication
+
+  - id: upstream-lwip-unrelated-client-data
+    corpus: lwip
+    classification: unrelated_to_claim
+    material_kind: upstream_mutation
+    execution_status: ready
+    failure_mode: null
+    claim: netif_add resets state, honors its compile-time configuration, inserts only successfully initialized interfaces, and does not implicitly select a default.
+    mutation: Offset the returned public client-data IDs by one, outside the netif_add mechanism.
+    oracle:
+      source_kind: pinned_public_source_and_experiment
+      derived_from_codeatlas: false
+      expected_decision: keep
+      expected_outcome: completed
+      assertions:
+        - id: target_client_ids_offset
+          stream: stdout
+          operator: contains
+          expected: "client_ids=1,2\n"
+          description: The unrelated client-data mutation is independently observed.
+        - id: guard_netif_add_unchanged
+          stream: stdout
+          operator: contains
+          expected: "add_first=ok\n"
+          description: The formal netif_add behavior remains operational.
+    artifacts:
+      patch: {path: examples/maintenance_upstream/lwip/client_data/change.patch, sha256: c6dfebc70b3378f3c973506716be6c9658a6eeb81ff1201419047d0c736f29df}
+      harness: *lwip_harness
+      support: *lwip_support
+    publication: *lwip_publication
+
+  - id: upstream-lwip-failure-compile
+    corpus: lwip
+    classification: failure
+    material_kind: upstream_mutation
+    execution_status: ready
+    failure_mode: compile_failure
+    claim: A compiler failure prevents downstream maintenance publication.
+    mutation: Reference an undeclared pointer in the real upstream function.
+    oracle:
+      source_kind: pinned_public_source_and_experiment
+      derived_from_codeatlas: false
+      expected_decision: unavailable
+      expected_outcome: compile_failed
+      assertions: &lwip_failure_assertions
+        - id: default_stdout
+          stream: stdout
+          operator: contains
+          expected: "add_first=ok\n"
+          description: Runtime assertion remains unobserved when an earlier control aborts.
+    artifacts:
+      patch: {path: examples/maintenance_upstream/lwip/compile_failure/change.patch, sha256: 39ee60baee4062f8e4bd45df291b3a954e043783bdf8ca4d7bf3b70524857ca8}
+      harness: *lwip_harness
+      support: *lwip_support
+    publication: *lwip_publication
+
+  - id: upstream-lwip-failure-artifact-tamper
+    corpus: lwip
+    classification: failure
+    material_kind: upstream_mutation
+    execution_status: ready
+    failure_mode: artifact_tamper
+    claim: A copied fixture hash mismatch aborts before patch or compilation.
+    mutation: Tamper only with the temporary patch copy after binding original bytes.
+    oracle:
+      source_kind: pinned_public_source_and_experiment
+      derived_from_codeatlas: false
+      expected_decision: unavailable
+      expected_outcome: artifact_tamper
+      assertions: *lwip_failure_assertions
+    artifacts:
+      patch: {path: examples/maintenance_upstream/lwip/artifact_tamper/change.patch, sha256: 3779e12ccd8decd5c2abbc751d9ac2c35146509fb8cbf11e35d4cecc6d1f9904}
+      harness: *lwip_harness
+      support: *lwip_support
+    publication: *lwip_publication
+
+  - id: upstream-lwip-failure-publication
+    corpus: lwip
+    classification: failure
+    material_kind: upstream_mutation
+    execution_status: ready
+    failure_mode: publication_interruption
+    claim: Successful compile, run, assertion, snapshot, card, and citation do not imply Wiki commit.
+    mutation: Apply an effective upstream change then interrupt before Wiki commit.
+    oracle:
+      source_kind: pinned_public_source_and_experiment
+      derived_from_codeatlas: false
+      expected_decision: unavailable
+      expected_outcome: publication_interrupted
+      assertions:
+        - id: default_stdout
+          stream: stdout
+          operator: contains
+          expected: "default_after_explicit=other\n"
+          description: Patched upstream default behavior is proven before publication interruption.
+    artifacts:
+      patch: {path: examples/maintenance_upstream/lwip/publication_interruption/change.patch, sha256: 4a0776cc21da697cbbd51a06141c948bf0b39a3b5d3fd2b3a5b874cdcd58ee58}
+      harness: *lwip_harness
+      support: *lwip_support
+    publication: *lwip_publication
+
+  - id: upstream-lwip-failure-governance
+    corpus: lwip
+    classification: failure
+    material_kind: upstream_mutation
+    execution_status: ready
+    failure_mode: governance_rollback
+    claim: A governance rejection restores the pre-publication Wiki state.
+    mutation: Apply an effective upstream change then reject the staged publication.
+    oracle:
+      source_kind: pinned_public_source_and_experiment
+      derived_from_codeatlas: false
+      expected_decision: unavailable
+      expected_outcome: governance_rolled_back
+      assertions:
+        - id: default_stdout
+          stream: stdout
+          operator: contains
+          expected: "default_after_explicit=other\n"
+          description: Patched upstream default behavior is proven before governance rollback.
+    artifacts:
+      patch: {path: examples/maintenance_upstream/lwip/governance_rollback/change.patch, sha256: 4a0776cc21da697cbbd51a06141c948bf0b39a3b5d3fd2b3a5b874cdcd58ee58}
+      harness: *lwip_harness
+      support: *lwip_support
+    publication: *lwip_publication

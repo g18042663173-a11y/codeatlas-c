@@ -1,0 +1,754 @@
+{
+  "schema_version": 1,
+  "mode": "full",
+  "generated_at": "2026-09-05T04:35:04+00:00",
+  "codeatlas": {
+    "revision": "1b1f1d8bd66bf05fc15f1f62d7a97715e77fc3b4",
+    "branch": "feat/portfolio-core-evidence",
+    "dirty": true,
+    "dirty_entries": 90,
+    "origin": "https://github.com/g18042663173-a11y/codeatlas-c.git",
+    "implementation_hash": "9b78e0d4fbd07e21eae0bfda03b2a7e384f2eed17a463758852da4d6404a470e"
+  },
+  "corpora_manifest_sha256": "aef81c16da69e014f5747a2eb158e7af0ca9730645cc193b81791eba11600f1d",
+  "claims_manifest_sha256": "853e7d5ab534da77df6cb2608f4dff07c896c068d0c7a4b6f3a54e80dfd34843",
+  "execution_stages": [
+    {
+      "command": [
+        "/tmp/codeatlas-portfolio-venv/bin/python",
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "exit_code": 0,
+      "duration_s": 4.332,
+      "peak_rss_mb": 108.3
+    },
+    {
+      "command": [
+        "bash",
+        "examples/reproductions/cjson-nesting/run.sh"
+      ],
+      "exit_code": 0,
+      "duration_s": 1.16,
+      "peak_rss_mb": 108.3
+    },
+    {
+      "command": [
+        "bash",
+        "demo.sh",
+        "workflow"
+      ],
+      "exit_code": 0,
+      "duration_s": 9.317,
+      "peak_rss_mb": 108.3
+    },
+    {
+      "command": [
+        "bash",
+        "examples/reproductions/lwip-netif/run.sh"
+      ],
+      "exit_code": 0,
+      "duration_s": 0.449,
+      "peak_rss_mb": 108.3
+    },
+    {
+      "command": [
+        "bash",
+        "demo.sh",
+        "lwip"
+      ],
+      "exit_code": 0,
+      "duration_s": 24.126,
+      "peak_rss_mb": 138.5
+    },
+    {
+      "command": [
+        "/tmp/codeatlas-portfolio-venv/bin/python",
+        "-m",
+        "codeatlas.cli",
+        "workflow-eval",
+        "--db",
+        "data/lwip.db",
+        "--data-dir",
+        "data/lw",
+        "--work-dir",
+        "data/workflow-eval-lwip",
+        "--manifest",
+        "eval/workflow_lwip.yaml",
+        "--success-session",
+        "examples/conversations/lwip-netif-review.json",
+        "--insufficient-session",
+        "examples/conversations/lwip-insufficient-review.json",
+        "--unrelated-session",
+        "examples/conversations/lwip-unrelated-request.json",
+        "--out",
+        "docs/WORKFLOW-EVAL-LWIP.md"
+      ],
+      "exit_code": 0,
+      "duration_s": 1.281,
+      "peak_rss_mb": 138.5
+    }
+  ],
+  "corpora": [
+    {
+      "id": "cjson",
+      "role": "correctness",
+      "passed": false,
+      "foundation_passed": true,
+      "task_complete": false,
+      "gates": {
+        "source_checkout": true,
+        "compile_database": true,
+        "database": true,
+        "task_gold": true,
+        "task_metrics": false,
+        "knowledge_workflow": true
+      },
+      "source_checkout": {
+        "ok": true,
+        "revision": "fb16e5cf358798aabb049655975cde8427101056",
+        "expected_revision": "fb16e5cf358798aabb049655975cde8427101056",
+        "origin": "https://github.com/DaveGamble/cJSON",
+        "expected_origin": "https://github.com/DaveGamble/cJSON",
+        "revision_ok": true,
+        "origin_ok": true
+      },
+      "compile_database": {
+        "ok": true,
+        "translation_units": 28,
+        "sha256": "1cbbed51ee5dfe0dc2ec98a8db65a88cc34e3b8fab83f0fb42c681a7a7c1a882",
+        "escaped_files": []
+      },
+      "database": {
+        "ok": true,
+        "gates": {
+          "identity": true,
+          "compile_database": true,
+          "diagnostics": true,
+          "relations": true,
+          "wiki": true
+        },
+        "repository": "https://github.com/DaveGamble/cJSON",
+        "revision": "fb16e5cf358798aabb049655975cde8427101056",
+        "build_config_hash": "240ae1fe5d1045e372d41a963151dd895ebcb9e177bc8aa7e7428ab9861552d4",
+        "parse_stats": {
+          "diag_error": 0,
+          "translation_units": 28,
+          "tu_failed": 0,
+          "tu_ok": 28
+        },
+        "edge_counts": {
+          "calls": 1263,
+          "contains": 1235,
+          "field_access": 465,
+          "global_ref": 104,
+          "includes": 74,
+          "type_use": 574
+        },
+        "candidate_edges": 183,
+        "branch_facts": 1431,
+        "wiki": {
+          "ok": true,
+          "errors": [],
+          "pages": 38,
+          "module_scope_checked": 3,
+          "module_scope_ok": true,
+          "file_coverage": 34
+        }
+      },
+      "task_gold": {
+        "ok": true,
+        "count": 20,
+        "sha256": "2758b81110f499690b3ab5acb03b8bbc598d72bef2cbc7250ffabe2c51a3142c",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      "tasks": {
+        "ok": false,
+        "gates": {
+          "identity": true,
+          "manifest_hash": true,
+          "retrieval": true,
+          "impact": true,
+          "refusal": true,
+          "no_unexpected_failures": true,
+          "no_review_blockers": false,
+          "task_complete": false
+        },
+        "summary": {
+          "baseline": {
+            "n": 10,
+            "recall": 60.0,
+            "mrr": 0.392,
+            "evidence": 60.0,
+            "context": 3835,
+            "p50": 0.7,
+            "p95": 2.5
+          },
+          "full": {
+            "n": 10,
+            "recall": 100.0,
+            "mrr": 0.711,
+            "evidence": 100.0,
+            "context": 5157,
+            "p50": 3.8,
+            "p95": 6.0
+          },
+          "impact": {
+            "n": 2,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "p50": 0.3,
+            "p95": 0.4
+          },
+          "refusal": {
+            "n": 3,
+            "accuracy": 100.0,
+            "p50": 1.7,
+            "p95": 2.1
+          },
+          "experience": {
+            "n": 5,
+            "recall": 0.0,
+            "mrr": 0.0,
+            "evidence": 0.0,
+            "context": 3944,
+            "p50": 2.4,
+            "p95": 4.6
+          },
+          "passed_tasks": 15,
+          "total_tasks": 20,
+          "blocked_by_review": [
+            "exp-cjson-symptom",
+            "exp-cjson-dead-end",
+            "exp-cjson-fix",
+            "exp-cjson-verify",
+            "exp-cjson-anchor"
+          ],
+          "unexpected_failures": [],
+          "failures": [
+            {
+              "id": "exp-cjson-symptom",
+              "type": "已审核经验复用",
+              "errors": [
+                "未命中当前 approved B 卡或主锚点 provenance 不完整"
+              ]
+            },
+            {
+              "id": "exp-cjson-dead-end",
+              "type": "已审核经验复用",
+              "errors": [
+                "未命中当前 approved B 卡或主锚点 provenance 不完整"
+              ]
+            },
+            {
+              "id": "exp-cjson-fix",
+              "type": "已审核经验复用",
+              "errors": [
+                "未命中当前 approved B 卡或主锚点 provenance 不完整"
+              ]
+            },
+            {
+              "id": "exp-cjson-verify",
+              "type": "已审核经验复用",
+              "errors": [
+                "未命中当前 approved B 卡或主锚点 provenance 不完整"
+              ]
+            },
+            {
+              "id": "exp-cjson-anchor",
+              "type": "已审核经验复用",
+              "errors": [
+                "未命中当前 approved B 卡或主锚点 provenance 不完整"
+              ]
+            }
+          ]
+        },
+        "acceptance": {
+          "recall_gain_pt": 40.0,
+          "mrr_delta": 0.319,
+          "passed": true
+        },
+        "failure_breakdown": {
+          "blocked_by_review": [
+            {
+              "id": "exp-cjson-symptom",
+              "type": "已审核经验复用",
+              "errors": [
+                "未命中当前 approved B 卡或主锚点 provenance 不完整"
+              ]
+            },
+            {
+              "id": "exp-cjson-dead-end",
+              "type": "已审核经验复用",
+              "errors": [
+                "未命中当前 approved B 卡或主锚点 provenance 不完整"
+              ]
+            },
+            {
+              "id": "exp-cjson-fix",
+              "type": "已审核经验复用",
+              "errors": [
+                "未命中当前 approved B 卡或主锚点 provenance 不完整"
+              ]
+            },
+            {
+              "id": "exp-cjson-verify",
+              "type": "已审核经验复用",
+              "errors": [
+                "未命中当前 approved B 卡或主锚点 provenance 不完整"
+              ]
+            },
+            {
+              "id": "exp-cjson-anchor",
+              "type": "已审核经验复用",
+              "errors": [
+                "未命中当前 approved B 卡或主锚点 provenance 不完整"
+              ]
+            }
+          ],
+          "unexpected": [],
+          "blocked_count": 5,
+          "unexpected_count": 0
+        },
+        "task_complete": false,
+        "reproducibility": {
+          "task_manifest_sha256": "2758b81110f499690b3ab5acb03b8bbc598d72bef2cbc7250ffabe2c51a3142c",
+          "build_config_hash": "240ae1fe5d1045e372d41a963151dd895ebcb9e177bc8aa7e7428ab9861552d4",
+          "parse_stats": {
+            "diag_error": 0,
+            "translation_units": 28,
+            "tu_failed": 0,
+            "tu_ok": 28
+          },
+          "codeatlas": {
+            "revision": "1b1f1d8bd66bf05fc15f1f62d7a97715e77fc3b4",
+            "branch": "feat/portfolio-core-evidence",
+            "dirty": true,
+            "dirty_entries": 90,
+            "origin": "https://github.com/g18042663173-a11y/codeatlas-c.git",
+            "implementation_hash": "9b78e0d4fbd07e21eae0bfda03b2a7e384f2eed17a463758852da4d6404a470e"
+          }
+        },
+        "sha256": "52c909608137576acfb77a1f9250e741f38ba43bfac97d4c93c3ae3257514ed1",
+        "generated_at": "2026-09-05T04:34:36+00:00"
+      },
+      "workflow": {
+        "ok": true,
+        "identity": true,
+        "gates": {
+          "tool_trace_legal_rate": true,
+          "wiki_first_order_rate": true,
+          "a_anchor_complete_rate": true,
+          "card_gate_correct_rate": true,
+          "markdown_rebuild_consistency_rate": true,
+          "refusal_accuracy": true,
+          "raw_session_indexed_count": true
+        },
+        "metrics": {
+          "tool_trace_legal_rate": 100.0,
+          "wiki_first_order_rate": 100.0,
+          "a_anchor_complete_rate": 100.0,
+          "card_gate_correct_rate": 100.0,
+          "markdown_rebuild_consistency_rate": 100.0,
+          "refusal_accuracy": 100.0,
+          "raw_session_indexed_count": 0,
+          "p50_ms": 5,
+          "p95_ms": 11
+        },
+        "sha256": "e137e874279035e2f064aafac06bc8d80ba0e4af55d8a54023ca8ec9cbef43d1",
+        "generated_at": "2026-09-05T04:34:38+00:00",
+        "synthetic_review": "synthetic_test_review"
+      }
+    },
+    {
+      "id": "lwip",
+      "role": "scale",
+      "passed": false,
+      "foundation_passed": true,
+      "task_complete": false,
+      "gates": {
+        "source_checkout": true,
+        "compile_database": true,
+        "database": true,
+        "task_gold": true,
+        "task_metrics": false,
+        "knowledge_workflow": true
+      },
+      "source_checkout": {
+        "ok": true,
+        "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+        "expected_revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+        "origin": "https://github.com/lwip-tcpip/lwip",
+        "expected_origin": "https://github.com/lwip-tcpip/lwip",
+        "revision_ok": true,
+        "origin_ok": true
+      },
+      "compile_database": {
+        "ok": true,
+        "translation_units": 124,
+        "sha256": "90822bf58d75c98b04a2c84beaa5e795c8542f66c405bee95d4ab91599970bfd",
+        "escaped_files": []
+      },
+      "database": {
+        "ok": true,
+        "gates": {
+          "identity": true,
+          "compile_database": true,
+          "diagnostics": true,
+          "relations": true,
+          "wiki": true
+        },
+        "repository": "https://github.com/lwip-tcpip/lwip",
+        "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+        "build_config_hash": "27d9c848c59a3c22973583a16ac40a7313ea7ad108ae78448f137c9adc5355e5",
+        "parse_stats": {
+          "diag_error": 0,
+          "translation_units": 124,
+          "tu_failed": 0,
+          "tu_ok": 124
+        },
+        "edge_counts": {
+          "calls": 2894,
+          "contains": 8088,
+          "field_access": 6117,
+          "global_ref": 752,
+          "includes": 758,
+          "type_use": 4162
+        },
+        "candidate_edges": 282,
+        "branch_facts": 8760,
+        "wiki": {
+          "ok": true,
+          "errors": [],
+          "pages": 285,
+          "module_scope_checked": 18,
+          "module_scope_ok": true,
+          "file_coverage": 266
+        }
+      },
+      "task_gold": {
+        "ok": true,
+        "count": 20,
+        "sha256": "39932189415eb5e65a4380f0af1df269d92a8aec9700680a1afa680d42d8874d",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-04"
+      },
+      "tasks": {
+        "ok": false,
+        "gates": {
+          "identity": true,
+          "manifest_hash": true,
+          "retrieval": true,
+          "impact": true,
+          "refusal": true,
+          "no_unexpected_failures": true,
+          "no_review_blockers": false,
+          "task_complete": false
+        },
+        "summary": {
+          "baseline": {
+            "n": 10,
+            "recall": 80.0,
+            "mrr": 0.484,
+            "evidence": 80.0,
+            "context": 3745,
+            "p50": 2.6,
+            "p95": 3.9
+          },
+          "full": {
+            "n": 10,
+            "recall": 100.0,
+            "mrr": 0.812,
+            "evidence": 100.0,
+            "context": 5441,
+            "p50": 8.7,
+            "p95": 16.3
+          },
+          "impact": {
+            "n": 2,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "p50": 0.2,
+            "p95": 0.3
+          },
+          "refusal": {
+            "n": 3,
+            "accuracy": 100.0,
+            "p50": 5.6,
+            "p95": 8.3
+          },
+          "experience": {
+            "n": 5,
+            "recall": 0.0,
+            "mrr": 0.0,
+            "evidence": 0.0,
+            "context": 5660,
+            "p50": 7.2,
+            "p95": 7.4
+          },
+          "passed_tasks": 15,
+          "total_tasks": 20,
+          "blocked_by_review": [
+            "exp-lwip-symptom",
+            "exp-lwip-hypothesis",
+            "exp-lwip-fix",
+            "exp-lwip-verify",
+            "exp-lwip-anchor"
+          ],
+          "unexpected_failures": [],
+          "failures": [
+            {
+              "id": "exp-lwip-symptom",
+              "type": "已审核经验复用",
+              "errors": [
+                "未命中当前 approved B 卡或主锚点 provenance 不完整"
+              ]
+            },
+            {
+              "id": "exp-lwip-hypothesis",
+              "type": "已审核经验复用",
+              "errors": [
+                "未命中当前 approved B 卡或主锚点 provenance 不完整"
+              ]
+            },
+            {
+              "id": "exp-lwip-fix",
+              "type": "已审核经验复用",
+              "errors": [
+                "未命中当前 approved B 卡或主锚点 provenance 不完整"
+              ]
+            },
+            {
+              "id": "exp-lwip-verify",
+              "type": "已审核经验复用",
+              "errors": [
+                "未命中当前 approved B 卡或主锚点 provenance 不完整"
+              ]
+            },
+            {
+              "id": "exp-lwip-anchor",
+              "type": "已审核经验复用",
+              "errors": [
+                "未命中当前 approved B 卡或主锚点 provenance 不完整"
+              ]
+            }
+          ]
+        },
+        "acceptance": {
+          "recall_gain_pt": 20.0,
+          "mrr_delta": 0.328,
+          "passed": true
+        },
+        "failure_breakdown": {
+          "blocked_by_review": [
+            {
+              "id": "exp-lwip-symptom",
+              "type": "已审核经验复用",
+              "errors": [
+                "未命中当前 approved B 卡或主锚点 provenance 不完整"
+              ]
+            },
+            {
+              "id": "exp-lwip-hypothesis",
+              "type": "已审核经验复用",
+              "errors": [
+                "未命中当前 approved B 卡或主锚点 provenance 不完整"
+              ]
+            },
+            {
+              "id": "exp-lwip-fix",
+              "type": "已审核经验复用",
+              "errors": [
+                "未命中当前 approved B 卡或主锚点 provenance 不完整"
+              ]
+            },
+            {
+              "id": "exp-lwip-verify",
+              "type": "已审核经验复用",
+              "errors": [
+                "未命中当前 approved B 卡或主锚点 provenance 不完整"
+              ]
+            },
+            {
+              "id": "exp-lwip-anchor",
+              "type": "已审核经验复用",
+              "errors": [
+                "未命中当前 approved B 卡或主锚点 provenance 不完整"
+              ]
+            }
+          ],
+          "unexpected": [],
+          "blocked_count": 5,
+          "unexpected_count": 0
+        },
+        "task_complete": false,
+        "reproducibility": {
+          "task_manifest_sha256": "39932189415eb5e65a4380f0af1df269d92a8aec9700680a1afa680d42d8874d",
+          "build_config_hash": "27d9c848c59a3c22973583a16ac40a7313ea7ad108ae78448f137c9adc5355e5",
+          "parse_stats": {
+            "diag_error": 0,
+            "translation_units": 124,
+            "tu_failed": 0,
+            "tu_ok": 124
+          },
+          "codeatlas": {
+            "revision": "1b1f1d8bd66bf05fc15f1f62d7a97715e77fc3b4",
+            "branch": "feat/portfolio-core-evidence",
+            "dirty": true,
+            "dirty_entries": 90,
+            "origin": "https://github.com/g18042663173-a11y/codeatlas-c.git",
+            "implementation_hash": "9b78e0d4fbd07e21eae0bfda03b2a7e384f2eed17a463758852da4d6404a470e"
+          }
+        },
+        "sha256": "01c7e568cee505f886c4f1b7dd20be6fd9a1f99a17fa0639cbd30a2da7f1e63d",
+        "generated_at": "2026-09-05T04:35:02+00:00"
+      },
+      "workflow": {
+        "ok": true,
+        "identity": true,
+        "gates": {
+          "tool_trace_legal_rate": true,
+          "wiki_first_order_rate": true,
+          "a_anchor_complete_rate": true,
+          "card_gate_correct_rate": true,
+          "markdown_rebuild_consistency_rate": true,
+          "refusal_accuracy": true,
+          "raw_session_indexed_count": true
+        },
+        "metrics": {
+          "tool_trace_legal_rate": 100.0,
+          "wiki_first_order_rate": 100.0,
+          "a_anchor_complete_rate": 100.0,
+          "card_gate_correct_rate": 100.0,
+          "markdown_rebuild_consistency_rate": 100.0,
+          "refusal_accuracy": 100.0,
+          "raw_session_indexed_count": 0,
+          "p50_ms": 11,
+          "p95_ms": 22
+        },
+        "sha256": "b9f8bd31806c9563e8bc6d67f2f8ee3a73dd37c7b69997f5d55888a17a36315f",
+        "generated_at": "2026-09-05T04:35:04+00:00",
+        "synthetic_review": "synthetic_test_review"
+      }
+    }
+  ],
+  "claims": [
+    {
+      "id": "cjson-official-source",
+      "kind": "source_identity",
+      "claim": "cJSON 测试快照来自 Dave Gamble 维护的官方 GitHub 仓库。",
+      "required": true,
+      "status": "verified",
+      "actual": {
+        "official_url": "https://github.com/DaveGamble/cJSON",
+        "checkout_url": "https://github.com/DaveGamble/cJSON",
+        "source_relation": "official"
+      }
+    },
+    {
+      "id": "lwip-upstream-and-mirror",
+      "kind": "source_identity",
+      "claim": "lwIP 官方开发源位于 Savannah，测试使用 lwip-tcpip/lwip GitHub 镜像。",
+      "required": true,
+      "status": "verified",
+      "actual": {
+        "official_url": "https://git.savannah.nongnu.org/git/lwip.git",
+        "checkout_url": "https://github.com/lwip-tcpip/lwip",
+        "source_relation": "mirror"
+      }
+    },
+    {
+      "id": "cjson-task-count",
+      "kind": "task_count",
+      "claim": "cJSON 正式人工任务集包含 20 道题。",
+      "required": true,
+      "status": "verified",
+      "asserted": 20,
+      "actual": 20
+    },
+    {
+      "id": "lwip-task-count",
+      "kind": "task_count",
+      "claim": "lwIP 正式人工任务集包含 20 道题。",
+      "required": true,
+      "status": "verified",
+      "asserted": 20,
+      "actual": 20
+    },
+    {
+      "id": "lwip-two-failures",
+      "kind": "failure_count",
+      "claim": "当前 lwIP 20 道题中只有 2 道失败。",
+      "required": false,
+      "status": "contradicted",
+      "asserted": 2,
+      "actual": 5,
+      "failure_breakdown": {
+        "unexpected": 0,
+        "blocked_by_review": 5
+      }
+    },
+    {
+      "id": "codeatlas-report-publication",
+      "kind": "publication",
+      "claim": "当前 CodeAtlas 双语料评测已经可以由公众从远端 commit 独立读取和复核。",
+      "required": true,
+      "status": "locally_verified_not_published",
+      "reason": "dirty_or_untracked",
+      "dirty": true,
+      "tracked_reports": 0,
+      "total_reports": 4,
+      "codeatlas": {
+        "revision": "1b1f1d8bd66bf05fc15f1f62d7a97715e77fc3b4",
+        "branch": "feat/portfolio-core-evidence",
+        "dirty": true,
+        "dirty_entries": 90,
+        "origin": "https://github.com/g18042663173-a11y/codeatlas-c.git",
+        "implementation_hash": "9b78e0d4fbd07e21eae0bfda03b2a7e384f2eed17a463758852da4d6404a470e"
+      }
+    }
+  ],
+  "publication": {
+    "id": "codeatlas-report-publication",
+    "kind": "publication",
+    "claim": "当前 CodeAtlas 双语料评测已经可以由公众从远端 commit 独立读取和复核。",
+    "required": true,
+    "status": "locally_verified_not_published",
+    "reason": "dirty_or_untracked",
+    "dirty": true,
+    "tracked_reports": 0,
+    "total_reports": 4,
+    "codeatlas": {
+      "revision": "1b1f1d8bd66bf05fc15f1f62d7a97715e77fc3b4",
+      "branch": "feat/portfolio-core-evidence",
+      "dirty": true,
+      "dirty_entries": 90,
+      "origin": "https://github.com/g18042663173-a11y/codeatlas-c.git",
+      "implementation_hash": "9b78e0d4fbd07e21eae0bfda03b2a7e384f2eed17a463758852da4d6404a470e"
+    }
+  },
+  "model_abc": {
+    "status": "not_run",
+    "passed": false,
+    "corpora": [
+      {
+        "id": "cjson",
+        "status": "not_run",
+        "passed": false
+      },
+      {
+        "id": "lwip",
+        "status": "not_run",
+        "passed": false
+      }
+    ]
+  },
+  "foundation_passed": true,
+  "task_complete": false,
+  "passed": false,
+  "portfolio_ready": false
+}

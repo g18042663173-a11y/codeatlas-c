@@ -1,0 +1,128 @@
+{
+  "reviewer_kind": "agent",
+  "agent": "material_v2_a",
+  "session_id": "material_v2_a-45d97c43-0881-42aa-a1ef-e46c6b0913be",
+  "peer_reviews_visible": false,
+  "items": [
+    {
+      "section_id": "cjson-nesting:generic_summary:s1",
+      "verdict": "supported",
+      "evidence_note": "固定版本源码定义默认限制 1000 并在递归入口主动拒绝；1001 层复现于偏移 1000 返回 NULL。"
+    },
+    {
+      "section_id": "cjson-nesting:generic_summary:s2",
+      "verdict": "supported",
+      "evidence_note": "cJSON.h、parse_array、parse_object 与失败路径的 return_parse_end 赋值共同支持该机制。"
+    },
+    {
+      "section_id": "cjson-nesting:generic_summary:s3",
+      "verdict": "supported",
+      "evidence_note": "result.txt 精确记录 999/1000 成功、1001 失败、parse_end=1000、input_len=2003，run.sh 执行 diff。"
+    },
+    {
+      "section_id": "cjson-nesting:generic_summary:s4",
+      "verdict": "supported",
+      "evidence_note": "公开会话明确给出处理 NULL、谨慎调整编译期限制并补齐边界测试的建议，且正文正确标注为建议。"
+    },
+    {
+      "section_id": "cjson-nesting:generic_summary:s5",
+      "verdict": "supported",
+      "evidence_note": "run.sh 固定完整 revision，并在实际 revision 不匹配时退出 2。"
+    },
+    {
+      "section_id": "cjson-nesting:generic_summary:s6",
+      "verdict": "supported",
+      "evidence_note": "会话记录栈空间初始假设与死路；源码中的编译期检查说明单纯增大进程栈不改变该边界。"
+    },
+    {
+      "section_id": "cjson-nesting:structured_card:s1",
+      "verdict": "supported",
+      "evidence_note": "固定深度 harness 与 result.txt 支持三个边界结果，并记录停止位置及输入长度。"
+    },
+    {
+      "section_id": "cjson-nesting:structured_card:s2",
+      "verdict": "supported",
+      "evidence_note": "公开会话的 hypothesis 消息逐项陈述栈空间不足与解析器主动限深两种假设。"
+    },
+    {
+      "section_id": "cjson-nesting:structured_card:s3",
+      "verdict": "supported",
+      "evidence_note": "源码在深度阈值处显式返回 false，复现正常返回 NULL 而非崩溃，支持排除本实验中的栈不足及内存耗尽。"
+    },
+    {
+      "section_id": "cjson-nesting:structured_card:s4",
+      "verdict": "supported",
+      "evidence_note": "数组和对象解析入口均检查 depth >= CJSON_NESTING_LIMIT 并返回 false，失败最终传递为 NULL。"
+    },
+    {
+      "section_id": "cjson-nesting:structured_card:s5",
+      "verdict": "supported",
+      "evidence_note": "处理步骤与公开会话的 reviewer fix 一致，且与源码所示编译期限制及栈溢出保护注释相符。"
+    },
+    {
+      "section_id": "cjson-nesting:structured_card:s6",
+      "verdict": "supported",
+      "evidence_note": "run.sh 固定 revision 并比对预期输出；cJSON.h 给出默认阈值 1000，结果恰好覆盖边界。"
+    },
+    {
+      "section_id": "lwip-netif:generic_summary:s1",
+      "verdict": "supported",
+      "evidence_note": "多接口路径把新接口置于 netif_list 表头；netif_set_default 另行赋值 netif_default，复现确认 add 不改默认项。"
+    },
+    {
+      "section_id": "lwip-netif:generic_summary:s2",
+      "verdict": "supported",
+      "evidence_note": "result.txt 逐行精确匹配初始、add_first、set_default、add_second 四阶段状态。"
+    },
+    {
+      "section_id": "lwip-netif:generic_summary:s3",
+      "verdict": "supported",
+      "evidence_note": "netif.c 显示 init 调用、非单接口链表插入和独立默认项赋值；复现配置未定义 LWIP_SINGLE_NETIF。"
+    },
+    {
+      "section_id": "lwip-netif:generic_summary:s4",
+      "verdict": "supported",
+      "evidence_note": "lwipopts.h 与所列最小配置一致；netif_add 的单接口条件分支在已有默认接口时明确返回 NULL。"
+    },
+    {
+      "section_id": "lwip-netif:generic_summary:s5",
+      "verdict": "supported",
+      "evidence_note": "会话确实给出调用方混淆的根因判断与显式设默认项建议；正文也如实标明该因果判断未被源码直接验证。"
+    },
+    {
+      "section_id": "lwip-netif:generic_summary:s6",
+      "verdict": "supported",
+      "evidence_note": "run.sh 固定 3d896ba0...，配置关闭 IPv6 且使用 NO_SYS=1；附件实验未覆盖所列其他场景。"
+    },
+    {
+      "section_id": "lwip-netif:structured_card:s1",
+      "verdict": "supported",
+      "evidence_note": "公开复现输出显示首个 add 后 list=first/default=none，第二个 add 后 list=second/default=first。"
+    },
+    {
+      "section_id": "lwip-netif:structured_card:s2",
+      "verdict": "supported",
+      "evidence_note": "会话记录该初始假设；源码和复现均表明 netif_add 的链表变更不能替代 netif_set_default。"
+    },
+    {
+      "section_id": "lwip-netif:structured_card:s3",
+      "verdict": "supported",
+      "evidence_note": "根因表述与公开会话的 reviewer 结论一致，并由固定多接口路径及复现输出支持其限定范围。"
+    },
+    {
+      "section_id": "lwip-netif:structured_card:s4",
+      "verdict": "supported",
+      "evidence_note": "netif_set_default 独立赋值默认接口，harness 的 first 调用顺序与会话建议均支持按路由策略显式选择。"
+    },
+    {
+      "section_id": "lwip-netif:structured_card:s5",
+      "verdict": "supported",
+      "evidence_note": "run.sh 编译执行 reproduce 并与 result.txt 比对，正文列出的完整输出序列准确。"
+    },
+    {
+      "section_id": "lwip-netif:structured_card:s6",
+      "verdict": "supported",
+      "evidence_note": "revision、未定义 LWIP_SINGLE_NETIF 的配置及单接口分支返回 NULL 均由会话、配置和源码直接支持。"
+    }
+  ]
+}

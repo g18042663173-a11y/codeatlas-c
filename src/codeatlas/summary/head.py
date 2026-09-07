@@ -119,7 +119,12 @@ def build(conn: sqlite3.Connection, repo: str, *, use_llm: bool = False,
         # 踩坑点只来自 **已审核通过** 的经验条目（B 级证据）
         pitfalls = [r["title"] for r in conn.execute(
             """SELECT ex.title FROM experience ex JOIN experience_link l ON l.exp_id=ex.id
-                WHERE l.node_id=? AND ex.status='approved' LIMIT 5""", (fn["id"],))]
+                WHERE l.node_id=? AND l.confidence='certain' AND ex.status='approved'
+                  AND COALESCE(ex.artifact_scope,'formal')=COALESCE(
+                    (SELECT value FROM meta WHERE key='evaluation_scope'),'formal')
+                  AND EXISTS (SELECT 1 FROM experience_anchor a
+                               WHERE a.exp_id=ex.id AND a.active=1)
+                LIMIT 5""", (fn["id"],))]
 
         doc = _doc_first_line(repo_p, fn["path"], fn["line_start"])
         one_liner = doc or _humanize(fn["name"])

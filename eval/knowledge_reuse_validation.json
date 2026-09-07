@@ -1,0 +1,1470 @@
+{
+  "schema_version": 3,
+  "artifact_type": "knowledge_reuse_source_validation",
+  "artifact_scope": "isolated_experiment",
+  "review_protocol": "Canonical knowledge-release review prompt v1",
+  "reviewed_at": "2026-09-05T13:11:42Z",
+  "verdict": "approved",
+  "overall_verdict": "pass",
+  "factual_verdict": "pass",
+  "approval_scope": "Current six-question knowledge gold factual/source contract only; this does not approve historical no-exposure, measured model quality, calibration, or formal human knowledge-card release.",
+  "human_reviewed": false,
+  "reviewer": {
+    "kind": "agent",
+    "agent": "/root/proof_fixture_review",
+    "provider": "OpenAI",
+    "provider_identity_basis": "Codex/OpenAI product identity; underlying serving route was not independently audited.",
+    "model": null,
+    "exact_runtime_model_identity_available": false,
+    "model_identity_boundary": "No exact runtime model identifier is exposed to this agent. It is intentionally not guessed from the Codex/GPT-family description.",
+    "distinct_agent_identity": true,
+    "distinct_model_independence_proven": false
+  },
+  "content_hash": "e3d7fb2eaca74edb23c37812c948fbd0d5c648fdb7657919477595c88722652c",
+  "answer_key_content_hash": "e3d7fb2eaca74edb23c37812c948fbd0d5c648fdb7657919477595c88722652c",
+  "manifest_content_hash": "c8c2504f8429ca7a235e0f9b858ac294fbe86de2bad5afedc3c781e2031a82a1",
+  "answer_key_input_hash": "2be7645e69c77b1d5bf3f05c8de6cbc49ee81ef28acac100dcfcf6a502a113bc",
+  "protocol": {
+    "answer_key_input_hash": "2be7645e69c77b1d5bf3f05c8de6cbc49ee81ef28acac100dcfcf6a502a113bc",
+    "input_hash_function": "codeatlas.eval.protocol.answer_key_input_hash",
+    "hash_function_usage": "Used only to bind current answer-key inputs, never as a semantic truth oracle."
+  },
+  "input_hashes": {
+    "examples/reproductions/cjson-nesting/reproduce.c": "cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+    "examples/reproductions/cjson-nesting/run.sh": "529274dbbd63556db765061836196cc91af288bcff2d449fc03c3bf9843cf481",
+    "corpus/cJSON/cJSON.h": "25b0145150d500498e4d209cec69c18c42cf818bffcc54690be3b895a2a16dee",
+    "examples/reproductions/cjson-nesting/result.txt": "ed76b1069221053876dd4995aaee6e228f4983ad8f97717d51bf1ff02be0b133",
+    "corpus/cJSON/cJSON.c": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+    "examples/reproductions/lwip-netif/reproduce.c": "cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a",
+    "corpus/lwip/src/core/netif.c": "a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+    "examples/reproductions/lwip-netif/result.txt": "8102733501276cd10303a81dc15877f7e5386b1dacb48c535f2960562f95414f",
+    "corpus/lwip/src/include/lwip/netif.h": "6e958aa1bd23b7381c09a873f7af919323f87ec50a2d3055a46f75275c2a121b",
+    "examples/conversations/cjson-nesting-review.json": "82d267a60b35e0172579dc26af61f912265119e3d38a6d20c4aeca500339a736",
+    "eval/templates/knowledge_reuse_presentations.yaml": "faeed3b3773d81a8f99e74686c8993d7094d1663d6c1dab3bd15ca0aad4ea507",
+    "examples/conversations/lwip-netif-review.json": "154df7929e17e425d2f3bccd54feb70eee8287eab46c66ebe347b604284d3dc3",
+    "examples/reproductions/lwip-netif/run.sh": "82f26ccf13e73a3e8e19b12629a466c3b74045a3659203a0d414044f1fd34528",
+    "examples/reproductions/lwip-netif/include/lwipopts.h": "65426d6f6d1c1a97a74392bfe626d19e68faf00ee585f5990231edd5edf2ecf2",
+    "eval/knowledge_reuse.yaml": "c8c2504f8429ca7a235e0f9b858ac294fbe86de2bad5afedc3c781e2031a82a1",
+    "eval/knowledge_reuse.answers.yaml": "e3d7fb2eaca74edb23c37812c948fbd0d5c648fdb7657919477595c88722652c"
+  },
+  "summary": {
+    "case_count": 2,
+    "question_count": 6,
+    "question_pass": 6,
+    "expected_point_count": 33,
+    "point_pass": 33,
+    "forbidden_claim_count": 26,
+    "forbidden_claim_pass": 26,
+    "evidence_count": 45,
+    "evidence_hash_range_snippet_pass": 45,
+    "reproduction_identity_count": 2,
+    "reproduction_identity_pass": 2,
+    "original_reproduction_pass": 2,
+    "fail": 0,
+    "unresolved_factual_checks": 0
+  },
+  "task_binding": {
+    "task_ids_match_manifest": true,
+    "task_set_hash_matches_manifest": true,
+    "expected_point_evidence_ids_resolve": true,
+    "independent_unit": "case",
+    "case_count": 2,
+    "question_count": 6,
+    "three_questions_per_case": true
+  },
+  "material_binding_checks": [
+    {
+      "case_id": "cjson-nesting",
+      "path": "examples/conversations/cjson-nesting-review.json",
+      "file_sha256": "82d267a60b35e0172579dc26af61f912265119e3d38a6d20c4aeca500339a736",
+      "hash_match": true,
+      "range_valid": true
+    },
+    {
+      "case_id": "cjson-nesting",
+      "path": "eval/templates/knowledge_reuse_presentations.yaml",
+      "file_sha256": "faeed3b3773d81a8f99e74686c8993d7094d1663d6c1dab3bd15ca0aad4ea507",
+      "hash_match": true,
+      "range_valid": true
+    },
+    {
+      "case_id": "cjson-nesting",
+      "path": "corpus/cJSON/cJSON.h",
+      "file_sha256": "25b0145150d500498e4d209cec69c18c42cf818bffcc54690be3b895a2a16dee",
+      "hash_match": true,
+      "range_valid": true
+    },
+    {
+      "case_id": "cjson-nesting",
+      "path": "corpus/cJSON/cJSON.c",
+      "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+      "hash_match": true,
+      "range_valid": true
+    },
+    {
+      "case_id": "cjson-nesting",
+      "path": "corpus/cJSON/cJSON.c",
+      "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+      "hash_match": true,
+      "range_valid": true
+    },
+    {
+      "case_id": "cjson-nesting",
+      "path": "corpus/cJSON/cJSON.c",
+      "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+      "hash_match": true,
+      "range_valid": true
+    },
+    {
+      "case_id": "cjson-nesting",
+      "path": "corpus/cJSON/cJSON.c",
+      "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+      "hash_match": true,
+      "range_valid": true
+    },
+    {
+      "case_id": "cjson-nesting",
+      "path": "examples/reproductions/cjson-nesting/reproduce.c",
+      "file_sha256": "cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+      "hash_match": true,
+      "range_valid": true
+    },
+    {
+      "case_id": "cjson-nesting",
+      "path": "examples/reproductions/cjson-nesting/run.sh",
+      "file_sha256": "529274dbbd63556db765061836196cc91af288bcff2d449fc03c3bf9843cf481",
+      "hash_match": true,
+      "range_valid": true
+    },
+    {
+      "case_id": "cjson-nesting",
+      "path": "examples/reproductions/cjson-nesting/result.txt",
+      "file_sha256": "ed76b1069221053876dd4995aaee6e228f4983ad8f97717d51bf1ff02be0b133",
+      "hash_match": true,
+      "range_valid": true
+    },
+    {
+      "case_id": "lwip-netif",
+      "path": "examples/conversations/lwip-netif-review.json",
+      "file_sha256": "154df7929e17e425d2f3bccd54feb70eee8287eab46c66ebe347b604284d3dc3",
+      "hash_match": true,
+      "range_valid": true
+    },
+    {
+      "case_id": "lwip-netif",
+      "path": "eval/templates/knowledge_reuse_presentations.yaml",
+      "file_sha256": "faeed3b3773d81a8f99e74686c8993d7094d1663d6c1dab3bd15ca0aad4ea507",
+      "hash_match": true,
+      "range_valid": true
+    },
+    {
+      "case_id": "lwip-netif",
+      "path": "corpus/lwip/src/core/netif.c",
+      "file_sha256": "a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+      "hash_match": true,
+      "range_valid": true
+    },
+    {
+      "case_id": "lwip-netif",
+      "path": "corpus/lwip/src/core/netif.c",
+      "file_sha256": "a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+      "hash_match": true,
+      "range_valid": true
+    },
+    {
+      "case_id": "lwip-netif",
+      "path": "corpus/lwip/src/core/netif.c",
+      "file_sha256": "a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+      "hash_match": true,
+      "range_valid": true
+    },
+    {
+      "case_id": "lwip-netif",
+      "path": "corpus/lwip/src/core/netif.c",
+      "file_sha256": "a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+      "hash_match": true,
+      "range_valid": true
+    },
+    {
+      "case_id": "lwip-netif",
+      "path": "corpus/lwip/src/include/lwip/netif.h",
+      "file_sha256": "6e958aa1bd23b7381c09a873f7af919323f87ec50a2d3055a46f75275c2a121b",
+      "hash_match": true,
+      "range_valid": true
+    },
+    {
+      "case_id": "lwip-netif",
+      "path": "examples/reproductions/lwip-netif/reproduce.c",
+      "file_sha256": "cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a",
+      "hash_match": true,
+      "range_valid": true
+    },
+    {
+      "case_id": "lwip-netif",
+      "path": "examples/reproductions/lwip-netif/run.sh",
+      "file_sha256": "82f26ccf13e73a3e8e19b12629a466c3b74045a3659203a0d414044f1fd34528",
+      "hash_match": true,
+      "range_valid": true
+    },
+    {
+      "case_id": "lwip-netif",
+      "path": "examples/reproductions/lwip-netif/include/lwipopts.h",
+      "file_sha256": "65426d6f6d1c1a97a74392bfe626d19e68faf00ee585f5990231edd5edf2ecf2",
+      "hash_match": true,
+      "range_valid": true
+    },
+    {
+      "case_id": "lwip-netif",
+      "path": "examples/reproductions/lwip-netif/result.txt",
+      "file_sha256": "8102733501276cd10303a81dc15877f7e5386b1dacb48c535f2960562f95414f",
+      "hash_match": true,
+      "range_valid": true
+    }
+  ],
+  "reproduction_identities": [
+    {
+      "case_id": "cjson-nesting",
+      "head": "fb16e5cf358798aabb049655975cde8427101056",
+      "expected_revision": "fb16e5cf358798aabb049655975cde8427101056",
+      "revision_match": true,
+      "origin": "https://github.com/DaveGamble/cJSON",
+      "expected_repository": "https://github.com/DaveGamble/cJSON",
+      "repository_match": true,
+      "session_identity_match": true,
+      "git_status": "?? compile_commands.json\n"
+    },
+    {
+      "case_id": "lwip-netif",
+      "head": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+      "expected_revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+      "revision_match": true,
+      "origin": "https://github.com/lwip-tcpip/lwip",
+      "expected_repository": "https://github.com/lwip-tcpip/lwip",
+      "repository_match": true,
+      "session_identity_match": true,
+      "git_status": "?? compile_commands.json\n"
+    }
+  ],
+  "reproduction_runs": [
+    {
+      "case_id": "cjson-nesting",
+      "command": [
+        "bash",
+        "examples/reproductions/cjson-nesting/run.sh"
+      ],
+      "source_root": "/Users/guoshuaiqi/Documents/Codex/2026-09-03/github-plugin-github-openai-curated-remote-2/work/codeatlas-c/corpus/cJSON",
+      "exit_code": 0,
+      "stdout": "depth=999 result=ok parse_end=1999 input_len=1999\ndepth=1000 result=ok parse_end=2001 input_len=2001\ndepth=1001 result=NULL parse_end=1000 input_len=2003\n",
+      "stderr": "",
+      "stdout_matches_bound_result": true
+    },
+    {
+      "case_id": "lwip-netif",
+      "command": [
+        "bash",
+        "examples/reproductions/lwip-netif/run.sh"
+      ],
+      "source_root": "/Users/guoshuaiqi/Documents/Codex/2026-09-03/github-plugin-github-openai-curated-remote-2/work/codeatlas-c/corpus/lwip",
+      "exit_code": 0,
+      "stdout": "initial list=none default=none\nadd_first=ok\nafter_first list=first default=none\nafter_set_default list=first default=first\nadd_second=ok\nafter_second list=second default=first\n",
+      "stderr": "/Users/guoshuaiqi/Documents/Codex/2026-09-03/github-plugin-github-openai-curated-remote-2/work/codeatlas-c/corpus/lwip/src/core/netif.c:461:43: warning: unused parameter 'old_addr' [-Wunused-parameter]\n  461 | netif_do_ip_addr_changed(const ip_addr_t *old_addr, const ip_addr_t *new_addr)\n      |                                           ^\n/Users/guoshuaiqi/Documents/Codex/2026-09-03/github-plugin-github-openai-curated-remote-2/work/codeatlas-c/corpus/lwip/src/core/netif.c:461:70: warning: unused parameter 'new_addr' [-Wunused-parameter]\n  461 | netif_do_ip_addr_changed(const ip_addr_t *old_addr, const ip_addr_t *new_addr)\n      |                                                                      ^\n2 warnings generated.\n",
+      "stdout_matches_bound_result": true
+    }
+  ],
+  "executable_probes": [
+    {
+      "id": "cjson-translation-unit-limit-ab",
+      "command": "set -e\ncc -std=c99 -Wall -Wextra -Werror -I corpus/cJSON -c examples/reproductions/cjson-nesting/reproduce.c -o /tmp/codeatlas-canonical-knowledge-ej1i2wk9/harness.o\ncc -std=c99 -Wall -Wextra -Werror -I corpus/cJSON -c corpus/cJSON/cJSON.c -o /tmp/codeatlas-canonical-knowledge-ej1i2wk9/cjson-a.o\ncc -std=c99 -Wall -Wextra -Werror -I corpus/cJSON -DCJSON_NESTING_LIMIT=1001 -c corpus/cJSON/cJSON.c -o /tmp/codeatlas-canonical-knowledge-ej1i2wk9/cjson-b.o\ncc /tmp/codeatlas-canonical-knowledge-ej1i2wk9/cjson-a.o /tmp/codeatlas-canonical-knowledge-ej1i2wk9/harness.o -lm -o /tmp/codeatlas-canonical-knowledge-ej1i2wk9/a\ncc /tmp/codeatlas-canonical-knowledge-ej1i2wk9/cjson-b.o /tmp/codeatlas-canonical-knowledge-ej1i2wk9/harness.o -lm -o /tmp/codeatlas-canonical-knowledge-ej1i2wk9/b\n/tmp/codeatlas-canonical-knowledge-ej1i2wk9/a\n/tmp/codeatlas-canonical-knowledge-ej1i2wk9/b",
+      "chunk_id": "6bc4bc",
+      "wall_time_seconds": 0.168791334,
+      "exit_code": 0,
+      "original_token_count": 77,
+      "output": "depth=999 result=ok parse_end=1999 input_len=1999\ndepth=1000 result=ok parse_end=2001 input_len=2001\ndepth=1001 result=NULL parse_end=1000 input_len=2003\ndepth=999 result=ok parse_end=1999 input_len=1999\ndepth=1000 result=ok parse_end=2001 input_len=2001\ndepth=1001 result=ok parse_end=2003 input_len=2003\n",
+      "observed_expected_output": true
+    },
+    {
+      "id": "lwip-second-init-failure-and-clear-default",
+      "command": "set -e\ncc -std=c99 -Wall -Wextra -ffunction-sections -fdata-sections -I examples/reproductions/lwip-netif/include -I corpus/lwip/test/unit/arch -I corpus/lwip/contrib/ports/unix/port/include -I corpus/lwip/src/include -c corpus/lwip/src/core/netif.c -o /tmp/codeatlas-canonical-knowledge-ej1i2wk9/netif.o\ncc -std=c99 -Wall -Wextra -ffunction-sections -fdata-sections -I examples/reproductions/lwip-netif/include -I corpus/lwip/test/unit/arch -I corpus/lwip/contrib/ports/unix/port/include -I corpus/lwip/src/include -c corpus/lwip/src/core/ipv4/ip4_addr.c -o /tmp/codeatlas-canonical-knowledge-ej1i2wk9/ip4_addr.o\ncc -std=c99 -Wall -Wextra -ffunction-sections -fdata-sections -I examples/reproductions/lwip-netif/include -I corpus/lwip/test/unit/arch -I corpus/lwip/contrib/ports/unix/port/include -I corpus/lwip/src/include -c /tmp/codeatlas-canonical-knowledge-ej1i2wk9/second-init-fails.c -o /tmp/codeatlas-canonical-knowledge-ej1i2wk9/second-init-fails.o\ncc -std=c99 -Wall -Wextra -ffunction-sections -fdata-sections -I examples/reproductions/lwip-netif/include -I corpus/lwip/test/unit/arch -I corpus/lwip/contrib/ports/unix/port/include -I corpus/lwip/src/include -c /tmp/codeatlas-canonical-knowledge-ej1i2wk9/clear-default.c -o /tmp/codeatlas-canonical-knowledge-ej1i2wk9/clear-default.o\ncc -Wl,-dead_strip /tmp/codeatlas-canonical-knowledge-ej1i2wk9/netif.o /tmp/codeatlas-canonical-knowledge-ej1i2wk9/ip4_addr.o /tmp/codeatlas-canonical-knowledge-ej1i2wk9/second-init-fails.o -o /tmp/codeatlas-canonical-knowledge-ej1i2wk9/second-init-fails\ncc -Wl,-dead_strip /tmp/codeatlas-canonical-knowledge-ej1i2wk9/netif.o /tmp/codeatlas-canonical-knowledge-ej1i2wk9/ip4_addr.o /tmp/codeatlas-canonical-knowledge-ej1i2wk9/clear-default.o -o /tmp/codeatlas-canonical-knowledge-ej1i2wk9/clear-default\n/tmp/codeatlas-canonical-knowledge-ej1i2wk9/second-init-fails\n/tmp/codeatlas-canonical-knowledge-ej1i2wk9/clear-default",
+      "chunk_id": "1416a2",
+      "wall_time_seconds": 0.405377542,
+      "exit_code": 0,
+      "original_token_count": 230,
+      "output": "corpus/lwip/src/core/netif.c:461:43: warning: unused parameter 'old_addr' [-Wunused-parameter]\n  461 | netif_do_ip_addr_changed(const ip_addr_t *old_addr, const ip_addr_t *new_addr)\n      |                                           ^\ncorpus/lwip/src/core/netif.c:461:70: warning: unused parameter 'new_addr' [-Wunused-parameter]\n  461 | netif_do_ip_addr_changed(const ip_addr_t *old_addr, const ip_addr_t *new_addr)\n      |                                                                      ^\n2 warnings generated.\ninitial list=none default=none\nadd_first=ok\nafter_first list=first default=none\nafter_set_default list=first default=first\nadd_second=failed\nafter_second list=first default=first\ninitial list=none default=none\nadd_first=ok\nafter_first list=first default=none\nafter_set_default list=first default=first\nadd_second=ok\nafter_second list=second default=first\nafter_clear_default list=second default=none\n",
+      "observed_expected_output": true
+    }
+  ],
+  "tasks": [
+    {
+      "task_id": "kr-v2-cjson-condition-limit-1001",
+      "case_id": "cjson-nesting",
+      "question": "保持 reproduce.c 的 fixed_depths={999,1000,1001} 和 require_null_terminated=1 不变，仅在编译 cJSON.c 时定义 CJSON_NESTING_LIMIT=1001。根据 parse_array/parse_object 在 depth 自增前执行的 >= 检查，预测三行 result、parse_end 和 input_len 中哪些字段会相对当前 result.txt 变化，并解释边界为什么移动一层。",
+      "question_verdict": "pass",
+      "verdict": "pass",
+      "point_checks": [
+        {
+          "point_id": "c1-condition",
+          "text": "The comparison keeps fixed_depths={999,1000,1001}, require_null_terminated=1, the source revision, and the harness unchanged; the only treatment is defining CJSON_NESTING_LIMIT=1001 for the cJSON.c translation unit.",
+          "kind": "condition",
+          "evidence_ids": [
+            "c1-harness-cases",
+            "c1-harness-call",
+            "c1-revision-check",
+            "c1-build-default",
+            "c1-default-limit"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "point_id": "c1-input-lengths",
+          "text": "input_len remains 1999, 2001, and 2003 for depths 999, 1000, and 1001 respectively because the macro does not alter nested_array's 2*depth+1-byte JSON text.",
+          "kind": "fact",
+          "evidence_ids": [
+            "c1-generator",
+            "c1-current-output"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "point_id": "c1-lower-cases",
+          "text": "The depth=999 and depth=1000 lines remain result=ok with parse_end equal to input_len (1999 and 2001 respectively).",
+          "kind": "fact",
+          "evidence_ids": [
+            "c1-current-output",
+            "c1-array-guard"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "point_id": "c1-depth-1001",
+          "text": "The depth=1001 line changes from result=NULL parse_end=1000 input_len=2003 to result=ok parse_end=2003 input_len=2003.",
+          "kind": "fact",
+          "evidence_ids": [
+            "c1-current-output",
+            "c1-array-guard",
+            "c1-generator"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "point_id": "c1-boundary",
+          "text": "The boundary moves by one level because parse_array and parse_object both test current depth >= limit before incrementing it; this array-only harness exercises parse_array, where limit 1001 admits entries at current depths 0 through 1000 and the old limit 1000 rejected the entry at current depth 1000.",
+          "kind": "fact",
+          "evidence_ids": [
+            "c1-array-guard",
+            "c1-object-guard",
+            "c1-default-limit"
+          ],
+          "verdict": "pass"
+        }
+      ],
+      "forbidden_claim_checks": [
+        {
+          "claim": "With CJSON_NESTING_LIMIT=1001, depth 1001 still returns NULL at parse_end 1000.",
+          "verdict": "pass"
+        },
+        {
+          "claim": "Changing only CJSON_NESTING_LIMIT changes the three generated input lengths.",
+          "verdict": "pass"
+        },
+        {
+          "claim": "Either depth 999 or depth 1000 becomes a failure in the 1001-limit build.",
+          "verdict": "pass"
+        },
+        {
+          "claim": "The boundary shift is caused by changing the harness inputs or require_null_terminated.",
+          "verdict": "pass"
+        }
+      ],
+      "reasoning": "The fixed array generator is independent of the macro. The guards execute before depth increment. Fresh A/B compilation scoped to cJSON.c leaves lower cases/lengths unchanged and makes depth 1001 succeed at end 2003.",
+      "evidence_checks": [
+        {
+          "task_id": "kr-v2-cjson-condition-limit-1001",
+          "evidence_id": "c1-harness-cases",
+          "path": "examples/reproductions/cjson-nesting/reproduce.c",
+          "line_start": 43,
+          "line_end": 54,
+          "file_sha256": "cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-cjson-condition-limit-1001",
+          "evidence_id": "c1-harness-call",
+          "path": "examples/reproductions/cjson-nesting/reproduce.c",
+          "line_start": 34,
+          "line_end": 37,
+          "file_sha256": "cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-cjson-condition-limit-1001",
+          "evidence_id": "c1-build-default",
+          "path": "examples/reproductions/cjson-nesting/run.sh",
+          "line_start": 16,
+          "line_end": 20,
+          "file_sha256": "529274dbbd63556db765061836196cc91af288bcff2d449fc03c3bf9843cf481",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-cjson-condition-limit-1001",
+          "evidence_id": "c1-revision-check",
+          "path": "examples/reproductions/cjson-nesting/run.sh",
+          "line_start": 10,
+          "line_end": 14,
+          "file_sha256": "529274dbbd63556db765061836196cc91af288bcff2d449fc03c3bf9843cf481",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-cjson-condition-limit-1001",
+          "evidence_id": "c1-default-limit",
+          "path": "corpus/cJSON/cJSON.h",
+          "line_start": 134,
+          "line_end": 138,
+          "file_sha256": "25b0145150d500498e4d209cec69c18c42cf818bffcc54690be3b895a2a16dee",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-cjson-condition-limit-1001",
+          "evidence_id": "c1-generator",
+          "path": "examples/reproductions/cjson-nesting/reproduce.c",
+          "line_start": 10,
+          "line_end": 21,
+          "file_sha256": "cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-cjson-condition-limit-1001",
+          "evidence_id": "c1-current-output",
+          "path": "examples/reproductions/cjson-nesting/result.txt",
+          "line_start": 1,
+          "line_end": 3,
+          "file_sha256": "ed76b1069221053876dd4995aaee6e228f4983ad8f97717d51bf1ff02be0b133",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-cjson-condition-limit-1001",
+          "evidence_id": "c1-array-guard",
+          "path": "corpus/cJSON/cJSON.c",
+          "line_start": 1496,
+          "line_end": 1506,
+          "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-cjson-condition-limit-1001",
+          "evidence_id": "c1-object-guard",
+          "path": "corpus/cJSON/cJSON.c",
+          "line_start": 1661,
+          "line_end": 1671,
+          "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        }
+      ]
+    },
+    {
+      "task_id": "kr-v2-cjson-exclude-error-causes",
+      "case_id": "cjson-nesting",
+      "question": "现有观测中 depth=1000 成功，depth=1001 则 result=NULL 且 parse_end=1000。结合 nested_array 的构造、require_null_terminated=1、深度守卫与失败位置记录代码，哪些“末尾非 NUL”、“括号本身不配对”、“命中嵌套上限”或“普通分配失败”解释可由当前证据排除、支持或仍须额外实验？逐项给出证据边界。",
+      "question_verdict": "pass",
+      "verdict": "pass",
+      "point_checks": [
+        {
+          "point_id": "c2-fixed-shape",
+          "text": "The current cases are balanced arrays generated as depth opening brackets, one zero, depth closing brackets, and a terminating NUL; the parser is called with require_null_terminated=1.",
+          "kind": "condition",
+          "evidence_ids": [
+            "c2-generator",
+            "c2-call"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "point_id": "c2-nul-excluded",
+          "text": "A missing terminal NUL is excluded for these generated inputs because nested_array writes the NUL and cJSON_ParseWithOpts includes it in buffer_length before enforcing require_null_terminated.",
+          "kind": "fact",
+          "evidence_ids": [
+            "c2-generator",
+            "c2-length-wrapper",
+            "c2-null-check"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "point_id": "c2-brackets-excluded",
+          "text": "Mismatched brackets are excluded for these generated inputs because the generator emits equal counts of '[' and ']', and the depth=1000 instance of the same shape parses successfully.",
+          "kind": "fact",
+          "evidence_ids": [
+            "c2-generator",
+            "c2-output"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "point_id": "c2-limit-supported",
+          "text": "Hitting the nesting limit is supported: the default is 1000, parse_array rejects when current depth is >= that limit before incrementing, and the observed transition is success at 1000 to failure at 1001 with failure offset 1000.",
+          "kind": "fact",
+          "evidence_ids": [
+            "c2-default-limit",
+            "c2-array-guard",
+            "c2-output"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "point_id": "c2-allocation-unresolved",
+          "text": "Ordinary internal allocation failure is neither established as the cause nor fully ruled out by the current run because cJSON has independent root/item allocation failure paths and the harness records no allocator event.",
+          "kind": "fact",
+          "evidence_ids": [
+            "c2-root-allocation",
+            "c2-child-allocation",
+            "c2-output"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "point_id": "c2-allocation-test",
+          "text": "Distinguishing ordinary allocation failure requires an additional controlled experiment, such as allocator fault injection/telemetry or the limit-shift A/B while holding the input and build otherwise fixed.",
+          "kind": "action",
+          "evidence_ids": [
+            "c2-root-allocation",
+            "c2-child-allocation",
+            "c2-output"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "point_id": "c2-offset-boundary",
+          "text": "parse_end=1000 is the recorded buffer.offset on failure and is consistent with the limit guard, but that offset alone is not a universal proof that every NULL result has the same cause.",
+          "kind": "fact",
+          "evidence_ids": [
+            "c2-failure-position",
+            "c2-array-guard",
+            "c2-output"
+          ],
+          "verdict": "pass"
+        }
+      ],
+      "forbidden_claim_checks": [
+        {
+          "claim": "The generated depth=1001 input lacks a terminating NUL.",
+          "verdict": "pass"
+        },
+        {
+          "claim": "The generated depth=1001 input has unbalanced brackets.",
+          "verdict": "pass"
+        },
+        {
+          "claim": "One successful reproduction definitively excludes every internal allocation failure.",
+          "verdict": "pass"
+        },
+        {
+          "claim": "parse_end=1000 proves that every possible NULL result is caused by CJSON_NESTING_LIMIT.",
+          "verdict": "pass"
+        },
+        {
+          "claim": "Ordinary allocation failure is established as the cause of the observed 1000/1001 boundary.",
+          "verdict": "pass"
+        }
+      ],
+      "reasoning": "The generator and NUL-including length wrapper exclude the proposed shape/NUL defects. The guard and boundary support the nesting explanation. Root/child allocation-failure paths and generic offset capture justify keeping allocation and universal-cause claims unproven.",
+      "evidence_checks": [
+        {
+          "task_id": "kr-v2-cjson-exclude-error-causes",
+          "evidence_id": "c2-generator",
+          "path": "examples/reproductions/cjson-nesting/reproduce.c",
+          "line_start": 14,
+          "line_end": 22,
+          "file_sha256": "cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-cjson-exclude-error-causes",
+          "evidence_id": "c2-call",
+          "path": "examples/reproductions/cjson-nesting/reproduce.c",
+          "line_start": 34,
+          "line_end": 37,
+          "file_sha256": "cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-cjson-exclude-error-causes",
+          "evidence_id": "c2-length-wrapper",
+          "path": "corpus/cJSON/cJSON.c",
+          "line_start": 1140,
+          "line_end": 1143,
+          "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-cjson-exclude-error-causes",
+          "evidence_id": "c2-null-check",
+          "path": "corpus/cJSON/cJSON.c",
+          "line_start": 1178,
+          "line_end": 1185,
+          "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-cjson-exclude-error-causes",
+          "evidence_id": "c2-output",
+          "path": "examples/reproductions/cjson-nesting/result.txt",
+          "line_start": 1,
+          "line_end": 3,
+          "file_sha256": "ed76b1069221053876dd4995aaee6e228f4983ad8f97717d51bf1ff02be0b133",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-cjson-exclude-error-causes",
+          "evidence_id": "c2-default-limit",
+          "path": "corpus/cJSON/cJSON.h",
+          "line_start": 134,
+          "line_end": 138,
+          "file_sha256": "25b0145150d500498e4d209cec69c18c42cf818bffcc54690be3b895a2a16dee",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-cjson-exclude-error-causes",
+          "evidence_id": "c2-array-guard",
+          "path": "corpus/cJSON/cJSON.c",
+          "line_start": 1502,
+          "line_end": 1506,
+          "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-cjson-exclude-error-causes",
+          "evidence_id": "c2-root-allocation",
+          "path": "corpus/cJSON/cJSON.c",
+          "line_start": 1166,
+          "line_end": 1170,
+          "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-cjson-exclude-error-causes",
+          "evidence_id": "c2-child-allocation",
+          "path": "corpus/cJSON/cJSON.c",
+          "line_start": 1533,
+          "line_end": 1539,
+          "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-cjson-exclude-error-causes",
+          "evidence_id": "c2-failure-position",
+          "path": "corpus/cJSON/cJSON.c",
+          "line_start": 1200,
+          "line_end": 1218,
+          "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        }
+      ]
+    },
+    {
+      "task_id": "kr-v2-cjson-verify-limit-ab",
+      "case_id": "cjson-nesting",
+      "question": "设计一个可立即执行的最小 A/B 验证：A 保持 run.sh 的默认编译，B 只为 cJSON.c 增加 -DCJSON_NESTING_LIMIT=1001，两者均运行同一 reproduce.c。写出具体编译/运行改动、预期区分两个假设的关键输出，以及哪种观测会否定“失败由固定嵌套上限触发”。",
+      "question_verdict": "pass",
+      "verdict": "pass",
+      "point_checks": [
+        {
+          "point_id": "c3-controlled-ab",
+          "text": "A and B use the same checked source revision, compiler flags, include path, and reproduce.c; B's only semantic difference is CJSON_NESTING_LIMIT=1001 applied when cJSON.c is compiled.",
+          "kind": "condition",
+          "evidence_ids": [
+            "c3-revision-check",
+            "c3-run-command",
+            "c3-fixed-cases",
+            "c3-default-limit"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "point_id": "c3-build-a",
+          "text": "From the repository root, an immediately executable A setup is:\n  build_dir=\"$(mktemp -d \"${TMPDIR:-/tmp}/codeatlas-cjson-ab.XXXXXX\")\"\n  cc -std=c99 -Wall -Wextra -Werror -I corpus/cJSON -c examples/reproductions/cjson-nesting/reproduce.c -o \"$build_dir/harness.o\"\n  cc -std=c99 -Wall -Wextra -Werror -I corpus/cJSON -c corpus/cJSON/cJSON.c -o \"$build_dir/cjson-a.o\"\n  cc \"$build_dir/cjson-a.o\" \"$build_dir/harness.o\" -lm -o \"$build_dir/a\"\n  \"$build_dir/a\"",
+          "kind": "action",
+          "evidence_ids": [
+            "c3-run-command"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "point_id": "c3-build-b",
+          "text": "Reuse the same harness.o and build/run B with the define scoped to cJSON.c:\n  cc -std=c99 -Wall -Wextra -Werror -I corpus/cJSON -DCJSON_NESTING_LIMIT=1001 -c corpus/cJSON/cJSON.c -o \"$build_dir/cjson-b.o\"\n  cc \"$build_dir/cjson-b.o\" \"$build_dir/harness.o\" -lm -o \"$build_dir/b\"\n  \"$build_dir/b\"\nCompare stdout directly; run.sh's diff still names the old A result and is not the B oracle.",
+          "kind": "action",
+          "evidence_ids": [
+            "c3-run-command",
+            "c3-default-limit"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "point_id": "c3-output-a",
+          "text": "A must print the current three lines: 999 ok/end 1999/len 1999; 1000 ok/end 2001/len 2001; 1001 NULL/end 1000/len 2003.",
+          "kind": "fact",
+          "evidence_ids": [
+            "c3-output"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "point_id": "c3-output-b",
+          "text": "B should leave the 999 and 1000 lines unchanged and print depth=1001 result=ok parse_end=2003 input_len=2003.",
+          "kind": "fact",
+          "evidence_ids": [
+            "c3-output",
+            "c3-guard",
+            "c3-generator"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "point_id": "c3-falsifier",
+          "text": "A same-boundary B failure falsifies the nesting limit as a sufficient explanation only after confirming the macro override reached cJSON.c, holding the input and all other build factors fixed, and independently excluding a B-only allocation failure or another new failure through allocator telemetry and/or guard instrumentation; B failing by itself is inconclusive and requires diagnosis.",
+          "kind": "condition",
+          "evidence_ids": [
+            "c3-default-limit",
+            "c3-guard",
+            "c3-root-allocation",
+            "c3-child-allocation",
+            "c3-failure-position",
+            "c3-output"
+          ],
+          "verdict": "pass",
+          "independent_failure_exclusion_required": true,
+          "macro_application_verification_required": true,
+          "b_failure_alone_inconclusive": true,
+          "allocator_telemetry_executed_by_this_review": false
+        }
+      ],
+      "forbidden_claim_checks": [
+        {
+          "claim": "Change reproduce.c or its tested depths between A and B.",
+          "verdict": "pass"
+        },
+        {
+          "claim": "Apply the macro only to the harness while compiling cJSON.c separately without it.",
+          "verdict": "pass"
+        },
+        {
+          "claim": "Treat run.sh's expected diff against the old result.txt as the B result oracle.",
+          "verdict": "pass"
+        },
+        {
+          "claim": "Predict that B changes input_len for any tested depth.",
+          "verdict": "pass"
+        },
+        {
+          "claim": "Treat a B failure at the same boundary as direct falsification before independently excluding allocation failure or another newly introduced failure.",
+          "verdict": "pass"
+        }
+      ],
+      "reasoning": "The prescribed object-level A/B is executable and fresh outputs match. The revised falsifier now explicitly requires independently excluding B-only allocation or another new failure; B failure alone remains inconclusive. This is an approved conditional inference boundary, not a claim that allocator telemetry was executed here.",
+      "evidence_checks": [
+        {
+          "task_id": "kr-v2-cjson-verify-limit-ab",
+          "evidence_id": "c3-run-command",
+          "path": "examples/reproductions/cjson-nesting/run.sh",
+          "line_start": 16,
+          "line_end": 25,
+          "file_sha256": "529274dbbd63556db765061836196cc91af288bcff2d449fc03c3bf9843cf481",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-cjson-verify-limit-ab",
+          "evidence_id": "c3-revision-check",
+          "path": "examples/reproductions/cjson-nesting/run.sh",
+          "line_start": 10,
+          "line_end": 14,
+          "file_sha256": "529274dbbd63556db765061836196cc91af288bcff2d449fc03c3bf9843cf481",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-cjson-verify-limit-ab",
+          "evidence_id": "c3-fixed-cases",
+          "path": "examples/reproductions/cjson-nesting/reproduce.c",
+          "line_start": 45,
+          "line_end": 54,
+          "file_sha256": "cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-cjson-verify-limit-ab",
+          "evidence_id": "c3-default-limit",
+          "path": "corpus/cJSON/cJSON.h",
+          "line_start": 134,
+          "line_end": 138,
+          "file_sha256": "25b0145150d500498e4d209cec69c18c42cf818bffcc54690be3b895a2a16dee",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-cjson-verify-limit-ab",
+          "evidence_id": "c3-output",
+          "path": "examples/reproductions/cjson-nesting/result.txt",
+          "line_start": 1,
+          "line_end": 3,
+          "file_sha256": "ed76b1069221053876dd4995aaee6e228f4983ad8f97717d51bf1ff02be0b133",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-cjson-verify-limit-ab",
+          "evidence_id": "c3-guard",
+          "path": "corpus/cJSON/cJSON.c",
+          "line_start": 1502,
+          "line_end": 1506,
+          "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-cjson-verify-limit-ab",
+          "evidence_id": "c3-generator",
+          "path": "examples/reproductions/cjson-nesting/reproduce.c",
+          "line_start": 17,
+          "line_end": 21,
+          "file_sha256": "cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-cjson-verify-limit-ab",
+          "evidence_id": "c3-root-allocation",
+          "path": "corpus/cJSON/cJSON.c",
+          "line_start": 1166,
+          "line_end": 1170,
+          "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-cjson-verify-limit-ab",
+          "evidence_id": "c3-child-allocation",
+          "path": "corpus/cJSON/cJSON.c",
+          "line_start": 1533,
+          "line_end": 1539,
+          "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-cjson-verify-limit-ab",
+          "evidence_id": "c3-failure-position",
+          "path": "corpus/cJSON/cJSON.c",
+          "line_start": 1200,
+          "line_end": 1218,
+          "file_sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        }
+      ]
+    },
+    {
+      "task_id": "kr-v2-lwip-condition-second-init-fails",
+      "case_id": "lwip-netif",
+      "question": "保持当前 lwipopts.h 与调用顺序不变，只把 test_init 改成第一次返回 ERR_OK、第二次返回 ERR_IF。根据 netif_add 调用 init 和把 netif 插入 netif_list 的先后顺序，预测 add_second 以及 after_second 的 list/default 输出，并说明为什么第一个接口的状态不应被第二次初始化失败改写。",
+      "question_verdict": "pass",
+      "verdict": "pass",
+      "point_checks": [
+        {
+          "point_id": "l4-condition",
+          "text": "Keep lwipopts.h and the call order unchanged, but make test_init return ERR_OK on its first invocation and ERR_IF on its second invocation.",
+          "kind": "condition",
+          "evidence_ids": [
+            "l4-current-init",
+            "l4-harness-order"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "point_id": "l4-second-return",
+          "text": "add_first remains ok, while add_second prints failed because netif_add returns NULL when the second init call returns ERR_IF.",
+          "kind": "fact",
+          "evidence_ids": [
+            "l4-init-before-insert",
+            "l4-harness-order"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "point_id": "l4-after-second",
+          "text": "after_second prints list=first default=first.",
+          "kind": "fact",
+          "evidence_ids": [
+            "l4-current-output",
+            "l4-init-before-insert",
+            "l4-list-insert"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "point_id": "l4-order-reason",
+          "text": "netif_add calls init before it prepends the candidate to netif_list, so the failed second candidate never replaces first as the list head.",
+          "kind": "fact",
+          "evidence_ids": [
+            "l4-init-before-insert",
+            "l4-list-insert"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "point_id": "l4-first-preserved",
+          "text": "The already-linked first interface and the explicitly selected netif_default remain unchanged because the second failure returns before global list insertion and the harness does not call netif_set_default again; this does not imply every field written on the rejected second struct is rolled back.",
+          "kind": "fact",
+          "evidence_ids": [
+            "l4-harness-order",
+            "l4-init-before-insert",
+            "l4-set-default"
+          ],
+          "verdict": "pass"
+        }
+      ],
+      "forbidden_claim_checks": [
+        {
+          "claim": "The failed second interface is still inserted at the head of netif_list.",
+          "verdict": "pass"
+        },
+        {
+          "claim": "A failed second initialization changes netif_default to second or none.",
+          "verdict": "pass"
+        },
+        {
+          "claim": "The second failure removes or resets the already-linked first interface.",
+          "verdict": "pass"
+        },
+        {
+          "claim": "netif_add guarantees rollback of every field that init may have written on the rejected second struct.",
+          "verdict": "pass"
+        }
+      ],
+      "reasoning": "The init error returns before the global list insertion; the scoped failure probe preserves the first interface/default and prints add_second=failed. This does not promise rollback of every field on the rejected second struct.",
+      "evidence_checks": [
+        {
+          "task_id": "kr-v2-lwip-condition-second-init-fails",
+          "evidence_id": "l4-current-init",
+          "path": "examples/reproductions/lwip-netif/reproduce.c",
+          "line_start": 6,
+          "line_end": 12,
+          "file_sha256": "cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-lwip-condition-second-init-fails",
+          "evidence_id": "l4-harness-order",
+          "path": "examples/reproductions/lwip-netif/reproduce.c",
+          "line_start": 46,
+          "line_end": 56,
+          "file_sha256": "cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-lwip-condition-second-init-fails",
+          "evidence_id": "l4-init-before-insert",
+          "path": "corpus/lwip/src/core/netif.c",
+          "line_start": 387,
+          "line_end": 390,
+          "file_sha256": "a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-lwip-condition-second-init-fails",
+          "evidence_id": "l4-list-insert",
+          "path": "corpus/lwip/src/core/netif.c",
+          "line_start": 430,
+          "line_end": 433,
+          "file_sha256": "a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-lwip-condition-second-init-fails",
+          "evidence_id": "l4-current-output",
+          "path": "examples/reproductions/lwip-netif/result.txt",
+          "line_start": 2,
+          "line_end": 6,
+          "file_sha256": "8102733501276cd10303a81dc15877f7e5386b1dacb48c535f2960562f95414f",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-lwip-condition-second-init-fails",
+          "evidence_id": "l4-set-default",
+          "path": "corpus/lwip/src/core/netif.c",
+          "line_start": 851,
+          "line_end": 862,
+          "file_sha256": "a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        }
+      ]
+    },
+    {
+      "task_id": "kr-v2-lwip-exclude-default-alias",
+      "case_id": "lwip-netif",
+      "question": "当前 result.txt 显示首次 netif_add 后 list=first 但 default=none，显式 netif_set_default(&first) 后 default=first，再添加 second 后 list=second 但 default=first。结合 which 的指针身份判定、链表头插代码和 netif_set_default，哪些“netif_add 会自动设默认”、“default 始终是链表头”、“第二次 add 未真正入链”解释可被逐一排除？说明每个结论依赖的观测。",
+      "question_verdict": "pass",
+      "verdict": "pass",
+      "point_checks": [
+        {
+          "point_id": "l5-which-identity",
+          "text": "The printed names are pointer-identity observations: which maps NULL to none, &first to first, and &second to second.",
+          "kind": "condition",
+          "evidence_ids": [
+            "l5-which"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "point_id": "l5-no-auto-default",
+          "text": "The hypothesis that netif_add automatically sets the default is excluded by add_first=ok followed by after_first list=first default=none.",
+          "kind": "fact",
+          "evidence_ids": [
+            "l5-output"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "point_id": "l5-not-head-alias",
+          "text": "The hypothesis that default is always an alias of the list head is excluded by after_second list=second default=first after first was explicitly made default.",
+          "kind": "fact",
+          "evidence_ids": [
+            "l5-output"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "point_id": "l5-second-linked",
+          "text": "The hypothesis that the second add did not link second is excluded by add_second=ok and the immediate pointer-identity observation list=second.",
+          "kind": "fact",
+          "evidence_ids": [
+            "l5-which",
+            "l5-output"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "point_id": "l5-source-separation",
+          "text": "The mechanism matches the observations: successful netif_add prepends only netif_list, while netif_set_default assigns netif_default separately.",
+          "kind": "fact",
+          "evidence_ids": [
+            "l5-list-insert",
+            "l5-set-default",
+            "l5-globals"
+          ],
+          "verdict": "pass"
+        }
+      ],
+      "forbidden_claim_checks": [
+        {
+          "claim": "netif_add automatically made first the default despite after_first default=none.",
+          "verdict": "pass"
+        },
+        {
+          "claim": "netif_default must always equal netif_list.",
+          "verdict": "pass"
+        },
+        {
+          "claim": "The successful second add was not linked even though which(netif_list) returned second.",
+          "verdict": "pass"
+        },
+        {
+          "claim": "The labels first and second are inferred from interface names rather than pointer identity.",
+          "verdict": "pass"
+        }
+      ],
+      "reasoning": "which compares addresses; the rerun demonstrates both successful linking and divergence of list/default. The source has separate list and default assignments, supporting all three exclusions.",
+      "evidence_checks": [
+        {
+          "task_id": "kr-v2-lwip-exclude-default-alias",
+          "evidence_id": "l5-which",
+          "path": "examples/reproductions/lwip-netif/reproduce.c",
+          "line_start": 21,
+          "line_end": 35,
+          "file_sha256": "cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-lwip-exclude-default-alias",
+          "evidence_id": "l5-output",
+          "path": "examples/reproductions/lwip-netif/result.txt",
+          "line_start": 1,
+          "line_end": 6,
+          "file_sha256": "8102733501276cd10303a81dc15877f7e5386b1dacb48c535f2960562f95414f",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-lwip-exclude-default-alias",
+          "evidence_id": "l5-list-insert",
+          "path": "corpus/lwip/src/core/netif.c",
+          "line_start": 430,
+          "line_end": 432,
+          "file_sha256": "a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-lwip-exclude-default-alias",
+          "evidence_id": "l5-set-default",
+          "path": "corpus/lwip/src/core/netif.c",
+          "line_start": 851,
+          "line_end": 862,
+          "file_sha256": "a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-lwip-exclude-default-alias",
+          "evidence_id": "l5-globals",
+          "path": "corpus/lwip/src/include/lwip/netif.h",
+          "line_start": 422,
+          "line_end": 427,
+          "file_sha256": "6e958aa1bd23b7381c09a873f7af919323f87ec50a2d3055a46f75275c2a121b",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        }
+      ]
+    },
+    {
+      "task_id": "kr-v2-lwip-verify-clear-default",
+      "case_id": "lwip-netif",
+      "question": "为验证 netif_default 与 netif_list 是可独立改变的状态，在现有 harness 的 after_second 打印后插入 netif_set_default(NULL)，并立即用 which 再打印 list/default，其他操作不变。写出最小代码改动、预期新输出，以及若 list 也随之变为 none 将否定源码机制中的什么判断。",
+      "question_verdict": "pass",
+      "verdict": "pass",
+      "point_checks": [
+        {
+          "point_id": "l6-insertion-condition",
+          "text": "Insert the probe immediately after the existing after_second print and before either netif_remove call, with all earlier operations unchanged.",
+          "kind": "condition",
+          "evidence_ids": [
+            "l6-harness-site"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "point_id": "l6-code-change",
+          "text": "The minimal change is netif_set_default(NULL) followed by a printf that passes netif_list and netif_default through which, for example after_clear_default list=%s default=%s.",
+          "kind": "action",
+          "evidence_ids": [
+            "l6-harness-site",
+            "l6-which"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "point_id": "l6-output",
+          "text": "The new line should be after_clear_default list=second default=none.",
+          "kind": "fact",
+          "evidence_ids": [
+            "l6-current-output",
+            "l6-set-default"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "point_id": "l6-source-effect",
+          "text": "netif_set_default(NULL) assigns NULL only to netif_default (aside from route bookkeeping) and contains no write to netif_list, whose declaration is a separate global.",
+          "kind": "fact",
+          "evidence_ids": [
+            "l6-set-default",
+            "l6-globals"
+          ],
+          "verdict": "pass"
+        },
+        {
+          "point_id": "l6-falsifier",
+          "text": "If this isolated call also made the printed list become none, it would falsify the source-based mechanism claim that clearing the default leaves netif_list unchanged and that the two observed pointer states can be varied independently; it would require investigating an unaccounted side effect, build/configuration mismatch, or other operation.",
+          "kind": "condition",
+          "evidence_ids": [
+            "l6-set-default",
+            "l6-globals",
+            "l6-current-output"
+          ],
+          "verdict": "pass"
+        }
+      ],
+      "forbidden_claim_checks": [
+        {
+          "claim": "The expected post-clear list is none.",
+          "verdict": "pass"
+        },
+        {
+          "claim": "The expected post-clear default remains first.",
+          "verdict": "pass"
+        },
+        {
+          "claim": "netif_set_default(NULL) removes second or first from netif_list.",
+          "verdict": "pass"
+        },
+        {
+          "claim": "A list=none observation would confirm that list and default are independent.",
+          "verdict": "pass"
+        }
+      ],
+      "reasoning": "The insertion point precedes removals, and the clear-default probe changes only default to none while list stays second. An isolated contrary observation would invalidate that mechanism prediction and require investigation rather than confirm independence.",
+      "evidence_checks": [
+        {
+          "task_id": "kr-v2-lwip-verify-clear-default",
+          "evidence_id": "l6-harness-site",
+          "path": "examples/reproductions/lwip-netif/reproduce.c",
+          "line_start": 53,
+          "line_end": 58,
+          "file_sha256": "cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-lwip-verify-clear-default",
+          "evidence_id": "l6-which",
+          "path": "examples/reproductions/lwip-netif/reproduce.c",
+          "line_start": 21,
+          "line_end": 35,
+          "file_sha256": "cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-lwip-verify-clear-default",
+          "evidence_id": "l6-current-output",
+          "path": "examples/reproductions/lwip-netif/result.txt",
+          "line_start": 4,
+          "line_end": 6,
+          "file_sha256": "8102733501276cd10303a81dc15877f7e5386b1dacb48c535f2960562f95414f",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-lwip-verify-clear-default",
+          "evidence_id": "l6-set-default",
+          "path": "corpus/lwip/src/core/netif.c",
+          "line_start": 851,
+          "line_end": 862,
+          "file_sha256": "a141be5b9c7ea5da55be1f33ff56342635009f31df1cf33d2b3a0159eeab9b78",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        },
+        {
+          "task_id": "kr-v2-lwip-verify-clear-default",
+          "evidence_id": "l6-globals",
+          "path": "corpus/lwip/src/include/lwip/netif.h",
+          "line_start": 422,
+          "line_end": 427,
+          "file_sha256": "6e958aa1bd23b7381c09a873f7af919323f87ec50a2d3055a46f75275c2a121b",
+          "hash_match": true,
+          "hash_label_match": true,
+          "range_valid": true,
+          "lines_label_match": true,
+          "snippet_match": true
+        }
+      ]
+    }
+  ],
+  "source_assertion_boundary": {
+    "path": "examples/conversations/cjson-nesting-review.json",
+    "turn": 5,
+    "status": "shared_unverified_source_assertion",
+    "used_as_gold": false,
+    "used_to_exclude_allocation_failure": false,
+    "reason": "The round-5 synthetic assertion is not allocator telemetry or an independently established experimental fact. The c2 and c3 evidence boundaries are evaluated from pinned source and executable observations instead."
+  },
+  "no_exposure_boundary": {
+    "status": "unprovable_from_this_review",
+    "historical_no_exposure_proven": false,
+    "not_used_for_tuning_proven": false,
+    "held_out_independence_proven": false,
+    "reviewer_has_prior_task_context": true,
+    "fresh_context_blind_review": false,
+    "reason": "Hashes bind current bytes, not historical exposure. This agent retains prior task context; current-round source restriction is not retroactive erasure or proof of model independence."
+  },
+  "access_declaration": {
+    "current_round_read_validation_reports": false,
+    "current_round_read_calibration_file": false,
+    "current_round_read_wiki": false,
+    "current_round_read_docs": false,
+    "current_round_read_model_prompts": false,
+    "current_round_read_model_answers": false,
+    "current_round_read_scores": false,
+    "current_round_read_peer_validator_output": false,
+    "current_round_semantic_inputs": "Current manifest/answer key, pinned source and bound reproduction assets, plus freshly derived executable probes.",
+    "manifest_edited": false,
+    "answer_key_edited": false
+  },
+  "review_cost": {
+    "external_paid_model_calls": 0,
+    "input_tokens": null,
+    "output_tokens": null,
+    "cost_usd": null,
+    "reason": "No external model request was made. The current agent turn's metered token/cost identity is not exposed, so those fields remain unknown."
+  },
+  "gates": {
+    "knowledge_gold_factual_contract_approved": true,
+    "historical_no_exposure_approved": false,
+    "human_reviewed": false,
+    "formal_human_b_gate_unlocked": false,
+    "calibration_reviewed_in_this_round": false
+  },
+  "report_hash_definition": "SHA-256 over UTF-8 json.dumps(report_without_report_hash, ensure_ascii=False, sort_keys=True, separators=(',', ':')). The report_hash field alone is excluded; the complete output-file byte hash is separately reported.",
+  "probe_source_hashes": {
+    "/tmp/codeatlas-canonical-knowledge-ej1i2wk9/second-init-fails.c": "20fbeff52216e9263d73f780592cbb26796c8b527d28c1f29131547e46020ebd",
+    "/tmp/codeatlas-canonical-knowledge-ej1i2wk9/clear-default.c": "ff83d8cf45790ab6f58b4588d74472599fa6e501ae3ba1abb24a30c2d4be5c02"
+  },
+  "report_hash": "296ae8f09f5311b679c693dd4cc2405474e1d803ed4478464bc53df31cd5d6f6"
+}

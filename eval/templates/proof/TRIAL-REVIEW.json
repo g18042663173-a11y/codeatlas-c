@@ -1,0 +1,61 @@
+{
+  "schema_version": 2,
+  "run_hash": "REPLACE_WITH_RUN_HASH",
+  "review_protocol_hash": "REPLACE_WITH_REVIEW_PROTOCOL_HASH",
+  "review_protocol": {
+    "blind": true,
+    "source_grounded": true,
+    "peer_reviews_visible": false
+  },
+  "items": [
+    {
+      "trial_id": "REPLACE_WITH_TRIAL_ID",
+      "reviewer_kind": "agent",
+      "independent_reviews": [
+        {
+          "reviewer": "judge-a",
+          "provider": "replace_me",
+          "model": "replace_me",
+          "agent": "judge-a",
+          "prompt_hash": "replace_me",
+          "input_hash": "replace_me",
+          "input_tokens": null,
+          "output_tokens": null,
+          "cost_usd": null,
+          "latency_ms": null,
+          "independent": true,
+          "peer_reviews_visible": false,
+          "verdict": "correct",
+          "point_reviews": {"necessary_condition": "met"},
+          "false_claim_present": false,
+          "completeness": 1.0,
+          "evidence": ["neutral-source-id"],
+          "note": "replace_me",
+          "reviewed_at": "YYYY-MM-DD"
+        },
+        {
+          "reviewer": "judge-b",
+          "provider": "replace_me",
+          "model": "replace_me",
+          "agent": "judge-b",
+          "prompt_hash": "replace_me",
+          "input_hash": "replace_me",
+          "input_tokens": null,
+          "output_tokens": null,
+          "cost_usd": null,
+          "latency_ms": null,
+          "independent": true,
+          "peer_reviews_visible": false,
+          "verdict": "correct",
+          "point_reviews": {"necessary_condition": "met"},
+          "false_claim_present": false,
+          "completeness": 1.0,
+          "evidence": ["neutral-source-id"],
+          "note": "replace_me",
+          "reviewed_at": "YYYY-MM-DD"
+        }
+      ],
+      "adjudication": null
+    }
+  ]
+}

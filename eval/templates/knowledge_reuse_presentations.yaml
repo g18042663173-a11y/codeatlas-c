@@ -1,0 +1,17 @@
+generic_summary:
+  turn_ids: [1, 4, 5, 6, 7, 2, 3]
+structured_card:
+  - heading: 现象
+    turn_ids: [1]
+  - heading: 假设
+    turn_ids: [2]
+  - heading: 已排除的解释
+    turn_ids: [3]
+  - heading: 源码说明
+    turn_ids: [4]
+  - heading: 结论
+    turn_ids: [5]
+  - heading: 处理建议
+    turn_ids: [6]
+  - heading: 验证记录
+    turn_ids: [7]

@@ -1,0 +1,11 @@
+--- a/cJSON.c
++++ b/cJSON.c
+@@ -1205,7 +1205,7 @@ fail:
+ 
+         if (buffer.offset < buffer.length)
+         {
+-            local_error.position = buffer.offset;
++            local_error.position = 0;
+         }
+         else if (buffer.length > 0)
+         {

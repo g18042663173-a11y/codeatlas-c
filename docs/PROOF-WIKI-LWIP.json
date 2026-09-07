@@ -1,0 +1,1203 @@
+{
+  "report_kind": "reading",
+  "status": "not_run",
+  "arms": {
+    "source_only": [
+      "共享代码检索，无 Wiki",
+      "flat"
+    ],
+    "wiki_flat": [
+      "共享代码检索 + Wiki 自由阅读",
+      "flat"
+    ],
+    "wiki_progressive": [
+      "共享代码检索 + Wiki 渐进阅读",
+      "progressive"
+    ]
+  },
+  "reason": "model_not_configured",
+  "passed": false,
+  "task_count": 24,
+  "repository": "https://github.com/lwip-tcpip/lwip",
+  "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+  "task_set": "eval/holdout_lwip.yaml",
+  "task_scope": "full",
+  "runs_per_task": 3,
+  "planned_trial_count": 216,
+  "executed_trial_count": 0,
+  "model": null,
+  "temperature": 0.1,
+  "generated_at": "2026-09-05T15:34:42+00:00",
+  "manifest_hash": "25d775beb57c113a544b624d00d5e910ea797ec6eae719b09993b73fe8a1a8fa",
+  "task_set_hash": "25d775beb57c113a544b624d00d5e910ea797ec6eae719b09993b73fe8a1a8fa",
+  "answer_key_hash": "a2a69c6d88837587536ff8e31636aca7e103ed78fa9cfe97816e05099f220962",
+  "answer_key": {
+    "schema_version": 2,
+    "status": "approved",
+    "split": "held_out",
+    "task_set": "eval/holdout_lwip.yaml",
+    "task_set_hash": "25d775beb57c113a544b624d00d5e910ea797ec6eae719b09993b73fe8a1a8fa",
+    "frozen_at": "2026-09-05T20:46:17+08:00",
+    "not_used_for_tuning": true,
+    "provenance": {
+      "author": "holdout-author-agent",
+      "author_kind": "agent",
+      "reviewer_kind": "agent",
+      "review_status": "ai_reviewed",
+      "human_reviewed": false,
+      "method": "由固定 revision 的公开源码独立起草，并以同一源码与只读 DB 锚点重审本轮替换机制；未读取 CodeAtlas Wiki、docs、提示词、既有答案或运行得分。",
+      "release_note": "两名独立 agent 已完成源码核验，可用于明确标注 AI 复核来源的效果实验；不构成人类复核，历史未曝光仍不可由哈希证明。"
+    },
+    "review": {
+      "reviewer_kind": "agent",
+      "independent_reviews": [
+        {
+          "reviewer_kind": "agent",
+          "reviewer": "holdout-source-validator",
+          "provider": "OpenAI",
+          "model": "GPT-5",
+          "agent": "/root/holdout_source_validator",
+          "prompt_hash": "d10ed500762923bd4804d419fc08b70d32af3eccf68bb3dd39a4e872b3912565",
+          "input_hash": "91e97b7bb996bbd40f922c873e7134760d4eef72dcc03e06d85baf5e63628d32",
+          "independent": true,
+          "peer_reviews_visible": false,
+          "verdict": "approved",
+          "reviewed_at": "2026-09-05",
+          "note": "Current fixed-source facts, forbidden claims, evidence, anchors, corrected udp_disconnect boundary, category balance and zero development-mechanism overlap passed; no human or historical non-exposure claim.",
+          "validation_report": "eval/holdout_validation.json",
+          "validation_report_hash": "dc9621dc3b3ac0ef223f0ed6837906a900870223640aba1c039e1d8e5171156e"
+        },
+        {
+          "reviewer_kind": "agent",
+          "reviewer": "holdout-source-validator-b",
+          "provider": "OpenAI",
+          "model": "gpt-5",
+          "agent": "/root/holdout_source_validator_b",
+          "prompt_hash": "0081b41a01ea716181bd33a4c8d39cfff513baecab254907f2ce1be3ba939a70",
+          "input_hash": "91e97b7bb996bbd40f922c873e7134760d4eef72dcc03e06d85baf5e63628d32",
+          "independent": true,
+          "peer_reviews_visible": false,
+          "verdict": "approved",
+          "reviewed_at": "2026-09-05",
+          "note": "Independently approved all current holdout source/evidence/anchor contracts including the two-branch udp_disconnect ANY behavior; no human review or historical non-exposure claim.",
+          "validation_report": "eval/holdout_validation_b.json",
+          "validation_report_hash": "e2d3bc87798571a8e7307a90f5df0e79817d1fe0d7ba318f44c54e023c508a96"
+        }
+      ]
+    },
+    "tasks": {
+      "ho-lwip-flow-udp-send-pipeline": {
+        "expected_points": [
+          {
+            "id": "connected-destination",
+            "text": "udp_send 要求 PCB/pbuf 非空且 remote_ip 不是 ANY，随后把 PCB 中 remote_ip/remote_port 交给 udp_sendto。",
+            "evidence": "src/core/udp.c:466-478"
+          },
+          {
+            "id": "route",
+            "text": "udp_sendto 先检查 IP 版本，优先使用 pcb->netif_idx 或组播接口配置，否则调用 ip_route；找不到 netif 返回 ERR_RTE。",
+            "evidence": "src/core/udp.c:519-600"
+          },
+          {
+            "id": "source",
+            "text": "udp_sendto_if 按目的地址族从 netif 选择源地址，或验证 PCB 的已绑定本地地址仍属于该 netif，再调用 udp_sendto_if_src。",
+            "evidence": "src/core/udp.c:623-693"
+          },
+          {
+            "id": "transport-to-ip",
+            "text": "最内层必要时自动 bind，增加 UDP 头、写端口/长度与校验和，选择 TTL，最后调用 ip_output_if_src 并返回其错误。",
+            "evidence": "src/core/udp.c:698-908"
+          }
+        ],
+        "forbidden_claims": [
+          "不得声称 udp_send 在 remote_ip 为 ANY 时会自动选择目的地址。",
+          "不得声称 udp_sendto 总是忽略 pcb->netif_idx 做普通路由查找。"
+        ],
+        "evidence_payload": [
+          {
+            "kind": "pinned_source",
+            "repository": "https://github.com/lwip-tcpip/lwip",
+            "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+            "path": "src/core/udp.c",
+            "lines": "466-908",
+            "file_sha256": "6454ba858cf8a2c71e4a27e0da4b1569160f923c2adce19842dbb6f90da61af7",
+            "text": "udp.c:466-908\nerr_t\nudp_send(struct udp_pcb *pcb, struct pbuf *p)\n{\n  LWIP_ERROR(\"udp_send: invalid pcb\", pcb != NULL, return ERR_ARG);\n  LWIP_ERROR(\"udp_send: invalid pbuf\", p != NULL, return ERR_ARG);\n\n  if (IP_IS_ANY_TYPE_VAL(pcb->remote_ip)) {\n    return ERR_VAL;\n  }\n\n  /* send to the packet using remote ip and port stored in the pcb */\n  return udp_sendto(pcb, p, &pcb->remote_ip, pcb->remote_port);\n}\n\n#if LWIP_CHECKSUM_ON_COPY && CHECKSUM_GEN_UDP\n/** @ingroup udp_raw\n * Same as udp_send() but with checksum\n */\nerr_t\nudp_send_chksum(struct udp_pcb *pcb, struct pbuf *p,\n                u8_t have_chksum, u16_t chksum)\n{\n  LWIP_ERROR(\"udp_send_chksum: invalid pcb\", pcb != NULL, return ERR_ARG);\n  LWIP_ERROR(\"udp_send_chksum: invalid pbuf\", p != NULL, return ERR_ARG);\n\n  if (IP_IS_ANY_TYPE_VAL(pcb->remote_ip)) {\n    return ERR_VAL;\n  }\n\n  /* send to the packet using remote ip and port stored in the pcb */\n  return udp_sendto_chksum(pcb, p, &pcb->remote_ip, pcb->remote_port,\n                           have_chksum, chksum);\n}\n#endif /* LWIP_CHECKSUM_ON_COPY && CHECKSUM_GEN_UDP */\n\n/**\n * @ingroup udp_raw\n * Send data to a specified address using UDP.\n *\n * @param pcb UDP PCB used to send the data.\n * @param p chain of pbuf's to be sent.\n * @param dst_ip Destination IP address.\n * @param dst_port Destination UDP port.\n *\n * dst_ip & dst_port are expected to be in the same byte order as in the pcb.\n *\n * If the PCB already has a remote address association, it will\n * be restored after the data is sent.\n *\n * @return lwIP error code (@see udp_send for possible error codes)\n *\n * @see udp_disconnect() udp_send()\n */\nerr_t\nudp_sendto(struct udp_pcb *pcb, struct pbuf *p,\n           const ip_addr_t *dst_ip, u16_t dst_port)\n{\n#if LWIP_CHECKSUM_ON_COPY && CHECKSUM_GEN_UDP\n  return udp_sendto_chksum(pcb, p, dst_ip, dst_port, 0, 0);\n}\n\n/** @ingroup udp_raw\n * Same as udp_sendto(), but with checksum */\nerr_t\nudp_sendto_chksum(struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *dst_ip,\n                  u16_t dst_port, u8_t have_chksum, u16_t chksum)\n{\n#endif /* LWIP_CHECKSUM_ON_COPY && CHECKSUM_GEN_UDP */\n  struct netif *netif;\n\n  LWIP_ERROR(\"udp_sendto: invalid pcb\", pcb != NULL, return ERR_ARG);\n  LWIP_ERROR(\"udp_sendto: invalid pbuf\", p != NULL, return ERR_ARG);\n  LWIP_ERROR(\"udp_sendto: invalid dst_ip\", dst_ip != NULL, return ERR_ARG);\n\n  if (!IP_ADDR_PCB_VERSION_MATCH(pcb, dst_ip)) {\n    return ERR_VAL;\n  }\n\n  LWIP_DEBUGF(UDP_DEBUG | LWIP_DBG_TRACE, (\"udp_send\\n\"));\n\n  if (pcb->netif_idx != NETIF_NO_INDEX) {\n    netif = netif_get_by_index(pcb->netif_idx);\n  } else {\n#if LWIP_MULTICAST_TX_OPTIONS\n    netif = NULL;\n    if (ip_addr_ismulticast(dst_ip)) {\n      /* For IPv6, the interface to use for packets with a multicast destination\n       * is specified using an interface index. The same approach may be used for\n       * IPv4 as well, in which case it overrides the IPv4 multicast override\n       * address below. Here we have to look up the netif by going through the\n       * list, but by doing so we skip a route lookup. If the interface index has\n       * gone stale, we fall through and do the regular route lookup after all. */\n      if (pcb->mcast_ifindex != NETIF_NO_INDEX) {\n        netif = netif_get_by_index(pcb->mcast_ifindex);\n      }\n#if LWIP_IPV4\n      else\n#if LWIP_IPV6\n        if (IP_IS_V4(dst_ip))\n#endif /* LWIP_IPV6 */\n        {\n          /* IPv4 does not use source-based routing by default, so we use an\n             administratively selected interface for multicast by default.\n             However, this can be overridden by setting an interface address\n             in pcb->mcast_ip4 that is used for routing. If this routing lookup\n             fails, we try regular routing as though no override was set. */\n          if (!ip4_addr_isany_val(pcb->mcast_ip4) &&\n              !ip4_addr_eq(&pcb->mcast_ip4, IP4_ADDR_BROADCAST)) {\n            netif = ip4_route_src(ip_2_ip4(&pcb->local_ip), &pcb->mcast_ip4);\n          }\n        }\n#endif /* LWIP_IPV4 */\n    }\n\n    if (netif == NULL)\n#endif /* LWIP_MULTICAST_TX_OPTIONS */\n    {\n      /* find the outgoing network interface for this packet */\n      netif = ip_route(&pcb->local_ip, dst_ip);\n    }\n  }\n\n  /* no outgoing network interface could be found? */\n  if (netif == NULL) {\n    LWIP_DEBUGF(UDP_DEBUG | LWIP_DBG_LEVEL_SERIOUS, (\"udp_send: No route to \"));\n    ip_addr_debug_print(UDP_DEBUG | LWIP_DBG_LEVEL_SERIOUS, dst_ip);\n    LWIP_DEBUGF(UDP_DEBUG, (\"\\n\"));\n    UDP_STATS_INC(udp.rterr);\n    return ERR_RTE;\n  }\n#if LWIP_CHECKSUM_ON_COPY && CHECKSUM_GEN_UDP\n  return udp_sendto_if_chksum(pcb, p, dst_ip, dst_port, netif, have_chksum, chksum);\n#else /* LWIP_CHECKSUM_ON_COPY && CHECKSUM_GEN_UDP */\n  return udp_sendto_if(pcb, p, dst_ip, dst_port, netif);\n#endif /* LWIP_CHECKSUM_ON_COPY && CHECKSUM_GEN_UDP */\n}\n\n/**\n * @ingroup udp_raw\n * Send data to a specified address using UDP.\n * The netif used for sending can be specified.\n *\n * This function exists mainly for DHCP, to be able to send UDP packets\n * on a netif that is still down.\n *\n * @param pcb UDP PCB used to send the data.\n * @param p chain of pbuf's to be sent.\n * @param dst_ip Destination IP address.\n * @param dst_port Destination UDP port.\n * @param netif the netif used for sending.\n *\n * dst_ip & dst_port are expected to be in the same byte order as in the pcb.\n *\n * @return lwIP error code (@see udp_send for possible error codes)\n *\n * @see udp_disconnect() udp_send()\n */\nerr_t\nudp_sendto_if(struct udp_pcb *pcb, struct pbuf *p,\n              const ip_addr_t *dst_ip, u16_t dst_port, struct netif *netif)\n{\n#if LWIP_CHECKSUM_ON_COPY && CHECKSUM_GEN_UDP\n  return udp_sendto_if_chksum(pcb, p, dst_ip, dst_port, netif, 0, 0);\n}\n\n/** Same as udp_sendto_if(), but with checksum */\nerr_t\nudp_sendto_if_chksum(struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *dst_ip,\n                     u16_t dst_port, struct netif *netif, u8_t have_chksum,\n                     u16_t chksum)\n{\n#endif /* LWIP_CHECKSUM_ON_COPY && CHECKSUM_GEN_UDP */\n  const ip_addr_t *src_ip;\n\n  LWIP_ERROR(\"udp_sendto_if: invalid pcb\", pcb != NULL, return ERR_ARG);\n  LWIP_ERROR(\"udp_sendto_if: invalid pbuf\", p != NULL, return ERR_ARG);\n  LWIP_ERROR(\"udp_sendto_if: invalid dst_ip\", dst_ip != NULL, return ERR_ARG);\n  LWIP_ERROR(\"udp_sendto_if: invalid netif\", netif != NULL, return ERR_ARG);\n\n  if (!IP_ADDR_PCB_VERSION_MATCH(pcb, dst_ip)) {\n    return ERR_VAL;\n  }\n\n  /* PCB local address is IP_ANY_ADDR or multicast? */\n#if LWIP_IPV6\n  if (IP_IS_V6(dst_ip)) {\n    if (ip6_addr_isany(ip_2_ip6(&pcb->local_ip)) ||\n        ip6_addr_ismulticast(ip_2_ip6(&pcb->local_ip))) {\n      src_ip = ip6_select_source_address(netif, ip_2_ip6(dst_ip));\n      if (src_ip == NULL) {\n        /* No suitable source address was found. */\n        return ERR_RTE;\n      }\n    } else {\n      /* use UDP PCB local IPv6 address as source address, if still valid. */\n      if (netif_get_ip6_addr_match(netif, ip_2_ip6(&pcb->local_ip)) < 0) {\n        /* Address isn't valid anymore. */\n        return ERR_RTE;\n      }\n      src_ip = &pcb->local_ip;\n    }\n  }\n#endif /* LWIP_IPV6 */\n#if LWIP_IPV4 && LWIP_IPV6\n  else\n#endif /* LWIP_IPV4 && LWIP_IPV6 */\n#if LWIP_IPV4\n    if (ip4_addr_isany(ip_2_ip4(&pcb->local_ip)) ||\n        ip4_addr_ismulticast(ip_2_ip4(&pcb->local_ip))) {\n      /* if the local_ip is any or multicast\n       * use the outgoing network interface IP address as source address */\n      src_ip = netif_ip_addr4(netif);\n    } else {\n      /* check if UDP PCB local IP address is correct\n       * this could be an old address if netif->ip_addr has changed */\n      if (!ip4_addr_eq(ip_2_ip4(&(pcb->local_ip)), netif_ip4_addr(netif))) {\n        /* local_ip doesn't match, drop the packet */\n        return ERR_RTE;\n      }\n      /* use UDP PCB local IP address as source address */\n      src_ip = &pcb->local_ip;\n    }\n#endif /* LWIP_IPV4 */\n#if LWIP_CHECKSUM_ON_COPY && CHECKSUM_GEN_UDP\n  return udp_sendto_if_src_chksum(pcb, p, dst_ip, dst_port, netif, have_chksum, chksum, src_ip);\n#else /* LWIP_CHECKSUM_ON_COPY && CHECKSUM_GEN_UDP */\n  return udp_sendto_if_src(pcb, p, dst_ip, dst_port, netif, src_ip);\n#endif /* LWIP_CHECKSUM_ON_COPY && CHECKSUM_GEN_UDP */\n}\n\n/** @ingroup udp_raw\n * Same as @ref udp_sendto_if, but with source address */\nerr_t\nudp_sendto_if_src(struct udp_pcb *pcb, struct pbuf *p,\n                  const ip_addr_t *dst_ip, u16_t dst_port, struct netif *netif, const ip_addr_t *src_ip)\n{\n#if LWIP_CHECKSUM_ON_COPY && CHECKSUM_GEN_UDP\n  return udp_sendto_if_src_chksum(pcb, p, dst_ip, dst_port, netif, 0, 0, src_ip);\n}\n\n/** Same as udp_sendto_if_src(), but with checksum */\nerr_t\nudp_sendto_if_src_chksum(struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *dst_ip,\n                         u16_t dst_port, struct netif *netif, u8_t have_chksum,\n                         u16_t chksum, const ip_addr_t *src_ip)\n{\n#endif /* LWIP_CHECKSUM_ON_COPY && CHECKSUM_GEN_UDP */\n  struct udp_hdr *udphdr;\n  err_t err;\n  struct pbuf *q; /* q will be sent down the stack */\n  u8_t ip_proto;\n  u8_t ttl;\n\n  LWIP_ASSERT_CORE_LOCKED();\n\n  LWIP_ERROR(\"udp_sendto_if_src: invalid pcb\", pcb != NULL, return ERR_ARG);\n  LWIP_ERROR(\"udp_sendto_if_src: invalid pbuf\", p != NULL, return ERR_ARG);\n  LWIP_ERROR(\"udp_sendto_if_src: invalid dst_ip\", dst_ip != NULL, return ERR_ARG);\n  LWIP_ERROR(\"udp_sendto_if_src: invalid src_ip\", src_ip != NULL, return ERR_ARG);\n  LWIP_ERROR(\"udp_sendto_if_src: invalid netif\", netif != NULL, return ERR_ARG);\n\n  if (!IP_ADDR_PCB_VERSION_MATCH(pcb, src_ip) ||\n      !IP_ADDR_PCB_VERSION_MATCH(pcb, dst_ip)) {\n    return ERR_VAL;\n  }\n\n#if LWIP_IPV4 && IP_SOF_BROADCAST\n  /* broadcast filter? */\n  if (!ip_get_option(pcb, SOF_BROADCAST) &&\n#if LWIP_IPV6\n      IP_IS_V4(dst_ip) &&\n#endif /* LWIP_IPV6 */\n      ip_addr_isbroadcast(dst_ip, netif)) {\n    LWIP_DEBUGF(UDP_DEBUG | LWIP_DBG_LEVEL_SERIOUS,\n                (\"udp_sendto_if: SOF_BROADCAST not enabled on pcb %p\\n\", (void *)pcb));\n    return ERR_VAL;\n  }\n#endif /* LWIP_IPV4 && IP_SOF_BROADCAST */\n\n  /* if the PCB is not yet bound to a port, bind it here */\n  if (pcb->local_port == 0) {\n    LWIP_DEBUGF(UDP_DEBUG | LWIP_DBG_TRACE, (\"udp_send: not yet bound to a port, binding now\\n\"));\n    err = udp_bind(pcb, &pcb->local_ip, pcb->local_port);\n    if (err != ERR_OK) {\n      LWIP_DEBUGF(UDP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_LEVEL_SERIOUS, (\"udp_send: forced port bind failed\\n\"));\n      return err;\n    }\n  }\n\n  /* packet too large to add a UDP header without causing an overflow? */\n  if ((u16_t)(p->tot_len + UDP_HLEN) < p->tot_len) {\n    return ERR_MEM;\n  }\n  /* not enough space to add an UDP header to first pbuf in given p chain? */\n  if (pbuf_add_header(p, UDP_HLEN)) {\n    /* allocate header in a separate new pbuf */\n    q = pbuf_alloc(PBUF_IP, UDP_HLEN, PBUF_RAM);\n    /* new header pbuf could not be allocated? */\n    if (q == NULL) {\n      LWIP_DEBUGF(UDP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_LEVEL_SERIOUS, (\"udp_send: could not allocate header\\n\"));\n      return ERR_MEM;\n    }\n    if (p->tot_len != 0) {\n      /* chain header q in front of given pbuf p (only if p contains data) */\n      pbuf_chain(q, p);\n    }\n    /* first pbuf q points to header pbuf */\n    LWIP_DEBUGF(UDP_DEBUG,\n                (\"udp_send: added header pbuf %p before given pbuf %p\\n\", (void *)q, (void *)p));\n  } else {\n    /* adding space for header within p succeeded */\n    /* first pbuf q equals given pbuf */\n    q = p;\n    LWIP_DEBUGF(UDP_DEBUG, (\"udp_send: added header in given pbuf %p\\n\", (void *)p));\n  }\n  LWIP_ASSERT(\"check that first pbuf can hold struct udp_hdr\",\n              (q->len >= sizeof(struct udp_hdr)));\n  /* q now represents the packet to be sent */\n  udphdr = (struct udp_hdr *)q->payload;\n  udphdr->src = lwip_htons(pcb->local_port);\n  udphdr->dest = lwip_htons(dst_port);\n  /* in UDP, 0 checksum means 'no checksum' */\n  udphdr->chksum = 0x0000;\n\n  /* Multicast Loop? */\n#if LWIP_MULTICAST_TX_OPTIONS\n  if (((pcb->flags & UDP_FLAGS_MULTICAST_LOOP) != 0) && ip_addr_ismulticast(dst_ip)) {\n    q->flags |= PBUF_FLAG_MCASTLOOP;\n  }\n#endif /* LWIP_MULTICAST_TX_OPTIONS */\n\n  LWIP_DEBUGF(UDP_DEBUG, (\"udp_send: sending datagram of length %\"U16_F\"\\n\", q->tot_len));\n\n#if LWIP_UDPLITE\n  /* UDP Lite protocol? */\n  if (pcb->flags & UDP_FLAGS_UDPLITE) {\n    u16_t chklen, chklen_hdr;\n    LWIP_DEBUGF(UDP_DEBUG, (\"udp_send: UDP LITE packet length %\"U16_F\"\\n\", q->tot_len));\n    /* set UDP message length in UDP header */\n    chklen_hdr = chklen = pcb->chksum_len_tx;\n    if ((chklen < sizeof(struct udp_hdr)) || (chklen > q->tot_len)) {\n      if (chklen != 0) {\n        LWIP_DEBUGF(UDP_DEBUG, (\"udp_send: UDP LITE pcb->chksum_len is illegal: %\"U16_F\"\\n\", chklen));\n      }\n      /* For UDP-Lite, checksum length of 0 means checksum\n         over the complete packet. (See RFC 3828 chap. 3.1)\n         At least the UDP-Lite header must be covered by the\n         checksum, therefore, if chksum_len has an illegal\n         value, we generate the checksum over the complete\n         packet to be safe. */\n      chklen_hdr = 0;\n      chklen = q->tot_len;\n    }\n    udphdr->len = lwip_htons(chklen_hdr);\n    /* calculate checksum */\n#if CHECKSUM_GEN_UDP\n    IF__NETIF_CHECKSUM_ENABLED(netif, NETIF_CHECKSUM_GEN_UDP) {\n#if LWIP_CHECKSUM_ON_COPY\n      if (have_chksum) {\n        chklen = UDP_HLEN;\n      }\n#endif /* LWIP_CHECKSUM_ON_COPY */\n      udphdr->chksum = ip_chksum_pseudo_partial(q, IP_PROTO_UDPLITE,\n                       q->tot_len, chklen, src_ip, dst_ip);\n#if LWIP_CHECKSUM_ON_COPY\n      if (have_chksum) {\n        u32_t acc;\n        acc = udphdr->chksum + (u16_t)~(chksum);\n        udphdr->chksum = FOLD_U32T(acc);\n      }\n#endif /* LWIP_CHECKSUM_ON_COPY */\n\n      /* chksum zero must become 0xffff, as zero means 'no checksum' */\n      if (udphdr->chksum == 0x0000) {\n        udphdr->chksum = 0xffff;\n      }\n    }\n#endif /* CHECKSUM_GEN_UDP */\n\n    ip_proto = IP_PROTO_UDPLITE;\n  } else\n#endif /* LWIP_UDPLITE */\n  {      /* UDP */\n    LWIP_DEBUGF(UDP_DEBUG, (\"udp_send: UDP packet length %\"U16_F\"\\n\", q->tot_len));\n    udphdr->len = lwip_htons(q->tot_len);\n    /* calculate checksum */\n#if CHECKSUM_GEN_UDP\n    IF__NETIF_CHECKSUM_ENABLED(netif, NETIF_CHECKSUM_GEN_UDP) {\n      /* Checksum is mandatory over IPv6. */\n      if (IP_IS_V6(dst_ip) || (pcb->flags & UDP_FLAGS_NOCHKSUM) == 0) {\n        u16_t udpchksum;\n#if LWIP_CHECKSUM_ON_COPY\n        if (have_chksum) {\n          u32_t acc;\n          udpchksum = ip_chksum_pseudo_partial(q, IP_PROTO_UDP,\n                                               q->tot_len, UDP_HLEN, src_ip, dst_ip);\n          acc = udpchksum + (u16_t)~(chksum);\n          udpchksum = FOLD_U32T(acc);\n        } else\n#endif /* LWIP_CHECKSUM_ON_COPY */\n        {\n          udpchksum = ip_chksum_pseudo(q, IP_PROTO_UDP, q->tot_len,\n                                       src_ip, dst_ip);\n        }\n\n        /* chksum zero must become 0xffff, as zero means 'no checksum' */\n        if (udpchksum == 0x0000) {\n          udpchksum = 0xffff;\n        }\n        udphdr->chksum = udpchksum;\n      }\n    }\n#endif /* CHECKSUM_GEN_UDP */\n    ip_proto = IP_PROTO_UDP;\n  }\n\n  /* Determine TTL to use */\n#if LWIP_MULTICAST_TX_OPTIONS\n  ttl = (ip_addr_ismulticast(dst_ip) ? udp_get_multicast_ttl(pcb) : pcb->ttl);\n#else /* LWIP_MULTICAST_TX_OPTIONS */\n  ttl = pcb->ttl;\n#endif /* LWIP_MULTICAST_TX_OPTIONS */\n\n  LWIP_DEBUGF(UDP_DEBUG, (\"udp_send: UDP checksum 0x%04\"X16_F\"\\n\", udphdr->chksum));\n  LWIP_DEBUGF(UDP_DEBUG, (\"udp_send: ip_output_if (,,,,0x%02\"X16_F\",)\\n\", (u16_t)ip_proto));\n  /* output to IP */\n  NETIF_SET_HINTS(netif, &(pcb->netif_hints));\n  err = ip_output_if_src(q, src_ip, dst_ip, ttl, pcb->tos, ip_proto, netif);\n  NETIF_RESET_HINTS(netif);\n\n  /* @todo: must this be increased even if error occurred? */\n  MIB2_STATS_INC(mib2.udpoutdatagrams);\n\n  /* did we chain a separate header pbuf earlier? */\n  if (q != p) {\n    /* free the header pbuf */\n    pbuf_free(q);\n    q = NULL;\n    /* p is still referenced by the caller, and will live on */\n  }\n\n  UDP_STATS_INC(udp.xmit);\n  return err;",
+            "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/udp.c#L466-L908"
+          },
+          {
+            "kind": "experiment_declaration",
+            "executed": false,
+            "text": "{\"executed\": false, \"expected\": \"前两种到达 ip_output_if_src；第三种在 udp_sendto 返回 ERR_RTE。\", \"kind\": \"call_path_matrix\", \"setup\": \"已 connect PCB 分别配置固定 netif_idx、无 netif_idx 且可路由、无可用路由。\"}"
+          }
+        ]
+      },
+      "ho-lwip-flow-dns-resolution": {
+        "expected_points": [
+          {
+            "id": "synchronous-fast-paths",
+            "text": "入口先校验参数和长度，再尝试 localhost、IP 字面量、首选地址族缓存，以及双栈回退地址族缓存；命中时同步 ERR_OK。",
+            "evidence": "src/core/dns.c:1569-1631"
+          },
+          {
+            "id": "server-gate",
+            "text": "普通 DNS 请求若首个服务器为 ANY 会返回 ERR_VAL；mDNS 条件满足时可绕过这个普通服务器门槛。",
+            "evidence": "src/core/dns.c:1636-1650"
+          },
+          {
+            "id": "enqueue",
+            "text": "未命中快路径时 dns_enqueue 选空闲或最老 DONE 表项，写入 NEW 状态、名称、回调和地址类型，然后直接调用 dns_check_entry。",
+            "evidence": "src/core/dns.c:1438-1525"
+          },
+          {
+            "id": "state-machine",
+            "text": "dns_check_entry 把 NEW 转为 ASKING、生成 txid、初始化 server/retry/timer 并发送；ASKING 超时后增长等待、切换备份服务器或回调失败并释放表项。",
+            "evidence": "src/core/dns.c:1065-1128"
+          }
+        ],
+        "forbidden_claims": [
+          "不得声称每次调用都会发网络查询；字面量和缓存命中是同步快路径。",
+          "不得声称 ERR_INPROGRESS 表示查询已经完成。"
+        ],
+        "evidence_payload": [
+          {
+            "kind": "pinned_source",
+            "repository": "https://github.com/lwip-tcpip/lwip",
+            "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+            "path": "src/core/dns.c",
+            "lines": "617-651,1065-1137,1393-1655",
+            "file_sha256": "fe35ede9919974da54598630cc08d654ccc30b668c45b09668c3ba572686b26c",
+            "text": "dns.c:617-651\nstatic err_t\ndns_lookup(const char *name, size_t hostnamelen, ip_addr_t *addr LWIP_DNS_ADDRTYPE_ARG(u8_t dns_addrtype))\n{\n  size_t namelen;\n  u8_t i;\n#if DNS_LOCAL_HOSTLIST\n  if (dns_lookup_local(name, hostnamelen, addr LWIP_DNS_ADDRTYPE_ARG(dns_addrtype)) == ERR_OK) {\n    return ERR_OK;\n  }\n#endif /* DNS_LOCAL_HOSTLIST */\n#ifdef DNS_LOOKUP_LOCAL_EXTERN\n  if (DNS_LOOKUP_LOCAL_EXTERN(name, hostnamelen, addr, LWIP_DNS_ADDRTYPE_ARG_OR_ZERO(dns_addrtype)) == ERR_OK) {\n    return ERR_OK;\n  }\n#endif /* DNS_LOOKUP_LOCAL_EXTERN */\n\n  namelen = LWIP_MIN(hostnamelen, DNS_MAX_NAME_LENGTH - 1);\n  /* Walk through name list, return entry if found. If not, return NULL. */\n  for (i = 0; i < DNS_TABLE_SIZE; ++i) {\n    if ((dns_table[i].state == DNS_STATE_DONE) &&\n        (lwip_strnicmp(name, dns_table[i].name, namelen) == 0) &&\n        !dns_table[i].name[namelen] &&\n        LWIP_DNS_ADDRTYPE_MATCH_IP(dns_addrtype, dns_table[i].ipaddr)) {\n      LWIP_DEBUGF(DNS_DEBUG, (\"dns_lookup: \\\"%s\\\": found = \", name));\n      ip_addr_debug_print_val(DNS_DEBUG, dns_table[i].ipaddr);\n      LWIP_DEBUGF(DNS_DEBUG, (\"\\n\"));\n      if (addr) {\n        ip_addr_copy(*addr, dns_table[i].ipaddr);\n      }\n      return ERR_OK;\n    }\n  }\n\n  return ERR_ARG;\n}\n\ndns.c:1065-1137\nstatic void\ndns_check_entry(u8_t i)\n{\n  err_t err;\n  struct dns_table_entry *entry = &dns_table[i];\n\n  LWIP_ASSERT(\"array index out of bounds\", i < DNS_TABLE_SIZE);\n\n  switch (entry->state) {\n    case DNS_STATE_NEW:\n      /* initialize new entry */\n      entry->txid = dns_create_txid();\n      entry->state = DNS_STATE_ASKING;\n      entry->server_idx = 0;\n      entry->tmr = 1;\n      entry->retries = 0;\n\n      /* send DNS packet for this entry */\n      err = dns_send(i);\n      if (err != ERR_OK) {\n        LWIP_DEBUGF(DNS_DEBUG | LWIP_DBG_LEVEL_WARNING,\n                    (\"dns_send returned error: %s\\n\", lwip_strerr(err)));\n      }\n      break;\n    case DNS_STATE_ASKING:\n      if (--entry->tmr == 0) {\n        if (++entry->retries == DNS_MAX_RETRIES) {\n          if (dns_backupserver_available(entry)\n#if LWIP_DNS_SUPPORT_MDNS_QUERIES\n              && !entry->is_mdns\n#endif /* LWIP_DNS_SUPPORT_MDNS_QUERIES */\n             ) {\n            /* change of server */\n            entry->server_idx++;\n            entry->tmr = 1;\n            entry->retries = 0;\n          } else {\n            LWIP_DEBUGF(DNS_DEBUG, (\"dns_check_entry: \\\"%s\\\": timeout\\n\", entry->name));\n            /* call specified callback function if provided */\n            dns_call_found(i, NULL);\n            /* flush this entry */\n            entry->state = DNS_STATE_UNUSED;\n            break;\n          }\n        } else {\n          /* wait longer for the next retry */\n          entry->tmr = entry->retries;\n        }\n\n        /* send DNS packet for this entry */\n        err = dns_send(i);\n        if (err != ERR_OK) {\n          LWIP_DEBUGF(DNS_DEBUG | LWIP_DBG_LEVEL_WARNING,\n                      (\"dns_send returned error: %s\\n\", lwip_strerr(err)));\n        }\n      }\n      break;\n    case DNS_STATE_DONE:\n      /* if the time to live is nul */\n      if ((entry->ttl == 0) || (--entry->ttl == 0)) {\n        LWIP_DEBUGF(DNS_DEBUG, (\"dns_check_entry: \\\"%s\\\": flush\\n\", entry->name));\n        /* flush this entry, there cannot be any related pending entries in this state */\n        entry->state = DNS_STATE_UNUSED;\n      }\n      break;\n    case DNS_STATE_UNUSED:\n      /* nothing to do */\n      break;\n    default:\n      LWIP_ASSERT(\"unknown dns_table entry state:\", 0);\n      break;\n  }\n}\n\ndns.c:1393-1655\nstatic err_t\ndns_enqueue(const char *name, size_t hostnamelen, dns_found_callback found,\n            void *callback_arg LWIP_DNS_ADDRTYPE_ARG(u8_t dns_addrtype) LWIP_DNS_ISMDNS_ARG(u8_t is_mdns))\n{\n  u8_t i;\n  u8_t lseq, lseqi;\n  struct dns_table_entry *entry = NULL;\n  size_t namelen;\n  struct dns_req_entry *req;\n#if ((LWIP_DNS_SECURE & LWIP_DNS_SECURE_NO_MULTIPLE_OUTSTANDING) != 0)\n  u8_t r;\n#endif\n\n  namelen = LWIP_MIN(hostnamelen, DNS_MAX_NAME_LENGTH - 1);\n\n#if ((LWIP_DNS_SECURE & LWIP_DNS_SECURE_NO_MULTIPLE_OUTSTANDING) != 0)\n  /* check for duplicate entries */\n  for (i = 0; i < DNS_TABLE_SIZE; i++) {\n    if ((dns_table[i].state == DNS_STATE_ASKING) &&\n        (lwip_strnicmp(name, dns_table[i].name, namelen) == 0) &&\n        !dns_table[i].name[namelen]) {\n#if LWIP_IPV4 && LWIP_IPV6\n      if (dns_table[i].reqaddrtype != dns_addrtype) {\n        /* requested address types don't match\n           this can lead to 2 concurrent requests, but mixing the address types\n           for the same host should not be that common */\n        continue;\n      }\n#endif /* LWIP_IPV4 && LWIP_IPV6 */\n      /* this is a duplicate entry, find a free request entry */\n      for (r = 0; r < DNS_MAX_REQUESTS; r++) {\n        if (dns_requests[r].found == NULL) {\n          dns_requests[r].found = found;\n          dns_requests[r].arg = callback_arg;\n          dns_requests[r].dns_table_idx = i;\n          LWIP_DNS_SET_ADDRTYPE(dns_requests[r].reqaddrtype, dns_addrtype);\n          LWIP_DEBUGF(DNS_DEBUG, (\"dns_enqueue: \\\"%s\\\": duplicate request\\n\", name));\n          return ERR_INPROGRESS;\n        }\n      }\n    }\n  }\n  /* no duplicate entries found */\n#endif\n\n  /* search an unused entry, or the oldest one */\n  lseq = 0;\n  lseqi = DNS_TABLE_SIZE;\n  for (i = 0; i < DNS_TABLE_SIZE; ++i) {\n    entry = &dns_table[i];\n    /* is it an unused entry ? */\n    if (entry->state == DNS_STATE_UNUSED) {\n      break;\n    }\n    /* check if this is the oldest completed entry */\n    if (entry->state == DNS_STATE_DONE) {\n      u8_t age = (u8_t)(dns_seqno - entry->seqno);\n      if (age > lseq) {\n        lseq = age;\n        lseqi = i;\n      }\n    }\n  }\n\n  /* if we don't have found an unused entry, use the oldest completed one */\n  if (i == DNS_TABLE_SIZE) {\n    if ((lseqi >= DNS_TABLE_SIZE) || (dns_table[lseqi].state != DNS_STATE_DONE)) {\n      /* no entry can be used now, table is full */\n      LWIP_DEBUGF(DNS_DEBUG, (\"dns_enqueue: \\\"%s\\\": DNS entries table is full\\n\", name));\n      return ERR_MEM;\n    } else {\n      /* use the oldest completed one */\n      i = lseqi;\n      entry = &dns_table[i];\n    }\n  }\n\n#if ((LWIP_DNS_SECURE & LWIP_DNS_SECURE_NO_MULTIPLE_OUTSTANDING) != 0)\n  /* find a free request entry */\n  req = NULL;\n  for (r = 0; r < DNS_MAX_REQUESTS; r++) {\n    if (dns_requests[r].found == NULL) {\n      req = &dns_requests[r];\n      break;\n    }\n  }\n  if (req == NULL) {\n    /* no request entry can be used now, table is full */\n    LWIP_DEBUGF(DNS_DEBUG, (\"dns_enqueue: \\\"%s\\\": DNS request entries table is full\\n\", name));\n    return ERR_MEM;\n  }\n  req->dns_table_idx = i;\n#else\n  /* in this configuration, the entry index is the same as the request index */\n  req = &dns_requests[i];\n#endif\n\n  /* use this entry */\n  LWIP_DEBUGF(DNS_DEBUG, (\"dns_enqueue: \\\"%s\\\": use DNS entry %\"U16_F\"\\n\", name, (u16_t)(i)));\n\n  /* fill the entry */\n  entry->state = DNS_STATE_NEW;\n  entry->seqno = dns_seqno;\n  LWIP_DNS_SET_ADDRTYPE(entry->reqaddrtype, dns_addrtype);\n  LWIP_DNS_SET_ADDRTYPE(req->reqaddrtype, dns_addrtype);\n  req->found = found;\n  req->arg   = callback_arg;\n  MEMCPY(entry->name, name, namelen);\n  entry->name[namelen] = 0;\n\n#if ((LWIP_DNS_SECURE & LWIP_DNS_SECURE_RAND_SRC_PORT) != 0)\n  entry->pcb_idx = dns_alloc_pcb();\n  if (entry->pcb_idx >= DNS_MAX_SOURCE_PORTS) {\n    /* failed to get a UDP pcb */\n    LWIP_DEBUGF(DNS_DEBUG, (\"dns_enqueue: \\\"%s\\\": failed to allocate a pcb\\n\", name));\n    entry->state = DNS_STATE_UNUSED;\n    req->found = NULL;\n    return ERR_MEM;\n  }\n  LWIP_DEBUGF(DNS_DEBUG, (\"dns_enqueue: \\\"%s\\\": use DNS pcb %\"U16_F\"\\n\", name, (u16_t)(entry->pcb_idx)));\n#endif\n\n#if LWIP_DNS_SUPPORT_MDNS_QUERIES\n  entry->is_mdns = is_mdns;\n#endif\n\n  dns_seqno++;\n\n  /* force to send query without waiting timer */\n  dns_check_entry(i);\n\n  /* dns query is enqueued */\n  return ERR_INPROGRESS;\n}\n\n/**\n * @ingroup dns\n * Resolve a hostname (string) into an IP address.\n * NON-BLOCKING callback version for use with raw API!!!\n *\n * Returns immediately with one of err_t return codes:\n * - ERR_OK if hostname is a valid IP address string or the host\n *   name is already in the local names table.\n * - ERR_INPROGRESS enqueue a request to be sent to the DNS server\n *   for resolution if no errors are present.\n * - ERR_ARG: dns client not initialized or invalid hostname\n *\n * @param hostname the hostname that is to be queried\n * @param addr pointer to a ip_addr_t where to store the address if it is already\n *             cached in the dns_table (only valid if ERR_OK is returned!)\n * @param found a callback function to be called on success, failure or timeout (only if\n *              ERR_INPROGRESS is returned!)\n * @param callback_arg argument to pass to the callback function\n * @return a err_t return code.\n */\nerr_t\ndns_gethostbyname(const char *hostname, ip_addr_t *addr, dns_found_callback found,\n                  void *callback_arg)\n{\n  return dns_gethostbyname_addrtype(hostname, addr, found, callback_arg, LWIP_DNS_ADDRTYPE_DEFAULT);\n}\n\n/**\n * @ingroup dns\n * Like dns_gethostbyname, but returned address type can be controlled:\n * @param hostname the hostname that is to be queried\n * @param addr pointer to a ip_addr_t where to store the address if it is already\n *             cached in the dns_table (only valid if ERR_OK is returned!)\n * @param found a callback function to be called on success, failure or timeout (only if\n *              ERR_INPROGRESS is returned!)\n * @param callback_arg argument to pass to the callback function\n * @param dns_addrtype - LWIP_DNS_ADDRTYPE_IPV4_IPV6: try to resolve IPv4 first, try IPv6 if IPv4 fails only\n *                     - LWIP_DNS_ADDRTYPE_IPV6_IPV4: try to resolve IPv6 first, try IPv4 if IPv6 fails only\n *                     - LWIP_DNS_ADDRTYPE_IPV4: try to resolve IPv4 only\n *                     - LWIP_DNS_ADDRTYPE_IPV6: try to resolve IPv6 only\n */\nerr_t\ndns_gethostbyname_addrtype(const char *hostname, ip_addr_t *addr, dns_found_callback found,\n                           void *callback_arg, u8_t dns_addrtype)\n{\n  size_t hostnamelen;\n#if LWIP_DNS_SUPPORT_MDNS_QUERIES\n  u8_t is_mdns;\n#endif\n  /* not initialized or no valid server yet, or invalid addr pointer\n   * or invalid hostname or invalid hostname length */\n  if ((addr == NULL) ||\n      (!hostname) || (!hostname[0])) {\n    return ERR_ARG;\n  }\n#if ((LWIP_DNS_SECURE & LWIP_DNS_SECURE_RAND_SRC_PORT) == 0)\n  if (dns_pcbs[0] == NULL) {\n    return ERR_ARG;\n  }\n#endif\n  hostnamelen = strlen(hostname);\n  if (hostname[hostnamelen - 1] == '.') {\n    hostnamelen--;\n  }\n  if (hostnamelen >= DNS_MAX_NAME_LENGTH) {\n    LWIP_DEBUGF(DNS_DEBUG, (\"dns_gethostbyname: name too long to resolve\\n\"));\n    return ERR_ARG;\n  }\n\n\n#if LWIP_HAVE_LOOPIF\n  if (strcmp(hostname, \"localhost\") == 0) {\n    ip_addr_set_loopback(LWIP_DNS_ADDRTYPE_IS_IPV6(dns_addrtype), addr);\n    return ERR_OK;\n  }\n#endif /* LWIP_HAVE_LOOPIF */\n\n  /* host name already in octet notation? set ip addr and return ERR_OK */\n  if (ipaddr_aton(hostname, addr)) {\n#if LWIP_IPV4 && LWIP_IPV6\n    if ((IP_IS_V6(addr) && (dns_addrtype != LWIP_DNS_ADDRTYPE_IPV4)) ||\n        (IP_IS_V4(addr) && (dns_addrtype != LWIP_DNS_ADDRTYPE_IPV6)))\n#endif /* LWIP_IPV4 && LWIP_IPV6 */\n    {\n      return ERR_OK;\n    }\n  }\n  /* already have this address cached? */\n  if (dns_lookup(hostname, hostnamelen, addr LWIP_DNS_ADDRTYPE_ARG(dns_addrtype)) == ERR_OK) {\n    return ERR_OK;\n  }\n#if LWIP_IPV4 && LWIP_IPV6\n  if ((dns_addrtype == LWIP_DNS_ADDRTYPE_IPV4_IPV6) || (dns_addrtype == LWIP_DNS_ADDRTYPE_IPV6_IPV4)) {\n    /* fallback to 2nd IP type and try again to lookup */\n    u8_t fallback;\n    if (dns_addrtype == LWIP_DNS_ADDRTYPE_IPV4_IPV6) {\n      fallback = LWIP_DNS_ADDRTYPE_IPV6;\n    } else {\n      fallback = LWIP_DNS_ADDRTYPE_IPV4;\n    }\n    if (dns_lookup(hostname, hostnamelen, addr LWIP_DNS_ADDRTYPE_ARG(fallback)) == ERR_OK) {\n      return ERR_OK;\n    }\n  }\n#else /* LWIP_IPV4 && LWIP_IPV6 */\n  LWIP_UNUSED_ARG(dns_addrtype);\n#endif /* LWIP_IPV4 && LWIP_IPV6 */\n\n#if LWIP_DNS_SUPPORT_MDNS_QUERIES\n  if (strstr(hostname, \".local\") == &hostname[hostnamelen] - 6) {\n    is_mdns = 1;\n  } else {\n    is_mdns = 0;\n  }\n\n  if (!is_mdns)\n#endif /* LWIP_DNS_SUPPORT_MDNS_QUERIES */\n  {\n    /* prevent calling found callback if no server is set, return error instead */\n    if (ip_addr_isany_val(dns_servers[0])) {\n      return ERR_VAL;\n    }\n  }\n\n  /* queue query with specified callback */\n  return dns_enqueue(hostname, hostnamelen, found, callback_arg LWIP_DNS_ADDRTYPE_ARG(dns_addrtype)\n                     LWIP_DNS_ISMDNS_ARG(is_mdns));\n}",
+            "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/dns.c#L1393-L1655"
+          },
+          {
+            "kind": "experiment_declaration",
+            "executed": false,
+            "text": "{\"executed\": false, \"expected\": \"前两者同步 ERR_OK；未缓存名 ERR_INPROGRESS 且 NEW->ASKING，最终切服或回调 NULL 后 UNUSED。\", \"kind\": \"state_transition_probe\", \"setup\": \"分别查询 IP 字面量、缓存名和未缓存名，并推进 DNS 定时器直到重试上限。\"}"
+          }
+        ]
+      },
+      "ho-lwip-flow-ethernet-demux": {
+        "expected_points": [
+          {
+            "id": "header-validation",
+            "text": "基础以太网头长度不足直接计错并释放；VLAN 模式还校验 VLAN 头长度和可选 VLAN hook/check。",
+            "evidence": "src/netif/ethernet.c:80-136"
+          },
+          {
+            "id": "metadata",
+            "text": "入口填充缺失的 if_idx，并按目的 MAC 标记 PBUF_FLAG_LLMCAST 或 PBUF_FLAG_LLBCAST。",
+            "evidence": "src/netif/ethernet.c:138-168"
+          },
+          {
+            "id": "dispatch",
+            "text": "IPv4/ARP 需 NETIF_FLAG_ETHARP，去掉二层头后分别交给 ip4_input/etharp_input；IPv6 去头后交给 ip6_input；PPP 类型交给对应 PPPoE 入口。",
+            "evidence": "src/netif/ethernet.c:170-232"
+          },
+          {
+            "id": "unknown-and-ownership",
+            "text": "未知 EtherType 先给可选 hook；未被接受则计 unknown/drop 并释放。所有返回 ERR_OK 的分支都表示 pbuf 已被消费或释放。",
+            "evidence": "src/netif/ethernet.c:234-252"
+          }
+        ],
+        "forbidden_claims": [
+          "不得声称 unknown protocol 一定立即释放；hook 返回 ERR_OK 时由 hook 消费。",
+          "不得声称调用者在 ERR_OK 后仍应无条件 pbuf_free。"
+        ],
+        "evidence_payload": [
+          {
+            "kind": "pinned_source",
+            "repository": "https://github.com/lwip-tcpip/lwip",
+            "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+            "path": "src/netif/ethernet.c",
+            "lines": "80-253",
+            "file_sha256": "7c493427956150ca9e97decd87784df0d2adb0f1504fa262b7e732bee1892eaf",
+            "text": "ethernet.c:80-253\nerr_t\nethernet_input(struct pbuf *p, struct netif *netif)\n{\n  struct eth_hdr *ethhdr;\n  u16_t type;\n#if LWIP_ARP || ETHARP_SUPPORT_VLAN || LWIP_IPV6\n  u16_t next_hdr_offset = SIZEOF_ETH_HDR;\n#endif /* LWIP_ARP || ETHARP_SUPPORT_VLAN */\n\n  LWIP_ASSERT_CORE_LOCKED();\n\n  if (p->len <= SIZEOF_ETH_HDR) {\n    /* a packet with only an ethernet header (or less) is not valid for us */\n    ETHARP_STATS_INC(etharp.proterr);\n    ETHARP_STATS_INC(etharp.drop);\n    MIB2_STATS_NETIF_INC(netif, ifinerrors);\n    goto free_and_return;\n  }\n\n  /* points to packet payload, which starts with an Ethernet header */\n  ethhdr = (struct eth_hdr *)p->payload;\n  LWIP_DEBUGF(ETHARP_DEBUG | LWIP_DBG_TRACE,\n              (\"ethernet_input: dest:%\"X8_F\":%\"X8_F\":%\"X8_F\":%\"X8_F\":%\"X8_F\":%\"X8_F\", src:%\"X8_F\":%\"X8_F\":%\"X8_F\":%\"X8_F\":%\"X8_F\":%\"X8_F\", type:%\"X16_F\"\\n\",\n               (unsigned char)ethhdr->dest.addr[0], (unsigned char)ethhdr->dest.addr[1], (unsigned char)ethhdr->dest.addr[2],\n               (unsigned char)ethhdr->dest.addr[3], (unsigned char)ethhdr->dest.addr[4], (unsigned char)ethhdr->dest.addr[5],\n               (unsigned char)ethhdr->src.addr[0],  (unsigned char)ethhdr->src.addr[1],  (unsigned char)ethhdr->src.addr[2],\n               (unsigned char)ethhdr->src.addr[3],  (unsigned char)ethhdr->src.addr[4],  (unsigned char)ethhdr->src.addr[5],\n               lwip_htons(ethhdr->type)));\n\n  type = ethhdr->type;\n#if ETHARP_SUPPORT_VLAN\n  if (type == PP_HTONS(ETHTYPE_VLAN)) {\n    struct eth_vlan_hdr *vlan = (struct eth_vlan_hdr *)(((char *)ethhdr) + SIZEOF_ETH_HDR);\n    next_hdr_offset = SIZEOF_ETH_HDR + SIZEOF_VLAN_HDR;\n    if (p->len <= SIZEOF_ETH_HDR + SIZEOF_VLAN_HDR) {\n      /* a packet with only an ethernet/vlan header (or less) is not valid for us */\n      ETHARP_STATS_INC(etharp.proterr);\n      ETHARP_STATS_INC(etharp.drop);\n      MIB2_STATS_NETIF_INC(netif, ifinerrors);\n      goto free_and_return;\n    }\n#if defined(LWIP_HOOK_VLAN_CHECK) || defined(ETHARP_VLAN_CHECK) || defined(ETHARP_VLAN_CHECK_FN) /* if not, allow all VLANs */\n#ifdef LWIP_HOOK_VLAN_CHECK\n    if (!LWIP_HOOK_VLAN_CHECK(netif, ethhdr, vlan)) {\n#elif defined(ETHARP_VLAN_CHECK_FN)\n    if (!ETHARP_VLAN_CHECK_FN(ethhdr, vlan)) {\n#elif defined(ETHARP_VLAN_CHECK)\n    if (VLAN_ID(vlan) != ETHARP_VLAN_CHECK) {\n#endif\n      /* silently ignore this packet: not for our VLAN */\n      pbuf_free(p);\n      return ERR_OK;\n    }\n#endif /* defined(LWIP_HOOK_VLAN_CHECK) || defined(ETHARP_VLAN_CHECK) || defined(ETHARP_VLAN_CHECK_FN) */\n    type = vlan->tpid;\n  }\n#endif /* ETHARP_SUPPORT_VLAN */\n\n#if LWIP_ARP_FILTER_NETIF\n  netif = LWIP_ARP_FILTER_NETIF_FN(p, netif, lwip_htons(type));\n#endif /* LWIP_ARP_FILTER_NETIF*/\n\n  if (p->if_idx == NETIF_NO_INDEX) {\n    p->if_idx = netif_get_index(netif);\n  }\n\n  if (ethhdr->dest.addr[0] & 1) {\n    /* this might be a multicast or broadcast packet */\n    if (ethhdr->dest.addr[0] == LL_IP4_MULTICAST_ADDR_0) {\n#if LWIP_IPV4\n      if ((ethhdr->dest.addr[1] == LL_IP4_MULTICAST_ADDR_1) &&\n          (ethhdr->dest.addr[2] == LL_IP4_MULTICAST_ADDR_2)) {\n        /* mark the pbuf as link-layer multicast */\n        p->flags |= PBUF_FLAG_LLMCAST;\n      }\n#endif /* LWIP_IPV4 */\n    }\n#if LWIP_IPV6\n    else if ((ethhdr->dest.addr[0] == LL_IP6_MULTICAST_ADDR_0) &&\n             (ethhdr->dest.addr[1] == LL_IP6_MULTICAST_ADDR_1)) {\n      /* mark the pbuf as link-layer multicast */\n      p->flags |= PBUF_FLAG_LLMCAST;\n    }\n#endif /* LWIP_IPV6 */\n    else if (eth_addr_cmp(&ethhdr->dest, &ethbroadcast)) {\n      /* mark the pbuf as link-layer broadcast */\n      p->flags |= PBUF_FLAG_LLBCAST;\n    }\n  }\n\n  switch (type) {\n#if LWIP_IPV4 && LWIP_ARP\n    /* IP packet? */\n    case PP_HTONS(ETHTYPE_IP):\n      if (!(netif->flags & NETIF_FLAG_ETHARP)) {\n        goto free_and_return;\n      }\n      /* skip Ethernet header (min. size checked above) */\n      if (pbuf_remove_header(p, next_hdr_offset)) {\n        LWIP_DEBUGF(ETHARP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_LEVEL_WARNING,\n                    (\"ethernet_input: IPv4 packet dropped, too short (%\"U16_F\"/%\"U16_F\")\\n\",\n                     p->tot_len, next_hdr_offset));\n        LWIP_DEBUGF(ETHARP_DEBUG | LWIP_DBG_TRACE, (\"Can't move over header in packet\\n\"));\n        goto free_and_return;\n      } else {\n        /* pass to IP layer */\n        ip4_input(p, netif);\n      }\n      break;\n\n    case PP_HTONS(ETHTYPE_ARP):\n      if (!(netif->flags & NETIF_FLAG_ETHARP)) {\n        goto free_and_return;\n      }\n      /* skip Ethernet header (min. size checked above) */\n      if (pbuf_remove_header(p, next_hdr_offset)) {\n        LWIP_DEBUGF(ETHARP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_LEVEL_WARNING,\n                    (\"ethernet_input: ARP response packet dropped, too short (%\"U16_F\"/%\"U16_F\")\\n\",\n                     p->tot_len, next_hdr_offset));\n        LWIP_DEBUGF(ETHARP_DEBUG | LWIP_DBG_TRACE, (\"Can't move over header in packet\\n\"));\n        ETHARP_STATS_INC(etharp.lenerr);\n        ETHARP_STATS_INC(etharp.drop);\n        goto free_and_return;\n      } else {\n        /* pass p to ARP module */\n        etharp_input(p, netif);\n      }\n      break;\n#endif /* LWIP_IPV4 && LWIP_ARP */\n#if PPPOE_SUPPORT\n    case PP_HTONS(ETHTYPE_PPPOEDISC): /* PPP Over Ethernet Discovery Stage */\n      pppoe_disc_input(netif, p);\n      break;\n\n    case PP_HTONS(ETHTYPE_PPPOE): /* PPP Over Ethernet Session Stage */\n      pppoe_data_input(netif, p);\n      break;\n#endif /* PPPOE_SUPPORT */\n\n#if LWIP_IPV6\n    case PP_HTONS(ETHTYPE_IPV6): /* IPv6 */\n      /* skip Ethernet header */\n      if ((p->len < next_hdr_offset) || pbuf_remove_header(p, next_hdr_offset)) {\n        LWIP_DEBUGF(ETHARP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_LEVEL_WARNING,\n                    (\"ethernet_input: IPv6 packet dropped, too short (%\"U16_F\"/%\"U16_F\")\\n\",\n                     p->tot_len, next_hdr_offset));\n        goto free_and_return;\n      } else {\n        /* pass to IPv6 layer */\n        ip6_input(p, netif);\n      }\n      break;\n#endif /* LWIP_IPV6 */\n\n    default:\n#ifdef LWIP_HOOK_UNKNOWN_ETH_PROTOCOL\n      if (LWIP_HOOK_UNKNOWN_ETH_PROTOCOL(p, netif) == ERR_OK) {\n        break;\n      }\n#endif\n      ETHARP_STATS_INC(etharp.proterr);\n      ETHARP_STATS_INC(etharp.drop);\n      MIB2_STATS_NETIF_INC(netif, ifinunknownprotos);\n      goto free_and_return;\n  }\n\n  /* This means the pbuf is freed or consumed,\n     so the caller doesn't have to free it again */\n  return ERR_OK;\n\nfree_and_return:\n  pbuf_free(p);\n  return ERR_OK;\n}",
+            "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/netif/ethernet.c#L80-L253"
+          },
+          {
+            "kind": "experiment_declaration",
+            "executed": false,
+            "text": "{\"executed\": false, \"expected\": \"短帧和拒绝帧被释放；IPv4 去头后下交；未知帧仅在 hook 不接受时由入口释放。\", \"kind\": \"frame_matrix\", \"setup\": \"输入短帧、被 VLAN hook 拒绝帧、IPv4 帧、未知 EtherType 且 hook 接受/拒绝。\"}"
+          }
+        ]
+      },
+      "ho-lwip-flow-dhcp-start-discover": {
+        "expected_points": [
+          {
+            "id": "client-and-pcb",
+            "text": "dhcp_start 要求 netif 非空且已 up、MTU 足够；必要时分配/挂接 dhcp，清零时保留 EXTERNAL_MEM 标志，再取得共享 DHCP PCB 引用。",
+            "evidence": "src/core/ipv4/dhcp.c:806-867"
+          },
+          {
+            "id": "link-gate",
+            "text": "link 未 up 时仅把状态设为 INIT 并返回 ERR_OK，等待 dhcp_network_changed；link 已 up 才调用 dhcp_discover。",
+            "evidence": "src/core/ipv4/dhcp.c:868-881"
+          },
+          {
+            "id": "discover-message",
+            "text": "discover 清 offered_ip、切 SELECTING，调用 dhcp_create_msg 分配并填公共 DHCP 头和 xid，再追加最大报文、主机名/参数请求等选项。",
+            "evidence": "src/core/ipv4/dhcp.c:1019-1057,1883-1961"
+          },
+          {
+            "id": "send-and-backoff",
+            "text": "构造成功后通过 udp_sendto_if_src 向广播服务器端口发送并立即 pbuf_free；无论是否构造成功都递增 tries（饱和于 255）并计算 request_timeout。",
+            "evidence": "src/core/ipv4/dhcp.c:1059-1074"
+          }
+        ],
+        "forbidden_claims": [
+          "不得声称接口 up 等价于 link up；后者决定是否立即 discover。",
+          "不得声称 udp_sendto_if_src 接管 p_out 的调用者引用；discover 随后自行释放。"
+        ],
+        "evidence_payload": [
+          {
+            "kind": "pinned_source",
+            "repository": "https://github.com/lwip-tcpip/lwip",
+            "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+            "path": "src/core/ipv4/dhcp.c",
+            "lines": "806-882,1019-1075,1883-1961",
+            "file_sha256": "aa001ae36936c57f0155f7ff36c31aebf8ce4d52c7c366a9a27b856520fb637e",
+            "text": "dhcp.c:806-882\nerr_t\ndhcp_start(struct netif *netif)\n{\n  struct dhcp *dhcp;\n  err_t result;\n  u8_t saved_flags;\n\n  LWIP_ASSERT_CORE_LOCKED();\n  LWIP_ERROR(\"netif != NULL\", (netif != NULL), return ERR_ARG;);\n  LWIP_ERROR(\"netif is not up, old style port?\", netif_is_up(netif), return ERR_ARG;);\n  dhcp = netif_dhcp_data(netif);\n  LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE, (\"dhcp_start(netif=%p) %c%c%\"U16_F\"\\n\", (void *)netif, netif->name[0], netif->name[1], (u16_t)netif->num));\n\n  /* check MTU of the netif */\n  if (netif->mtu < DHCP_MAX_MSG_LEN_MIN_REQUIRED) {\n    LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, (\"dhcp_start(): Cannot use this netif with DHCP: MTU is too small\\n\"));\n    return ERR_MEM;\n  }\n\n  /* no DHCP client attached yet? */\n  if (dhcp == NULL) {\n    LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, (\"dhcp_start(): mallocing new DHCP client\\n\"));\n    dhcp = (struct dhcp *)mem_malloc(sizeof(struct dhcp));\n    if (dhcp == NULL) {\n      LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, (\"dhcp_start(): could not allocate dhcp\\n\"));\n      return ERR_MEM;\n    }\n\n    /* clear the flags, the rest is cleared below */\n    dhcp->flags = 0;\n    /* store this dhcp client in the netif */\n    netif_set_client_data(netif, LWIP_NETIF_CLIENT_DATA_INDEX_DHCP, dhcp);\n    LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, (\"dhcp_start(): allocated dhcp\\n\"));\n    /* already has DHCP client attached */\n  } else {\n    LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE, (\"dhcp_start(): restarting DHCP configuration\\n\"));\n\n    if (dhcp->pcb_allocated != 0) {\n      dhcp_dec_pcb_refcount(); /* free DHCP PCB if not needed any more */\n    }\n    /* dhcp is cleared below, no need to reset flag*/\n  }\n\n  /* clear data structure but preserve DHCP_FLAG_EXTERNAL_MEM for dhcp_cleanup() */\n  saved_flags = dhcp->flags;\n  memset(dhcp, 0, sizeof(struct dhcp));\n  dhcp->flags = saved_flags & DHCP_FLAG_EXTERNAL_MEM;\n\n\n#if LWIP_DHCP_DOES_ACD_CHECK\n  /* add acd struct to list*/\n  acd_add(netif, &dhcp->acd, dhcp_conflict_callback);\n#endif /* LWIP_DHCP_DOES_ACD_CHECK */\n\n\n  LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, (\"dhcp_start(): starting DHCP configuration\\n\"));\n\n  if (dhcp_inc_pcb_refcount() != ERR_OK) { /* ensure DHCP PCB is allocated */\n    return ERR_MEM;\n  }\n  dhcp->pcb_allocated = 1;\n\n  if (!netif_is_link_up(netif)) {\n    /* set state INIT and wait for dhcp_network_changed() to call dhcp_discover() */\n    dhcp_set_state(dhcp, DHCP_STATE_INIT);\n    return ERR_OK;\n  }\n\n  /* (re)start the DHCP negotiation */\n  result = dhcp_discover(netif);\n  if (result != ERR_OK) {\n    /* free resources allocated above */\n    dhcp_release_and_stop(netif);\n    return ERR_MEM;\n  }\n  return result;\n}\n\ndhcp.c:1019-1075\nstatic err_t\ndhcp_discover(struct netif *netif)\n{\n  struct dhcp *dhcp = netif_dhcp_data(netif);\n  err_t result = ERR_OK;\n  u16_t msecs;\n  u8_t i;\n  struct pbuf *p_out;\n  u16_t options_out_len;\n\n  LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, (\"dhcp_discover()\\n\"));\n\n#if LWIP_DHCP_AUTOIP_COOP\n  if (dhcp->tries >= LWIP_DHCP_AUTOIP_COOP_TRIES) {\n    autoip_start(netif);\n  }\n#endif /* LWIP_DHCP_AUTOIP_COOP */\n\n  ip4_addr_set_any(&dhcp->offered_ip_addr);\n  dhcp_set_state(dhcp, DHCP_STATE_SELECTING);\n  /* create and initialize the DHCP message header */\n  p_out = dhcp_create_msg(netif, dhcp, DHCP_DISCOVER, &options_out_len);\n  if (p_out != NULL) {\n    struct dhcp_msg *msg_out = (struct dhcp_msg *)p_out->payload;\n    LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, (\"dhcp_discover: making request\\n\"));\n\n    options_out_len = dhcp_option(options_out_len, msg_out->options, DHCP_OPTION_MAX_MSG_SIZE, DHCP_OPTION_MAX_MSG_SIZE_LEN);\n    options_out_len = dhcp_option_short(options_out_len, msg_out->options, DHCP_MAX_MSG_LEN(netif));\n\n#if LWIP_NETIF_HOSTNAME && LWIP_DHCP_DISCOVER_ADD_HOSTNAME\n    options_out_len = dhcp_option_hostname(options_out_len, msg_out->options, netif);\n#endif /* LWIP NETIF HOSTNAME && LWIP_DHCP_DISCOVER_ADD_HOSTNAME */\n\n    options_out_len = dhcp_option(options_out_len, msg_out->options, DHCP_OPTION_PARAMETER_REQUEST_LIST, LWIP_ARRAYSIZE(dhcp_discover_request_options));\n    for (i = 0; i < LWIP_ARRAYSIZE(dhcp_discover_request_options); i++) {\n      options_out_len = dhcp_option_byte(options_out_len, msg_out->options, dhcp_discover_request_options[i]);\n    }\n    LWIP_HOOK_DHCP_APPEND_OPTIONS(netif, dhcp, DHCP_STATE_SELECTING, msg_out, DHCP_DISCOVER, &options_out_len);\n    dhcp_option_trailer(options_out_len, msg_out->options, p_out);\n\n    LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, (\"dhcp_discover: sendto(DISCOVER, IP_ADDR_BROADCAST, LWIP_IANA_PORT_DHCP_SERVER)\\n\"));\n    udp_sendto_if_src(dhcp_pcb, p_out, IP_ADDR_BROADCAST, LWIP_IANA_PORT_DHCP_SERVER, netif, IP4_ADDR_ANY);\n    LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, (\"dhcp_discover: deleting()\\n\"));\n    pbuf_free(p_out);\n    LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE, (\"dhcp_discover: SELECTING\\n\"));\n  } else {\n    LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_LEVEL_SERIOUS, (\"dhcp_discover: could not allocate DHCP request\\n\"));\n  }\n\n  if (dhcp->tries < 255) {\n    dhcp->tries++;\n  }\n  msecs = DHCP_REQUEST_BACKOFF_SEQUENCE(dhcp->tries);\n  dhcp->request_timeout = (u16_t)((msecs + DHCP_FINE_TIMER_MSECS - 1) / DHCP_FINE_TIMER_MSECS);\n  LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE, (\"dhcp_discover(): set request timeout %\"U16_F\" msecs\\n\", msecs));\n  return result;\n}\n\ndhcp.c:1883-1961\nstatic struct pbuf *\ndhcp_create_msg(struct netif *netif, struct dhcp *dhcp, u8_t message_type, u16_t *options_out_len)\n{\n  u16_t i;\n  struct pbuf *p_out;\n  struct dhcp_msg *msg_out;\n  u16_t options_out_len_loc;\n\n#ifndef DHCP_GLOBAL_XID\n  /** default global transaction identifier starting value (easy to match\n   *  with a packet analyser). We simply increment for each new request.\n   *  Predefine DHCP_GLOBAL_XID to a better value or a function call to generate one\n   *  at runtime, any supporting function prototypes can be defined in DHCP_GLOBAL_XID_HEADER */\n#if DHCP_CREATE_RAND_XID && defined(LWIP_RAND)\n  static u32_t xid;\n#else /* DHCP_CREATE_RAND_XID && defined(LWIP_RAND) */\n  static u32_t xid = 0xABCD0000;\n#endif /* DHCP_CREATE_RAND_XID && defined(LWIP_RAND) */\n#else\n  if (!xid_initialised) {\n    xid = DHCP_GLOBAL_XID;\n    xid_initialised = !xid_initialised;\n  }\n#endif\n  LWIP_ERROR(\"dhcp_create_msg: netif != NULL\", (netif != NULL), return NULL;);\n  LWIP_ERROR(\"dhcp_create_msg: dhcp != NULL\", (dhcp != NULL), return NULL;);\n  p_out = pbuf_alloc(PBUF_TRANSPORT, sizeof(struct dhcp_msg), PBUF_RAM);\n  if (p_out == NULL) {\n    LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_LEVEL_SERIOUS,\n                (\"dhcp_create_msg(): could not allocate pbuf\\n\"));\n    return NULL;\n  }\n  LWIP_ASSERT(\"dhcp_create_msg: check that first pbuf can hold struct dhcp_msg\",\n              (p_out->len >= sizeof(struct dhcp_msg)));\n\n  /* DHCP_REQUEST should reuse 'xid' from DHCPOFFER */\n  if ((message_type != DHCP_REQUEST) || (dhcp->state == DHCP_STATE_REBOOTING)) {\n    /* reuse transaction identifier in retransmissions */\n    if (dhcp->tries == 0) {\n#if DHCP_CREATE_RAND_XID && defined(LWIP_RAND)\n      xid = LWIP_RAND();\n#else /* DHCP_CREATE_RAND_XID && defined(LWIP_RAND) */\n      xid++;\n#endif /* DHCP_CREATE_RAND_XID && defined(LWIP_RAND) */\n    }\n    dhcp->xid = xid;\n  }\n  LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE,\n              (\"transaction id xid(%\"X32_F\")\\n\", xid));\n\n  msg_out = (struct dhcp_msg *)p_out->payload;\n  memset(msg_out, 0, sizeof(struct dhcp_msg));\n\n  msg_out->op = DHCP_BOOTREQUEST;\n  /* @todo: make link layer independent */\n  msg_out->htype = LWIP_IANA_HWTYPE_ETHERNET;\n  msg_out->hlen = netif->hwaddr_len;\n  msg_out->xid = lwip_htonl(dhcp->xid);\n  /* we don't need the broadcast flag since we can receive unicast traffic\n     before being fully configured! */\n  /* set ciaddr to netif->ip_addr based on message_type and state */\n  if ((message_type == DHCP_INFORM) || (message_type == DHCP_DECLINE) || (message_type == DHCP_RELEASE) ||\n      ((message_type == DHCP_REQUEST) && /* DHCP_STATE_BOUND not used for sending! */\n       ((dhcp->state == DHCP_STATE_RENEWING) || dhcp->state == DHCP_STATE_REBINDING))) {\n    ip4_addr_copy(msg_out->ciaddr, *netif_ip4_addr(netif));\n  }\n  for (i = 0; i < LWIP_MIN(DHCP_CHADDR_LEN, NETIF_MAX_HWADDR_LEN); i++) {\n    /* copy netif hardware address (padded with zeroes through memset already) */\n    msg_out->chaddr[i] = netif->hwaddr[i];\n  }\n  msg_out->cookie = PP_HTONL(DHCP_MAGIC_COOKIE);\n  /* Add option MESSAGE_TYPE */\n  options_out_len_loc = dhcp_option(0, msg_out->options, DHCP_OPTION_MESSAGE_TYPE, DHCP_OPTION_MESSAGE_TYPE_LEN);\n  options_out_len_loc = dhcp_option_byte(options_out_len_loc, msg_out->options, message_type);\n  if (options_out_len) {\n    *options_out_len = options_out_len_loc;\n  }\n  return p_out;\n}",
+            "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/ipv4/dhcp.c#L806-L882"
+          },
+          {
+            "kind": "experiment_declaration",
+            "executed": false,
+            "text": "{\"executed\": false, \"expected\": \"link down 停在 INIT；link up 进入 SELECTING、尝试发送 DISCOVER 并设置退避。\", \"kind\": \"state_matrix\", \"setup\": \"netif 已 up，分别令 link down/up 后调用 dhcp_start。\"}"
+          }
+        ]
+      },
+      "ho-lwip-flow-timeout-dispatch": {
+        "expected_points": [
+          {
+            "id": "absolute-registration",
+            "text": "sys_timeout 以 sys_now()+msecs 计算绝对到期时间并交给内部登记器，溢出比较由 TIME_LESS_THAN 语义处理。",
+            "evidence": "src/core/timeouts.c:289-305"
+          },
+          {
+            "id": "ordered-list",
+            "text": "内部登记器从 MEMP_SYS_TIMEOUT 分配节点，按 time 插入 next_timeout 链表；更早者放头部。",
+            "evidence": "src/core/timeouts.c:185-220"
+          },
+          {
+            "id": "dispatch-order",
+            "text": "sys_check_timeouts 只用入口捕获的 now 判定本轮到期项；每项先从链表摘除、保存 handler/arg、释放 timeout 节点，再调用 handler。",
+            "evidence": "src/core/timeouts.c:354-400"
+          },
+          {
+            "id": "sleep-result",
+            "text": "无定时器返回无限睡眠值；头项未到期返回其 time-now；否则循环处理入口时已经到期的项。",
+            "evidence": "src/core/timeouts.c:361-400"
+          }
+        ],
+        "forbidden_claims": [
+          "不得声称 handler 被调用时其 sys_timeo 节点仍有效。",
+          "不得声称一次调用会以不断刷新 now 的方式处理 handler 新建的立即定时器。"
+        ],
+        "evidence_payload": [
+          {
+            "kind": "pinned_source",
+            "repository": "https://github.com/lwip-tcpip/lwip",
+            "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+            "path": "src/core/timeouts.c",
+            "lines": "185-220,289-305,354-401",
+            "file_sha256": "ff8a60619d050c127b5740b6407dad0f09971c1159a418bc61270d5bbb60c59e",
+            "text": "timeouts.c:185-220\n{\n  struct sys_timeo *timeout, *t;\n\n  timeout = (struct sys_timeo *)memp_malloc(MEMP_SYS_TIMEOUT);\n  if (timeout == NULL) {\n    LWIP_ASSERT(\"sys_timeout: timeout != NULL, pool MEMP_SYS_TIMEOUT is empty\", timeout != NULL);\n    return;\n  }\n\n  timeout->next = NULL;\n  timeout->h = handler;\n  timeout->arg = arg;\n  timeout->time = abs_time;\n\n#if LWIP_DEBUG_TIMERNAMES\n  timeout->handler_name = handler_name;\n  LWIP_DEBUGF(TIMERS_DEBUG, (\"sys_timeout: %p abs_time=%\"U32_F\" handler=%s arg=%p\\n\",\n                             (void *)timeout, abs_time, handler_name, (void *)arg));\n#endif /* LWIP_DEBUG_TIMERNAMES */\n\n  if (next_timeout == NULL) {\n    next_timeout = timeout;\n    return;\n  }\n  if (TIME_LESS_THAN(timeout->time, next_timeout->time)) {\n    timeout->next = next_timeout;\n    next_timeout = timeout;\n  } else {\n    for (t = next_timeout; t != NULL; t = t->next) {\n      if ((t->next == NULL) || TIME_LESS_THAN(timeout->time, t->next->time)) {\n        timeout->next = t->next;\n        t->next = timeout;\n        break;\n      }\n    }\n  }\n\ntimeouts.c:289-305\nvoid\nsys_timeout(u32_t msecs, sys_timeout_handler handler, void *arg)\n#endif /* LWIP_DEBUG_TIMERNAMES */\n{\n  u32_t next_timeout_time;\n\n  LWIP_ASSERT_CORE_LOCKED();\n\n  LWIP_ASSERT(\"Timeout time too long, max is LWIP_UINT32_MAX/4 msecs\", msecs <= (LWIP_UINT32_MAX / 4));\n\n  next_timeout_time = (u32_t)(sys_now() + msecs); /* overflow handled by TIME_LESS_THAN macro */\n\n#if LWIP_DEBUG_TIMERNAMES\n  sys_timeout_abs(next_timeout_time, handler, arg, handler_name);\n#else\n  sys_timeout_abs(next_timeout_time, handler, arg);\n#endif\n\ntimeouts.c:354-401\nu32_t\nsys_check_timeouts(void)\n{\n  u32_t now;\n\n  LWIP_ASSERT_CORE_LOCKED();\n\n  /* Process only timers expired at the start of the function. */\n  now = sys_now();\n\n  do {\n    struct sys_timeo *tmptimeout;\n    sys_timeout_handler handler;\n    void *arg;\n\n    PBUF_CHECK_FREE_OOSEQ();\n\n    tmptimeout = next_timeout;\n    if (tmptimeout == NULL) {\n      return SYS_TIMEOUTS_SLEEPTIME_INFINITE;\n    }\n\n    if (TIME_LESS_THAN(now, tmptimeout->time)) {\n      u32_t ret = (u32_t)(tmptimeout->time - now);\n      LWIP_ASSERT(\"invalid sleeptime\", ret <= LWIP_MAX_TIMEOUT);\n      return ret;\n    }\n\n    /* Timeout has expired */\n    next_timeout = tmptimeout->next;\n    handler = tmptimeout->h;\n    arg = tmptimeout->arg;\n    current_timeout_due_time = tmptimeout->time;\n#if LWIP_DEBUG_TIMERNAMES\n    if (handler != NULL) {\n      LWIP_DEBUGF(TIMERS_DEBUG, (\"sct calling h=%s t=%\"U32_F\" arg=%p\\n\",\n                                 tmptimeout->handler_name, sys_now() - tmptimeout->time, arg));\n    }\n#endif /* LWIP_DEBUG_TIMERNAMES */\n    memp_free(MEMP_SYS_TIMEOUT, tmptimeout);\n    if (handler != NULL) {\n      handler(arg);\n    }\n    LWIP_TCPIP_THREAD_ALIVE();\n\n    /* Repeat until all expired timers have been called */\n  } while (1);\n}",
+            "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/timeouts.c#L354-L401"
+          },
+          {
+            "kind": "experiment_declaration",
+            "executed": false,
+            "text": "{\"executed\": false, \"expected\": \"原链按 5/10/20 排序；检查使用入口 now，节点先释放再回调，新项是否本轮执行取决于同一固定 now。\", \"kind\": \"callback_order_probe\", \"setup\": \"登记 t+10、t+5、t+20 三项并在首个 handler 中再登记立即项。\"}"
+          }
+        ]
+      },
+      "ho-lwip-cond-udp-bind-conflict": {
+        "expected_points": [
+          {
+            "id": "ephemeral",
+            "text": "port==0 时调用 udp_new_port；没有可用临时端口返回 ERR_USE。",
+            "evidence": "src/core/udp.c:979-986"
+          },
+          {
+            "id": "conflict-shape",
+            "text": "显式端口冲突要求端口相同，且地址同类型并相等/任一为 ANY，或任一地址类型本身为 ANY。",
+            "evidence": "src/core/udp.c:987-1011"
+          },
+          {
+            "id": "reuse",
+            "text": "启用 SO_REUSE 时只有当前 PCB 和冲突 PCB 都设置 SOF_REUSEADDR 才跳过该冲突拒绝；仅一方设置仍检查并可能 ERR_USE。",
+            "evidence": "src/core/udp.c:990-1012"
+          },
+          {
+            "id": "activation",
+            "text": "成功后写 local_ip/local_port，并且仅 PCB 尚未在 active list 时插到表头；rebind 不重复插入。",
+            "evidence": "src/core/udp.c:957-965,1017-1030"
+          }
+        ],
+        "forbidden_claims": [
+          "不得声称不同具体 IPv4 地址在同端口上一律冲突。",
+          "不得声称任意一方 REUSEADDR 即足以共享端口。"
+        ],
+        "evidence_payload": [
+          {
+            "kind": "pinned_source",
+            "repository": "https://github.com/lwip-tcpip/lwip",
+            "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+            "path": "src/core/udp.c",
+            "lines": "931-1031",
+            "file_sha256": "6454ba858cf8a2c71e4a27e0da4b1569160f923c2adce19842dbb6f90da61af7",
+            "text": "udp.c:931-1031\nerr_t\nudp_bind(struct udp_pcb *pcb, const ip_addr_t *ipaddr, u16_t port)\n{\n  struct udp_pcb *ipcb;\n  u8_t rebind;\n#if LWIP_IPV6 && LWIP_IPV6_SCOPES\n  ip_addr_t zoned_ipaddr;\n#endif /* LWIP_IPV6 && LWIP_IPV6_SCOPES */\n\n  LWIP_ASSERT_CORE_LOCKED();\n\n#if LWIP_IPV4\n  /* Don't propagate NULL pointer (IPv4 ANY) to subsequent functions */\n  if (ipaddr == NULL) {\n    ipaddr = IP4_ADDR_ANY;\n  }\n#else /* LWIP_IPV4 */\n  LWIP_ERROR(\"udp_bind: invalid ipaddr\", ipaddr != NULL, return ERR_ARG);\n#endif /* LWIP_IPV4 */\n\n  LWIP_ERROR(\"udp_bind: invalid pcb\", pcb != NULL, return ERR_ARG);\n\n  LWIP_DEBUGF(UDP_DEBUG | LWIP_DBG_TRACE, (\"udp_bind(ipaddr = \"));\n  ip_addr_debug_print(UDP_DEBUG | LWIP_DBG_TRACE, ipaddr);\n  LWIP_DEBUGF(UDP_DEBUG | LWIP_DBG_TRACE, (\", port = %\"U16_F\")\\n\", port));\n\n  rebind = 0;\n  /* Check for double bind and rebind of the same pcb */\n  for (ipcb = udp_pcbs; ipcb != NULL; ipcb = ipcb->next) {\n    /* is this UDP PCB already on active list? */\n    if (pcb == ipcb) {\n      rebind = 1;\n      break;\n    }\n  }\n\n#if LWIP_IPV6 && LWIP_IPV6_SCOPES\n  /* If the given IP address should have a zone but doesn't, assign one now.\n   * This is legacy support: scope-aware callers should always provide properly\n   * zoned source addresses. Do the zone selection before the address-in-use\n   * check below; as such we have to make a temporary copy of the address. */\n  if (IP_IS_V6(ipaddr) && ip6_addr_lacks_zone(ip_2_ip6(ipaddr), IP6_UNKNOWN)) {\n    ip_addr_copy(zoned_ipaddr, *ipaddr);\n    ip6_addr_select_zone(ip_2_ip6(&zoned_ipaddr), ip_2_ip6(&zoned_ipaddr));\n    ipaddr = &zoned_ipaddr;\n  }\n#endif /* LWIP_IPV6 && LWIP_IPV6_SCOPES */\n\n  /* no port specified? */\n  if (port == 0) {\n    port = udp_new_port();\n    if (port == 0) {\n      /* no more ports available in local range */\n      LWIP_DEBUGF(UDP_DEBUG, (\"udp_bind: out of free UDP ports\\n\"));\n      return ERR_USE;\n    }\n  } else {\n    for (ipcb = udp_pcbs; ipcb != NULL; ipcb = ipcb->next) {\n      if (pcb != ipcb) {\n        /* By default, we don't allow to bind to a port that any other udp\n           PCB is already bound to, unless *all* PCBs with that port have the\n           REUSEADDR flag set. */\n#if SO_REUSE\n        if (!ip_get_option(pcb, SOF_REUSEADDR) ||\n            !ip_get_option(ipcb, SOF_REUSEADDR))\n#endif /* SO_REUSE */\n        {\n          /* port matches that of PCB in list and REUSEADDR not set -> reject */\n          if ((ipcb->local_port == port) &&\n              (((IP_GET_TYPE(&ipcb->local_ip) == IP_GET_TYPE(ipaddr)) &&\n              /* IP address matches or any IP used? */\n              (ip_addr_eq(&ipcb->local_ip, ipaddr) ||\n              ip_addr_isany(ipaddr) ||\n              ip_addr_isany(&ipcb->local_ip))) ||\n              (IP_GET_TYPE(&ipcb->local_ip) == IPADDR_TYPE_ANY) ||\n              (IP_GET_TYPE(ipaddr) == IPADDR_TYPE_ANY))) {\n            /* other PCB already binds to this local IP and port */\n            LWIP_DEBUGF(UDP_DEBUG,\n                        (\"udp_bind: local port %\"U16_F\" already bound by another pcb\\n\", port));\n            return ERR_USE;\n          }\n        }\n      }\n    }\n  }\n\n  ip_addr_set_ipaddr(&pcb->local_ip, ipaddr);\n\n  pcb->local_port = port;\n  mib2_udp_bind(pcb);\n  /* pcb not active yet? */\n  if (rebind == 0) {\n    /* place the PCB on the active list if not already there */\n    pcb->next = udp_pcbs;\n    udp_pcbs = pcb;\n  }\n  LWIP_DEBUGF(UDP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE, (\"udp_bind: bound to \"));\n  ip_addr_debug_print_val(UDP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE, pcb->local_ip);\n  LWIP_DEBUGF(UDP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE, (\", port %\"U16_F\")\\n\", pcb->local_port));\n  return ERR_OK;\n}",
+            "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/udp.c#L931-L1031"
+          },
+          {
+            "kind": "experiment_declaration",
+            "executed": false,
+            "text": "{\"executed\": false, \"expected\": \"A/A 与 ANY/B 冲突；A/B 可不冲突；只有双方 REUSEADDR 时跳过默认拒绝。\", \"kind\": \"bind_matrix\", \"setup\": \"同端口组合具体地址 A/A、A/B、ANY/B，并切换双方 REUSEADDR。\"}"
+          }
+        ]
+      },
+      "ho-lwip-cond-tcp-bind-state": {
+        "expected_points": [
+          {
+            "id": "state",
+            "text": "PCB 必须非空且 state==CLOSED，否则分别返回 ERR_ARG 或 ERR_VAL。",
+            "evidence": "src/core/tcp.c:671-684"
+          },
+          {
+            "id": "ephemeral",
+            "text": "port==0 调用 tcp_new_port，取不到端口时返回 ERR_BUF。",
+            "evidence": "src/core/tcp.c:709-713"
+          },
+          {
+            "id": "lists-and-timewait",
+            "text": "默认遍历全部 TCP PCB 列表含 TIME_WAIT；当前 PCB 设置 SOF_REUSEADDR 时缩短到不含 TIME_WAIT 的列表集合。",
+            "evidence": "src/core/tcp.c:664-695"
+          },
+          {
+            "id": "reuse-conflict",
+            "text": "同端口且地址族匹配，并且地址相等或任一 ANY 时冲突；SO_REUSE 编译开启后，只有双方都有 REUSEADDR 才跳过 bind 阶段拒绝。",
+            "evidence": "src/core/tcp.c:714-737"
+          }
+        ],
+        "forbidden_claims": [
+          "不得声称非 CLOSED PCB 可重复 bind。",
+          "不得把 UDP 的临时端口失败码 ERR_USE 套到 TCP；TCP 此处返回 ERR_BUF。"
+        ],
+        "evidence_payload": [
+          {
+            "kind": "pinned_source",
+            "repository": "https://github.com/lwip-tcpip/lwip",
+            "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+            "path": "src/core/tcp.c",
+            "lines": "661-751",
+            "file_sha256": "76d701944a20dae435fb09a37046fea046ba1d996038362e37eae57157ba586f",
+            "text": "tcp.c:661-751\nerr_t\ntcp_bind(struct tcp_pcb *pcb, const ip_addr_t *ipaddr, u16_t port)\n{\n  int i;\n  int max_pcb_list = NUM_TCP_PCB_LISTS;\n  struct tcp_pcb *cpcb;\n#if LWIP_IPV6 && LWIP_IPV6_SCOPES\n  ip_addr_t zoned_ipaddr;\n#endif /* LWIP_IPV6 && LWIP_IPV6_SCOPES */\n\n  LWIP_ASSERT_CORE_LOCKED();\n\n#if LWIP_IPV4\n  /* Don't propagate NULL pointer (IPv4 ANY) to subsequent functions */\n  if (ipaddr == NULL) {\n    ipaddr = IP4_ADDR_ANY;\n  }\n#else /* LWIP_IPV4 */\n  LWIP_ERROR(\"tcp_bind: invalid ipaddr\", ipaddr != NULL, return ERR_ARG);\n#endif /* LWIP_IPV4 */\n\n  LWIP_ERROR(\"tcp_bind: invalid pcb\", pcb != NULL, return ERR_ARG);\n\n  LWIP_ERROR(\"tcp_bind: can only bind in state CLOSED\", pcb->state == CLOSED, return ERR_VAL);\n\n#if SO_REUSE\n  /* Unless the REUSEADDR flag is set,\n     we have to check the pcbs in TIME-WAIT state, also.\n     We do not dump TIME_WAIT pcb's; they can still be matched by incoming\n     packets using both local and remote IP addresses and ports to distinguish.\n   */\n  if (ip_get_option(pcb, SOF_REUSEADDR)) {\n    max_pcb_list = NUM_TCP_PCB_LISTS_NO_TIME_WAIT;\n  }\n#endif /* SO_REUSE */\n\n#if LWIP_IPV6 && LWIP_IPV6_SCOPES\n  /* If the given IP address should have a zone but doesn't, assign one now.\n   * This is legacy support: scope-aware callers should always provide properly\n   * zoned source addresses. Do the zone selection before the address-in-use\n   * check below; as such we have to make a temporary copy of the address. */\n  if (IP_IS_V6(ipaddr) && ip6_addr_lacks_zone(ip_2_ip6(ipaddr), IP6_UNICAST)) {\n    ip_addr_copy(zoned_ipaddr, *ipaddr);\n    ip6_addr_select_zone(ip_2_ip6(&zoned_ipaddr), ip_2_ip6(&zoned_ipaddr));\n    ipaddr = &zoned_ipaddr;\n  }\n#endif /* LWIP_IPV6 && LWIP_IPV6_SCOPES */\n\n  if (port == 0) {\n    port = tcp_new_port();\n    if (port == 0) {\n      return ERR_BUF;\n    }\n  } else {\n    /* Check if the address already is in use (on all lists) */\n    for (i = 0; i < max_pcb_list; i++) {\n      for (cpcb = *tcp_pcb_lists[i]; cpcb != NULL; cpcb = cpcb->next) {\n        if (cpcb->local_port == port) {\n#if SO_REUSE\n          /* Omit checking for the same port if both pcbs have REUSEADDR set.\n             For SO_REUSEADDR, the duplicate-check for a 5-tuple is done in\n             tcp_connect. */\n          if (!ip_get_option(pcb, SOF_REUSEADDR) ||\n              !ip_get_option(cpcb, SOF_REUSEADDR))\n#endif /* SO_REUSE */\n          {\n            /* @todo: check accept_any_ip_version */\n            if ((IP_IS_V6(ipaddr) == IP_IS_V6_VAL(cpcb->local_ip)) &&\n                (ip_addr_isany(&cpcb->local_ip) ||\n                 ip_addr_isany(ipaddr) ||\n                 ip_addr_eq(&cpcb->local_ip, ipaddr))) {\n              return ERR_USE;\n            }\n          }\n        }\n      }\n    }\n  }\n\n  if (!ip_addr_isany(ipaddr)\n#if LWIP_IPV4 && LWIP_IPV6\n      || (IP_GET_TYPE(ipaddr) != IP_GET_TYPE(&pcb->local_ip))\n#endif /* LWIP_IPV4 && LWIP_IPV6 */\n     ) {\n    ip_addr_set(&pcb->local_ip, ipaddr);\n  }\n  pcb->local_port = port;\n  TCP_REG(&tcp_bound_pcbs, pcb);\n  LWIP_DEBUGF(TCP_DEBUG, (\"tcp_bind: bind to port %\"U16_F\"\\n\", port));\n  return ERR_OK;\n}",
+            "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/tcp.c#L661-L751"
+          },
+          {
+            "kind": "experiment_declaration",
+            "executed": false,
+            "text": "{\"executed\": false, \"expected\": \"状态错误 ERR_VAL；无临时端口 ERR_BUF；TIME_WAIT/复用结果按列表与双方标志决定。\", \"kind\": \"bind_matrix\", \"setup\": \"对 ESTABLISHED/CLOSED PCB、port 0、TIME_WAIT 冲突和单双边 REUSEADDR 分别调用。\"}"
+          }
+        ]
+      },
+      "ho-lwip-cond-pbuf-header-force": {
+        "expected_points": [
+          {
+            "id": "wrapper-force-bit",
+            "text": "pbuf_header 与 pbuf_header_force 都进 pbuf_header_impl，区别只是 force=0/1；正增量再转给 pbuf_add_header_impl。",
+            "evidence": "src/core/pbuf.c:620-664"
+          },
+          {
+            "id": "external-payload",
+            "text": "对非连续外部载荷类型，普通版本正向扩头直接失败；force 版本允许把 payload 指针向前移动，供内部 RX 路径使用。",
+            "evidence": "src/core/pbuf.c:498-522,656-664"
+          },
+          {
+            "id": "remaining-guards",
+            "text": "两版仍拒绝 NULL、增量大于 0xFFFF、tot_len 加法回绕；连续缓冲区还必须保证新 payload 不越过 pbuf 结构后的前界。",
+            "evidence": "src/core/pbuf.c:484-511"
+          },
+          {
+            "id": "remove-guard",
+            "text": "负 header_size_increment 走 pbuf_remove_header，删除量超过 p->len 时失败；force 不绕过这个限制。",
+            "evidence": "src/core/pbuf.c:586-627"
+          }
+        ],
+        "forbidden_claims": [
+          "不得声称 force 会绕过长度溢出或连续缓冲区前界检查。",
+          "不得声称所有 PBUF_REF 正增量在任意指针位置都安全。"
+        ],
+        "evidence_payload": [
+          {
+            "kind": "pinned_source",
+            "repository": "https://github.com/lwip-tcpip/lwip",
+            "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+            "path": "src/core/pbuf.c",
+            "lines": "477-664",
+            "file_sha256": "2f953eb2bc5b696b2eea156386cc4f99c793859bbf65cee967653bdf3374db61",
+            "text": "pbuf.c:477-664\nstatic u8_t\npbuf_add_header_impl(struct pbuf *p, size_t header_size_increment, u8_t force)\n{\n  u16_t type_internal;\n  void *payload;\n  u16_t increment_magnitude;\n\n  LWIP_ASSERT(\"p != NULL\", p != NULL);\n  if ((p == NULL) || (header_size_increment > 0xFFFF)) {\n    return 1;\n  }\n  if (header_size_increment == 0) {\n    return 0;\n  }\n\n  increment_magnitude = (u16_t)header_size_increment;\n  /* Do not allow tot_len to wrap as a result. */\n  if ((u16_t)(increment_magnitude + p->tot_len) < increment_magnitude) {\n    return 1;\n  }\n\n  type_internal = p->type_internal;\n\n  /* pbuf types containing payloads? */\n  if (type_internal & PBUF_TYPE_FLAG_STRUCT_DATA_CONTIGUOUS) {\n    /* set new payload pointer */\n    payload = (u8_t *)p->payload - header_size_increment;\n    /* boundary check fails? */\n    if ((u8_t *)payload < (u8_t *)p + SIZEOF_STRUCT_PBUF) {\n      LWIP_DEBUGF( PBUF_DEBUG | LWIP_DBG_TRACE,\n                   (\"pbuf_add_header: failed as %p < %p (not enough space for new header size)\\n\",\n                    (void *)payload, (void *)((u8_t *)p + SIZEOF_STRUCT_PBUF)));\n      /* bail out unsuccessfully */\n      return 1;\n    }\n    /* pbuf types referring to external payloads? */\n  } else {\n    /* hide a header in the payload? */\n    if (force) {\n      payload = (u8_t *)p->payload - header_size_increment;\n    } else {\n      /* cannot expand payload to front (yet!)\n       * bail out unsuccessfully */\n      return 1;\n    }\n  }\n  LWIP_DEBUGF(PBUF_DEBUG | LWIP_DBG_TRACE, (\"pbuf_add_header: old %p new %p (%\"U16_F\")\\n\",\n              (void *)p->payload, (void *)payload, increment_magnitude));\n\n  /* modify pbuf fields */\n  p->payload = payload;\n  p->len = (u16_t)(p->len + increment_magnitude);\n  p->tot_len = (u16_t)(p->tot_len + increment_magnitude);\n\n\n  return 0;\n}\n\n/**\n * Adjusts the payload pointer to reveal headers in the payload.\n *\n * Adjusts the ->payload pointer so that space for a header\n * appears in the pbuf payload.\n *\n * The ->payload, ->tot_len and ->len fields are adjusted.\n *\n * @param p pbuf to change the header size.\n * @param header_size_increment Number of bytes to increment header size which\n *          increases the size of the pbuf. New space is on the front.\n *          If header_size_increment is 0, this function does nothing and returns successful.\n *\n * PBUF_ROM and PBUF_REF type buffers cannot have their sizes increased, so\n * the call will fail. A check is made that the increase in header size does\n * not move the payload pointer in front of the start of the buffer.\n *\n * @return non-zero on failure, zero on success.\n *\n */\nu8_t\npbuf_add_header(struct pbuf *p, size_t header_size_increment)\n{\n  return pbuf_add_header_impl(p, header_size_increment, 0);\n}\n\n/**\n * Same as @ref pbuf_add_header but does not check if 'header_size > 0' is allowed.\n * This is used internally only, to allow PBUF_REF for RX.\n */\nu8_t\npbuf_add_header_force(struct pbuf *p, size_t header_size_increment)\n{\n  return pbuf_add_header_impl(p, header_size_increment, 1);\n}\n\n/**\n * Adjusts the payload pointer to hide headers in the payload.\n *\n * Adjusts the ->payload pointer so that space for a header\n * disappears in the pbuf payload.\n *\n * The ->payload, ->tot_len and ->len fields are adjusted.\n *\n * @param p pbuf to change the header size.\n * @param header_size_decrement Number of bytes to decrement header size which\n *          decreases the size of the pbuf.\n *          If header_size_decrement is 0, this function does nothing and returns successful.\n * @return non-zero on failure, zero on success.\n *\n */\nu8_t\npbuf_remove_header(struct pbuf *p, size_t header_size_decrement)\n{\n  void *payload;\n  u16_t increment_magnitude;\n\n  LWIP_ASSERT(\"p != NULL\", p != NULL);\n  if ((p == NULL) || (header_size_decrement > 0xFFFF)) {\n    return 1;\n  }\n  if (header_size_decrement == 0) {\n    return 0;\n  }\n\n  increment_magnitude = (u16_t)header_size_decrement;\n  /* Check that we aren't going to move off the end of the pbuf */\n  LWIP_ERROR(\"increment_magnitude <= p->len\", (increment_magnitude <= p->len), return 1;);\n\n  /* remember current payload pointer */\n  payload = p->payload;\n  LWIP_UNUSED_ARG(payload); /* only used in LWIP_DEBUGF below */\n\n  /* increase payload pointer (guarded by length check above) */\n  p->payload = (u8_t *)p->payload + header_size_decrement;\n  /* modify pbuf length fields */\n  p->len = (u16_t)(p->len - increment_magnitude);\n  p->tot_len = (u16_t)(p->tot_len - increment_magnitude);\n\n  LWIP_DEBUGF(PBUF_DEBUG | LWIP_DBG_TRACE, (\"pbuf_remove_header: old %p new %p (%\"U16_F\")\\n\",\n              (void *)payload, (void *)p->payload, increment_magnitude));\n\n  return 0;\n}\n\nstatic u8_t\npbuf_header_impl(struct pbuf *p, s16_t header_size_increment, u8_t force)\n{\n  if (header_size_increment < 0) {\n    return pbuf_remove_header(p, (size_t) - header_size_increment);\n  } else {\n    return pbuf_add_header_impl(p, (size_t)header_size_increment, force);\n  }\n}\n\n/**\n * Adjusts the payload pointer to hide or reveal headers in the payload.\n *\n * Adjusts the ->payload pointer so that space for a header\n * (dis)appears in the pbuf payload.\n *\n * The ->payload, ->tot_len and ->len fields are adjusted.\n *\n * @param p pbuf to change the header size.\n * @param header_size_increment Number of bytes to increment header size which\n * increases the size of the pbuf. New space is on the front.\n * (Using a negative value decreases the header size.)\n * If header_size_increment is 0, this function does nothing and returns successful.\n *\n * PBUF_ROM and PBUF_REF type buffers cannot have their sizes increased, so\n * the call will fail. A check is made that the increase in header size does\n * not move the payload pointer in front of the start of the buffer.\n * @return non-zero on failure, zero on success.\n *\n */\nu8_t\npbuf_header(struct pbuf *p, s16_t header_size_increment)\n{\n  return pbuf_header_impl(p, header_size_increment, 0);\n}\n\n/**\n * Same as pbuf_header but does not check if 'header_size > 0' is allowed.\n * This is used internally only, to allow PBUF_REF for RX.\n */\nu8_t\npbuf_header_force(struct pbuf *p, s16_t header_size_increment)\n{\n  return pbuf_header_impl(p, header_size_increment, 1);\n}",
+            "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/pbuf.c#L477-L533"
+          },
+          {
+            "kind": "experiment_declaration",
+            "executed": false,
+            "text": "{\"executed\": false, \"expected\": \"force 仅改变 PBUF_REF 正扩头结果，其余安全边界仍失败。\", \"kind\": \"boundary_matrix\", \"setup\": \"对 PBUF_REF、连续 RAM pbuf 前部空间不足、tot_len 近 65535、负增量超过 len 分别调用普通/force。\"}"
+          }
+        ]
+      },
+      "ho-lwip-cond-dns-sync-result": {
+        "expected_points": [
+          {
+            "id": "argument-errors",
+            "text": "addr==NULL、hostname 为 NULL/空、未初始化 PCB（相关配置下）或去掉末尾点后长度仍达到 DNS_MAX_NAME_LENGTH 都返回 ERR_ARG。",
+            "evidence": "src/core/dns.c:1577-1595"
+          },
+          {
+            "id": "terminal-dot-and-literal",
+            "text": "单个末尾点只从用于比较/入队的 hostnamelen 中扣除；IP 字面量只有与请求地址族允许关系匹配时同步 ERR_OK。",
+            "evidence": "src/core/dns.c:1588-1614"
+          },
+          {
+            "id": "cache",
+            "text": "缓存首选地址族命中同步 ERR_OK；双栈优先模式还会尝试另一地址族缓存。",
+            "evidence": "src/core/dns.c:1615-1631"
+          },
+          {
+            "id": "async-or-no-server",
+            "text": "无普通 DNS server 时返回 ERR_VAL；否则 dns_enqueue 成功返回 ERR_INPROGRESS，容量等错误可返回 ERR_MEM。",
+            "evidence": "src/core/dns.c:1636-1655,1457-1510"
+          },
+          {
+            "id": "mdns-server-bypass",
+            "text": "只有编译启用 LWIP_DNS_SUPPORT_MDNS_QUERIES，且 strstr(hostname, \".local\") 返回的首次匹配地址恰等于按去除可选末尾点后的 hostnamelen 计算出的最后六字符起点时，is_mdns 才为 1，并跳过 dns_servers[0] 为 ANY 的 ERR_VAL 门槛。",
+            "evidence": "src/core/dns.c:1588-1591,1636-1650"
+          }
+        ],
+        "forbidden_claims": [
+          "不得声称任何可解析 IP 字面量都忽略 dns_addrtype 同步成功。",
+          "不得声称 found 回调在 ERR_OK 快路径上必然被调用。",
+          "不得声称名称只要包含 .local、或未启用 LWIP_DNS_SUPPORT_MDNS_QUERIES，也能绕过普通 DNS server 可用性检查。",
+          "不得把该实现概括为无条件 endswith(\".local\")；它比较的是 strstr 的首次匹配位置与 hostnamelen-6。"
+        ],
+        "evidence_payload": [
+          {
+            "kind": "pinned_source",
+            "repository": "https://github.com/lwip-tcpip/lwip",
+            "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+            "path": "src/core/dns.c",
+            "lines": "1569-1655",
+            "file_sha256": "fe35ede9919974da54598630cc08d654ccc30b668c45b09668c3ba572686b26c",
+            "text": "dns.c:1569-1655\nerr_t\ndns_gethostbyname_addrtype(const char *hostname, ip_addr_t *addr, dns_found_callback found,\n                           void *callback_arg, u8_t dns_addrtype)\n{\n  size_t hostnamelen;\n#if LWIP_DNS_SUPPORT_MDNS_QUERIES\n  u8_t is_mdns;\n#endif\n  /* not initialized or no valid server yet, or invalid addr pointer\n   * or invalid hostname or invalid hostname length */\n  if ((addr == NULL) ||\n      (!hostname) || (!hostname[0])) {\n    return ERR_ARG;\n  }\n#if ((LWIP_DNS_SECURE & LWIP_DNS_SECURE_RAND_SRC_PORT) == 0)\n  if (dns_pcbs[0] == NULL) {\n    return ERR_ARG;\n  }\n#endif\n  hostnamelen = strlen(hostname);\n  if (hostname[hostnamelen - 1] == '.') {\n    hostnamelen--;\n  }\n  if (hostnamelen >= DNS_MAX_NAME_LENGTH) {\n    LWIP_DEBUGF(DNS_DEBUG, (\"dns_gethostbyname: name too long to resolve\\n\"));\n    return ERR_ARG;\n  }\n\n\n#if LWIP_HAVE_LOOPIF\n  if (strcmp(hostname, \"localhost\") == 0) {\n    ip_addr_set_loopback(LWIP_DNS_ADDRTYPE_IS_IPV6(dns_addrtype), addr);\n    return ERR_OK;\n  }\n#endif /* LWIP_HAVE_LOOPIF */\n\n  /* host name already in octet notation? set ip addr and return ERR_OK */\n  if (ipaddr_aton(hostname, addr)) {\n#if LWIP_IPV4 && LWIP_IPV6\n    if ((IP_IS_V6(addr) && (dns_addrtype != LWIP_DNS_ADDRTYPE_IPV4)) ||\n        (IP_IS_V4(addr) && (dns_addrtype != LWIP_DNS_ADDRTYPE_IPV6)))\n#endif /* LWIP_IPV4 && LWIP_IPV6 */\n    {\n      return ERR_OK;\n    }\n  }\n  /* already have this address cached? */\n  if (dns_lookup(hostname, hostnamelen, addr LWIP_DNS_ADDRTYPE_ARG(dns_addrtype)) == ERR_OK) {\n    return ERR_OK;\n  }\n#if LWIP_IPV4 && LWIP_IPV6\n  if ((dns_addrtype == LWIP_DNS_ADDRTYPE_IPV4_IPV6) || (dns_addrtype == LWIP_DNS_ADDRTYPE_IPV6_IPV4)) {\n    /* fallback to 2nd IP type and try again to lookup */\n    u8_t fallback;\n    if (dns_addrtype == LWIP_DNS_ADDRTYPE_IPV4_IPV6) {\n      fallback = LWIP_DNS_ADDRTYPE_IPV6;\n    } else {\n      fallback = LWIP_DNS_ADDRTYPE_IPV4;\n    }\n    if (dns_lookup(hostname, hostnamelen, addr LWIP_DNS_ADDRTYPE_ARG(fallback)) == ERR_OK) {\n      return ERR_OK;\n    }\n  }\n#else /* LWIP_IPV4 && LWIP_IPV6 */\n  LWIP_UNUSED_ARG(dns_addrtype);\n#endif /* LWIP_IPV4 && LWIP_IPV6 */\n\n#if LWIP_DNS_SUPPORT_MDNS_QUERIES\n  if (strstr(hostname, \".local\") == &hostname[hostnamelen] - 6) {\n    is_mdns = 1;\n  } else {\n    is_mdns = 0;\n  }\n\n  if (!is_mdns)\n#endif /* LWIP_DNS_SUPPORT_MDNS_QUERIES */\n  {\n    /* prevent calling found callback if no server is set, return error instead */\n    if (ip_addr_isany_val(dns_servers[0])) {\n      return ERR_VAL;\n    }\n  }\n\n  /* queue query with specified callback */\n  return dns_enqueue(hostname, hostnamelen, found, callback_arg LWIP_DNS_ADDRTYPE_ARG(dns_addrtype)\n                     LWIP_DNS_ISMDNS_ARG(is_mdns));\n}",
+            "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/dns.c#L1569-L1655"
+          },
+          {
+            "kind": "pinned_source",
+            "repository": "https://github.com/lwip-tcpip/lwip",
+            "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+            "path": "src/core/dns.c",
+            "lines": "1457-1510",
+            "file_sha256": "fe35ede9919974da54598630cc08d654ccc30b668c45b09668c3ba572686b26c",
+            "text": "dns.c:1457-1510\n  /* if we don't have found an unused entry, use the oldest completed one */\n  if (i == DNS_TABLE_SIZE) {\n    if ((lseqi >= DNS_TABLE_SIZE) || (dns_table[lseqi].state != DNS_STATE_DONE)) {\n      /* no entry can be used now, table is full */\n      LWIP_DEBUGF(DNS_DEBUG, (\"dns_enqueue: \\\"%s\\\": DNS entries table is full\\n\", name));\n      return ERR_MEM;\n    } else {\n      /* use the oldest completed one */\n      i = lseqi;\n      entry = &dns_table[i];\n    }\n  }\n\n#if ((LWIP_DNS_SECURE & LWIP_DNS_SECURE_NO_MULTIPLE_OUTSTANDING) != 0)\n  /* find a free request entry */\n  req = NULL;\n  for (r = 0; r < DNS_MAX_REQUESTS; r++) {\n    if (dns_requests[r].found == NULL) {\n      req = &dns_requests[r];\n      break;\n    }\n  }\n  if (req == NULL) {\n    /* no request entry can be used now, table is full */\n    LWIP_DEBUGF(DNS_DEBUG, (\"dns_enqueue: \\\"%s\\\": DNS request entries table is full\\n\", name));\n    return ERR_MEM;\n  }\n  req->dns_table_idx = i;\n#else\n  /* in this configuration, the entry index is the same as the request index */\n  req = &dns_requests[i];\n#endif\n\n  /* use this entry */\n  LWIP_DEBUGF(DNS_DEBUG, (\"dns_enqueue: \\\"%s\\\": use DNS entry %\"U16_F\"\\n\", name, (u16_t)(i)));\n\n  /* fill the entry */\n  entry->state = DNS_STATE_NEW;\n  entry->seqno = dns_seqno;\n  LWIP_DNS_SET_ADDRTYPE(entry->reqaddrtype, dns_addrtype);\n  LWIP_DNS_SET_ADDRTYPE(req->reqaddrtype, dns_addrtype);\n  req->found = found;\n  req->arg   = callback_arg;\n  MEMCPY(entry->name, name, namelen);\n  entry->name[namelen] = 0;\n\n#if ((LWIP_DNS_SECURE & LWIP_DNS_SECURE_RAND_SRC_PORT) != 0)\n  entry->pcb_idx = dns_alloc_pcb();\n  if (entry->pcb_idx >= DNS_MAX_SOURCE_PORTS) {\n    /* failed to get a UDP pcb */\n    LWIP_DEBUGF(DNS_DEBUG, (\"dns_enqueue: \\\"%s\\\": failed to allocate a pcb\\n\", name));\n    entry->state = DNS_STATE_UNUSED;\n    req->found = NULL;\n    return ERR_MEM;",
+            "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/dns.c#L1457-L1510"
+          },
+          {
+            "kind": "pinned_source",
+            "repository": "https://github.com/lwip-tcpip/lwip",
+            "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+            "path": "src/core/dns.c",
+            "lines": "1636-1650",
+            "file_sha256": "fe35ede9919974da54598630cc08d654ccc30b668c45b09668c3ba572686b26c",
+            "text": "dns.c:1636-1650\n#if LWIP_DNS_SUPPORT_MDNS_QUERIES\n  if (strstr(hostname, \".local\") == &hostname[hostnamelen] - 6) {\n    is_mdns = 1;\n  } else {\n    is_mdns = 0;\n  }\n\n  if (!is_mdns)\n#endif /* LWIP_DNS_SUPPORT_MDNS_QUERIES */\n  {\n    /* prevent calling found callback if no server is set, return error instead */\n    if (ip_addr_isany_val(dns_servers[0])) {\n      return ERR_VAL;\n    }\n  }",
+            "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/dns.c#L1636-L1650"
+          },
+          {
+            "kind": "experiment_declaration",
+            "executed": false,
+            "text": "{\"executed\": false, \"expected\": \"依次 ERR_ARG、ERR_ARG、跳过字面量 ERR_OK 并继续缓存/入队路径、ERR_OK、ERR_VAL、ERR_INPROGRESS/ERR_MEM。\", \"kind\": \"return_code_matrix\", \"setup\": \"传空名、超长名、IPv6 字面量配 IPv4-only、缓存命中、无服务器未缓存名、正常未缓存名。\"}"
+          }
+        ]
+      },
+      "ho-lwip-cond-ip4-route-selection": {
+        "expected_points": [
+          {
+            "id": "direct",
+            "text": "线性扫描只考虑 up、link up 且 IPv4 地址非 ANY 的 netif；掩码直连匹配即返回。",
+            "evidence": "src/core/ipv4/ip4.c:169-177"
+          },
+          {
+            "id": "point-to-point",
+            "text": "没有 NETIF_FLAG_BROADCAST 的接口若目标等于其 gateway，也可被当作点到点路径返回。",
+            "evidence": "src/core/ipv4/ip4.c:178-182"
+          },
+          {
+            "id": "hooks",
+            "text": "直连未命中后按编译配置调用 LWIP_HOOK_IP4_ROUTE_SRC(NULL,dest) 或 LWIP_HOOK_IP4_ROUTE(dest)，hook 返回非空即采用。",
+            "evidence": "src/core/ipv4/ip4.c:203-213"
+          },
+          {
+            "id": "default",
+            "text": "默认接口必须非空、up、link up、地址非 ANY，且目的不是 loopback；仅 up 但 link down 会返回 NULL 并计无路由。",
+            "evidence": "src/core/ipv4/ip4.c:216-228"
+          }
+        ],
+        "forbidden_claims": [
+          "不得声称 netif_default 只要 up 就一定可用。",
+          "不得声称 hook 在直连扫描之前无条件运行。"
+        ],
+        "evidence_payload": [
+          {
+            "kind": "pinned_source",
+            "repository": "https://github.com/lwip-tcpip/lwip",
+            "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+            "path": "src/core/ipv4/ip4.c",
+            "lines": "151-228",
+            "file_sha256": "a31425571c652d7b466192d4202d68fc1b9756dab0937d339e6c2807658fcc1b",
+            "text": "ip4.c:151-228\nstruct netif *\nip4_route(const ip4_addr_t *dest)\n{\n#if !LWIP_SINGLE_NETIF\n  struct netif *netif;\n\n  LWIP_ASSERT_CORE_LOCKED();\n\n#if LWIP_MULTICAST_TX_OPTIONS\n  /* Use administratively selected interface for multicast by default */\n  if (ip4_addr_ismulticast(dest) && ip4_default_multicast_netif) {\n    return ip4_default_multicast_netif;\n  }\n#endif /* LWIP_MULTICAST_TX_OPTIONS */\n\n  /* bug #54569: in case LWIP_SINGLE_NETIF=1 and LWIP_DEBUGF() disabled, the following loop is optimized away */\n  LWIP_UNUSED_ARG(dest);\n\n  /* iterate through netifs */\n  NETIF_FOREACH(netif) {\n    /* is the netif up, does it have a link and a valid address? */\n    if (netif_is_up(netif) && netif_is_link_up(netif) && !ip4_addr_isany_val(*netif_ip4_addr(netif))) {\n      /* network mask matches? */\n      if (ip4_addr_net_eq(dest, netif_ip4_addr(netif), netif_ip4_netmask(netif))) {\n        /* return netif on which to forward IP packet */\n        return netif;\n      }\n      /* gateway matches on a non broadcast interface? (i.e. peer in a point to point interface) */\n      if (((netif->flags & NETIF_FLAG_BROADCAST) == 0) && ip4_addr_eq(dest, netif_ip4_gw(netif))) {\n        /* return netif on which to forward IP packet */\n        return netif;\n      }\n    }\n  }\n\n#if LWIP_NETIF_LOOPBACK && !LWIP_HAVE_LOOPIF\n  /* loopif is disabled, loopback traffic is passed through any netif */\n  if (ip4_addr_isloopback(dest)) {\n    /* don't check for link on loopback traffic */\n    if ((netif_default != NULL) && netif_is_up(netif_default)) {\n      return netif_default;\n    }\n    /* default netif is not up, just use any netif for loopback traffic */\n    NETIF_FOREACH(netif) {\n      if (netif_is_up(netif)) {\n        return netif;\n      }\n    }\n    return NULL;\n  }\n#endif /* LWIP_NETIF_LOOPBACK && !LWIP_HAVE_LOOPIF */\n\n#ifdef LWIP_HOOK_IP4_ROUTE_SRC\n  netif = LWIP_HOOK_IP4_ROUTE_SRC(NULL, dest);\n  if (netif != NULL) {\n    return netif;\n  }\n#elif defined(LWIP_HOOK_IP4_ROUTE)\n  netif = LWIP_HOOK_IP4_ROUTE(dest);\n  if (netif != NULL) {\n    return netif;\n  }\n#endif\n#endif /* !LWIP_SINGLE_NETIF */\n\n  if ((netif_default == NULL) || !netif_is_up(netif_default) || !netif_is_link_up(netif_default) ||\n      ip4_addr_isany_val(*netif_ip4_addr(netif_default)) || ip4_addr_isloopback(dest)) {\n    /* No matching netif found and default netif is not usable.\n       If this is not good enough for you, use LWIP_HOOK_IP4_ROUTE() */\n    LWIP_DEBUGF(IP_DEBUG | LWIP_DBG_LEVEL_SERIOUS, (\"ip4_route: No route to %\"U16_F\".%\"U16_F\".%\"U16_F\".%\"U16_F\"\\n\",\n                ip4_addr1_16(dest), ip4_addr2_16(dest), ip4_addr3_16(dest), ip4_addr4_16(dest)));\n    IP_STATS_INC(ip.rterr);\n    MIB2_STATS_INC(mib2.ipoutnoroutes);\n    return NULL;\n  }\n\n  return netif_default;\n}",
+            "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/ipv4/ip4.c#L151-L228"
+          },
+          {
+            "kind": "experiment_declaration",
+            "executed": false,
+            "text": "{\"executed\": false, \"expected\": \"前三种按优先级返回对应 netif；最后一种无路由。\", \"kind\": \"route_matrix\", \"setup\": \"构造直连 up/link-up、点到点 gateway、hook 命中、默认仅 up 但 link-down 四种环境。\"}"
+          }
+        ]
+      },
+      "ho-lwip-error-tcp-alloc-reclaim": {
+        "expected_points": [
+          {
+            "id": "initial-allocation",
+            "text": "tcp_alloc 首先从 MEMP_TCP_PCB 分配，只在这次返回 NULL 后进入恢复路径。",
+            "evidence": "src/core/tcp.c:1844-1851"
+          },
+          {
+            "id": "closepend-first",
+            "text": "牺牲 PCB 前先遍历活动 PCB，对 TF_CLOSEPEND 清标志并再尝试发 FIN。",
+            "evidence": "src/core/tcp.c:1814-1829,1844-1851"
+          },
+          {
+            "id": "ordered-retries",
+            "text": "回收顺序是最老 TIME_WAIT→重试分配→最老 LAST_ACK→重试→最老 CLOSING→重试→低于新 PCB 优先级的活动连接→最后一次重试。",
+            "evidence": "src/core/tcp.c:1851-1882"
+          },
+          {
+            "id": "timewait-victim",
+            "text": "TIME_WAIT 路径在 tcp_tw_pcbs 中选最长时间未活动的 PCB，并用 tcp_abort 终止它。",
+            "evidence": "src/core/tcp.c:1787-1807"
+          },
+          {
+            "id": "closing-state-victim",
+            "text": "LAST_ACK/CLOSING 路径在活动链中选指定状态下最久未活动的 PCB，并用 tcp_abandon(...,0) 终止，不发 RST。",
+            "evidence": "src/core/tcp.c:1755-1781"
+          },
+          {
+            "id": "priority-victim",
+            "text": "优先级路径只在活动链中考虑低于新 PCB 优先级的连接，选可用最低优先级中最久未活动者并 tcp_abort；新 prio 为 0 时不牺牲活动连接。",
+            "evidence": "src/core/tcp.c:1709-1749"
+          },
+          {
+            "id": "error-stat-adjustment",
+            "text": "某次重试成功时，嵌套的 MEMP_STATS_DEC 会抵消此前连续分配失败累加的对应错误统计。",
+            "evidence": "src/core/tcp.c:1871-1890"
+          },
+          {
+            "id": "final-result",
+            "text": "只对非 NULL PCB 做清零与字段初始化；所有重试仍失败时，末尾直接返回 NULL。",
+            "evidence": "src/core/tcp.c:1892-1935"
+          }
+        ],
+        "forbidden_claims": [
+          "不得声称 tcp_alloc 在第一次池分配失败时立即返回 NULL。",
+          "不得声称优先级回收可以杀死与新 PCB 同级或更高优先级的活动连接。",
+          "不得声称 LAST_ACK 或 CLOSING 回收通过发送 RST 终止连接。",
+          "不得声称回收阶梯保证最终分配成功。"
+        ],
+        "evidence_payload": [
+          {
+            "kind": "pinned_source",
+            "repository": "https://github.com/lwip-tcpip/lwip",
+            "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+            "path": "src/core/tcp.c",
+            "lines": "1709-1807",
+            "file_sha256": "76d701944a20dae435fb09a37046fea046ba1d996038362e37eae57157ba586f",
+            "text": "tcp.c:1709-1807\nstatic void\ntcp_kill_prio(u8_t prio)\n{\n  struct tcp_pcb *pcb, *inactive;\n  u32_t inactivity;\n  u8_t mprio;\n\n  mprio = LWIP_MIN(TCP_PRIO_MAX, prio);\n\n  /* We want to kill connections with a lower prio, so bail out if\n   * supplied prio is 0 - there can never be a lower prio\n   */\n  if (mprio == 0) {\n    return;\n  }\n\n  /* We only want kill connections with a lower prio, so decrement prio by one\n   * and start searching for oldest connection with same or lower priority than mprio.\n   * We want to find the connections with the lowest possible prio, and among\n   * these the one with the longest inactivity time.\n   */\n  mprio--;\n\n  inactivity = 0;\n  inactive = NULL;\n  for (pcb = tcp_active_pcbs; pcb != NULL; pcb = pcb->next) {\n        /* lower prio is always a kill candidate */\n    if ((pcb->prio < mprio) ||\n        /* longer inactivity is also a kill candidate */\n        ((pcb->prio == mprio) && ((u32_t)(tcp_ticks - pcb->tmr) >= inactivity))) {\n      inactivity = tcp_ticks - pcb->tmr;\n      inactive   = pcb;\n      mprio      = pcb->prio;\n    }\n  }\n  if (inactive != NULL) {\n    LWIP_DEBUGF(TCP_DEBUG, (\"tcp_kill_prio: killing oldest PCB %p (%\"S32_F\")\\n\",\n                            (void *)inactive, inactivity));\n    tcp_abort(inactive);\n  }\n}\n\n/**\n * Kills the oldest connection that is in specific state.\n * Called from tcp_alloc() for LAST_ACK and CLOSING if no more connections are available.\n */\nstatic void\ntcp_kill_state(enum tcp_state state)\n{\n  struct tcp_pcb *pcb, *inactive;\n  u32_t inactivity;\n\n  LWIP_ASSERT(\"invalid state\", (state == CLOSING) || (state == LAST_ACK));\n\n  inactivity = 0;\n  inactive = NULL;\n  /* Go through the list of active pcbs and get the oldest pcb that is in state\n     CLOSING/LAST_ACK. */\n  for (pcb = tcp_active_pcbs; pcb != NULL; pcb = pcb->next) {\n    if (pcb->state == state) {\n      if ((u32_t)(tcp_ticks - pcb->tmr) >= inactivity) {\n        inactivity = tcp_ticks - pcb->tmr;\n        inactive = pcb;\n      }\n    }\n  }\n  if (inactive != NULL) {\n    LWIP_DEBUGF(TCP_DEBUG, (\"tcp_kill_closing: killing oldest %s PCB %p (%\"S32_F\")\\n\",\n                            tcp_state_str[state], (void *)inactive, inactivity));\n    /* Don't send a RST, since no data is lost. */\n    tcp_abandon(inactive, 0);\n  }\n}\n\n/**\n * Kills the oldest connection that is in TIME_WAIT state.\n * Called from tcp_alloc() if no more connections are available.\n */\nstatic void\ntcp_kill_timewait(void)\n{\n  struct tcp_pcb *pcb, *inactive;\n  u32_t inactivity;\n\n  inactivity = 0;\n  inactive = NULL;\n  /* Go through the list of TIME_WAIT pcbs and get the oldest pcb. */\n  for (pcb = tcp_tw_pcbs; pcb != NULL; pcb = pcb->next) {\n    if ((u32_t)(tcp_ticks - pcb->tmr) >= inactivity) {\n      inactivity = tcp_ticks - pcb->tmr;\n      inactive = pcb;\n    }\n  }\n  if (inactive != NULL) {\n    LWIP_DEBUGF(TCP_DEBUG, (\"tcp_kill_timewait: killing oldest TIME-WAIT PCB %p (%\"S32_F\")\\n\",\n                            (void *)inactive, inactivity));\n    tcp_abort(inactive);\n  }\n}",
+            "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/tcp.c#L1709-L1807"
+          },
+          {
+            "kind": "pinned_source",
+            "repository": "https://github.com/lwip-tcpip/lwip",
+            "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+            "path": "src/core/tcp.c",
+            "lines": "1814-1935",
+            "file_sha256": "76d701944a20dae435fb09a37046fea046ba1d996038362e37eae57157ba586f",
+            "text": "tcp.c:1814-1935\nstatic void\ntcp_handle_closepend(void)\n{\n  struct tcp_pcb *pcb = tcp_active_pcbs;\n\n  while (pcb != NULL) {\n    struct tcp_pcb *next = pcb->next;\n    /* send pending FIN */\n    if (pcb->flags & TF_CLOSEPEND) {\n      LWIP_DEBUGF(TCP_DEBUG, (\"tcp_handle_closepend: pending FIN\\n\"));\n      tcp_clear_flags(pcb, TF_CLOSEPEND);\n      tcp_close_shutdown_fin(pcb);\n    }\n    pcb = next;\n  }\n}\n\n/**\n * Allocate a new tcp_pcb structure.\n *\n * @param prio priority for the new pcb\n * @return a new tcp_pcb that initially is in state CLOSED\n */\nstruct tcp_pcb *\ntcp_alloc(u8_t prio)\n{\n  struct tcp_pcb *pcb;\n\n  LWIP_ASSERT_CORE_LOCKED();\n\n  pcb = (struct tcp_pcb *)memp_malloc(MEMP_TCP_PCB);\n  if (pcb == NULL) {\n    /* Try to send FIN for all pcbs stuck in TF_CLOSEPEND first */\n    tcp_handle_closepend();\n\n    /* Try killing oldest connection in TIME-WAIT. */\n    LWIP_DEBUGF(TCP_DEBUG, (\"tcp_alloc: killing off oldest TIME-WAIT connection\\n\"));\n    tcp_kill_timewait();\n    /* Try to allocate a tcp_pcb again. */\n    pcb = (struct tcp_pcb *)memp_malloc(MEMP_TCP_PCB);\n    if (pcb == NULL) {\n      /* Try killing oldest connection in LAST-ACK (these wouldn't go to TIME-WAIT). */\n      LWIP_DEBUGF(TCP_DEBUG, (\"tcp_alloc: killing off oldest LAST-ACK connection\\n\"));\n      tcp_kill_state(LAST_ACK);\n      /* Try to allocate a tcp_pcb again. */\n      pcb = (struct tcp_pcb *)memp_malloc(MEMP_TCP_PCB);\n      if (pcb == NULL) {\n        /* Try killing oldest connection in CLOSING. */\n        LWIP_DEBUGF(TCP_DEBUG, (\"tcp_alloc: killing off oldest CLOSING connection\\n\"));\n        tcp_kill_state(CLOSING);\n        /* Try to allocate a tcp_pcb again. */\n        pcb = (struct tcp_pcb *)memp_malloc(MEMP_TCP_PCB);\n        if (pcb == NULL) {\n          /* Try killing oldest active connection with lower priority than the new one. */\n          LWIP_DEBUGF(TCP_DEBUG, (\"tcp_alloc: killing oldest connection with prio lower than %d\\n\", prio));\n          tcp_kill_prio(prio);\n          /* Try to allocate a tcp_pcb again. */\n          pcb = (struct tcp_pcb *)memp_malloc(MEMP_TCP_PCB);\n          if (pcb != NULL) {\n            /* adjust err stats: memp_malloc failed multiple times before */\n            MEMP_STATS_DEC(err, MEMP_TCP_PCB);\n          }\n        }\n        if (pcb != NULL) {\n          /* adjust err stats: memp_malloc failed multiple times before */\n          MEMP_STATS_DEC(err, MEMP_TCP_PCB);\n        }\n      }\n      if (pcb != NULL) {\n        /* adjust err stats: memp_malloc failed multiple times before */\n        MEMP_STATS_DEC(err, MEMP_TCP_PCB);\n      }\n    }\n    if (pcb != NULL) {\n      /* adjust err stats: memp_malloc failed above */\n      MEMP_STATS_DEC(err, MEMP_TCP_PCB);\n    }\n  }\n  if (pcb != NULL) {\n    /* zero out the whole pcb, so there is no need to initialize members to zero */\n    memset(pcb, 0, sizeof(struct tcp_pcb));\n    pcb->prio = prio;\n    pcb->snd_buf = TCP_SND_BUF;\n    /* Start with a window that does not need scaling. When window scaling is\n       enabled and used, the window is enlarged when both sides agree on scaling. */\n    pcb->rcv_wnd = pcb->rcv_ann_wnd = TCPWND_MIN16(TCP_WND);\n    pcb->ttl = TCP_TTL;\n    /* As initial send MSS, we use TCP_MSS but limit it to 536.\n       The send MSS is updated when an MSS option is received. */\n    pcb->mss = INITIAL_MSS;\n    /* Set initial TCP's retransmission timeout to 3000 ms by default.\n       This value could be configured in lwipopts */\n    pcb->rto = LWIP_TCP_RTO_TIME / TCP_SLOW_INTERVAL;\n    pcb->sv = LWIP_TCP_RTO_TIME / TCP_SLOW_INTERVAL;\n    pcb->rtime = -1;\n    pcb->cwnd = 1;\n    pcb->tmr = tcp_ticks;\n    pcb->last_timer = tcp_timer_ctr;\n\n    /* RFC 5681 recommends setting ssthresh arbitrarily high and gives an example\n    of using the largest advertised receive window.  We've seen complications with\n    receiving TCPs that use window scaling and/or window auto-tuning where the\n    initial advertised window is very small and then grows rapidly once the\n    connection is established. To avoid these complications, we set ssthresh to the\n    largest effective cwnd (amount of in-flight data) that the sender can have. */\n    pcb->ssthresh = TCP_SND_BUF;\n\n#if LWIP_CALLBACK_API\n    pcb->recv = tcp_recv_null;\n#endif /* LWIP_CALLBACK_API */\n\n    /* Init KEEPALIVE timer */\n    pcb->keep_idle  = TCP_KEEPIDLE_DEFAULT;\n\n#if LWIP_TCP_KEEPALIVE\n    pcb->keep_intvl = TCP_KEEPINTVL_DEFAULT;\n    pcb->keep_cnt   = TCP_KEEPCNT_DEFAULT;\n#endif /* LWIP_TCP_KEEPALIVE */\n    pcb_tci_init(pcb);\n  }\n  return pcb;\n}",
+            "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/tcp.c#L1814-L1935"
+          },
+          {
+            "kind": "experiment_declaration",
+            "executed": false,
+            "text": "{\"executed\": false, \"expected\": \"按固定阶梯每回收一类后重试；成功时初始化新 PCB 并校正之前失败统计，全部失败时返回 NULL。\", \"kind\": \"tcp_pcb_pool_exhaustion_matrix\", \"setup\": \"耗尽 MEMP_TCP_PCB，分别仅提供 TIME_WAIT、LAST_ACK、CLOSING、低优先级活动 PCB 作为可回收对象，以及无可回收对象的情况。\"}"
+          }
+        ]
+      },
+      "ho-lwip-error-dns-enqueue-capacity": {
+        "expected_points": [
+          {
+            "id": "dns-table-full",
+            "text": "没有 UNUSED 且没有可替换的最老 DONE 表项时直接 ERR_MEM，不改写新活动表项。",
+            "evidence": "src/core/dns.c:1438-1468"
+          },
+          {
+            "id": "request-table-full",
+            "text": "启用 NO_MULTIPLE_OUTSTANDING 配置时找不到空 dns_requests 槽也直接 ERR_MEM，发生在 entry 写 NEW 之前。",
+            "evidence": "src/core/dns.c:1470-1488"
+          },
+          {
+            "id": "pcb-failure-rollback",
+            "text": "随机源端口模式中，entry 和 req 已写入后若 dns_alloc_pcb 失败，会把 entry->state 还原 UNUSED、req->found 清 NULL，再返回 ERR_MEM。",
+            "evidence": "src/core/dns.c:1490-1511"
+          },
+          {
+            "id": "success-transition",
+            "text": "只有资源就绪才递增 dns_seqno、调用 dns_check_entry 并返回 ERR_INPROGRESS。",
+            "evidence": "src/core/dns.c:1515-1525"
+          }
+        ],
+        "forbidden_claims": [
+          "不得声称表满时总会驱逐 ASKING 项；只考虑 UNUSED 或最老 DONE。",
+          "不得声称 PCB 分配失败会留下 req->found 回调处于活动状态。"
+        ],
+        "evidence_payload": [
+          {
+            "kind": "pinned_source",
+            "repository": "https://github.com/lwip-tcpip/lwip",
+            "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+            "path": "src/core/dns.c",
+            "lines": "1393-1526",
+            "file_sha256": "fe35ede9919974da54598630cc08d654ccc30b668c45b09668c3ba572686b26c",
+            "text": "dns.c:1393-1526\nstatic err_t\ndns_enqueue(const char *name, size_t hostnamelen, dns_found_callback found,\n            void *callback_arg LWIP_DNS_ADDRTYPE_ARG(u8_t dns_addrtype) LWIP_DNS_ISMDNS_ARG(u8_t is_mdns))\n{\n  u8_t i;\n  u8_t lseq, lseqi;\n  struct dns_table_entry *entry = NULL;\n  size_t namelen;\n  struct dns_req_entry *req;\n#if ((LWIP_DNS_SECURE & LWIP_DNS_SECURE_NO_MULTIPLE_OUTSTANDING) != 0)\n  u8_t r;\n#endif\n\n  namelen = LWIP_MIN(hostnamelen, DNS_MAX_NAME_LENGTH - 1);\n\n#if ((LWIP_DNS_SECURE & LWIP_DNS_SECURE_NO_MULTIPLE_OUTSTANDING) != 0)\n  /* check for duplicate entries */\n  for (i = 0; i < DNS_TABLE_SIZE; i++) {\n    if ((dns_table[i].state == DNS_STATE_ASKING) &&\n        (lwip_strnicmp(name, dns_table[i].name, namelen) == 0) &&\n        !dns_table[i].name[namelen]) {\n#if LWIP_IPV4 && LWIP_IPV6\n      if (dns_table[i].reqaddrtype != dns_addrtype) {\n        /* requested address types don't match\n           this can lead to 2 concurrent requests, but mixing the address types\n           for the same host should not be that common */\n        continue;\n      }\n#endif /* LWIP_IPV4 && LWIP_IPV6 */\n      /* this is a duplicate entry, find a free request entry */\n      for (r = 0; r < DNS_MAX_REQUESTS; r++) {\n        if (dns_requests[r].found == NULL) {\n          dns_requests[r].found = found;\n          dns_requests[r].arg = callback_arg;\n          dns_requests[r].dns_table_idx = i;\n          LWIP_DNS_SET_ADDRTYPE(dns_requests[r].reqaddrtype, dns_addrtype);\n          LWIP_DEBUGF(DNS_DEBUG, (\"dns_enqueue: \\\"%s\\\": duplicate request\\n\", name));\n          return ERR_INPROGRESS;\n        }\n      }\n    }\n  }\n  /* no duplicate entries found */\n#endif\n\n  /* search an unused entry, or the oldest one */\n  lseq = 0;\n  lseqi = DNS_TABLE_SIZE;\n  for (i = 0; i < DNS_TABLE_SIZE; ++i) {\n    entry = &dns_table[i];\n    /* is it an unused entry ? */\n    if (entry->state == DNS_STATE_UNUSED) {\n      break;\n    }\n    /* check if this is the oldest completed entry */\n    if (entry->state == DNS_STATE_DONE) {\n      u8_t age = (u8_t)(dns_seqno - entry->seqno);\n      if (age > lseq) {\n        lseq = age;\n        lseqi = i;\n      }\n    }\n  }\n\n  /* if we don't have found an unused entry, use the oldest completed one */\n  if (i == DNS_TABLE_SIZE) {\n    if ((lseqi >= DNS_TABLE_SIZE) || (dns_table[lseqi].state != DNS_STATE_DONE)) {\n      /* no entry can be used now, table is full */\n      LWIP_DEBUGF(DNS_DEBUG, (\"dns_enqueue: \\\"%s\\\": DNS entries table is full\\n\", name));\n      return ERR_MEM;\n    } else {\n      /* use the oldest completed one */\n      i = lseqi;\n      entry = &dns_table[i];\n    }\n  }\n\n#if ((LWIP_DNS_SECURE & LWIP_DNS_SECURE_NO_MULTIPLE_OUTSTANDING) != 0)\n  /* find a free request entry */\n  req = NULL;\n  for (r = 0; r < DNS_MAX_REQUESTS; r++) {\n    if (dns_requests[r].found == NULL) {\n      req = &dns_requests[r];\n      break;\n    }\n  }\n  if (req == NULL) {\n    /* no request entry can be used now, table is full */\n    LWIP_DEBUGF(DNS_DEBUG, (\"dns_enqueue: \\\"%s\\\": DNS request entries table is full\\n\", name));\n    return ERR_MEM;\n  }\n  req->dns_table_idx = i;\n#else\n  /* in this configuration, the entry index is the same as the request index */\n  req = &dns_requests[i];\n#endif\n\n  /* use this entry */\n  LWIP_DEBUGF(DNS_DEBUG, (\"dns_enqueue: \\\"%s\\\": use DNS entry %\"U16_F\"\\n\", name, (u16_t)(i)));\n\n  /* fill the entry */\n  entry->state = DNS_STATE_NEW;\n  entry->seqno = dns_seqno;\n  LWIP_DNS_SET_ADDRTYPE(entry->reqaddrtype, dns_addrtype);\n  LWIP_DNS_SET_ADDRTYPE(req->reqaddrtype, dns_addrtype);\n  req->found = found;\n  req->arg   = callback_arg;\n  MEMCPY(entry->name, name, namelen);\n  entry->name[namelen] = 0;\n\n#if ((LWIP_DNS_SECURE & LWIP_DNS_SECURE_RAND_SRC_PORT) != 0)\n  entry->pcb_idx = dns_alloc_pcb();\n  if (entry->pcb_idx >= DNS_MAX_SOURCE_PORTS) {\n    /* failed to get a UDP pcb */\n    LWIP_DEBUGF(DNS_DEBUG, (\"dns_enqueue: \\\"%s\\\": failed to allocate a pcb\\n\", name));\n    entry->state = DNS_STATE_UNUSED;\n    req->found = NULL;\n    return ERR_MEM;\n  }\n  LWIP_DEBUGF(DNS_DEBUG, (\"dns_enqueue: \\\"%s\\\": use DNS pcb %\"U16_F\"\\n\", name, (u16_t)(entry->pcb_idx)));\n#endif\n\n#if LWIP_DNS_SUPPORT_MDNS_QUERIES\n  entry->is_mdns = is_mdns;\n#endif\n\n  dns_seqno++;\n\n  /* force to send query without waiting timer */\n  dns_check_entry(i);\n\n  /* dns query is enqueued */\n  return ERR_INPROGRESS;\n}",
+            "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/dns.c#L1393-L1526"
+          },
+          {
+            "kind": "experiment_declaration",
+            "executed": false,
+            "text": "{\"executed\": false, \"expected\": \"均 ERR_MEM；前两种不创建 NEW 项，后一种显式恢复 UNUSED 并清 callback。\", \"kind\": \"capacity_failure_matrix\", \"setup\": \"分别填满 ASKING 表、填满 request 槽、让 dns_alloc_pcb 失败。\"}"
+          }
+        ]
+      },
+      "ho-lwip-error-dhcp-start-cleanup": {
+        "expected_points": [
+          {
+            "id": "early-errors",
+            "text": "netif 无效/未 up 返回 ERR_ARG；MTU 过小或 dhcp 结构分配失败返回 ERR_MEM，尚未取得共享 PCB。",
+            "evidence": "src/core/ipv4/dhcp.c:813-832"
+          },
+          {
+            "id": "pcb-acquire",
+            "text": "dhcp_inc_pcb_refcount 失败时直接返回 ERR_MEM；若本次新分配 dhcp，它已挂到 netif，源码此处没有调用 release_and_stop。",
+            "evidence": "src/core/ipv4/dhcp.c:825-865"
+          },
+          {
+            "id": "discover-cleanup",
+            "text": "取得 PCB 后 dhcp_discover 若返回非 ERR_OK，dhcp_start 才调用 dhcp_release_and_stop 并返回 ERR_MEM。",
+            "evidence": "src/core/ipv4/dhcp.c:863-880"
+          },
+          {
+            "id": "allocation-counterexample",
+            "text": "当前 dhcp_discover 在 dhcp_create_msg 返回 NULL 时只记录日志，仍更新 tries/timeout 并返回初始 ERR_OK；该分配失败不会触发 start 的 release_and_stop 分支。",
+            "evidence": "src/core/ipv4/dhcp.c:1022-1074"
+          }
+        ],
+        "forbidden_claims": [
+          "不得声称任何 DHCP 报文分配失败都会由 dhcp_start 立即完整回收。",
+          "不得声称 MTU 过小返回 ERR_ARG；源码返回 ERR_MEM。"
+        ],
+        "evidence_payload": [
+          {
+            "kind": "pinned_source",
+            "repository": "https://github.com/lwip-tcpip/lwip",
+            "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+            "path": "src/core/ipv4/dhcp.c",
+            "lines": "806-882,1019-1075",
+            "file_sha256": "aa001ae36936c57f0155f7ff36c31aebf8ce4d52c7c366a9a27b856520fb637e",
+            "text": "dhcp.c:806-882\nerr_t\ndhcp_start(struct netif *netif)\n{\n  struct dhcp *dhcp;\n  err_t result;\n  u8_t saved_flags;\n\n  LWIP_ASSERT_CORE_LOCKED();\n  LWIP_ERROR(\"netif != NULL\", (netif != NULL), return ERR_ARG;);\n  LWIP_ERROR(\"netif is not up, old style port?\", netif_is_up(netif), return ERR_ARG;);\n  dhcp = netif_dhcp_data(netif);\n  LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE, (\"dhcp_start(netif=%p) %c%c%\"U16_F\"\\n\", (void *)netif, netif->name[0], netif->name[1], (u16_t)netif->num));\n\n  /* check MTU of the netif */\n  if (netif->mtu < DHCP_MAX_MSG_LEN_MIN_REQUIRED) {\n    LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, (\"dhcp_start(): Cannot use this netif with DHCP: MTU is too small\\n\"));\n    return ERR_MEM;\n  }\n\n  /* no DHCP client attached yet? */\n  if (dhcp == NULL) {\n    LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, (\"dhcp_start(): mallocing new DHCP client\\n\"));\n    dhcp = (struct dhcp *)mem_malloc(sizeof(struct dhcp));\n    if (dhcp == NULL) {\n      LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, (\"dhcp_start(): could not allocate dhcp\\n\"));\n      return ERR_MEM;\n    }\n\n    /* clear the flags, the rest is cleared below */\n    dhcp->flags = 0;\n    /* store this dhcp client in the netif */\n    netif_set_client_data(netif, LWIP_NETIF_CLIENT_DATA_INDEX_DHCP, dhcp);\n    LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, (\"dhcp_start(): allocated dhcp\\n\"));\n    /* already has DHCP client attached */\n  } else {\n    LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE, (\"dhcp_start(): restarting DHCP configuration\\n\"));\n\n    if (dhcp->pcb_allocated != 0) {\n      dhcp_dec_pcb_refcount(); /* free DHCP PCB if not needed any more */\n    }\n    /* dhcp is cleared below, no need to reset flag*/\n  }\n\n  /* clear data structure but preserve DHCP_FLAG_EXTERNAL_MEM for dhcp_cleanup() */\n  saved_flags = dhcp->flags;\n  memset(dhcp, 0, sizeof(struct dhcp));\n  dhcp->flags = saved_flags & DHCP_FLAG_EXTERNAL_MEM;\n\n\n#if LWIP_DHCP_DOES_ACD_CHECK\n  /* add acd struct to list*/\n  acd_add(netif, &dhcp->acd, dhcp_conflict_callback);\n#endif /* LWIP_DHCP_DOES_ACD_CHECK */\n\n\n  LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, (\"dhcp_start(): starting DHCP configuration\\n\"));\n\n  if (dhcp_inc_pcb_refcount() != ERR_OK) { /* ensure DHCP PCB is allocated */\n    return ERR_MEM;\n  }\n  dhcp->pcb_allocated = 1;\n\n  if (!netif_is_link_up(netif)) {\n    /* set state INIT and wait for dhcp_network_changed() to call dhcp_discover() */\n    dhcp_set_state(dhcp, DHCP_STATE_INIT);\n    return ERR_OK;\n  }\n\n  /* (re)start the DHCP negotiation */\n  result = dhcp_discover(netif);\n  if (result != ERR_OK) {\n    /* free resources allocated above */\n    dhcp_release_and_stop(netif);\n    return ERR_MEM;\n  }\n  return result;\n}\n\ndhcp.c:1019-1075\nstatic err_t\ndhcp_discover(struct netif *netif)\n{\n  struct dhcp *dhcp = netif_dhcp_data(netif);\n  err_t result = ERR_OK;\n  u16_t msecs;\n  u8_t i;\n  struct pbuf *p_out;\n  u16_t options_out_len;\n\n  LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, (\"dhcp_discover()\\n\"));\n\n#if LWIP_DHCP_AUTOIP_COOP\n  if (dhcp->tries >= LWIP_DHCP_AUTOIP_COOP_TRIES) {\n    autoip_start(netif);\n  }\n#endif /* LWIP_DHCP_AUTOIP_COOP */\n\n  ip4_addr_set_any(&dhcp->offered_ip_addr);\n  dhcp_set_state(dhcp, DHCP_STATE_SELECTING);\n  /* create and initialize the DHCP message header */\n  p_out = dhcp_create_msg(netif, dhcp, DHCP_DISCOVER, &options_out_len);\n  if (p_out != NULL) {\n    struct dhcp_msg *msg_out = (struct dhcp_msg *)p_out->payload;\n    LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, (\"dhcp_discover: making request\\n\"));\n\n    options_out_len = dhcp_option(options_out_len, msg_out->options, DHCP_OPTION_MAX_MSG_SIZE, DHCP_OPTION_MAX_MSG_SIZE_LEN);\n    options_out_len = dhcp_option_short(options_out_len, msg_out->options, DHCP_MAX_MSG_LEN(netif));\n\n#if LWIP_NETIF_HOSTNAME && LWIP_DHCP_DISCOVER_ADD_HOSTNAME\n    options_out_len = dhcp_option_hostname(options_out_len, msg_out->options, netif);\n#endif /* LWIP NETIF HOSTNAME && LWIP_DHCP_DISCOVER_ADD_HOSTNAME */\n\n    options_out_len = dhcp_option(options_out_len, msg_out->options, DHCP_OPTION_PARAMETER_REQUEST_LIST, LWIP_ARRAYSIZE(dhcp_discover_request_options));\n    for (i = 0; i < LWIP_ARRAYSIZE(dhcp_discover_request_options); i++) {\n      options_out_len = dhcp_option_byte(options_out_len, msg_out->options, dhcp_discover_request_options[i]);\n    }\n    LWIP_HOOK_DHCP_APPEND_OPTIONS(netif, dhcp, DHCP_STATE_SELECTING, msg_out, DHCP_DISCOVER, &options_out_len);\n    dhcp_option_trailer(options_out_len, msg_out->options, p_out);\n\n    LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, (\"dhcp_discover: sendto(DISCOVER, IP_ADDR_BROADCAST, LWIP_IANA_PORT_DHCP_SERVER)\\n\"));\n    udp_sendto_if_src(dhcp_pcb, p_out, IP_ADDR_BROADCAST, LWIP_IANA_PORT_DHCP_SERVER, netif, IP4_ADDR_ANY);\n    LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, (\"dhcp_discover: deleting()\\n\"));\n    pbuf_free(p_out);\n    LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE, (\"dhcp_discover: SELECTING\\n\"));\n  } else {\n    LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_LEVEL_SERIOUS, (\"dhcp_discover: could not allocate DHCP request\\n\"));\n  }\n\n  if (dhcp->tries < 255) {\n    dhcp->tries++;\n  }\n  msecs = DHCP_REQUEST_BACKOFF_SEQUENCE(dhcp->tries);\n  dhcp->request_timeout = (u16_t)((msecs + DHCP_FINE_TIMER_MSECS - 1) / DHCP_FINE_TIMER_MSECS);\n  LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE, (\"dhcp_discover(): set request timeout %\"U16_F\" msecs\\n\", msecs));\n  return result;\n}",
+            "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/ipv4/dhcp.c#L806-L882"
+          },
+          {
+            "kind": "experiment_declaration",
+            "executed": false,
+            "text": "{\"executed\": false, \"expected\": \"前两者 start 返回 ERR_MEM；第三者当前仍从 discover/start 返回 ERR_OK 并安排重试。\", \"kind\": \"allocator_failure_matrix\", \"setup\": \"分别让 dhcp mem_malloc、dhcp_inc_pcb_refcount、dhcp_create_msg 的 pbuf_alloc 失败。\"}"
+          }
+        ]
+      },
+      "ho-lwip-error-netbuf-reallocation": {
+        "expected_points": [
+          {
+            "id": "old-free",
+            "text": "netbuf_alloc 若 buf->p 非 NULL，先 pbuf_free 旧链，再把新 pbuf_alloc 结果赋给 buf->p。",
+            "evidence": "src/api/netbuf.c:101-111"
+          },
+          {
+            "id": "allocation-failure-state",
+            "text": "新分配失败时 buf->p 已是 NULL 并立即返回；buf->ptr 在失败前未清零，可能仍是指向已释放旧 pbuf 的陈旧指针。",
+            "evidence": "src/api/netbuf.c:106-116"
+          },
+          {
+            "id": "delete-after-failure",
+            "text": "netbuf_delete 只有 buf->p 非 NULL 才 pbuf_free 并同时清 p/ptr；失败后 p==NULL，因此不会二次释放旧 pbuf，随后归还 netbuf 本体。",
+            "evidence": "src/api/netbuf.c:80-90"
+          }
+        ],
+        "forbidden_claims": [
+          "不得声称分配失败时 buf->ptr 一定被置 NULL。",
+          "不得声称 netbuf_delete 会根据陈旧 ptr 再释放一次。"
+        ],
+        "evidence_payload": [
+          {
+            "kind": "pinned_source",
+            "repository": "https://github.com/lwip-tcpip/lwip",
+            "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+            "path": "src/api/netbuf.c",
+            "lines": "80-118",
+            "file_sha256": "2b2bc92804b38f37eb865714d68e5039fa7fe7ad43aabfed7cd39528b93a35b4",
+            "text": "netbuf.c:80-118\nvoid\nnetbuf_delete(struct netbuf *buf)\n{\n  if (buf != NULL) {\n    if (buf->p != NULL) {\n      pbuf_free(buf->p);\n      buf->p = buf->ptr = NULL;\n    }\n    memp_free(MEMP_NETBUF, buf);\n  }\n}\n\n/**\n * @ingroup netbuf\n * Allocate memory for a packet buffer for a given netbuf.\n *\n * @param buf the netbuf for which to allocate a packet buffer\n * @param size the size of the packet buffer to allocate\n * @return pointer to the allocated memory\n *         NULL if no memory could be allocated\n */\nvoid *\nnetbuf_alloc(struct netbuf *buf, u16_t size)\n{\n  LWIP_ERROR(\"netbuf_alloc: invalid buf\", (buf != NULL), return NULL;);\n\n  /* Deallocate any previously allocated memory. */\n  if (buf->p != NULL) {\n    pbuf_free(buf->p);\n  }\n  buf->p = pbuf_alloc(PBUF_TRANSPORT, size, PBUF_RAM);\n  if (buf->p == NULL) {\n    return NULL;\n  }\n  LWIP_ASSERT(\"check that first pbuf can hold size\",\n              (buf->p->len >= size));\n  buf->ptr = buf->p;\n  return buf->p->payload;\n}",
+            "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/api/netbuf.c#L80-L118"
+          },
+          {
+            "kind": "experiment_declaration",
+            "executed": false,
+            "text": "{\"executed\": false, \"expected\": \"旧 p 释放一次、buf->p=NULL、ptr 暂时陈旧；delete 不再 free p，只释放 netbuf。\", \"kind\": \"allocator_failure_injection\", \"setup\": \"buf 初始含 p/ptr，令第二次 pbuf_alloc 返回 NULL，再调用 netbuf_delete。\"}"
+          }
+        ]
+      },
+      "ho-lwip-error-ip4-reassembly-cap": {
+        "expected_points": [
+          {
+            "id": "malformed",
+            "text": "不支持 IP options（头长不等于 IP_HLEN）或 hlen>总长时跳到统一 nullreturn，计 drop 并 pbuf_free 当前片段。",
+            "evidence": "src/core/ipv4/ip4_frag.c:519-534,689-693"
+          },
+          {
+            "id": "capacity",
+            "text": "若 ip_reass_pbufcount+clen 超过 IP_REASS_MAX_PBUFS，可选尝试删除最老 datagram；删除失败或删除后仍超限则计 memerr 并丢当前 pbuf。",
+            "evidence": "src/core/ipv4/ip4_frag.c:536-552"
+          },
+          {
+            "id": "enqueue-fail",
+            "text": "新 datagram 元数据分配失败、总长度溢出或片段链验证返回 DROPPED 都进入释放路径；若刚建空 ipr，还会先摘除该 ipr。",
+            "evidence": "src/core/ipv4/ip4_frag.c:568-603,681-693"
+          },
+          {
+            "id": "no-guarantee",
+            "text": "IP_REASS_FREE_OLDEST 只允许尝试腾位，不保证足够；二次容量条件仍可拒绝新片段。",
+            "evidence": "src/core/ipv4/ip4_frag.c:538-550"
+          }
+        ],
+        "forbidden_claims": [
+          "不得声称启用 FREE_OLDEST 后所有超限片段都会入队。",
+          "不得声称错误路径把当前 pbuf 留给调用者释放。"
+        ],
+        "evidence_payload": [
+          {
+            "kind": "pinned_source",
+            "repository": "https://github.com/lwip-tcpip/lwip",
+            "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+            "path": "src/core/ipv4/ip4_frag.c",
+            "lines": "504-694",
+            "file_sha256": "2624bd59ee8fb612e0b2633644602eddf88d26699b5ddfc3f7877c1c6b06a8d0",
+            "text": "ip4_frag.c:504-694\nstruct pbuf *\nip4_reass(struct pbuf *p)\n{\n  struct pbuf *r;\n  struct ip_hdr *fraghdr;\n  struct ip_reassdata *ipr;\n  struct ip_reass_helper *iprh;\n  u16_t offset, len, clen;\n  u8_t hlen;\n  int valid;\n  int is_last;\n\n  IPFRAG_STATS_INC(ip_frag.recv);\n  MIB2_STATS_INC(mib2.ipreasmreqds);\n\n  fraghdr = (struct ip_hdr *)p->payload;\n\n  if (IPH_HL_BYTES(fraghdr) != IP_HLEN) {\n    LWIP_DEBUGF(IP_REASS_DEBUG, (\"ip4_reass: IP options currently not supported!\\n\"));\n    IPFRAG_STATS_INC(ip_frag.err);\n    goto nullreturn;\n  }\n\n  offset = IPH_OFFSET_BYTES(fraghdr);\n  len = lwip_ntohs(IPH_LEN(fraghdr));\n  hlen = IPH_HL_BYTES(fraghdr);\n  if (hlen > len) {\n    /* invalid datagram */\n    goto nullreturn;\n  }\n  len = (u16_t)(len - hlen);\n\n  /* Check if we are allowed to enqueue more datagrams. */\n  clen = pbuf_clen(p);\n  if ((ip_reass_pbufcount + clen) > IP_REASS_MAX_PBUFS) {\n#if IP_REASS_FREE_OLDEST\n    if (!ip_reass_remove_oldest_datagram(fraghdr, clen) ||\n        ((ip_reass_pbufcount + clen) > IP_REASS_MAX_PBUFS))\n#endif /* IP_REASS_FREE_OLDEST */\n    {\n      /* No datagram could be freed and still too many pbufs enqueued */\n      LWIP_DEBUGF(IP_REASS_DEBUG, (\"ip4_reass: Overflow condition: pbufct=%d, clen=%d, MAX=%d\\n\",\n                                   ip_reass_pbufcount, clen, IP_REASS_MAX_PBUFS));\n      IPFRAG_STATS_INC(ip_frag.memerr);\n      /* @todo: send ICMP time exceeded here? */\n      /* drop this pbuf */\n      goto nullreturn;\n    }\n  }\n\n  /* Look for the datagram the fragment belongs to in the current datagram queue,\n   * remembering the previous in the queue for later dequeueing. */\n  for (ipr = reassdatagrams; ipr != NULL; ipr = ipr->next) {\n    /* Check if the incoming fragment matches the one currently present\n       in the reassembly buffer. If so, we proceed with copying the\n       fragment into the buffer. */\n    if (IP_ADDRESSES_AND_ID_MATCH(&ipr->iphdr, fraghdr)) {\n      LWIP_DEBUGF(IP_REASS_DEBUG, (\"ip4_reass: matching previous fragment ID=%\"X16_F\"\\n\",\n                                   lwip_ntohs(IPH_ID(fraghdr))));\n      IPFRAG_STATS_INC(ip_frag.cachehit);\n      break;\n    }\n  }\n\n  if (ipr == NULL) {\n    /* Enqueue a new datagram into the datagram queue */\n    ipr = ip_reass_enqueue_new_datagram(fraghdr, clen);\n    /* Bail if unable to enqueue */\n    if (ipr == NULL) {\n      goto nullreturn;\n    }\n  } else {\n    if (((lwip_ntohs(IPH_OFFSET(fraghdr)) & IP_OFFMASK) == 0) &&\n        ((lwip_ntohs(IPH_OFFSET(&ipr->iphdr)) & IP_OFFMASK) != 0)) {\n      /* ipr->iphdr is not the header from the first fragment, but fraghdr is\n       * -> copy fraghdr into ipr->iphdr since we want to have the header\n       * of the first fragment (for ICMP time exceeded and later, for copying\n       * all options, if supported)*/\n      SMEMCPY(&ipr->iphdr, fraghdr, IP_HLEN);\n    }\n  }\n\n  /* At this point, we have either created a new entry or pointing\n   * to an existing one */\n\n  /* check for 'no more fragments', and update queue entry*/\n  is_last = (IPH_OFFSET(fraghdr) & PP_NTOHS(IP_MF)) == 0;\n  if (is_last) {\n    u16_t datagram_len = (u16_t)(offset + len);\n    if ((datagram_len < offset) || (datagram_len > (0xFFFF - IP_HLEN))) {\n      /* u16_t overflow, cannot handle this */\n      goto nullreturn_ipr;\n    }\n  }\n  /* find the right place to insert this pbuf */\n  /* @todo: trim pbufs if fragments are overlapping */\n  valid = ip_reass_chain_frag_into_datagram_and_validate(ipr, p, is_last);\n  if (valid == IP_REASS_VALIDATE_PBUF_DROPPED) {\n    goto nullreturn_ipr;\n  }\n  /* if we come here, the pbuf has been enqueued */\n\n  /* Track the current number of pbufs current 'in-flight', in order to limit\n     the number of fragments that may be enqueued at any one time\n     (overflow checked by testing against IP_REASS_MAX_PBUFS) */\n  ip_reass_pbufcount = (u16_t)(ip_reass_pbufcount + clen);\n  if (is_last) {\n    u16_t datagram_len = (u16_t)(offset + len);\n    ipr->datagram_len = datagram_len;\n    ipr->flags |= IP_REASS_FLAG_LASTFRAG;\n    LWIP_DEBUGF(IP_REASS_DEBUG,\n                (\"ip4_reass: last fragment seen, total len %\"S16_F\"\\n\",\n                 ipr->datagram_len));\n  }\n\n  if (valid == IP_REASS_VALIDATE_TELEGRAM_FINISHED) {\n    struct ip_reassdata *ipr_prev;\n    /* the totally last fragment (flag more fragments = 0) was received at least\n     * once AND all fragments are received */\n    u16_t datagram_len = (u16_t)(ipr->datagram_len + IP_HLEN);\n\n    /* save the second pbuf before copying the header over the pointer */\n    r = ((struct ip_reass_helper *)ipr->p->payload)->next_pbuf;\n\n    /* copy the original ip header back to the first pbuf */\n    fraghdr = (struct ip_hdr *)(ipr->p->payload);\n    SMEMCPY(fraghdr, &ipr->iphdr, IP_HLEN);\n    IPH_LEN_SET(fraghdr, lwip_htons(datagram_len));\n    IPH_OFFSET_SET(fraghdr, 0);\n    IPH_CHKSUM_SET(fraghdr, 0);\n    /* @todo: do we need to set/calculate the correct checksum? */\n#if CHECKSUM_GEN_IP\n    IF__NETIF_CHECKSUM_ENABLED(ip_current_input_netif(), NETIF_CHECKSUM_GEN_IP) {\n      IPH_CHKSUM_SET(fraghdr, inet_chksum(fraghdr, IP_HLEN));\n    }\n#endif /* CHECKSUM_GEN_IP */\n\n    p = ipr->p;\n\n    /* chain together the pbufs contained within the reass_data list. */\n    while (r != NULL) {\n      iprh = (struct ip_reass_helper *)r->payload;\n\n      /* hide the ip header for every succeeding fragment */\n      pbuf_remove_header(r, IP_HLEN);\n      pbuf_cat(p, r);\n      r = iprh->next_pbuf;\n    }\n\n    /* find the previous entry in the linked list */\n    if (ipr == reassdatagrams) {\n      ipr_prev = NULL;\n    } else {\n      for (ipr_prev = reassdatagrams; ipr_prev != NULL; ipr_prev = ipr_prev->next) {\n        if (ipr_prev->next == ipr) {\n          break;\n        }\n      }\n    }\n\n    /* release the sources allocate for the fragment queue entry */\n    ip_reass_dequeue_datagram(ipr, ipr_prev);\n\n    /* and adjust the number of pbufs currently queued for reassembly. */\n    clen = pbuf_clen(p);\n    LWIP_ASSERT(\"ip_reass_pbufcount >= clen\", ip_reass_pbufcount >= clen);\n    ip_reass_pbufcount = (u16_t)(ip_reass_pbufcount - clen);\n\n    MIB2_STATS_INC(mib2.ipreasmoks);\n\n    /* Return the pbuf chain */\n    return p;\n  }\n  /* the datagram is not (yet?) reassembled completely */\n  LWIP_DEBUGF(IP_REASS_DEBUG, (\"ip_reass_pbufcount: %d out\\n\", ip_reass_pbufcount));\n  return NULL;\n\nnullreturn_ipr:\n  LWIP_ASSERT(\"ipr != NULL\", ipr != NULL);\n  if (ipr->p == NULL) {\n    /* dropped pbuf after creating a new datagram entry: remove the entry, too */\n    LWIP_ASSERT(\"not firstalthough just enqueued\", ipr == reassdatagrams);\n    ip_reass_dequeue_datagram(ipr, NULL);\n  }\n\nnullreturn:\n  LWIP_DEBUGF(IP_REASS_DEBUG, (\"ip4_reass: nullreturn\\n\"));\n  IPFRAG_STATS_INC(ip_frag.drop);\n  pbuf_free(p);\n  return NULL;\n}",
+            "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/ipv4/ip4_frag.c#L504-L694"
+          },
+          {
+            "kind": "experiment_declaration",
+            "executed": false,
+            "text": "{\"executed\": false, \"expected\": \"两者均返回 NULL、计 drop 并释放当前 pbuf；前者还计 memerr。\", \"kind\": \"resource_limit_probe\", \"setup\": \"令计数接近上限并提交 clen 仍大于淘汰可释放量；另提交带 IP options 的片段。\"}"
+          }
+        ]
+      },
+      "ho-lwip-state-udp-connect-disconnect": {
+        "expected_points": [
+          {
+            "id": "auto-bind",
+            "text": "udp_connect 若 local_port==0 先调用 udp_bind 自动取本地端口；bind 错误直接返回。",
+            "evidence": "src/core/udp.c:1074-1089"
+          },
+          {
+            "id": "connected-state",
+            "text": "成功后复制 remote_ip、设置 remote_port 和 UDP_FLAGS_CONNECTED，并确保 PCB 位于 udp_pcbs active list。",
+            "evidence": "src/core/udp.c:1091-1119"
+          },
+          {
+            "id": "disconnect-state",
+            "text": "udp_disconnect 在 IPv4+IPv6 构建下若 local_ip 为 ANY-type，就把 remote_ip 写成 IP_ANY_TYPE；否则按 remote_ip 当前的 IPv4/IPv6 类型写入对应 ANY。随后把 remote_port 清零、netif_idx 清为 NO_INDEX，并清 CONNECTED 标志。源码没有在此强制 local_ip 与 remote_ip 地址族一致。",
+            "evidence": "src/core/udp.c:1129-1150"
+          },
+          {
+            "id": "preserved-local",
+            "text": "disconnect 不清 local_ip/local_port、不从 active list 摘除也不释放 PCB；它不是 udp_remove。",
+            "evidence": "src/core/udp.c:1129-1150,1182-1208"
+          }
+        ],
+        "forbidden_claims": [
+          "不得声称 UDP connect 会发握手网络流量。",
+          "不得声称 disconnect 释放本地端口或 PCB。",
+          "不得笼统声称 disconnect 总把 remote_ip 改成与 local_ip 地址族相同的 ANY；非 ANY-type 本地地址分支保留的是 remote_ip 自身地址族。"
+        ],
+        "evidence_payload": [
+          {
+            "kind": "pinned_source",
+            "repository": "https://github.com/lwip-tcpip/lwip",
+            "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+            "path": "src/core/udp.c",
+            "lines": "1074-1208",
+            "file_sha256": "6454ba858cf8a2c71e4a27e0da4b1569160f923c2adce19842dbb6f90da61af7",
+            "text": "udp.c:1074-1208\nerr_t\nudp_connect(struct udp_pcb *pcb, const ip_addr_t *ipaddr, u16_t port)\n{\n  struct udp_pcb *ipcb;\n\n  LWIP_ASSERT_CORE_LOCKED();\n\n  LWIP_ERROR(\"udp_connect: invalid pcb\", pcb != NULL, return ERR_ARG);\n  LWIP_ERROR(\"udp_connect: invalid ipaddr\", ipaddr != NULL, return ERR_ARG);\n\n  if (pcb->local_port == 0) {\n    err_t err = udp_bind(pcb, &pcb->local_ip, pcb->local_port);\n    if (err != ERR_OK) {\n      return err;\n    }\n  }\n\n  ip_addr_set_ipaddr(&pcb->remote_ip, ipaddr);\n#if LWIP_IPV6 && LWIP_IPV6_SCOPES\n  /* If the given IP address should have a zone but doesn't, assign one now,\n   * using the bound address to make a more informed decision when possible. */\n  if (IP_IS_V6(&pcb->remote_ip) &&\n      ip6_addr_lacks_zone(ip_2_ip6(&pcb->remote_ip), IP6_UNKNOWN)) {\n    ip6_addr_select_zone(ip_2_ip6(&pcb->remote_ip), ip_2_ip6(&pcb->local_ip));\n  }\n#endif /* LWIP_IPV6 && LWIP_IPV6_SCOPES */\n\n  pcb->remote_port = port;\n  pcb->flags |= UDP_FLAGS_CONNECTED;\n\n  LWIP_DEBUGF(UDP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE, (\"udp_connect: connected to \"));\n  ip_addr_debug_print_val(UDP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE,\n                          pcb->remote_ip);\n  LWIP_DEBUGF(UDP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE, (\", port %\"U16_F\")\\n\", pcb->remote_port));\n\n  /* Insert UDP PCB into the list of active UDP PCBs. */\n  for (ipcb = udp_pcbs; ipcb != NULL; ipcb = ipcb->next) {\n    if (pcb == ipcb) {\n      /* already on the list, just return */\n      return ERR_OK;\n    }\n  }\n  /* PCB not yet on the list, add PCB now */\n  pcb->next = udp_pcbs;\n  udp_pcbs = pcb;\n  return ERR_OK;\n}\n\n/**\n * @ingroup udp_raw\n * Remove the remote end of the pcb. This function does not generate\n * any network traffic, but only removes the remote address of the pcb.\n *\n * @param pcb the udp pcb to disconnect.\n */\nvoid\nudp_disconnect(struct udp_pcb *pcb)\n{\n  LWIP_ASSERT_CORE_LOCKED();\n\n  LWIP_ERROR(\"udp_disconnect: invalid pcb\", pcb != NULL, return);\n\n  /* reset remote address association */\n#if LWIP_IPV4 && LWIP_IPV6\n  if (IP_IS_ANY_TYPE_VAL(pcb->local_ip)) {\n    ip_addr_copy(pcb->remote_ip, *IP_ANY_TYPE);\n  } else {\n#endif\n    ip_addr_set_any(IP_IS_V6_VAL(pcb->remote_ip), &pcb->remote_ip);\n#if LWIP_IPV4 && LWIP_IPV6\n  }\n#endif\n  pcb->remote_port = 0;\n  pcb->netif_idx = NETIF_NO_INDEX;\n  /* mark PCB as unconnected */\n  udp_clear_flags(pcb, UDP_FLAGS_CONNECTED);\n}\n\n/**\n * @ingroup udp_raw\n * Set a receive callback for a UDP PCB.\n * This callback will be called when receiving a datagram for the pcb.\n *\n * @param pcb the pcb for which to set the recv callback\n * @param recv function pointer of the callback function\n * @param recv_arg additional argument to pass to the callback function\n */\nvoid\nudp_recv(struct udp_pcb *pcb, udp_recv_fn recv, void *recv_arg)\n{\n  LWIP_ASSERT_CORE_LOCKED();\n\n  LWIP_ERROR(\"udp_recv: invalid pcb\", pcb != NULL, return);\n\n  /* remember recv() callback and user data */\n  pcb->recv = recv;\n  pcb->recv_arg = recv_arg;\n}\n\n/**\n * @ingroup udp_raw\n * Removes and deallocates the pcb.\n *\n * @param pcb UDP PCB to be removed. The PCB is removed from the list of\n * UDP PCB's and the data structure is freed from memory.\n *\n * @see udp_new()\n */\nvoid\nudp_remove(struct udp_pcb *pcb)\n{\n  struct udp_pcb *pcb2;\n\n  LWIP_ASSERT_CORE_LOCKED();\n\n  LWIP_ERROR(\"udp_remove: invalid pcb\", pcb != NULL, return);\n\n  mib2_udp_unbind(pcb);\n  /* pcb to be removed is first in list? */\n  if (udp_pcbs == pcb) {\n    /* make list start at 2nd pcb */\n    udp_pcbs = udp_pcbs->next;\n    /* pcb not 1st in list */\n  } else {\n    for (pcb2 = udp_pcbs; pcb2 != NULL; pcb2 = pcb2->next) {\n      /* find pcb in udp_pcbs list */\n      if (pcb2->next != NULL && pcb2->next == pcb) {\n        /* remove pcb from list */\n        pcb2->next = pcb->next;\n        break;\n      }\n    }\n  }\n  memp_free(MEMP_UDP_PCB, pcb);\n}",
+            "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/udp.c#L1074-L1150"
+          },
+          {
+            "kind": "experiment_declaration",
+            "executed": false,
+            "text": "{\"executed\": false, \"expected\": \"connect 自动绑定并置 connected；disconnect 只清远端、netif_idx 和标志，本地绑定及列表成员保留。\", \"kind\": \"state_transition_probe\", \"setup\": \"对 local_port=0 的新 PCB connect 后再 disconnect，检查本地/远端字段、flags 和 active list。\"}"
+          }
+        ]
+      },
+      "ho-lwip-state-timeout-ordering": {
+        "expected_points": [
+          {
+            "id": "sorted-insert",
+            "text": "内部登记器按绝对 time 升序插入；早于当前头的新节点成为新头，否则插到首个 next 更晚的位置之前。",
+            "evidence": "src/core/timeouts.c:185-220"
+          },
+          {
+            "id": "equal-time",
+            "text": "比较使用严格 TIME_LESS_THAN；相同到期时间不会抢到已有同时间节点之前，而是继续向后插入。",
+            "evidence": "src/core/timeouts.c:205-219"
+          },
+          {
+            "id": "first-only-cancel",
+            "text": "sys_untimeout 从头遍历 handler 与 arg 同时匹配的节点，摘除并释放第一个后立即 return，后续重复项保留。",
+            "evidence": "src/core/timeouts.c:316-340"
+          }
+        ],
+        "forbidden_claims": [
+          "不得声称 sys_untimeout 会删除所有同 handler/arg 定时器。",
+          "不得声称相同到期时间的新节点一定插到最前。"
+        ],
+        "evidence_payload": [
+          {
+            "kind": "pinned_source",
+            "repository": "https://github.com/lwip-tcpip/lwip",
+            "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+            "path": "src/core/timeouts.c",
+            "lines": "185-220,316-341",
+            "file_sha256": "ff8a60619d050c127b5740b6407dad0f09971c1159a418bc61270d5bbb60c59e",
+            "text": "timeouts.c:185-220\n{\n  struct sys_timeo *timeout, *t;\n\n  timeout = (struct sys_timeo *)memp_malloc(MEMP_SYS_TIMEOUT);\n  if (timeout == NULL) {\n    LWIP_ASSERT(\"sys_timeout: timeout != NULL, pool MEMP_SYS_TIMEOUT is empty\", timeout != NULL);\n    return;\n  }\n\n  timeout->next = NULL;\n  timeout->h = handler;\n  timeout->arg = arg;\n  timeout->time = abs_time;\n\n#if LWIP_DEBUG_TIMERNAMES\n  timeout->handler_name = handler_name;\n  LWIP_DEBUGF(TIMERS_DEBUG, (\"sys_timeout: %p abs_time=%\"U32_F\" handler=%s arg=%p\\n\",\n                             (void *)timeout, abs_time, handler_name, (void *)arg));\n#endif /* LWIP_DEBUG_TIMERNAMES */\n\n  if (next_timeout == NULL) {\n    next_timeout = timeout;\n    return;\n  }\n  if (TIME_LESS_THAN(timeout->time, next_timeout->time)) {\n    timeout->next = next_timeout;\n    next_timeout = timeout;\n  } else {\n    for (t = next_timeout; t != NULL; t = t->next) {\n      if ((t->next == NULL) || TIME_LESS_THAN(timeout->time, t->next->time)) {\n        timeout->next = t->next;\n        t->next = timeout;\n        break;\n      }\n    }\n  }\n\ntimeouts.c:316-341\nvoid\nsys_untimeout(sys_timeout_handler handler, void *arg)\n{\n  struct sys_timeo *prev_t, *t;\n\n  LWIP_ASSERT_CORE_LOCKED();\n\n  if (next_timeout == NULL) {\n    return;\n  }\n\n  for (t = next_timeout, prev_t = NULL; t != NULL; prev_t = t, t = t->next) {\n    if ((t->h == handler) && (t->arg == arg)) {\n      /* We have a match */\n      /* Unlink from previous in list */\n      if (prev_t == NULL) {\n        next_timeout = t->next;\n      } else {\n        prev_t->next = t->next;\n      }\n      memp_free(MEMP_SYS_TIMEOUT, t);\n      return;\n    }\n  }\n  return;\n}",
+            "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/timeouts.c#L316-L341"
+          },
+          {
+            "kind": "experiment_declaration",
+            "executed": false,
+            "text": "{\"executed\": false, \"expected\": \"链按时间排列且等时保持已有项在先；取消只移除首个匹配。\", \"kind\": \"ordering_probe\", \"setup\": \"同一 handler/arg 登记两个相同到期和一个更早到期项，再调用一次 sys_untimeout。\"}"
+          }
+        ]
+      },
+      "ho-lwip-state-mem-heap": {
+        "expected_points": [
+          {
+            "id": "normalize-size",
+            "text": "size 0 返回 NULL；其余先按 MEM_ALIGNMENT 对齐并至少提升到 MIN_SIZE_ALIGNED，检测超过堆或算术回绕。",
+            "evidence": "src/core/mem.c:817-843"
+          },
+          {
+            "id": "split-or-whole",
+            "text": "从 lfree 起扫描首个足够空闲块；若余量还能容纳 struct mem 加最小数据块就拆分，否则整块标 used。",
+            "evidence": "src/core/mem.c:854-914"
+          },
+          {
+            "id": "lfree-advance",
+            "text": "分配命中 lfree 时向后寻找下一空块更新 lfree，并在解锁后返回对齐的数据区。",
+            "evidence": "src/core/mem.c:918-951"
+          },
+          {
+            "id": "free-guards-and-coalesce",
+            "text": "mem_free 拒绝 NULL以外的错位、越界、已 free 或断链指针；合法释放清 used、必要时下调 lfree，并 plug_holes 合并相邻空块。",
+            "evidence": "src/core/mem.c:603-673"
+          }
+        ],
+        "forbidden_claims": [
+          "不得声称 mem_malloc 总是把命中空块拆成两块。",
+          "不得声称 double free 会再次加入空闲链。"
+        ],
+        "evidence_payload": [
+          {
+            "kind": "pinned_source",
+            "repository": "https://github.com/lwip-tcpip/lwip",
+            "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+            "path": "src/core/mem.c",
+            "lines": "603-673,817-963",
+            "file_sha256": "b5316284f3f42782d8b55a750f3f0557d3031edd0c280e653f2fb6dec3f74ed3",
+            "text": "mem.c:603-673\nvoid\nmem_free(void *rmem)\n{\n  struct mem *mem;\n  LWIP_MEM_FREE_DECL_PROTECT();\n\n  if (rmem == NULL) {\n    LWIP_DEBUGF(MEM_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_LEVEL_SERIOUS, (\"mem_free(p == NULL) was called.\\n\"));\n    return;\n  }\n  if ((((mem_ptr_t)rmem) & (MEM_ALIGNMENT - 1)) != 0) {\n    LWIP_MEM_ILLEGAL_FREE(\"mem_free: sanity check alignment\");\n    LWIP_DEBUGF(MEM_DEBUG | LWIP_DBG_LEVEL_SEVERE, (\"mem_free: sanity check alignment\\n\"));\n    /* protect mem stats from concurrent access */\n    MEM_STATS_INC_LOCKED(illegal);\n    return;\n  }\n\n  /* Get the corresponding struct mem: */\n  /* cast through void* to get rid of alignment warnings */\n  mem = (struct mem *)(void *)((u8_t *)rmem - (SIZEOF_STRUCT_MEM + MEM_SANITY_OFFSET));\n\n  if ((u8_t *)mem < ram || (u8_t *)rmem + MIN_SIZE_ALIGNED > (u8_t *)ram_end) {\n    LWIP_MEM_ILLEGAL_FREE(\"mem_free: illegal memory\");\n    LWIP_DEBUGF(MEM_DEBUG | LWIP_DBG_LEVEL_SEVERE, (\"mem_free: illegal memory\\n\"));\n    /* protect mem stats from concurrent access */\n    MEM_STATS_INC_LOCKED(illegal);\n    return;\n  }\n#if MEM_OVERFLOW_CHECK\n  mem_overflow_check_element(mem);\n#endif\n  /* protect the heap from concurrent access */\n  LWIP_MEM_FREE_PROTECT();\n  /* mem has to be in a used state */\n  if (!mem->used) {\n    LWIP_MEM_ILLEGAL_FREE(\"mem_free: illegal memory: double free\");\n    LWIP_MEM_FREE_UNPROTECT();\n    LWIP_DEBUGF(MEM_DEBUG | LWIP_DBG_LEVEL_SEVERE, (\"mem_free: illegal memory: double free?\\n\"));\n    /* protect mem stats from concurrent access */\n    MEM_STATS_INC_LOCKED(illegal);\n    return;\n  }\n\n  if (!mem_link_valid(mem)) {\n    LWIP_MEM_ILLEGAL_FREE(\"mem_free: illegal memory: non-linked: double free\");\n    LWIP_MEM_FREE_UNPROTECT();\n    LWIP_DEBUGF(MEM_DEBUG | LWIP_DBG_LEVEL_SEVERE, (\"mem_free: illegal memory: non-linked: double free?\\n\"));\n    /* protect mem stats from concurrent access */\n    MEM_STATS_INC_LOCKED(illegal);\n    return;\n  }\n\n  /* mem is now unused. */\n  mem->used = 0;\n\n  if (mem < lfree) {\n    /* the newly freed struct is now the lowest */\n    lfree = mem;\n  }\n\n  MEM_STATS_DEC_USED(used, mem->next - (mem_size_t)(((u8_t *)mem - ram)));\n\n  /* finally, see if prev or next are free also */\n  plug_holes(mem);\n  MEM_SANITY();\n#if LWIP_ALLOW_MEM_FREE_FROM_OTHER_CONTEXT\n  mem_free_count = 1;\n#endif /* LWIP_ALLOW_MEM_FREE_FROM_OTHER_CONTEXT */\n  LWIP_MEM_FREE_UNPROTECT();\n}\n\nmem.c:817-963\nvoid *\nmem_malloc(mem_size_t size_in)\n{\n  mem_size_t ptr, ptr2, size;\n  struct mem *mem, *mem2;\n#if LWIP_ALLOW_MEM_FREE_FROM_OTHER_CONTEXT\n  u8_t local_mem_free_count = 0;\n#endif /* LWIP_ALLOW_MEM_FREE_FROM_OTHER_CONTEXT */\n  LWIP_MEM_ALLOC_DECL_PROTECT();\n\n  if (size_in == 0) {\n    return NULL;\n  }\n\n  /* Expand the size of the allocated memory region so that we can\n     adjust for alignment. */\n  size = (mem_size_t)LWIP_MEM_ALIGN_SIZE(size_in);\n  if (size < MIN_SIZE_ALIGNED) {\n    /* every data block must be at least MIN_SIZE_ALIGNED long */\n    size = MIN_SIZE_ALIGNED;\n  }\n#if MEM_OVERFLOW_CHECK\n  size += MEM_SANITY_REGION_BEFORE_ALIGNED + MEM_SANITY_REGION_AFTER_ALIGNED;\n#endif\n  if ((size > MEM_SIZE_ALIGNED) || (size < size_in)) {\n    return NULL;\n  }\n\n  /* protect the heap from concurrent access */\n  sys_mutex_lock(&mem_mutex);\n  LWIP_MEM_ALLOC_PROTECT();\n#if LWIP_ALLOW_MEM_FREE_FROM_OTHER_CONTEXT\n  /* run as long as a mem_free disturbed mem_malloc or mem_trim */\n  do {\n    local_mem_free_count = 0;\n#endif /* LWIP_ALLOW_MEM_FREE_FROM_OTHER_CONTEXT */\n\n    /* Scan through the heap searching for a free block that is big enough,\n     * beginning with the lowest free block.\n     */\n    for (ptr = mem_to_ptr(lfree); ptr < MEM_SIZE_ALIGNED - size;\n         ptr = ptr_to_mem(ptr)->next) {\n      mem = ptr_to_mem(ptr);\n#if LWIP_ALLOW_MEM_FREE_FROM_OTHER_CONTEXT\n      mem_free_count = 0;\n      LWIP_MEM_ALLOC_UNPROTECT();\n      /* allow mem_free or mem_trim to run */\n      LWIP_MEM_ALLOC_PROTECT();\n      if (mem_free_count != 0) {\n        /* If mem_free or mem_trim have run, we have to restart since they\n           could have altered our current struct mem. */\n        local_mem_free_count = 1;\n        break;\n      }\n#endif /* LWIP_ALLOW_MEM_FREE_FROM_OTHER_CONTEXT */\n\n      if ((!mem->used) &&\n          (mem->next - (ptr + SIZEOF_STRUCT_MEM)) >= size) {\n        /* mem is not used and at least perfect fit is possible:\n         * mem->next - (ptr + SIZEOF_STRUCT_MEM) gives us the 'user data size' of mem */\n\n        if (mem->next - (ptr + SIZEOF_STRUCT_MEM) >= (size + SIZEOF_STRUCT_MEM + MIN_SIZE_ALIGNED)) {\n          /* (in addition to the above, we test if another struct mem (SIZEOF_STRUCT_MEM) containing\n           * at least MIN_SIZE_ALIGNED of data also fits in the 'user data space' of 'mem')\n           * -> split large block, create empty remainder,\n           * remainder must be large enough to contain MIN_SIZE_ALIGNED data: if\n           * mem->next - (ptr + (2*SIZEOF_STRUCT_MEM)) == size,\n           * struct mem would fit in but no data between mem2 and mem2->next\n           * @todo we could leave out MIN_SIZE_ALIGNED. We would create an empty\n           *       region that couldn't hold data, but when mem->next gets freed,\n           *       the 2 regions would be combined, resulting in more free memory\n           */\n          ptr2 = (mem_size_t)(ptr + SIZEOF_STRUCT_MEM + size);\n          LWIP_ASSERT(\"invalid next ptr\",ptr2 != MEM_SIZE_ALIGNED);\n          /* create mem2 struct */\n          mem2 = ptr_to_mem(ptr2);\n          mem2->used = 0;\n          mem2->next = mem->next;\n          mem2->prev = ptr;\n          /* and insert it between mem and mem->next */\n          mem->next = ptr2;\n          mem->used = 1;\n\n          if (mem2->next != MEM_SIZE_ALIGNED) {\n            ptr_to_mem(mem2->next)->prev = ptr2;\n          }\n          MEM_STATS_INC_USED(used, (size + SIZEOF_STRUCT_MEM));\n        } else {\n          /* (a mem2 struct does no fit into the user data space of mem and mem->next will always\n           * be used at this point: if not we have 2 unused structs in a row, plug_holes should have\n           * take care of this).\n           * -> near fit or exact fit: do not split, no mem2 creation\n           * also can't move mem->next directly behind mem, since mem->next\n           * will always be used at this point!\n           */\n          mem->used = 1;\n          MEM_STATS_INC_USED(used, mem->next - mem_to_ptr(mem));\n        }\n#if LWIP_ALLOW_MEM_FREE_FROM_OTHER_CONTEXT\nmem_malloc_adjust_lfree:\n#endif /* LWIP_ALLOW_MEM_FREE_FROM_OTHER_CONTEXT */\n        if (mem == lfree) {\n          struct mem *cur = lfree;\n          /* Find next free block after mem and update lowest free pointer */\n          while (cur->used && cur != ram_end) {\n#if LWIP_ALLOW_MEM_FREE_FROM_OTHER_CONTEXT\n            mem_free_count = 0;\n            LWIP_MEM_ALLOC_UNPROTECT();\n            /* prevent high interrupt latency... */\n            LWIP_MEM_ALLOC_PROTECT();\n            if (mem_free_count != 0) {\n              /* If mem_free or mem_trim have run, we have to restart since they\n                 could have altered our current struct mem or lfree. */\n              goto mem_malloc_adjust_lfree;\n            }\n#endif /* LWIP_ALLOW_MEM_FREE_FROM_OTHER_CONTEXT */\n            cur = ptr_to_mem(cur->next);\n          }\n          lfree = cur;\n          LWIP_ASSERT(\"mem_malloc: !lfree->used\", ((lfree == ram_end) || (!lfree->used)));\n        }\n        LWIP_MEM_ALLOC_UNPROTECT();\n        sys_mutex_unlock(&mem_mutex);\n        LWIP_ASSERT(\"mem_malloc: allocated memory not above ram_end.\",\n                    (mem_ptr_t)mem + SIZEOF_STRUCT_MEM + size <= (mem_ptr_t)ram_end);\n        LWIP_ASSERT(\"mem_malloc: allocated memory properly aligned.\",\n                    ((mem_ptr_t)mem + SIZEOF_STRUCT_MEM) % MEM_ALIGNMENT == 0);\n        LWIP_ASSERT(\"mem_malloc: sanity check alignment\",\n                    (((mem_ptr_t)mem) & (MEM_ALIGNMENT - 1)) == 0);\n\n#if MEM_OVERFLOW_CHECK\n        mem_overflow_init_element(mem, size_in);\n#endif\n        MEM_SANITY();\n        return (u8_t *)mem + SIZEOF_STRUCT_MEM + MEM_SANITY_OFFSET;\n      }\n    }\n#if LWIP_ALLOW_MEM_FREE_FROM_OTHER_CONTEXT\n    /* if we got interrupted by a mem_free, try again */\n  } while (local_mem_free_count != 0);\n#endif /* LWIP_ALLOW_MEM_FREE_FROM_OTHER_CONTEXT */\n  MEM_STATS_INC(err);\n  LWIP_MEM_ALLOC_UNPROTECT();\n  sys_mutex_unlock(&mem_mutex);\n  LWIP_DEBUGF(MEM_DEBUG | LWIP_DBG_LEVEL_SERIOUS, (\"mem_malloc: could not allocate %\"S16_F\" bytes\\n\", (s16_t)size));\n  return NULL;\n}",
+            "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/mem.c#L817-L963"
+          },
+          {
+            "kind": "experiment_declaration",
+            "executed": false,
+            "text": "{\"executed\": false, \"expected\": \"按余量选择拆分/整块；首次 free 下调 lfree 并合洞，重复 free 被拒绝并计 illegal。\", \"kind\": \"heap_invariant_probe\", \"setup\": \"分配可拆分大块与近似整块，释放最低地址块并尝试 double free。\"}"
+          }
+        ]
+      },
+      "ho-lwip-state-udp-pcb-lifecycle": {
+        "expected_points": [
+          {
+            "id": "creation",
+            "text": "udp_new 从 MEMP_UDP_PCB 分配并清零 PCB，设置默认 TTL/组播 TTL 与 TCI；此时不插入 udp_pcbs。",
+            "evidence": "src/core/udp.c:1222-1244"
+          },
+          {
+            "id": "ip-type",
+            "text": "udp_new_ip_type 复用 udp_new，并在双栈构建中同时设置 local_ip 与 remote_ip 的地址类型。",
+            "evidence": "src/core/udp.c:1261-1278"
+          },
+          {
+            "id": "activation",
+            "text": "udp_bind 成功或 udp_connect 成功时才检查并把未在列表中的 PCB 插到 udp_pcbs 表头。",
+            "evidence": "src/core/udp.c:1017-1026,1109-1119"
+          },
+          {
+            "id": "removal",
+            "text": "udp_remove 处理表头或中间节点摘链，调用 mib2_udp_unbind，最后 memp_free(MEMP_UDP_PCB,pcb)。",
+            "evidence": "src/core/udp.c:1182-1208"
+          }
+        ],
+        "forbidden_claims": [
+          "不得声称 udp_new 一创建就占用 active list/本地端口。",
+          "不得声称 udp_disconnect 等价于 udp_remove。"
+        ],
+        "evidence_payload": [
+          {
+            "kind": "pinned_source",
+            "repository": "https://github.com/lwip-tcpip/lwip",
+            "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+            "path": "src/core/udp.c",
+            "lines": "931-1031,1074-1120,1182-1278",
+            "file_sha256": "6454ba858cf8a2c71e4a27e0da4b1569160f923c2adce19842dbb6f90da61af7",
+            "text": "udp.c:931-1031\nerr_t\nudp_bind(struct udp_pcb *pcb, const ip_addr_t *ipaddr, u16_t port)\n{\n  struct udp_pcb *ipcb;\n  u8_t rebind;\n#if LWIP_IPV6 && LWIP_IPV6_SCOPES\n  ip_addr_t zoned_ipaddr;\n#endif /* LWIP_IPV6 && LWIP_IPV6_SCOPES */\n\n  LWIP_ASSERT_CORE_LOCKED();\n\n#if LWIP_IPV4\n  /* Don't propagate NULL pointer (IPv4 ANY) to subsequent functions */\n  if (ipaddr == NULL) {\n    ipaddr = IP4_ADDR_ANY;\n  }\n#else /* LWIP_IPV4 */\n  LWIP_ERROR(\"udp_bind: invalid ipaddr\", ipaddr != NULL, return ERR_ARG);\n#endif /* LWIP_IPV4 */\n\n  LWIP_ERROR(\"udp_bind: invalid pcb\", pcb != NULL, return ERR_ARG);\n\n  LWIP_DEBUGF(UDP_DEBUG | LWIP_DBG_TRACE, (\"udp_bind(ipaddr = \"));\n  ip_addr_debug_print(UDP_DEBUG | LWIP_DBG_TRACE, ipaddr);\n  LWIP_DEBUGF(UDP_DEBUG | LWIP_DBG_TRACE, (\", port = %\"U16_F\")\\n\", port));\n\n  rebind = 0;\n  /* Check for double bind and rebind of the same pcb */\n  for (ipcb = udp_pcbs; ipcb != NULL; ipcb = ipcb->next) {\n    /* is this UDP PCB already on active list? */\n    if (pcb == ipcb) {\n      rebind = 1;\n      break;\n    }\n  }\n\n#if LWIP_IPV6 && LWIP_IPV6_SCOPES\n  /* If the given IP address should have a zone but doesn't, assign one now.\n   * This is legacy support: scope-aware callers should always provide properly\n   * zoned source addresses. Do the zone selection before the address-in-use\n   * check below; as such we have to make a temporary copy of the address. */\n  if (IP_IS_V6(ipaddr) && ip6_addr_lacks_zone(ip_2_ip6(ipaddr), IP6_UNKNOWN)) {\n    ip_addr_copy(zoned_ipaddr, *ipaddr);\n    ip6_addr_select_zone(ip_2_ip6(&zoned_ipaddr), ip_2_ip6(&zoned_ipaddr));\n    ipaddr = &zoned_ipaddr;\n  }\n#endif /* LWIP_IPV6 && LWIP_IPV6_SCOPES */\n\n  /* no port specified? */\n  if (port == 0) {\n    port = udp_new_port();\n    if (port == 0) {\n      /* no more ports available in local range */\n      LWIP_DEBUGF(UDP_DEBUG, (\"udp_bind: out of free UDP ports\\n\"));\n      return ERR_USE;\n    }\n  } else {\n    for (ipcb = udp_pcbs; ipcb != NULL; ipcb = ipcb->next) {\n      if (pcb != ipcb) {\n        /* By default, we don't allow to bind to a port that any other udp\n           PCB is already bound to, unless *all* PCBs with that port have the\n           REUSEADDR flag set. */\n#if SO_REUSE\n        if (!ip_get_option(pcb, SOF_REUSEADDR) ||\n            !ip_get_option(ipcb, SOF_REUSEADDR))\n#endif /* SO_REUSE */\n        {\n          /* port matches that of PCB in list and REUSEADDR not set -> reject */\n          if ((ipcb->local_port == port) &&\n              (((IP_GET_TYPE(&ipcb->local_ip) == IP_GET_TYPE(ipaddr)) &&\n              /* IP address matches or any IP used? */\n              (ip_addr_eq(&ipcb->local_ip, ipaddr) ||\n              ip_addr_isany(ipaddr) ||\n              ip_addr_isany(&ipcb->local_ip))) ||\n              (IP_GET_TYPE(&ipcb->local_ip) == IPADDR_TYPE_ANY) ||\n              (IP_GET_TYPE(ipaddr) == IPADDR_TYPE_ANY))) {\n            /* other PCB already binds to this local IP and port */\n            LWIP_DEBUGF(UDP_DEBUG,\n                        (\"udp_bind: local port %\"U16_F\" already bound by another pcb\\n\", port));\n            return ERR_USE;\n          }\n        }\n      }\n    }\n  }\n\n  ip_addr_set_ipaddr(&pcb->local_ip, ipaddr);\n\n  pcb->local_port = port;\n  mib2_udp_bind(pcb);\n  /* pcb not active yet? */\n  if (rebind == 0) {\n    /* place the PCB on the active list if not already there */\n    pcb->next = udp_pcbs;\n    udp_pcbs = pcb;\n  }\n  LWIP_DEBUGF(UDP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE, (\"udp_bind: bound to \"));\n  ip_addr_debug_print_val(UDP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE, pcb->local_ip);\n  LWIP_DEBUGF(UDP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE, (\", port %\"U16_F\")\\n\", pcb->local_port));\n  return ERR_OK;\n}\n\nudp.c:1074-1120\nerr_t\nudp_connect(struct udp_pcb *pcb, const ip_addr_t *ipaddr, u16_t port)\n{\n  struct udp_pcb *ipcb;\n\n  LWIP_ASSERT_CORE_LOCKED();\n\n  LWIP_ERROR(\"udp_connect: invalid pcb\", pcb != NULL, return ERR_ARG);\n  LWIP_ERROR(\"udp_connect: invalid ipaddr\", ipaddr != NULL, return ERR_ARG);\n\n  if (pcb->local_port == 0) {\n    err_t err = udp_bind(pcb, &pcb->local_ip, pcb->local_port);\n    if (err != ERR_OK) {\n      return err;\n    }\n  }\n\n  ip_addr_set_ipaddr(&pcb->remote_ip, ipaddr);\n#if LWIP_IPV6 && LWIP_IPV6_SCOPES\n  /* If the given IP address should have a zone but doesn't, assign one now,\n   * using the bound address to make a more informed decision when possible. */\n  if (IP_IS_V6(&pcb->remote_ip) &&\n      ip6_addr_lacks_zone(ip_2_ip6(&pcb->remote_ip), IP6_UNKNOWN)) {\n    ip6_addr_select_zone(ip_2_ip6(&pcb->remote_ip), ip_2_ip6(&pcb->local_ip));\n  }\n#endif /* LWIP_IPV6 && LWIP_IPV6_SCOPES */\n\n  pcb->remote_port = port;\n  pcb->flags |= UDP_FLAGS_CONNECTED;\n\n  LWIP_DEBUGF(UDP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE, (\"udp_connect: connected to \"));\n  ip_addr_debug_print_val(UDP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE,\n                          pcb->remote_ip);\n  LWIP_DEBUGF(UDP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE, (\", port %\"U16_F\")\\n\", pcb->remote_port));\n\n  /* Insert UDP PCB into the list of active UDP PCBs. */\n  for (ipcb = udp_pcbs; ipcb != NULL; ipcb = ipcb->next) {\n    if (pcb == ipcb) {\n      /* already on the list, just return */\n      return ERR_OK;\n    }\n  }\n  /* PCB not yet on the list, add PCB now */\n  pcb->next = udp_pcbs;\n  udp_pcbs = pcb;\n  return ERR_OK;\n}\n\nudp.c:1182-1278\nvoid\nudp_remove(struct udp_pcb *pcb)\n{\n  struct udp_pcb *pcb2;\n\n  LWIP_ASSERT_CORE_LOCKED();\n\n  LWIP_ERROR(\"udp_remove: invalid pcb\", pcb != NULL, return);\n\n  mib2_udp_unbind(pcb);\n  /* pcb to be removed is first in list? */\n  if (udp_pcbs == pcb) {\n    /* make list start at 2nd pcb */\n    udp_pcbs = udp_pcbs->next;\n    /* pcb not 1st in list */\n  } else {\n    for (pcb2 = udp_pcbs; pcb2 != NULL; pcb2 = pcb2->next) {\n      /* find pcb in udp_pcbs list */\n      if (pcb2->next != NULL && pcb2->next == pcb) {\n        /* remove pcb from list */\n        pcb2->next = pcb->next;\n        break;\n      }\n    }\n  }\n  memp_free(MEMP_UDP_PCB, pcb);\n}\n\n/**\n * @ingroup udp_raw\n * Creates a new UDP pcb which can be used for UDP communication. The\n * pcb is not active until it has either been bound to a local address\n * or connected to a remote address.\n * @see MEMP_NUM_UDP_PCB\n *\n * @return The UDP PCB which was created. NULL if the PCB data structure\n * could not be allocated.\n *\n * @see udp_remove()\n */\nstruct udp_pcb *\nudp_new(void)\n{\n  struct udp_pcb *pcb;\n\n  LWIP_ASSERT_CORE_LOCKED();\n\n  pcb = (struct udp_pcb *)memp_malloc(MEMP_UDP_PCB);\n  /* could allocate UDP PCB? */\n  if (pcb != NULL) {\n    /* UDP Lite: by initializing to all zeroes, chksum_len is set to 0\n     * which means checksum is generated over the whole datagram per default\n     * (recommended as default by RFC 3828). */\n    /* initialize PCB to all zeroes */\n    memset(pcb, 0, sizeof(struct udp_pcb));\n    pcb->ttl = UDP_TTL;\n#if LWIP_MULTICAST_TX_OPTIONS\n    udp_set_multicast_ttl(pcb, UDP_TTL);\n#endif /* LWIP_MULTICAST_TX_OPTIONS */\n    pcb_tci_init(pcb);\n  }\n  return pcb;\n}\n\n/**\n * @ingroup udp_raw\n * Create a UDP PCB for specific IP type.\n * The pcb is not active until it has either been bound to a local address\n * or connected to a remote address.\n * @see MEMP_NUM_UDP_PCB\n *\n * @param type IP address type, see @ref lwip_ip_addr_type definitions.\n * If you want to listen to IPv4 and IPv6 (dual-stack) packets,\n * supply @ref IPADDR_TYPE_ANY as argument and bind to @ref IP_ANY_TYPE.\n * @return The UDP PCB which was created. NULL if the PCB data structure\n * could not be allocated.\n *\n * @see udp_remove()\n */\nstruct udp_pcb *\nudp_new_ip_type(u8_t type)\n{\n  struct udp_pcb *pcb;\n\n  LWIP_ASSERT_CORE_LOCKED();\n\n  pcb = udp_new();\n#if LWIP_IPV4 && LWIP_IPV6\n  if (pcb != NULL) {\n    IP_SET_TYPE_VAL(pcb->local_ip,  type);\n    IP_SET_TYPE_VAL(pcb->remote_ip, type);\n  }\n#else\n  LWIP_UNUSED_ARG(type);\n#endif /* LWIP_IPV4 && LWIP_IPV6 */\n  return pcb;\n}",
+            "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/udp.c#L1182-L1278"
+          },
+          {
+            "kind": "experiment_declaration",
+            "executed": false,
+            "text": "{\"executed\": false, \"expected\": \"创建后不在列表，bind 后出现，remove 后摘除并归还池；两端类型均按参数初始化。\", \"kind\": \"lifecycle_probe\", \"setup\": \"创建 PCB，检查列表；bind 后再 remove，并对双栈 type 检查两端地址字段。\"}"
+          }
+        ]
+      },
+      "ho-lwip-state-ip4-reassembly-config": {
+        "expected_points": [
+          {
+            "id": "compile-presence",
+            "text": "重组实现整体位于 #if IP_REASSEMBLY 内；同一区域把未定义的 IP_REASS_CHECK_OVERLAP 默认设为 1。关闭 IP_REASSEMBLY 时这段状态与函数不参与构建。",
+            "evidence": "src/core/ipv4/ip4_frag.c:54-70,695"
+          },
+          {
+            "id": "overlap-helper",
+            "text": "ip_reass_chain_frag_into_datagram_and_validate 在 IP_REASS_CHECK_OVERLAP 开启时拒绝与前后片段范围重叠的新片段；同一起始 offset 的重复片段在宏条件之外仍无条件返回 PBUF_DROPPED。",
+            "evidence": "src/core/ipv4/ip4_frag.c:335-419"
+          },
+          {
+            "id": "capacity-policy",
+            "text": "IP_REASS_MAX_PBUFS 限制在途 pbuf 总数；超限时只有 IP_REASS_FREE_OLDEST 开启才尝试淘汰旧 datagram，否则直接进入丢包条件。",
+            "evidence": "src/core/ipv4/ip4_frag.c:536-552"
+          },
+          {
+            "id": "completed-state",
+            "text": "重组完成后恢复首片 IP 头、清 fragment offset、重算总长，并把后续片段去 IP 头后串成 pbuf 链，同时扣减在途计数。",
+            "evidence": "src/core/ipv4/ip4_frag.c:619-675"
+          },
+          {
+            "id": "checksum-config",
+            "text": "恢复头时校验和先清零；只有 CHECKSUM_GEN_IP 且 netif 校验和开关允许时才调用 inet_chksum 重算。",
+            "evidence": "src/core/ipv4/ip4_frag.c:628-639"
+          }
+        ],
+        "forbidden_claims": [
+          "不得声称关闭 FREE_OLDEST 会自动扩大 IP_REASS_MAX_PBUFS。",
+          "不得声称完成重组时无条件由软件计算 IPv4 头校验和。",
+          "不得声称关闭 IP_REASS_CHECK_OVERLAP 后同一起始 offset 的重复片段也一定被接受。",
+          "不得把所有重叠检查归到 ip4_reass 主函数；范围判定在 ip_reass_chain_frag_into_datagram_and_validate 中完成。"
+        ],
+        "evidence_payload": [
+          {
+            "kind": "pinned_source",
+            "repository": "https://github.com/lwip-tcpip/lwip",
+            "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+            "path": "src/core/ipv4/ip4_frag.c",
+            "lines": "54-70",
+            "file_sha256": "2624bd59ee8fb612e0b2633644602eddf88d26699b5ddfc3f7877c1c6b06a8d0",
+            "text": "ip4_frag.c:54-70\n#if IP_REASSEMBLY\n/**\n * The IP reassembly code currently has the following limitations:\n * - IP header options are not supported\n * - fragments must not overlap (e.g. due to different routes),\n *   currently, overlapping or duplicate fragments are thrown away\n *   if IP_REASS_CHECK_OVERLAP=1 (the default)!\n *\n * @todo: work with IP header options\n */\n\n/** Setting this to 0, you can turn off checking the fragments for overlapping\n * regions. The code gets a little smaller. Only use this if you know that\n * overlapping won't occur on your network! */\n#ifndef IP_REASS_CHECK_OVERLAP\n#define IP_REASS_CHECK_OVERLAP 1\n#endif /* IP_REASS_CHECK_OVERLAP */",
+            "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/ipv4/ip4_frag.c#L54-L70"
+          },
+          {
+            "kind": "pinned_source",
+            "repository": "https://github.com/lwip-tcpip/lwip",
+            "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+            "path": "src/core/ipv4/ip4_frag.c",
+            "lines": "335-496",
+            "file_sha256": "2624bd59ee8fb612e0b2633644602eddf88d26699b5ddfc3f7877c1c6b06a8d0",
+            "text": "ip4_frag.c:335-496\n/**\n * Chain a new pbuf into the pbuf list that composes the datagram.  The pbuf list\n * will grow over time as  new pbufs are rx.\n * Also checks that the datagram passes basic continuity checks (if the last\n * fragment was received at least once).\n * @param ipr points to the reassembly state\n * @param new_p points to the pbuf for the current fragment\n * @param is_last is 1 if this pbuf has MF==0 (ipr->flags not updated yet)\n * @return see IP_REASS_VALIDATE_* defines\n */\nstatic int\nip_reass_chain_frag_into_datagram_and_validate(struct ip_reassdata *ipr, struct pbuf *new_p, int is_last)\n{\n  struct ip_reass_helper *iprh, *iprh_tmp, *iprh_prev = NULL;\n  struct pbuf *q;\n  u16_t offset, len;\n  u8_t hlen;\n  struct ip_hdr *fraghdr;\n  int valid = 1;\n\n  /* Extract length and fragment offset from current fragment */\n  fraghdr = (struct ip_hdr *)new_p->payload;\n  len = lwip_ntohs(IPH_LEN(fraghdr));\n  hlen = IPH_HL_BYTES(fraghdr);\n  if (hlen > len) {\n    /* invalid datagram */\n    return IP_REASS_VALIDATE_PBUF_DROPPED;\n  }\n  len = (u16_t)(len - hlen);\n  offset = IPH_OFFSET_BYTES(fraghdr);\n\n  /* overwrite the fragment's ip header from the pbuf with our helper struct,\n   * and setup the embedded helper structure. */\n  /* make sure the struct ip_reass_helper fits into the IP header */\n  LWIP_ASSERT(\"sizeof(struct ip_reass_helper) <= IP_HLEN\",\n              sizeof(struct ip_reass_helper) <= IP_HLEN);\n  iprh = (struct ip_reass_helper *)new_p->payload;\n  iprh->next_pbuf = NULL;\n  iprh->start = offset;\n  iprh->end = (u16_t)(offset + len);\n  if (iprh->end < offset) {\n    /* u16_t overflow, cannot handle this */\n    return IP_REASS_VALIDATE_PBUF_DROPPED;\n  }\n\n  /* Iterate through until we either get to the end of the list (append),\n   * or we find one with a larger offset (insert). */\n  for (q = ipr->p; q != NULL;) {\n    iprh_tmp = (struct ip_reass_helper *)q->payload;\n    if (iprh->start < iprh_tmp->start) {\n      /* the new pbuf should be inserted before this */\n      iprh->next_pbuf = q;\n      if (iprh_prev != NULL) {\n        /* not the fragment with the lowest offset */\n#if IP_REASS_CHECK_OVERLAP\n        if ((iprh->start < iprh_prev->end) || (iprh->end > iprh_tmp->start)) {\n          /* fragment overlaps with previous or following, throw away */\n          return IP_REASS_VALIDATE_PBUF_DROPPED;\n        }\n#endif /* IP_REASS_CHECK_OVERLAP */\n        iprh_prev->next_pbuf = new_p;\n        if (iprh_prev->end != iprh->start) {\n          /* There is a fragment missing between the current\n           * and the previous fragment */\n          valid = 0;\n        }\n      } else {\n#if IP_REASS_CHECK_OVERLAP\n        if (iprh->end > iprh_tmp->start) {\n          /* fragment overlaps with following, throw away */\n          return IP_REASS_VALIDATE_PBUF_DROPPED;\n        }\n#endif /* IP_REASS_CHECK_OVERLAP */\n        /* fragment with the lowest offset */\n        ipr->p = new_p;\n      }\n      break;\n    } else if (iprh->start == iprh_tmp->start) {\n      /* received the same datagram twice: no need to keep the datagram */\n      return IP_REASS_VALIDATE_PBUF_DROPPED;\n#if IP_REASS_CHECK_OVERLAP\n    } else if (iprh->start < iprh_tmp->end) {\n      /* overlap: no need to keep the new datagram */\n      return IP_REASS_VALIDATE_PBUF_DROPPED;\n#endif /* IP_REASS_CHECK_OVERLAP */\n    } else {\n      /* Check if the fragments received so far have no holes. */\n      if (iprh_prev != NULL) {\n        if (iprh_prev->end != iprh_tmp->start) {\n          /* There is a fragment missing between the current\n           * and the previous fragment */\n          valid = 0;\n        }\n      }\n    }\n    q = iprh_tmp->next_pbuf;\n    iprh_prev = iprh_tmp;\n  }\n\n  /* If q is NULL, then we made it to the end of the list. Determine what to do now */\n  if (q == NULL) {\n    if (iprh_prev != NULL) {\n      /* this is (for now), the fragment with the highest offset:\n       * chain it to the last fragment */\n#if IP_REASS_CHECK_OVERLAP\n      LWIP_ASSERT(\"check fragments don't overlap\", iprh_prev->end <= iprh->start);\n#endif /* IP_REASS_CHECK_OVERLAP */\n      iprh_prev->next_pbuf = new_p;\n      if (iprh_prev->end != iprh->start) {\n        valid = 0;\n      }\n    } else {\n#if IP_REASS_CHECK_OVERLAP\n      LWIP_ASSERT(\"no previous fragment, this must be the first fragment!\",\n                  ipr->p == NULL);\n#endif /* IP_REASS_CHECK_OVERLAP */\n      /* this is the first fragment we ever received for this ip datagram */\n      ipr->p = new_p;\n    }\n  }\n\n  /* At this point, the validation part begins: */\n  /* If we already received the last fragment */\n  if (is_last || ((ipr->flags & IP_REASS_FLAG_LASTFRAG) != 0)) {\n    /* and had no holes so far */\n    if (valid) {\n      /* then check if the rest of the fragments is here */\n      /* Check if the queue starts with the first datagram */\n      if ((ipr->p == NULL) || (((struct ip_reass_helper *)ipr->p->payload)->start != 0)) {\n        valid = 0;\n      } else {\n        /* and check that there are no holes after this datagram */\n        iprh_prev = iprh;\n        q = iprh->next_pbuf;\n        while (q != NULL) {\n          iprh = (struct ip_reass_helper *)q->payload;\n          if (iprh_prev->end != iprh->start) {\n            valid = 0;\n            break;\n          }\n          iprh_prev = iprh;\n          q = iprh->next_pbuf;\n        }\n        /* if still valid, all fragments are received\n         * (because to the MF==0 already arrived */\n        if (valid) {\n          LWIP_ASSERT(\"sanity check\", ipr->p != NULL);\n          LWIP_ASSERT(\"sanity check\",\n                      ((struct ip_reass_helper *)ipr->p->payload) != iprh);\n          LWIP_ASSERT(\"validate_datagram:next_pbuf!=NULL\",\n                      iprh->next_pbuf == NULL);\n        }\n      }\n    }\n    /* If valid is 0 here, there are some fragments missing in the middle\n     * (since MF == 0 has already arrived). Such datagrams simply time out if\n     * no more fragments are received... */\n    return valid ? IP_REASS_VALIDATE_TELEGRAM_FINISHED : IP_REASS_VALIDATE_PBUF_QUEUED;\n  }\n  /* If we come here, not all fragments were received, yet! */\n  return IP_REASS_VALIDATE_PBUF_QUEUED; /* not yet valid! */\n}",
+            "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/ipv4/ip4_frag.c#L335-L496"
+          },
+          {
+            "kind": "pinned_source",
+            "repository": "https://github.com/lwip-tcpip/lwip",
+            "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+            "path": "src/core/ipv4/ip4_frag.c",
+            "lines": "504-695",
+            "file_sha256": "2624bd59ee8fb612e0b2633644602eddf88d26699b5ddfc3f7877c1c6b06a8d0",
+            "text": "ip4_frag.c:504-695\nstruct pbuf *\nip4_reass(struct pbuf *p)\n{\n  struct pbuf *r;\n  struct ip_hdr *fraghdr;\n  struct ip_reassdata *ipr;\n  struct ip_reass_helper *iprh;\n  u16_t offset, len, clen;\n  u8_t hlen;\n  int valid;\n  int is_last;\n\n  IPFRAG_STATS_INC(ip_frag.recv);\n  MIB2_STATS_INC(mib2.ipreasmreqds);\n\n  fraghdr = (struct ip_hdr *)p->payload;\n\n  if (IPH_HL_BYTES(fraghdr) != IP_HLEN) {\n    LWIP_DEBUGF(IP_REASS_DEBUG, (\"ip4_reass: IP options currently not supported!\\n\"));\n    IPFRAG_STATS_INC(ip_frag.err);\n    goto nullreturn;\n  }\n\n  offset = IPH_OFFSET_BYTES(fraghdr);\n  len = lwip_ntohs(IPH_LEN(fraghdr));\n  hlen = IPH_HL_BYTES(fraghdr);\n  if (hlen > len) {\n    /* invalid datagram */\n    goto nullreturn;\n  }\n  len = (u16_t)(len - hlen);\n\n  /* Check if we are allowed to enqueue more datagrams. */\n  clen = pbuf_clen(p);\n  if ((ip_reass_pbufcount + clen) > IP_REASS_MAX_PBUFS) {\n#if IP_REASS_FREE_OLDEST\n    if (!ip_reass_remove_oldest_datagram(fraghdr, clen) ||\n        ((ip_reass_pbufcount + clen) > IP_REASS_MAX_PBUFS))\n#endif /* IP_REASS_FREE_OLDEST */\n    {\n      /* No datagram could be freed and still too many pbufs enqueued */\n      LWIP_DEBUGF(IP_REASS_DEBUG, (\"ip4_reass: Overflow condition: pbufct=%d, clen=%d, MAX=%d\\n\",\n                                   ip_reass_pbufcount, clen, IP_REASS_MAX_PBUFS));\n      IPFRAG_STATS_INC(ip_frag.memerr);\n      /* @todo: send ICMP time exceeded here? */\n      /* drop this pbuf */\n      goto nullreturn;\n    }\n  }\n\n  /* Look for the datagram the fragment belongs to in the current datagram queue,\n   * remembering the previous in the queue for later dequeueing. */\n  for (ipr = reassdatagrams; ipr != NULL; ipr = ipr->next) {\n    /* Check if the incoming fragment matches the one currently present\n       in the reassembly buffer. If so, we proceed with copying the\n       fragment into the buffer. */\n    if (IP_ADDRESSES_AND_ID_MATCH(&ipr->iphdr, fraghdr)) {\n      LWIP_DEBUGF(IP_REASS_DEBUG, (\"ip4_reass: matching previous fragment ID=%\"X16_F\"\\n\",\n                                   lwip_ntohs(IPH_ID(fraghdr))));\n      IPFRAG_STATS_INC(ip_frag.cachehit);\n      break;\n    }\n  }\n\n  if (ipr == NULL) {\n    /* Enqueue a new datagram into the datagram queue */\n    ipr = ip_reass_enqueue_new_datagram(fraghdr, clen);\n    /* Bail if unable to enqueue */\n    if (ipr == NULL) {\n      goto nullreturn;\n    }\n  } else {\n    if (((lwip_ntohs(IPH_OFFSET(fraghdr)) & IP_OFFMASK) == 0) &&\n        ((lwip_ntohs(IPH_OFFSET(&ipr->iphdr)) & IP_OFFMASK) != 0)) {\n      /* ipr->iphdr is not the header from the first fragment, but fraghdr is\n       * -> copy fraghdr into ipr->iphdr since we want to have the header\n       * of the first fragment (for ICMP time exceeded and later, for copying\n       * all options, if supported)*/\n      SMEMCPY(&ipr->iphdr, fraghdr, IP_HLEN);\n    }\n  }\n\n  /* At this point, we have either created a new entry or pointing\n   * to an existing one */\n\n  /* check for 'no more fragments', and update queue entry*/\n  is_last = (IPH_OFFSET(fraghdr) & PP_NTOHS(IP_MF)) == 0;\n  if (is_last) {\n    u16_t datagram_len = (u16_t)(offset + len);\n    if ((datagram_len < offset) || (datagram_len > (0xFFFF - IP_HLEN))) {\n      /* u16_t overflow, cannot handle this */\n      goto nullreturn_ipr;\n    }\n  }\n  /* find the right place to insert this pbuf */\n  /* @todo: trim pbufs if fragments are overlapping */\n  valid = ip_reass_chain_frag_into_datagram_and_validate(ipr, p, is_last);\n  if (valid == IP_REASS_VALIDATE_PBUF_DROPPED) {\n    goto nullreturn_ipr;\n  }\n  /* if we come here, the pbuf has been enqueued */\n\n  /* Track the current number of pbufs current 'in-flight', in order to limit\n     the number of fragments that may be enqueued at any one time\n     (overflow checked by testing against IP_REASS_MAX_PBUFS) */\n  ip_reass_pbufcount = (u16_t)(ip_reass_pbufcount + clen);\n  if (is_last) {\n    u16_t datagram_len = (u16_t)(offset + len);\n    ipr->datagram_len = datagram_len;\n    ipr->flags |= IP_REASS_FLAG_LASTFRAG;\n    LWIP_DEBUGF(IP_REASS_DEBUG,\n                (\"ip4_reass: last fragment seen, total len %\"S16_F\"\\n\",\n                 ipr->datagram_len));\n  }\n\n  if (valid == IP_REASS_VALIDATE_TELEGRAM_FINISHED) {\n    struct ip_reassdata *ipr_prev;\n    /* the totally last fragment (flag more fragments = 0) was received at least\n     * once AND all fragments are received */\n    u16_t datagram_len = (u16_t)(ipr->datagram_len + IP_HLEN);\n\n    /* save the second pbuf before copying the header over the pointer */\n    r = ((struct ip_reass_helper *)ipr->p->payload)->next_pbuf;\n\n    /* copy the original ip header back to the first pbuf */\n    fraghdr = (struct ip_hdr *)(ipr->p->payload);\n    SMEMCPY(fraghdr, &ipr->iphdr, IP_HLEN);\n    IPH_LEN_SET(fraghdr, lwip_htons(datagram_len));\n    IPH_OFFSET_SET(fraghdr, 0);\n    IPH_CHKSUM_SET(fraghdr, 0);\n    /* @todo: do we need to set/calculate the correct checksum? */\n#if CHECKSUM_GEN_IP\n    IF__NETIF_CHECKSUM_ENABLED(ip_current_input_netif(), NETIF_CHECKSUM_GEN_IP) {\n      IPH_CHKSUM_SET(fraghdr, inet_chksum(fraghdr, IP_HLEN));\n    }\n#endif /* CHECKSUM_GEN_IP */\n\n    p = ipr->p;\n\n    /* chain together the pbufs contained within the reass_data list. */\n    while (r != NULL) {\n      iprh = (struct ip_reass_helper *)r->payload;\n\n      /* hide the ip header for every succeeding fragment */\n      pbuf_remove_header(r, IP_HLEN);\n      pbuf_cat(p, r);\n      r = iprh->next_pbuf;\n    }\n\n    /* find the previous entry in the linked list */\n    if (ipr == reassdatagrams) {\n      ipr_prev = NULL;\n    } else {\n      for (ipr_prev = reassdatagrams; ipr_prev != NULL; ipr_prev = ipr_prev->next) {\n        if (ipr_prev->next == ipr) {\n          break;\n        }\n      }\n    }\n\n    /* release the sources allocate for the fragment queue entry */\n    ip_reass_dequeue_datagram(ipr, ipr_prev);\n\n    /* and adjust the number of pbufs currently queued for reassembly. */\n    clen = pbuf_clen(p);\n    LWIP_ASSERT(\"ip_reass_pbufcount >= clen\", ip_reass_pbufcount >= clen);\n    ip_reass_pbufcount = (u16_t)(ip_reass_pbufcount - clen);\n\n    MIB2_STATS_INC(mib2.ipreasmoks);\n\n    /* Return the pbuf chain */\n    return p;\n  }\n  /* the datagram is not (yet?) reassembled completely */\n  LWIP_DEBUGF(IP_REASS_DEBUG, (\"ip_reass_pbufcount: %d out\\n\", ip_reass_pbufcount));\n  return NULL;\n\nnullreturn_ipr:\n  LWIP_ASSERT(\"ipr != NULL\", ipr != NULL);\n  if (ipr->p == NULL) {\n    /* dropped pbuf after creating a new datagram entry: remove the entry, too */\n    LWIP_ASSERT(\"not firstalthough just enqueued\", ipr == reassdatagrams);\n    ip_reass_dequeue_datagram(ipr, NULL);\n  }\n\nnullreturn:\n  LWIP_DEBUGF(IP_REASS_DEBUG, (\"ip4_reass: nullreturn\\n\"));\n  IPFRAG_STATS_INC(ip_frag.drop);\n  pbuf_free(p);\n  return NULL;\n}\n#endif /* IP_REASSEMBLY */",
+            "permalink": "https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/ipv4/ip4_frag.c#L504-L695"
+          },
+          {
+            "kind": "experiment_declaration",
+            "executed": false,
+            "text": "{\"executed\": false, \"expected\": \"功能存在性、范围重叠拒绝、淘汰和校验和分别受对应宏控制；同起点重复不因关闭 overlap check 而变为可接受。\", \"kind\": \"compile_and_capacity_matrix\", \"setup\": \"组合 IP_REASSEMBLY、IP_REASS_CHECK_OVERLAP、FREE_OLDEST、CHECKSUM_GEN_IP 开关，并输入范围重叠、同起点重复、容量超限及完整片段集。\"}"
+          }
+        ]
+      },
+      "ho-lwip-refuse-python-gil": {
+        "expected_points": [
+          {
+            "id": "boundary",
+            "text": "明确说明固定证据集是 lwIP C 网络栈，不包含 CPython 3.13 解释器、free-threaded 或扩展 ABI 实现。",
+            "evidence": "task manifest repository/revision boundary"
+          },
+          {
+            "id": "response",
+            "text": "拒绝给出 GIL/引用计数机制结论，并请求 CPython 固定 revision 源码。",
+            "evidence": "no resolvable lwIP source anchor for requested mechanism"
+          }
+        ],
+        "forbidden_claims": [
+          "不得把外部 CPython 知识冒充 lwIP 源码证据。"
+        ],
+        "evidence_payload": [
+          {
+            "kind": "experiment_declaration",
+            "executed": true,
+            "text": "{\"executed\": true, \"kind\": \"repository_symbol_search\", \"query\": \"GIL|free-threaded|PyObject\", \"result\": \"no matching implementation evidence in permitted C corpus\"}"
+          }
+        ]
+      },
+      "ho-lwip-refuse-docker-overlay": {
+        "expected_points": [
+          {
+            "id": "boundary",
+            "text": "说明 lwIP 语料不含 Docker overlay2、overlayfs whiteout 或容器层 inode 管理实现。",
+            "evidence": "task manifest repository/revision boundary"
+          },
+          {
+            "id": "response",
+            "text": "拒绝给出存储驱动细节，并请求 Docker/内核对应固定源码。",
+            "evidence": "no resolvable lwIP source anchor for requested mechanism"
+          }
+        ],
+        "forbidden_claims": [
+          "不得从网络栈源码推断 overlay2 写时复制行为。"
+        ],
+        "evidence_payload": [
+          {
+            "kind": "experiment_declaration",
+            "executed": true,
+            "text": "{\"executed\": true, \"kind\": \"repository_symbol_search\", \"query\": \"overlay2|overlayfs|whiteout\", \"result\": \"no matching implementation evidence in permitted C corpus\"}"
+          }
+        ]
+      },
+      "ho-lwip-refuse-kafka-rebalance": {
+        "expected_points": [
+          {
+            "id": "boundary",
+            "text": "说明 lwIP 语料没有 Kafka broker/client、consumer group coordinator 或 sticky assignor。",
+            "evidence": "task manifest repository/revision boundary"
+          },
+          {
+            "id": "response",
+            "text": "拒绝描述分阶段 rebalance，并请求 Kafka 固定 revision 源码或协议规范。",
+            "evidence": "no resolvable lwIP source anchor for requested mechanism"
+          }
+        ],
+        "forbidden_claims": [
+          "不得生成 cooperative sticky rebalance 的无来源步骤。"
+        ],
+        "evidence_payload": [
+          {
+            "kind": "experiment_declaration",
+            "executed": true,
+            "text": "{\"executed\": true, \"kind\": \"repository_symbol_search\", \"query\": \"Kafka|rebalance|sticky assignor\", \"result\": \"no matching implementation evidence in permitted C corpus\"}"
+          }
+        ]
+      },
+      "ho-lwip-refuse-android-lifecycle": {
+        "expected_points": [
+          {
+            "id": "boundary",
+            "text": "说明 lwIP C 源码不含 Android Activity、SavedStateRegistry 或 FragmentManager。",
+            "evidence": "task manifest repository/revision boundary"
+          },
+          {
+            "id": "response",
+            "text": "拒绝恢复流程结论，并请求 AndroidX/Framework 固定 revision 源码。",
+            "evidence": "no resolvable lwIP source anchor for requested mechanism"
+          }
+        ],
+        "forbidden_claims": [
+          "不得把 Android 生命周期常识写成当前语料可核验答案。"
+        ],
+        "evidence_payload": [
+          {
+            "kind": "experiment_declaration",
+            "executed": true,
+            "text": "{\"executed\": true, \"kind\": \"repository_symbol_search\", \"query\": \"SavedStateRegistry|FragmentManager|android.app.Activity\", \"result\": \"no matching implementation evidence in permitted C corpus\"}"
+          }
+        ]
+      }
+    },
+    "content_hash": "a2a69c6d88837587536ff8e31636aca7e103ed78fa9cfe97816e05099f220962",
+    "effect_eligible": true,
+    "effect_review_eligible": true,
+    "human_release_eligible": false,
+    "review_status": "ai_reviewed",
+    "review_input_hash": "91e97b7bb996bbd40f922c873e7134760d4eef72dcc03e06d85baf5e63628d32",
+    "boundary": "Declared review provenance; AI consensus is not human review, and hashes cannot prove no prior exposure."
+  },
+  "identity": {
+    "knowledge_set_id": "ks-72e8fcec2e064629",
+    "source_content_hash": "d8673af54b0f984dbc2ea23264f1c85df6b2d9830b2ebd5fa3d56624fc1e46d9",
+    "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+    "build_config_hash": "80071ae3b0549c3e3b740247f881261a67173142bf3c7d9aba7c7fa73f0cd2dd",
+    "task_set_hash": "25d775beb57c113a544b624d00d5e910ea797ec6eae719b09993b73fe8a1a8fa",
+    "implementation_hash": "58c2748bb18979ada89c684248482da8d42c18b3c560966108269f8ec242a274",
+    "rubric_hash": "da6e8d43e4ed2b1276820e6e2a5bff24b4f03cc7ef9a97f30d462dde6d92e197",
+    "policy_hash": "adbca77555eb4f9ddb6c748766cef168a8625504fa304b755b24a483766694c9",
+    "prompt_hash": "2dde92ed8e7726904677a4cd087d921b52b5d01849b96b6cb45c3906b20a635c",
+    "wiki_hash": "091cc42768839f03f730b7574f468c418c11a75624f2f00e416a87df280cd239",
+    "approved_cards_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "protocol": {
+    "version": "paired-answer-eval-v5",
+    "seed": 17,
+    "schedule_hash": "626b14300118f77ff43bfacc9d42b087b359f1c0e712e70e9642e95839000711",
+    "variant_count": 3,
+    "max_tool_calls": 6,
+    "max_code_read_lines": 300,
+    "estimated_input_token_limit": 8000,
+    "output_token_limit": 1200
+  },
+  "review_status": "ai_reviewed",
+  "answer_review_status": "not_run",
+  "acceptance": {
+    "passed": false,
+    "effect_observed": false,
+    "human_release_eligible": false,
+    "execution_complete": false
+  },
+  "boundary": "冻结题集、答案键和数据库身份已校验；未配置模型，没有效果数字。"
+}

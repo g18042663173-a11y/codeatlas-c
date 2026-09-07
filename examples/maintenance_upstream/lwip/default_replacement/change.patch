@@ -1,0 +1,10 @@
+--- a/src/core/netif.c
++++ b/src/core/netif.c
+@@ -429,6 +429,7 @@ netif_add(struct netif *netif,
+   /* add this netif to the list */
+   netif->next = netif_list;
+   netif_list = netif;
++  netif_default = netif;
+ #endif /* "LWIP_SINGLE_NETIF */
+   mib2_netif_added(netif);
+ 

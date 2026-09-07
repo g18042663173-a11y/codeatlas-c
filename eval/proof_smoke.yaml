@@ -1,0 +1,10 @@
+schema_version: 1
+split: development_smoke
+not_effect_evidence: true
+tasks:
+  - id: smoke-cjson-observed-boundary
+    case_id: cjson-nesting
+    question: 固定复现实验的 999、1000、1001 三个深度分别得到什么结果，失败时 parse_end 是多少？
+  - id: smoke-lwip-list-versus-default
+    case_id: lwip-netif
+    question: 固定复现实验中，添加首个接口、显式设置默认接口、再添加第二个接口后，netif_list 和 netif_default 分别怎样变化？

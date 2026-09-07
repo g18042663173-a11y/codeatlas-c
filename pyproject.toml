@@ -20,7 +20,8 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.package-data]
-codeatlas = ["server/static/*.html", "llm/prompts/*.md"]
+codeatlas = ["server/static/*.html", "server/static/*.css", "server/static/*.js",
+             "server/static/icons/*.svg", "server/static/icons/LICENSE", "llm/prompts/*.md"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

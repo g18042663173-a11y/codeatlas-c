@@ -1,0 +1,12 @@
+--- a/cJSON.c
++++ b/cJSON.c
+@@ -57,6 +57,9 @@
+ #endif
+ 
+ #include "cJSON.h"
++/* Isolated compile-configuration mutation consumed by this translation unit. */
++#undef CJSON_NESTING_LIMIT
++#define CJSON_NESTING_LIMIT 2
+ 
+ /* define our own boolean type */
+ #ifdef true
