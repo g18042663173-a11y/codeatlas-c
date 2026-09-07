@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "card_id": "e-13d209f2a9b2",
+  "review_bundle_hash": "9fb6b15935d33ef15cfb1305f841f294f5ec2ec036a778843f15cf14e3ae4f08",
+  "markdown_path": "knowledge/cards/e-13d209f2a9b2.md",
+  "markdown_sha256": "691f3c1cc548b1764af18c1e93ee8326ae151577efd3a1699d5c2dd2302a5f5b",
+  "repository": "https://github.com/lwip-tcpip/lwip",
+  "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+  "source_publication": {
+    "op_id": "pub-b8ff6122a65a4040959cfa2b4afb162c",
+    "committed_at": "2026-09-06T14:15:23.645164+00:00"
+  },
+  "confirmations": [
+    {
+      "exp_id": "e-13d209f2a9b2",
+      "bundle_hash": "9fb6b15935d33ef15cfb1305f841f294f5ec2ec036a778843f15cf14e3ae4f08",
+      "reviewer": "Guoshuaiqi",
+      "reviewer_type": "human",
+      "confirmed_at": "2026-09-06T14:15:23+00:00"
+    }
+  ],
+  "experiments": [
+    {
+      "path": "examples/reproductions/lwip-netif/README.md",
+      "sha256": "cfeb9ced7d67f76f136a8ab3f3d3c8b170c37cf4c5778a0b511081193aa5ded0"
+    },
+    {
+      "path": "examples/reproductions/lwip-netif/include/lwipopts.h",
+      "sha256": "65426d6f6d1c1a97a74392bfe626d19e68faf00ee585f5990231edd5edf2ecf2"
+    },
+    {
+      "path": "examples/reproductions/lwip-netif/reproduce.c",
+      "sha256": "cafe3b447e59500c9dbb677a92866bda14b6a78f35594362dfba6ffe5af9e32a"
+    },
+    {
+      "path": "examples/reproductions/lwip-netif/result.txt",
+      "sha256": "8102733501276cd10303a81dc15877f7e5386b1dacb48c535f2960562f95414f"
+    },
+    {
+      "path": "examples/reproductions/lwip-netif/run.sh",
+      "sha256": "82f26ccf13e73a3e8e19b12629a466c3b74045a3659203a0d414044f1fd34528"
+    }
+  ],
+  "checksum": "b7dd9afd660d24745231ec88aaffefc48041d7bc239c8e511a2f9cd402c982af"
+}

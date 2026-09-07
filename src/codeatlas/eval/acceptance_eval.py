@@ -10,6 +10,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import resource
 import sqlite3
 import subprocess
@@ -120,6 +121,7 @@ def load_corpora(path: str | Path) -> dict[str, Any]:
         "id", "role", "official_url", "checkout_url", "source_relation", "revision",
         "source_root", "compile_db", "database", "data_dir", "wiki_dir",
         "task_manifest", "task_report", "workflow_manifest", "workflow_report",
+        "current_task_manifest", "current_task_report",
         "success_session", "insufficient_session", "unrelated_session",
         "formal_card",
     }
@@ -138,8 +140,13 @@ def load_corpora(path: str | Path) -> dict[str, Any]:
         if item["role"] not in {"correctness", "scale"}:
             raise AcceptanceEvalError(f"{item['id']} role 只能是 correctness/scale")
         formal_card = item.get("formal_card")
-        if not isinstance(formal_card, dict) or not formal_card.get("id") or not formal_card.get("review_bundle_hash"):
-            raise AcceptanceEvalError(f"{item['id']} formal_card 必须声明 id 与 review_bundle_hash")
+        formal_required = {"id", "review_bundle_hash", "release", "release_sha256"}
+        if (not isinstance(formal_card, dict)
+                or any(not formal_card.get(key) for key in formal_required)):
+            raise AcceptanceEvalError(
+                f"{item['id']} formal_card 必须声明 "
+                "id、review_bundle_hash、release 与 release_sha256"
+            )
         seen.add(item["id"])
         corpora.append(dict(item))
     if seen != {"cjson", "lwip"}:
@@ -371,6 +378,56 @@ def _validate_task_report(report_path: Path, corpus: dict[str, Any], gold: dict[
     }
 
 
+def _validate_current_task_report(
+        report_path: Path, corpus: dict[str, Any], gold: dict[str, Any]) -> dict[str, Any]:
+    """Validate five current release-card questions without abusing ablation gates."""
+    if not report_path.is_file():
+        return {"ok": False, "error": "current_task_report_missing"}
+    report = _read_json(report_path)
+    manifest = report.get("manifest") or {}
+    summary = report.get("summary") or {}
+    reproducibility = report.get("reproducibility") or {}
+    experiences = report.get("experiences") or []
+    failures = _failure_breakdown(report)
+    identity_ok = (
+        manifest.get("repository") == corpus["checkout_url"]
+        and manifest.get("revision") == corpus["revision"]
+        and len(manifest.get("tasks") or []) == gold["count"] == 5
+    )
+    all_experience = len(experiences) == 5 and all(
+        item.get("type") == "已审核经验复用" for item in experiences
+    )
+    evidence_current = all_experience and all(
+        item.get("passed") is True
+        and item.get("blocked_by_review") is False
+        and (item.get("attempts") or {}).get("完整无模型", {}).get("hit") is True
+        and (item.get("attempts") or {}).get("完整无模型", {}).get(
+            "evidence_complete") is True
+        for item in experiences
+    )
+    complete = (
+        summary.get("passed_tasks") == summary.get("total_tasks") == 5
+        and failures["unexpected_count"] == 0
+        and failures["blocked_count"] == 0
+        and evidence_current
+    )
+    gates = {
+        "identity": identity_ok,
+        "manifest_hash": reproducibility.get("task_manifest_sha256") == gold["sha256"],
+        "five_release_tasks": all_experience,
+        "current_b_evidence": evidence_current,
+        "no_unexpected_failures": failures["unexpected_count"] == 0,
+        "no_review_blockers": failures["blocked_count"] == 0,
+        "complete": complete,
+    }
+    return {
+        "ok": all(gates.values()), "current_release_complete": all(gates.values()),
+        "gates": gates, "summary": summary, "failure_breakdown": failures,
+        "reproducibility": reproducibility, "sha256": _sha256(report_path),
+        "generated_at": report.get("generated_at"),
+    }
+
+
 def _validate_workflow(report_path: Path, corpus: dict[str, Any]) -> dict[str, Any]:
     if not report_path.is_file():
         return {"ok": False, "error": "workflow_report_missing"}
@@ -454,6 +511,71 @@ def model_abc_status(corpora: list[dict[str, Any]], *,
             "corpora": items}
 
 
+def _close_number(left, right, tolerance=1e-8):
+    if left is None or right is None:
+        return left is right
+    return (isinstance(left, (int, float)) and not isinstance(left, bool)
+            and isinstance(right, (int, float)) and not isinstance(right, bool)
+            and abs(float(left) - float(right)) <= tolerance)
+
+
+def _verify_curated_effect_report(report: dict[str, Any]) -> dict[str, Any]:
+    """Recompute public outcome metrics without committing bulky answers.
+
+    The ignored campaign ledger remains the source for answer/evidence audits;
+    this Git-safe projection must still contain every trial, semantic outcome
+    and immutable source hash needed to detect edited aggregate claims.
+    """
+    from .task_eval import REFUSAL_TYPE
+    projection = report.get("curated_projection") or {}
+    rows = report.get("trial_results")
+    if (projection.get("schema_version") != 1 or not isinstance(rows, list)
+            or projection.get("trial_results_hash") != digest(rows)
+            or projection.get("trial_count") != len(rows)
+            or projection.get("run_hash") != report.get("run_hash")
+            or projection.get("review_packet_hash") != report.get("review_packet_hash")
+            or projection.get("review_protocol_hash") != report.get("review_protocol_hash")
+            or projection.get("review_version_hash") != report.get("review_version_hash")
+            or len(rows) != report.get("executed_trial_count")):
+        return {"ok": False, "reason": "curated_projection_binding"}
+    ids = [row.get("trial_id") for row in rows]
+    if (len(set(ids)) != len(ids) or any(not value for value in ids)
+            or any(not re.fullmatch(r"[0-9a-f]{64}", str(row.get("raw_trial_hash") or ""))
+                   for row in rows)
+            or any(not re.fullmatch(r"[0-9a-f]{64}", str(row.get("selected_review_hash") or ""))
+                   for row in rows)):
+        return {"ok": False, "reason": "curated_trial_identity"}
+    variants = set((report.get("variants") or {}).keys())
+    if variants != {row.get("variant") for row in rows}:
+        return {"ok": False, "reason": "curated_variant_identity"}
+    pending_total = 0
+    for variant in variants:
+        trials = [row for row in rows if row["variant"] == variant]
+        pending = sum(row.get("review_status") == "unresolved" for row in trials)
+        pending_total += pending
+        metrics = report["variants"][variant].get("metrics") or {}
+        accuracy = None if pending else 100 * sum(bool(row.get("correct")) for row in trials) / len(trials)
+        completeness = None if pending else 100 * sum(float(row.get("complete") or 0) for row in trials) / len(trials)
+        citation = 100 * sum(bool(row.get("citation_valid")) for row in trials) / len(trials)
+        non_refusal = [row for row in trials if row.get("task_type") != REFUSAL_TYPE]
+        planning = 100 * sum(bool(row.get("native_planning")) for row in non_refusal) / max(1, len(non_refusal))
+        if (metrics.get("trial_count") != len(trials) or metrics.get("pending") != pending
+                or not _close_number(metrics.get("accuracy"), accuracy)
+                or not _close_number(metrics.get("completeness"), completeness)
+                or not _close_number(metrics.get("effective_citation_rate"), citation)
+                or not _close_number(metrics.get("native_planning_success_rate"), planning)):
+            return {"ok": False, "reason": f"curated_metrics:{variant}"}
+    attempt = report.get("review_attempt") or {}
+    if (attempt.get("unresolved_trial_count") != pending_total
+            or bool(attempt.get("terminal_semantic_unresolved")) != bool(pending_total)):
+        return {"ok": False, "reason": "curated_unresolved_count"}
+    expected_status = "unresolved" if pending_total else "ai_reviewed"
+    if report.get("review_status") != expected_status:
+        return {"ok": False, "reason": "curated_review_status"}
+    return {"ok": True, "unresolved_trial_count": pending_total,
+            "review_complete": pending_total == 0}
+
+
 def proof_status(manifest_path: str | Path, *, project_root: str | Path) -> dict[str, Any]:
     """Validate three proof families without turning AI review into human release."""
     root = Path(project_root).resolve()
@@ -466,6 +588,37 @@ def proof_status(manifest_path: str | Path, *, project_root: str | Path) -> dict
     manifest = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
     if manifest.get("schema_version") != 1 or not isinstance(manifest.get("experiments"), list):
         raise AcceptanceEvalError("三类证明清单格式无效")
+    qualification_spec = manifest.get("judge_qualification") or {}
+    qualification = {"status": "not_run", "qualified": False}
+    if qualification_spec:
+        policy_path = _resolve(root, qualification_spec.get("policy", ""))
+        qualification_path = _resolve(root, qualification_spec.get("report", ""))
+        if policy_path.is_file() and qualification_path.is_file():
+            try:
+                qualification_report = _read_json(qualification_path)
+                report_hash = qualification_report.pop("report_hash", None)
+                report_hash_ok = report_hash == digest(qualification_report)
+                qualification_report["report_hash"] = report_hash
+                identity = qualification_report.get("identity") or {}
+                policy_hash_ok = identity.get("policy_sha256") == _sha256(policy_path)
+                review = qualification_report.get("review") or {}
+                selected_role = qualification_report.get("selected")
+                selected_qualification = qualification_report.get(selected_role) or {}
+                qualified = bool(
+                    report_hash_ok and policy_hash_ok
+                    and selected_role in {"primary", "fallback"}
+                    and selected_qualification.get("status") == "calibrated"
+                    and selected_qualification.get("passed") is True
+                )
+                qualification = {
+                    **qualification_report, "qualified": qualified,
+                    "integrity_ok": report_hash_ok and policy_hash_ok,
+                    "policy": qualification_spec.get("policy"),
+                    "report": qualification_spec.get("report"),
+                }
+            except (OSError, ValueError, TypeError, KeyError):
+                qualification = {"status": "invalid", "qualified": False,
+                                 "integrity_ok": False}
     items = []
     wiki_reports = []
     for spec in manifest["experiments"]:
@@ -510,7 +663,52 @@ def proof_status(manifest_path: str | Path, *, project_root: str | Path) -> dict
             actual_runtime = report.get("identity") or {}
             runtime_identity_ok = all(
                 actual_runtime.get(key) == value for key, value in expected_runtime.items())
-            identity_ok = identity_ok and runtime_identity_ok
+            detached_review_identity_ok = False
+            compact_verification = None
+            review_attempt = report.get("review_attempt") or {}
+            curated_hash = report.get("curated_report_hash")
+            if review_attempt and curated_hash:
+                curated_payload = dict(report)
+                curated_payload.pop("curated_report_hash", None)
+                if (report.get("curated_projection") or {}).get("schema_version") == 1:
+                    compact_verification = _verify_curated_effect_report(report)
+                    detached_review_identity_ok = bool(
+                        digest(curated_payload) == curated_hash
+                        and compact_verification.get("ok") is True
+                        and review_attempt.get("raw_answer_run_hash") == report.get("run_hash")
+                        and review_attempt.get("judge_model")
+                        and review_attempt.get("calibration_hash")
+                    )
+                else:
+                    history = report.get("review_history") or []
+                    submitted = ((history[-1].get("reviews") or {}).get("review_protocol")
+                                 if history else None)
+                    submitted_calibration = (submitted or {}).get("calibration_hash")
+                    if not submitted_calibration:
+                        submitted_calibration = (report.get("judge_calibration") or {}).get(
+                            "calibration_manifest_hash")
+                    collection_integrity = (submitted or {}).get("collection_integrity") or {}
+                    recovery_collection_bound = bool(
+                        (submitted or {}).get("version") == "format-gap-recovery-v1"
+                        and (submitted or {}).get("base_batch_id")
+                        and (submitted or {}).get("base_result_hash")
+                        and (submitted or {}).get("run_hashes")
+                        and (submitted or {}).get("packet_hashes")
+                    )
+                    detached_review_identity_ok = bool(
+                        digest(curated_payload) == curated_hash
+                        and review_attempt.get("raw_answer_run_hash") == report.get("run_hash")
+                        and isinstance(submitted, dict)
+                        and review_attempt.get("review_protocol_hash") == digest(submitted)
+                        and review_attempt.get("judge_model") == submitted.get("judge_model")
+                        and review_attempt.get("calibration_hash") == submitted_calibration
+                        and (collection_integrity.get("raw_results_verified") is True
+                             or recovery_collection_bound)
+                    )
+            # A deliberately detached review may score an immutable answer
+            # collection after the implementation has moved on.  Keep that
+            # drift visible, but do not invalidate the bound raw answers.
+            identity_ok = identity_ok and (runtime_identity_ok or detached_review_identity_ok)
             execution_complete = bool((report.get("acceptance") or {}).get("execution_complete"))
             review_status = (report.get("review_status") or report.get("answer_review_status")
                              or ("deterministic_oracle" if spec["kind"] == "maintenance"
@@ -546,6 +744,43 @@ def proof_status(manifest_path: str | Path, *, project_root: str | Path) -> dict
                 proof_integrity_ok = False
                 execution_integrity_ok = False
                 execution_complete = False
+            elif (spec["kind"] != "maintenance" and identity_ok and state == "completed"
+                  and compact_verification is not None):
+                checked_acceptance = report.get("acceptance") or {}
+                checked_gates = checked_acceptance.get("gates") or {}
+                execution_integrity_names = {
+                    "paired_trials_complete", "full_three_repeat_run",
+                    "protocol_identity_bound", "raw_trials_bound", "snapshot_pinned",
+                }
+                review_integrity_names = {
+                    "answer_review_complete", "paired_trials_complete",
+                    "frozen_semantic_holdout", "review_provenance",
+                    "review_packet_complete", "judge_calibration",
+                    "full_three_repeat_run", "protocol_identity_bound",
+                    "raw_trials_bound", "review_integrity_bound", "snapshot_pinned",
+                }
+                execution_integrity_ok = bool(
+                    compact_verification.get("ok")
+                    and all(checked_gates.get(name) is True
+                            for name in execution_integrity_names)
+                )
+                review_complete = compact_verification.get("review_complete") is True
+                proof_integrity_ok = bool(
+                    review_complete
+                    and all(checked_gates.get(name) is True
+                            for name in review_integrity_names)
+                )
+                execution_complete = execution_integrity_ok
+                if not review_complete:
+                    state = "pending_review"
+                elif not proof_integrity_ok:
+                    state = "invalid"
+                acceptance = checked_acceptance
+                review_status = report.get("review_status", "unresolved")
+                claim_supported = bool(
+                    proof_integrity_ok and state == "completed"
+                    and acceptance.get("effect_observed")
+                )
             elif spec["kind"] != "maintenance" and identity_ok and state == "completed":
                 # Never trust the stored green flag. Recompute scoring projections
                 # from immutable trials/reviews and require every non-outcome proof
@@ -616,7 +851,20 @@ def proof_status(manifest_path: str | Path, *, project_root: str | Path) -> dict
                         "maintenance_value_measured"),
                 },
                 "human_release_eligible": bool(acceptance.get("human_release_eligible")),
+                "terminal_semantic_unresolved": bool(
+                    (report.get("review_attempt") or {}).get(
+                        "terminal_semantic_unresolved")),
+                "executed_trial_count": report.get("executed_trial_count"),
+                "unresolved_trial_count": (report.get("review_attempt") or {}).get(
+                    "unresolved_trial_count", 0),
+                "unresolved_trials": [
+                    {key: trial.get(key) for key in
+                     ("task_id", "variant", "repetition", "trial_id")}
+                    for trial in (report.get("trial_results") or [])
+                    if trial.get("review_status") == "unresolved"
+                ],
                 "runtime_identity_ok": runtime_identity_ok,
+                "detached_review_identity_ok": detached_review_identity_ok,
                 "manifest_sha256": expected_manifest, "report_sha256": _sha256(report_path),
             })
             if spec["kind"] == "wiki_knowledge" and identity_ok and state == "completed":
@@ -630,14 +878,15 @@ def proof_status(manifest_path: str | Path, *, project_root: str | Path) -> dict
         and item.get("identity_ok") is True
         for item in required
     )
-    reviews_complete = experiments_complete and all(
+    qualification_required = bool(qualification_spec)
+    reviews_complete = ((not qualification_required or qualification.get("qualified") is True)
+                        and experiments_complete and all(
         item.get("proof_integrity_ok") is True
         and item.get("status") == "completed"
         and item.get("review_status") in {
             "ai_reviewed", "human_reviewed", "deterministic_oracle"
         }
-        for item in required
-    )
+        for item in required))
     ai_review_done = reviews_complete and all(
         item.get("review_status") in {"ai_reviewed", "human_reviewed", "deterministic_oracle"}
         for item in required)
@@ -650,6 +899,11 @@ def proof_status(manifest_path: str | Path, *, project_root: str | Path) -> dict
     for item in required:
         if not item.get("execution_complete") or not item.get("execution_integrity_ok"):
             claim_state = "not_measured"
+        elif item.get("terminal_semantic_unresolved"):
+            # All pre-registered calls ran, but at least one qualified arbiter
+            # could not resolve the semantic point.  This is a terminal
+            # insufficient-evidence claim, while reviews_complete stays false.
+            claim_state = "insufficient_evidence"
         elif not item.get("proof_integrity_ok") or item.get("review_status") not in {
                 "ai_reviewed", "human_reviewed", "deterministic_oracle"}:
             claim_state = "unresolved"
@@ -686,6 +940,7 @@ def proof_status(manifest_path: str | Path, *, project_root: str | Path) -> dict
             "id": item["id"], "kind": item["kind"], "state": claim_state,
             "report": item["report"], "claim_supported": item.get("claim_supported", False),
             "evidence": item.get("claim_evidence"),
+            "unresolved_trial_count": item.get("unresolved_trial_count", 0),
         })
     claims_complete = bool(claims) and all(
         claim["state"] not in {"not_measured", "unresolved"} for claim in claims
@@ -718,6 +973,7 @@ def proof_status(manifest_path: str | Path, *, project_root: str | Path) -> dict
         "claims": claims,
         "ai_review_done": ai_review_done, "human_review_done": human_review_done,
         "effect_observed": effect_observed, "wiki_combined_effect": wiki_combined,
+        "judge_qualification": qualification,
     }
 
 
@@ -774,6 +1030,23 @@ def _validate_formal_card(corpus: dict[str, Any], root: Path) -> dict[str, Any]:
     card still has its own auditable truth.
     """
     spec = corpus["formal_card"]
+    release_path = _resolve(root, spec["release"])
+    try:
+        from ..experience.release import load_release
+        package, _markdown = load_release(release_path, project_root=root)
+        release_gates = {
+            "release_file": _sha256(release_path) == spec["release_sha256"],
+            "release_card_id": package.get("card_id") == spec["id"],
+            "release_bundle": package.get("review_bundle_hash") == spec["review_bundle_hash"],
+            "release_repository": package.get("repository") == corpus["checkout_url"],
+            "release_revision": package.get("revision") == corpus["revision"],
+        }
+    except (OSError, ValueError, KeyError, TypeError):
+        release_gates = {
+            "release_file": False, "release_card_id": False,
+            "release_bundle": False, "release_repository": False,
+            "release_revision": False,
+        }
     db_path = _resolve(root, corpus["database"])
     control = dbm.read_only(db_path)
     conn = dbm.query(db_path)
@@ -827,6 +1100,7 @@ def _validate_formal_card(corpus: dict[str, Any], root: Path) -> dict[str, Any]:
             markdown_matches = False
             resolved_markdown = markdown_path
         gates = {
+            **release_gates,
             "approved_current": current,
             "status": row["status"] == "approved",
             "formal_scope": (row["artifact_scope"] or "formal") == "formal",
@@ -848,6 +1122,8 @@ def _validate_formal_card(corpus: dict[str, Any], root: Path) -> dict[str, Any]:
             "reviewer": confirmation["reviewer"] if confirmation else None,
             "confirmed_at": confirmation["confirmed_at"] if confirmation else None,
             "canonical_path": str(resolved_markdown),
+            "release": spec["release"],
+            "release_sha256": spec["release_sha256"],
         }
     except sqlite3.Error as exc:
         return {"ok": False, "error": f"formal_card_invalid: {exc}", "id": spec["id"]}
@@ -861,8 +1137,11 @@ def validate_corpus(corpus: dict[str, Any], *, project_root: str | Path) -> dict
     source_checkout = _source_checkout(corpus, root)
     compile_db = _compile_database(corpus, root)
     gold = _task_gold(_resolve(root, corpus["task_manifest"]), corpus)
+    current_gold = _task_gold(_resolve(root, corpus["current_task_manifest"]), corpus)
     database = _validate_database(corpus, root)
     tasks = _validate_task_report(_resolve(root, corpus["task_report"]), corpus, gold)
+    current_tasks = _validate_current_task_report(
+        _resolve(root, corpus["current_task_report"]), corpus, current_gold)
     workflow = _validate_workflow(_resolve(root, corpus["workflow_report"]), corpus)
     formal_card = _validate_formal_card(corpus, root)
     report_build_matches = (
@@ -874,6 +1153,17 @@ def validate_corpus(corpus: dict[str, Any], *, project_root: str | Path) -> dict
         report_build_matches = report_build_matches and all(
             raw_task.get(key) == database.get(key) for key in ("knowledge_set_id", "source_content_hash")
         )
+    current_report_build_matches = (
+        current_tasks.get("reproducibility", {}).get("build_config_hash")
+        == database.get("build_config_hash")
+    )
+    if database.get("knowledge_set_id"):
+        current_path = _resolve(root, corpus["current_task_report"])
+        raw_current = _read_json(current_path) if current_path.is_file() else {}
+        current_report_build_matches = current_report_build_matches and all(
+            raw_current.get(key) == database.get(key)
+            for key in ("knowledge_set_id", "source_content_hash")
+        )
     gates = {
         "source_checkout": source_checkout.get("ok") is True,
         "compile_database": compile_db.get("ok") is True,
@@ -882,6 +1172,9 @@ def validate_corpus(corpus: dict[str, Any], *, project_root: str | Path) -> dict
         "task_metrics": tasks.get("ok") is True and report_build_matches,
         "knowledge_workflow": workflow.get("ok") is True,
         "formal_card": formal_card.get("ok") is True,
+        "current_task_gold": current_gold.get("ok") is True and current_gold.get("count") == 5,
+        "current_release_tasks": current_tasks.get("ok") is True
+        and current_report_build_matches,
     }
     foundation_gates = {
         key: gates[key] for key in (
@@ -893,9 +1186,12 @@ def validate_corpus(corpus: dict[str, Any], *, project_root: str | Path) -> dict
         "id": corpus["id"], "role": corpus["role"], "passed": all(gates.values()),
         "foundation_passed": all(foundation_gates.values()),
         "task_complete": tasks.get("task_complete") is True and report_build_matches,
+        "current_release_complete": current_tasks.get("current_release_complete") is True
+        and current_report_build_matches,
         "gates": gates, "source_checkout": source_checkout,
         "compile_database": compile_db, "database": database,
-        "task_gold": gold, "tasks": tasks, "workflow": workflow,
+        "task_gold": gold, "tasks": tasks, "current_task_gold": current_gold,
+        "current_tasks": current_tasks, "workflow": workflow,
         "formal_card": formal_card,
     }
 
@@ -1136,15 +1432,16 @@ def render_markdown(result: dict[str, Any]) -> str:
     lines = [
         "# CodeAtlas cJSON / lwIP 双语料验收", "",
         f"> 模式：`{result['mode']}`；基础能力：**{'通过' if result['foundation_passed'] else '失败'}**；"
-        f"40 题：**{'完成' if result['task_complete'] else '未完成'}**；"
+        f"旧 40 题：**{'完成' if result['legacy_task_complete'] else '30/40 保留'}**；"
+        f"当前卡 10 题：**{'完成' if result['current_release_complete'] else '未完成'}**；"
         f"作品集：**{'就绪' if result['portfolio_ready'] else '未就绪'}**；"
         f"公开状态：`{publication['status']}`。", "", "## 可复现身份", "",
         f"- CodeAtlas：`{result['codeatlas']['revision']}`；branch `{result['codeatlas']['branch']}`；"
         f"dirty={result['codeatlas']['dirty']}",
         f"- 实现内容哈希：`{result['codeatlas']['implementation_hash']}`",
         f"- 生成时间：`{result['generated_at']}`", "", "## 双语料矩阵", "",
-        "| 语料 | 角色 | 基础能力 | 固定源码/compile DB | 代码事实/Wiki | 20 题 | 知识闭环 | 正式卡 |",
-        "|---|---|---:|---:|---:|---:|---:|---:|",
+        "| 语料 | 角色 | 基础能力 | 固定源码/compile DB | 代码事实/Wiki | 旧 20 题 | 当前卡 5 题 | 知识闭环 | 正式卡 |",
+        "|---|---|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for item in result["corpora"]:
         mark = lambda value: "通过" if value else "失败"
@@ -1152,7 +1449,9 @@ def render_markdown(result: dict[str, Any]) -> str:
             f"| {item['id']} | {item['role']} | {mark(item['foundation_passed'])} | "
             f"{mark(item['gates'].get('source_checkout', False) and item['gates']['compile_database'])} | "
             f"{mark(item['gates']['database'])} | "
-            f"{mark(item['gates']['task_metrics'])} | {mark(item['gates']['knowledge_workflow'])} | "
+            f"{mark(item['gates']['task_metrics'])} | "
+            f"{mark(item['gates'].get('current_release_tasks', False))} | "
+            f"{mark(item['gates']['knowledge_workflow'])} | "
             f"{mark(item['gates'].get('formal_card', False))} |"
         )
     for item in result["corpora"]:
@@ -1168,6 +1467,13 @@ def render_markdown(result: dict[str, Any]) -> str:
                 f"完整方案 {summary.get('full', {}).get('recall')}%；"
                 f"MRR {summary.get('full', {}).get('mrr')}。",
             ])
+        current = item.get("current_tasks") or {}
+        if current.get("summary"):
+            current_summary = current["summary"]
+            lines.append(
+                f"- 当前发布卡验收：{current_summary.get('passed_tasks')}/"
+                f"{current_summary.get('total_tasks')}；该结果不回写旧 gold。"
+            )
     lines.extend(["", "## 公开声明验证", "", "| 声明 | 状态 | 实际 |", "|---|---|---|"])
     for claim in result["claims"]:
         actual = claim.get("actual", claim.get("reason", "—"))
@@ -1175,8 +1481,8 @@ def render_markdown(result: dict[str, Any]) -> str:
             actual = json.dumps(actual, ensure_ascii=False, sort_keys=True)
         lines.append(f"| {claim['id']} | `{claim['status']}` | {actual} |")
     lines.extend(["", "## 模型边界", "",
-                  f"- 真实模型 A/B/C：`{result['model_abc'].get('status', 'not_run')}`；"
-                  "未达发布门槛时不以规则结果替代模型数字。",
+                  f"- 旧整套 A/B/C 报告：`{result['model_abc'].get('status', 'not_run')}`；"
+                  "它与下方三类价值证明分开，未运行时不以规则结果替代模型数字。",
                   "- 合成测试审核只验证门禁，不作为真实经验复用效果。", ""])
     for item in result["model_abc"].get("corpora", []):
         lines.append(
@@ -1184,12 +1490,19 @@ def render_markdown(result: dict[str, Any]) -> str:
             f"{'通过' if item.get('passed') else '未通过'}。"
         )
     proof = result.get("proof") or {}
+    scored_items = [item for item in proof.get("items", [])
+                    if item.get("kind") != "maintenance"
+                    and isinstance(item.get("executed_trial_count"), int)]
+    scored_total = sum(item["executed_trial_count"] for item in scored_items)
+    scored_terminal = scored_total - sum(
+        int(item.get("unresolved_trial_count") or 0) for item in scored_items)
     lines.extend(["", "## 三类价值证明", "",
                   f"- 工程底座：`{'passed' if result.get('engineer_pass') else 'not_ready'}`",
                   f"- 预登记实验执行：`{'completed' if proof.get('experiments_complete') else 'not_completed'}`",
-                  f"- 双审／独立真值复核：`{'completed' if proof.get('reviews_complete') else 'not_completed'}`",
+                  f"- 双审／独立真值复核：`{scored_terminal}/{scored_total} 终局`"
+                  if scored_total else "- 双审／独立真值复核：`not_run`",
                   f"- 正式知识卡人工发布：`{'completed' if result.get('human_release') else 'not_completed'}`",
-                  f"- 实验答案另行人工复核（非发布门槛）：`{'completed' if proof.get('human_review_done') else 'not_completed'}`",
+                  f"- 可选人工答案复核：`{'completed' if proof.get('human_review_done') else 'not_run'}`（不冒充 AI 双审）",
                   f"- 所有主张均有终态：`{str(bool(proof.get('claims_complete'))).lower()}`",
                   f"- 所有预登记收益均得到支持：`{str(bool(proof.get('effect_observed'))).lower()}`（不作为作品集就绪的硬门槛）",
                   f"- 公开复现：`{'completed' if result.get('public_repro') else 'not_completed'}`", ""])
@@ -1210,11 +1523,12 @@ def render_markdown(result: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def _portfolio_ready(passed: bool, human_release: bool,
+def _portfolio_ready(foundation_passed: bool, human_release: bool,
+                     current_release_complete: bool,
                      proof: dict[str, Any]) -> bool:
     """Completion means the evidence is complete, not that every result is positive."""
     return bool(
-        passed and human_release
+        foundation_passed and human_release and current_release_complete
         and proof.get("experiments_complete") is True
         and proof.get("reviews_complete") is True
         and proof.get("claims_complete") is True
@@ -1266,6 +1580,10 @@ def main(
     }
     result["foundation_passed"] = all(item.get("foundation_passed", False) for item in corpora)
     result["task_complete"] = all(item.get("task_complete", False) for item in corpora)
+    result["legacy_task_complete"] = result["task_complete"]
+    result["current_release_complete"] = bool(corpora) and all(
+        item.get("current_release_complete") is True for item in corpora
+    )
     result["passed"] = (
         result["foundation_passed"] and result["task_complete"]
         and required_claims_ok and release_ok
@@ -1280,10 +1598,15 @@ def main(
     result["ai_effect_review"] = proof["ai_review_done"]
     result["effect_observed"] = proof["effect_observed"]
     result["experiments_complete"] = proof["experiments_complete"]
+    result["reviews_complete"] = proof["reviews_complete"]
     result["claims_complete"] = proof["claims_complete"]
+    result["judge_qualification"] = proof.get("judge_qualification", {
+        "status": "not_run", "qualified": False,
+    })
     result["public_repro"] = publication["status"] == "publicly_verified"
     result["portfolio_ready"] = _portfolio_ready(
-        result["passed"], result["human_release"], proof
+        result["foundation_passed"], result["human_release"],
+        result["current_release_complete"], proof
     )
     target = _resolve(root, out)
     json_target = target.with_suffix(".json")

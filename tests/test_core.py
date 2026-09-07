@@ -294,6 +294,30 @@ def test_only_strong_current_bm25_experience_gets_a_first_page_slot():
                )[:10])
 
 
+def test_reviewed_experience_has_scoped_lexical_recall_lane():
+    conn = dbm.connect(":memory:")
+    conn.execute(
+        """INSERT INTO chunk(uid,kind,title,text,evidence_level,visible)
+           VALUES('exp:reviewed','experience','嵌套边界排障',
+                  'parse limit verification', 'B',1),
+                 ('exp:hidden','experience','嵌套边界草稿',
+                  'parse limit verification', 'B',0)"""
+    )
+    conn.execute(
+        "INSERT INTO chunk_fts(rowid,title,text) "
+        "SELECT rowid,title,text FROM chunk WHERE visible=1"
+    )
+    conn.commit()
+    reviewed = conn.execute(
+        "SELECT rowid FROM chunk WHERE uid='exp:reviewed'"
+    ).fetchone()["rowid"]
+    assert engine.recall_reviewed_experience(
+        conn, "parse limit 如何 verification"
+    ) == [reviewed]
+    # One generic overlap is not enough to turn a card into answer evidence.
+    assert engine.recall_reviewed_experience(conn, "parse unrelated question") == []
+
+
 def test_cannot_create_approved_directly(kb):
     """不能绕过审核直接插 approved。"""
     conn, _ = kb

@@ -56,7 +56,7 @@ cJSON 直接使用 Dave Gamble 的官方 GitHub 仓库；lwIP 的官方开发源
 | cJSON `fb16e5c` | 28 | 34 / 3 / 1 | 15/20 | Recall@10 100.0% vs 90.0%，+10pt；MRR +0.271 | 影响 F1 1.0；拒答 100% |
 | lwIP `3d896ba` | 124 | 266 / 18 / 1 | 15/20 | Recall@10 100.0% vs 80.0%，+20pt；MRR +0.397 | 影响 F1 1.0；拒答 100% |
 
-每套 20 题都含 10 道代码检索、2 道影响分析、3 道拒答和 5 道经验复用。当前两套代码检索均为 10/10，影响与拒答全部通过，真实检索失败为 0；旧任务报告中的 10 道经验复用题仍标记为 `blocked_by_review`，但这不再表示主数据库缺少 B 卡。两张正式卡已由用户确认并完成 QA、精确锚定和发布；旧任务清单冻结的是早期示例卡标题，其中部分 lwIP 问题也不属于本次默认接口案例。为避免看到结果后改 gold，旧结果保留为 30/40，并单独验证两张当前卡的 Top-10 检索与完整版本引用。统一状态仍是 `foundation_passed=true`、`task_complete=false`、`portfolio_ready=false`。
+每套 20 题都含 10 道代码检索、2 道影响分析、3 道拒答和 5 道经验复用。当前两套代码检索均为 10/10，影响与拒答全部通过，真实检索失败为 0；旧任务报告中的 10 道经验复用题仍标记为 `blocked_by_review`，但这不再表示主数据库缺少 B 卡。两张正式卡已由用户确认并完成 QA、精确锚定和发布；旧任务清单冻结的是早期示例卡标题，其中部分 lwIP 问题也不属于本次默认接口案例。为避免看到结果后改 gold，旧结果保留为 30/40；与当前两张卡一致的新验收集为 10/10，`current_release_complete=true`。由于真实效果复核仍有 1 个语义仲裁未决，`portfolio_ready=false`。
 
 仓库已加入两条可复现实验：cJSON 用固定的 999/1000/1001 层输入核对解析边界（输入不会跟随宏一起移动），lwIP 覆盖首个/第二个接口加入时 `netif_list`、`netif_default` 与返回值。实验脚本会校验固定 revision，并将输出与受控结果逐行比对。两张知识卡已按固定 `review_bundle_hash` 由用户集中确认，QA 记录为 `Guoshuaiqi / human / formal / passed`，并分别发布到已验证的 active 快照。审核正文、依赖、锚点、实验或 QA 任一变化都会使这次确认失效。完整材料见 [正式知识卡审核包](docs/review/CARD-REVIEW-20260906.md)。
 
@@ -68,19 +68,22 @@ cJSON 直接使用 Dave Gamble 的官方 GitHub 仓库；lwIP 的官方开发源
 - [lwIP 六场景闭环](docs/WORKFLOW-EVAL-LWIP.md)
 - [双语料统一验收](docs/ACCEPTANCE-CJSON-LWIP.md)
 - [三类价值证明协议](docs/design/VALUE-PROOF-PROTOCOL.md)
-- [Luna 答案采集与评分校准状态](docs/runs/PROOF-LUNA-20260907-STATUS.md)
-- [真实上游维护变异结果](docs/runs/PROOF-MAINTENANCE-UPSTREAM-20260906-v4.md)
+- [Luna 答案与 V4 评分收口状态](docs/runs/PROOF-LUNA-20260907-STATUS.md)
+- [cJSON Wiki 效果对照](docs/runs/curated/PROOF-WIKI-CJSON-V4.md)
+- [lwIP Wiki 效果对照](docs/runs/curated/PROOF-WIKI-LWIP-V4.md)
+- [知识复用效果对照](docs/runs/curated/PROOF-KNOWLEDGE-REUSE-V4.md)
+- [真实上游维护变异结果](docs/PROOF-MAINTENANCE-UPSTREAM-V5.md)
 - [维护变异补充单元契约（CC0 合成）](docs/PROOF-MAINTENANCE.md)
 - [cJSON 自动回归消融](docs/EVAL-CJSON.md)
 - [lwIP 自动回归消融](docs/EVAL-LWIP.md)
 
-当前统一报告是本地未提交运行结果，因此状态只能是 `locally_verified_not_published`。只有实现内容、题集和报告哈希仍与 full 快照一致，工作区干净、当前 commit 已在远端且公开报告 URL 可读取时，`release` 才会标记 `publicly_verified`。
+当前结果只在本地验证，尚未推送或做外部干净下载复现，因此状态是 `locally_verified_not_published`。只有实现内容、题集和报告哈希仍与 full 快照一致，当前 commit 已在远端且公开报告 URL 可读取时，`release` 才会标记 `publicly_verified`。
 
 旧检索回归集共 117 题（107 道自动结构题、10 道人工语义题），和新的 40 道正式人工任务分开报告。自动结构题的 gold 来自同一张 `certain` 图，因此不能拿来证明自然语言泛化能力。
 
-这 40 道人工任务也已用于调试与检索调整，属于开发回归集，不是独立留出集。上表只能证明这批固定任务的召回和门禁表现，不能证明加入 Wiki 后模型更理解代码。[三类价值证明协议](docs/design/VALUE-PROOF-PROTOCOL.md) 将 Wiki、会话组织和维护成本分成三个实验。Luna 已完成 24 个开发冒烟和 486 个正式答案试次；但新建并双 agent 核验的分层评分校准没有通过，两个 judge 分别命中 45/66 和 50/66 个 point，因此正式答案评分按协议没有启动，模型正确率与 Wiki/知识卡增益仍为 `unresolved`。失败 batch 与 510 个冻结答案均保留，新实验也不会自动把旧的十道审核阻塞改成通过。
+这 40 道人工任务也已用于调试与检索调整，属于开发回归集，不是独立留出集。上表只能证明这批固定任务的召回和门禁表现，不能证明加入 Wiki 后模型更理解代码。[三类价值证明协议](docs/design/VALUE-PROOF-PROTOCOL.md) 将 Wiki、会话组织和维护成本分成三个实验。510 个 Luna 答案保持冻结；Terra 未通过 V4A，按预登记规则启用的 Sol 在 V4B 上通过。486 个正式答案随后完成双评和必要仲裁，其中 485 个形成终局语义评分，cJSON 有 1 个限定条件判断仍为 `unresolved`。lwIP 的 Wiki 主对照观察到 +6.25pt，但 95% 区间触及 0；知识卡对照未观察到收益。因此当前四项效果主张均为 `insufficient_evidence`，不能声称 Wiki 或知识卡已带来稳定提升。
 
-真实上游维护实验已在固定 cJSON/lwIP 副本上运行 24/24 个预登记场景，执行和报告完整性通过。首轮全仓指纹策略暴露了无关变化全部触发复审的问题；改为审核时声明“结论实际消费的函数、宏和配置”后，8 个有效变化全部重验证，8 个无关变化全部保留，语义决策为 16/16（漏放 0、误失效 0）。对照中，仅主锚点哈希为 13/16，漏放 2 个且误失效 1 个；全部失效为 8/16，误失效 8 个。本机本次 16 个场景的依赖指纹计算约 0.81 秒。发布中断和治理回滚场景实际调用了项目的持久化发布日志并完成恢复；该实验仍未测完整解析/索引重建和真人复核成本，因此证明的是这组冻结变更上的失效决策与恢复正确性，不是普遍的维护收益。
+真实上游维护实验已在固定 cJSON/lwIP 副本上运行 24/24 个预登记场景，执行和报告完整性通过。首轮全仓指纹策略暴露了无关变化全部触发复审的问题；改为审核时声明“结论实际消费的函数、宏和配置”后，8 个有效变化全部重验证，8 个无关变化全部保留，语义决策为 16/16（漏放 0、误失效 0）。对照中，仅主锚点哈希为 13/16，漏放 2 个且误失效 1 个；全部失效为 8/16，误失效 8 个。本机本次 16 个场景的依赖指纹计算约 0.83 秒。发布中断和治理回滚场景实际调用了项目的持久化发布日志并完成恢复；该实验仍未测完整解析/索引重建和真人复核成本，因此证明的是这组冻结变更上的失效决策与恢复正确性，不是普遍的维护收益。
 
 ## 快速运行
 
@@ -99,7 +102,7 @@ codeatlas acceptance-eval --mode release # 发布前：只验证已提交 full �
 codeatlas eval knowledge-reuse          # 无 Key 时冻结并校验两例同源材料
 codeatlas eval maintenance --executor upstream \
   --manifest eval/upstream_maintenance.yaml \
-  --out docs/PROOF-MAINTENANCE-UPSTREAM.json
+  --out docs/PROOF-MAINTENANCE-UPSTREAM-V5.json
 ```
 
 `acceptance-eval` 同时原子生成 Markdown 与 JSON；任一固定 revision、compile database、构建哈希、Wiki 完整性、40 题门禁、知识闭环或声明校验失败都会返回非零退出码。`release` 输出到独立的 `docs/RELEASE-VERIFICATION.*`，不会覆盖作为依据的 full 报告。
@@ -129,12 +132,12 @@ codeatlas agent run "审查 parse_value 的改动影响范围" \
   --session-id cjson-nesting-review --mode auto --db data/kb.db
 ```
 
-真实证明实验固定使用 OpenCode Go 的 OpenAI-compatible 接口。Key 只在当前终端设置；开始前还需要在账户侧确认 `Use balance` 已关闭，CodeAtlas 无法替你读取或修改这项计费开关：
+真实证明实验使用 OpenAI-compatible 接口。下面只给出占位配置；Key 必须由运行者在当前终端临时设置，不写入仓库、报告、数据库或日志：
 
 ```bash
-export LLM_PROVIDER="opencode-go"
-export LLM_BASE_URL="https://opencode.ai/zen/go/v1"
-export LLM_MODEL="deepseek-v4-flash"
+export LLM_PROVIDER="openai-compatible"
+export LLM_BASE_URL="https://provider.example/v1"
+export LLM_MODEL="model-id"
 export LLM_API_KEY="..."
 # 可选硬预算；价格必须取当前服务的公开计费口径
 export LLM_MAX_REQUESTS="250"
@@ -154,16 +157,17 @@ codeatlas eval proof prepare data/proof/campaign-v1 --max-requests 5000
 codeatlas eval proof run --campaign data/proof/campaign-v1 --profile smoke
 codeatlas eval proof run --campaign data/proof/campaign-v1 --profile full --resume
 codeatlas eval proof review --campaign data/proof/campaign-v1 \
-  --calibration-only --out docs/PROOF-CALIBRATION.json
-# 仅当冻结校准通过，才用同一 attempt --resume 进入正式评分
+  --calibration eval/review_calibration_v4a.yaml \
+  --attempt judge-attempt --judge-model model-id --calibration-only
+# 仅当冻结校准通过，才允许同一 attempt 进入正式评分
 codeatlas eval proof report --campaign data/proof/campaign-v1
 ```
 
-证明 campaign 将开发冒烟和正式留出试次分开：冒烟只检查接口、工具与上下文是否完整，不是正式题的前缀，也不进入效果统计。正式 Wiki 对照 432 个答案试次，经验对照 54 个答案试次。所有回答、双评分和必要仲裁共用持久化 SQLite 账本；每个答案及评分角色使用独立上游 session，失败和不确定调用保留且不自动重跑，套餐耗尽可以断点续跑。按最坏六次答案调用、双评分、全量仲裁和三名评分角色的 12 项校准计算，campaign 会把 4554 次离线调用上界写入 `plan.json`；知识材料生产与复核另计。准确性、安全和规划率统计全部原始试次，只有延迟与 token 可取分布或中位数。每次完整模型输入最多 8,000 估算 token，输出最多 1,200 token；实际 provider token 另计。接口与套餐边界以 [OpenCode Go 官方文档](https://opencode.ai/docs/go/) 为准。
+证明 campaign 将开发冒烟和正式留出试次分开：冒烟只检查接口、工具与上下文是否完整，不是正式题的前缀，也不进入效果统计。正式 Wiki 对照 432 个答案试次，经验对照 54 个答案试次。所有回答、双评分和必要仲裁共用持久化 SQLite 账本；每个答案及评分角色使用独立上游 session，失败和不确定调用保留且不自动重跑，额度耗尽可以断点续跑。每次完整模型输入最多 8,000 估算 token，输出最多 1,200 token；实际 provider token 另计。本轮冻结答案使用 Luna，Terra/V4A 主评资格失败后，Sol/V4B 密封后备通过；评分与恢复链的完整边界见 [实验状态](docs/runs/PROOF-LUNA-20260907-STATUS.md)。
 
 报告把锚点召回、标签合法与答案 rubric 分开；未审准确率为 null，不按零分展示。`eval review <原报告> <评分JSON> <新报告JSON>` 导入带来源的逐点评审并同步 JSON、Markdown；AI 评审只能标为 `ai_reviewed`，不会冒充人审，原始试次也不覆盖。`eval reading` 在相同代码检索底座上比较无 Wiki、Wiki 自由阅读和渐进阅读，输出中性盲审包；旧名 `wiki_flat` 不代表全文平铺。对照采用固定 seed 的成对交错调度，先平均同题重复，再按机制等权汇总并 bootstrap。服务未给出完整 token 时记未测，经验题节省不计入代码题收益。
 
-锚点命中提升不能再解锁答案增益门禁。模型效果声明还需 `--answer-key` 绑定的独立语义金标、完整三次运行、通过校准的双 agent 盲审和必要的第三方仲裁；校准报告必须绑定当前 12 个样例以及实际评分 agent 的 provider、model、agent 和 prompt hash，不能换一个模型后复用旧凭据。这些结果始终标为 `ai_reviewed`，不会冒充人审。正式知识卡仍由用户单独确认，旧 40 题或 8 题冒烟不具备效果发布资格。源码/实现/题集/批准卡哈希变化会使报告过期；无 Key 只显示 `not_run`，不以规则结果代替。当前真实答案已完整采集，但评分校准失败，所以效果报告仍不可用。
+锚点命中提升不能解锁答案增益门禁。效果结论绑定独立语义 gold、完整三次运行、通过资格集的双 agent 盲审和必要仲裁；校准只对实际 provider、model、agent、prompt 与输入哈希有效。这些结果标为 `ai_reviewed`，不冒充人审。源码、实现、题集或批准卡变化会使报告过期。本轮一项 cJSON 仲裁保持语义未决，所以 cJSON 主对照不补算；其余已完成结果也只支持“证据不足”，不是正向收益。
 
 ## 本机交互演示
 
@@ -176,6 +180,6 @@ codeatlas serve --db data/kb.db --data-dir data
 
 ## 项目边界
 
-当前版本不做多用户团队服务、生产权限审计、自动监听真实会话、IDE/MCP 插件或自动修改代码。模型是可选的规划与表达层，不是事实来源、审核者或发布者。两张公开 B 卡已经完成用户审核；真实模型 campaign 的答案采集也已完成，但评分模型未通过预登记校准。下一轮若继续，必须使用新的未曝光资格集预先验证评分者，或改为真实人工双审；此前不把经验复用、模型效果或维护摊销收益写成已完成指标。
+当前版本不做多用户团队服务、生产权限审计、自动监听真实会话、IDE/MCP 插件或自动修改代码。模型是可选的规划与表达层，不是事实来源、审核者或发布者。两张公开 B 卡已完成用户审核并可由发布包重建；真实模型实验也已执行，但有 1 个语义仲裁未决，且已完成对照没有支持稳定的 Wiki 或知识卡收益。项目可以展示工程机制与负面实验，不能包装成企业级平台、生产效果或已证明优于直接读代码。
 
 更多说明：[架构](docs/ARCHITECTURE.md) · [评测口径](docs/EVAL.md) · [Agent 与知识卡](docs/AGENT_WORKFLOW.md) · [面试 STAR](docs/INTERVIEW_STAR.md)

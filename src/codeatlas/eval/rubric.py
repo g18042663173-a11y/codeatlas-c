@@ -2,6 +2,7 @@
 from __future__ import annotations
 import json
 import copy
+import hashlib
 from functools import lru_cache
 import math
 import re
@@ -21,6 +22,14 @@ RUBRIC = {
 
 def calibration_input_hash(value):
     """Bind calibration gold while allowing its review envelope to evolve."""
+    if value.get("schema_version") == 4:
+        frozen = {key: value.get(key) for key in (
+            "schema_version", "calibration_id", "split", "artifact_scope",
+            "policy", "source_scope", "evidence_catalog", "samples",
+        )}
+        return hashlib.sha256(json.dumps(
+            frozen, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+        ).encode()).hexdigest()
     return digest({key: value.get(key) for key in
         ("schema_version", "split", "manifest", "rubric_contract", "samples")})
 
@@ -88,24 +97,138 @@ def _resolve_layered_calibration(value, target, root):
             "content_hash_override": digest([digest(target.read_bytes()), base["content_hash"]])}
 
 
+def _resolve_sealed_calibration(value, target, root):
+    """Materialize a fresh V4 set without inheriting V3 labels or answer keys."""
+    if value.get("sealed") is not True or value.get("split") != "qualification_holdout":
+        raise ValueError("V4 qualification must be a sealed holdout")
+    declared = value.get("calibration_input_hash")
+    actual = calibration_input_hash(value)
+    if declared != actual:
+        raise ValueError("V4 calibration input hash changed")
+    catalog = value.get("evidence_catalog")
+    if not isinstance(catalog, dict) or not catalog:
+        raise ValueError("V4 calibration requires an evidence catalog")
+    checked = {}
+    for key, basis in catalog.items():
+        if not isinstance(key, str) or not key or not isinstance(basis, dict):
+            raise ValueError("V4 evidence catalog is invalid")
+        source = (root / str(basis.get("path", ""))).resolve()
+        if root not in source.parents or not source.is_file():
+            raise ValueError("V4 calibration evidence path escaped or is missing")
+        if digest(source.read_bytes()) != basis.get("sha256"):
+            raise ValueError("V4 calibration evidence hash changed")
+        lines = source.read_text(encoding="utf-8").splitlines()
+        start, end = basis.get("line_start"), basis.get("line_end")
+        if not isinstance(start, int) or not isinstance(end, int) or not 1 <= start <= end <= len(lines):
+            raise ValueError("V4 calibration evidence range is invalid")
+        excerpt = "\n".join(lines[start - 1:end])
+        if excerpt != str(basis.get("excerpt", "")).rstrip("\n"):
+            raise ValueError("V4 calibration evidence excerpt changed")
+        if basis.get("excerpt_sha256") != digest(excerpt.encode()):
+            raise ValueError("V4 calibration evidence excerpt hash changed")
+        checked[key] = {
+            "tag": key, "kind": "pinned_source", "path": basis["path"],
+            "line_start": start, "line_end": end,
+            "sha256": basis["sha256"], "file_sha256": basis["sha256"],
+            "excerpt": excerpt, "text": excerpt,
+        }
+    policy = value.get("policy") or {}
+    thresholds = {key: policy.get(key) for key in (
+        "point_accuracy_min", "met_recall_min", "missed_recall_min",
+        "contradiction_recall_min", "contradicted_as_met_max",
+        "forbidden_flag_accuracy_min", "unsafe_citation_as_supported_max",
+        "manipulation_detection_required", "response_coverage_required")}
+    samples = []
+    for row in value.get("samples") or []:
+        references = row.get("basis")
+        if (not isinstance(references, list) or not references
+                or any(reference not in checked for reference in references)):
+            raise ValueError("V4 calibration sample has invalid evidence references")
+        points = row.get("expected_points")
+        if not isinstance(points, list) or not points:
+            raise ValueError("V4 calibration sample has no expected points")
+        point_ids = [point.get("id") for point in points if isinstance(point, dict)]
+        if len(point_ids) != len(points) or len(set(point_ids)) != len(point_ids):
+            raise ValueError("V4 calibration point ids are invalid")
+        expected = copy.deepcopy(row.get("expected_rubric") or {})
+        if set(expected.get("expected_point_results") or {}) != set(point_ids):
+            raise ValueError("V4 expected point labels do not cover the sample")
+        relation_to_state = {
+            "supported": "verified", "mismatched": "mismatched",
+            "fabricated_content": "fabricated", "not_applicable": "absent",
+        }
+        if expected.get("citation_relation") not in relation_to_state:
+            raise ValueError("V4 expected citation relation is invalid")
+        expected["citation_state"] = relation_to_state[expected["citation_relation"]]
+        samples.append({**copy.deepcopy(row), "expected_rubric": expected,
+                        "task_id": row["id"],
+                        "public_basis": [copy.deepcopy(checked[key]) for key in references]})
+    contract = {
+        "version": policy.get("version"),
+        "decisions": {key: key for key in ("pass", "partial", "fail", "acceptable_refusal")},
+        "citation_states": ["verified", "mismatched", "fabricated", "absent"],
+        "point_states": {key: key for key in ("met", "missed", "contradicted")},
+        "calibration_thresholds": thresholds,
+    }
+    return {**copy.deepcopy(value), "rubric_contract": contract, "samples": samples,
+            "content_hash_override": digest(target.read_bytes()),
+            # ``samples`` above are a judge-runtime projection with resolved
+            # source excerpts.  Source-review approvals bind the sealed YAML
+            # inputs before that projection, so preserve that exact hash.
+            "calibration_input_hash_override": actual}
+
+
+def _validate_v4_source_reviews(value, root, input_hash):
+    """Bind V4 approval metadata to the two immutable source-review files."""
+    review = value.get("review") or {}
+    rows = review.get("independent_reviews")
+    if not isinstance(rows, list) or len(rows) != 2:
+        raise ValueError("approved V4 calibration requires two source reviews")
+    for row in rows:
+        relative = row.get("validation_report")
+        target = (root / str(relative or "")).resolve()
+        if root not in target.parents or not target.is_file():
+            raise ValueError("V4 source review report escaped or is missing")
+        if digest(target.read_bytes()) != row.get("validation_report_hash"):
+            raise ValueError("V4 source review report hash changed")
+        report = json.loads(target.read_text(encoding="utf-8"))
+        identity = (report.get("reviewer_kind"), report.get("provider"),
+                    report.get("model"), report.get("agent"))
+        declared = (row.get("reviewer_kind"), row.get("provider"),
+                    row.get("model"), row.get("agent"))
+        if (identity != declared or report.get("input_hash") != input_hash
+                or report.get("verdict") != "approved"
+                or report.get("independent") is not True
+                or report.get("peer_reviews_visible") is not False
+                or report.get("human_reviewed") is not False):
+            raise ValueError("V4 source review report identity or verdict is invalid")
+
+
 def load_calibration(path):
     """Validate the frozen twelve-sample judge calibration against local bytes."""
     import yaml
     target = Path(path).resolve()
     root = Path(__file__).resolve().parents[3]
     value = yaml.safe_load(target.read_text(encoding="utf-8"))
-    if not isinstance(value, dict) or value.get("schema_version") not in {2, 3}:
-        raise ValueError("calibration must use schema_version 2 or 3")
+    if not isinstance(value, dict) or value.get("schema_version") not in {2, 3, 4}:
+        raise ValueError("calibration must use schema_version 2, 3 or 4")
     if value.get("schema_version") == 3:
         value = _resolve_layered_calibration(value, target, root)
+    elif value.get("schema_version") == 4:
+        value = _resolve_sealed_calibration(value, target, root)
     samples = value.get("samples")
     if not isinstance(samples, list) or len(samples) != 12:
         raise ValueError("calibration requires exactly twelve samples")
-    expected_categories = {
+    expected_categories = ({
+        "correct": 2, "missing_condition": 2, "condition_inversion": 2,
+        "true_citation_false_conclusion": 2, "fabricated_citation": 1,
+        "reasonable_refusal": 1, "incorrect_refusal": 1,
+        "scoring_manipulation": 1,
+    } if value.get("schema_version") == 4 else {
         "correct": 2, "missing_condition": 2, "condition_inversion": 2,
         "true_citation_false_conclusion": 2, "fabricated_citation": 2,
         "reasonable_refusal": 1, "scoring_manipulation": 1,
-    }
+    })
     from collections import Counter
     if Counter(item.get("category") for item in samples) != expected_categories:
         raise ValueError("calibration category coverage changed")
@@ -122,7 +245,7 @@ def load_calibration(path):
         raise ValueError("calibration citation-state contract changed")
     if point_states != {"met", "missed", "contradicted"}:
         raise ValueError("calibration point-state contract must match the three-state answer rubric")
-    if value.get("schema_version") == 3:
+    if value.get("schema_version") in {3, 4}:
         thresholds = contract.get("calibration_thresholds") or {}
         expected_thresholds = {
             "point_accuracy_min": 0.90, "met_recall_min": 0.90,
@@ -160,41 +283,47 @@ def load_calibration(path):
             excerpt = "\n".join(lines[start - 1:end])
             if excerpt != str(basis.get("excerpt", "")).rstrip("\n"):
                 raise ValueError("calibration evidence excerpt changed")
-    manifest = value.get("manifest") or {}
-    manifest_path = (root / manifest.get("path", "")).resolve()
-    if root not in manifest_path.parents or not manifest_path.is_file():
-        raise ValueError("calibration source manifest missing")
-    if digest(manifest_path.read_bytes()) != manifest.get("sha256"):
-        raise ValueError("calibration source manifest hash changed")
-    answer_binding = manifest.get("answer_key") or {}
-    answer_path = (root / answer_binding.get("path", "")).resolve()
-    if root not in answer_path.parents or not answer_path.is_file():
-        raise ValueError("calibration answer key missing")
-    if digest(answer_path.read_bytes()) != answer_binding.get("sha256"):
-        raise ValueError("calibration answer-key hash changed")
-    answer_value = yaml.safe_load(answer_path.read_text(encoding="utf-8"))
-    answer_tasks = answer_value.get("tasks") if isinstance(answer_value, dict) else None
-    if not isinstance(answer_tasks, dict):
-        raise ValueError("calibration answer key has no task mapping")
-    for sample in samples:
-        answer_row = answer_tasks.get(sample.get("task_id"))
-        if not isinstance(answer_row, dict):
-            raise ValueError("calibration sample references an unknown answer-key task")
-        answer_points = answer_row.get("expected_points")
-        if not isinstance(answer_points, list) or not answer_points:
-            raise ValueError("calibration answer-key task has no expected points")
-        expected_ids = [point.get("id") for point in answer_points
-                        if isinstance(point, dict)]
-        if (len(expected_ids) != len(answer_points) or not all(expected_ids)
-                or len(set(expected_ids)) != len(expected_ids)):
-            raise ValueError("calibration answer-key point ids are invalid")
-        actual_ids = set(sample["expected_rubric"]["expected_point_results"])
-        if actual_ids != set(expected_ids):
-            raise ValueError("calibration sample must cover every answer-key point exactly once")
-    input_hash = calibration_input_hash(value)
+    if value.get("schema_version") == 4:
+        manifest = None
+    else:
+        manifest = value.get("manifest") or {}
+    if manifest is not None:
+        manifest_path = (root / manifest.get("path", "")).resolve()
+        if root not in manifest_path.parents or not manifest_path.is_file():
+            raise ValueError("calibration source manifest missing")
+        if digest(manifest_path.read_bytes()) != manifest.get("sha256"):
+            raise ValueError("calibration source manifest hash changed")
+        answer_binding = manifest.get("answer_key") or {}
+        answer_path = (root / answer_binding.get("path", "")).resolve()
+        if root not in answer_path.parents or not answer_path.is_file():
+            raise ValueError("calibration answer key missing")
+        if digest(answer_path.read_bytes()) != answer_binding.get("sha256"):
+            raise ValueError("calibration answer-key hash changed")
+        answer_value = yaml.safe_load(answer_path.read_text(encoding="utf-8"))
+        answer_tasks = answer_value.get("tasks") if isinstance(answer_value, dict) else None
+        if not isinstance(answer_tasks, dict):
+            raise ValueError("calibration answer key has no task mapping")
+        for sample in samples:
+            answer_row = answer_tasks.get(sample.get("task_id"))
+            if not isinstance(answer_row, dict):
+                raise ValueError("calibration sample references an unknown answer-key task")
+            answer_points = answer_row.get("expected_points")
+            if not isinstance(answer_points, list) or not answer_points:
+                raise ValueError("calibration answer-key task has no expected points")
+            expected_ids = [point.get("id") for point in answer_points
+                            if isinstance(point, dict)]
+            if (len(expected_ids) != len(answer_points) or not all(expected_ids)
+                    or len(set(expected_ids)) != len(expected_ids)):
+                raise ValueError("calibration answer-key point ids are invalid")
+            actual_ids = set(sample["expected_rubric"]["expected_point_results"])
+            if actual_ids != set(expected_ids):
+                raise ValueError("calibration sample must cover every answer-key point exactly once")
+    input_hash = value.get("calibration_input_hash_override") or calibration_input_hash(value)
     origin = {"review_status": "unresolved", "effect_review_eligible": False,
               "human_release_eligible": False, "selected": None}
     if value.get("status") == "approved":
+        if value.get("schema_version") == 4:
+            _validate_v4_source_reviews(value, root, input_hash)
         from . import protocol
         origin = protocol.review_origin(
             value.get("review") or {}, input_hash,
@@ -288,15 +417,17 @@ def _layered_calibration_run(calibration, reviewer, actual):
     return result
 
 
-def score_calibration(path, submitted):
+def score_calibration(path, submitted, *, minimum_reviews=2):
     """Layered semantic calibration; citation safety remains deterministic and separate."""
     calibration = load_calibration(path)
-    if calibration.get("schema_version") != 3:
-        raise ValueError("layered score calibration requires schema_version 3")
+    if calibration.get("schema_version") not in {3, 4}:
+        raise ValueError("semantic score calibration requires schema_version 3 or 4")
     packet = calibration_packet(calibration)
     runs = submitted.get("reviews") if isinstance(submitted, dict) else None
-    if not isinstance(runs, list) or len(runs) < 2:
-        raise ValueError("calibration submission requires at least two isolated agent reviews")
+    if (type(minimum_reviews) is not int or minimum_reviews < 1
+            or not isinstance(runs, list) or len(runs) < minimum_reviews):
+        raise ValueError(
+            f"calibration submission requires at least {minimum_reviews} isolated agent reviews")
     agents, review_runs = set(), []
     for run in runs:
         reviewer = copy.deepcopy(run.get("reviewer") if isinstance(run, dict) else None)
@@ -321,7 +452,8 @@ def score_calibration(path, submitted):
     target = Path(path).resolve()
     if root not in target.parents:
         raise ValueError("calibration path must stay inside the project")
-    result = {"schema_version": 3, "status": "passed" if passed else "failed",
+    result = {"schema_version": calibration["schema_version"],
+            "status": "passed" if passed else "failed",
             "passed": passed, "correct": min(run["correct"] for run in review_runs), "total": 12,
             "calibration_manifest_hash": calibration["content_hash"],
             "calibration_input_hash": calibration["calibration_input_hash"],
@@ -335,9 +467,10 @@ def score_calibration(path, submitted):
     return result
 
 
-def calibration_attestation(value, expected_reviewers=()):
+def calibration_attestation(value, expected_reviewers=(), *, model_scoped=False,
+                            qualification_hash=None):
     """Bind calibration to the current gold and the actual judging agents."""
-    if not (isinstance(value, dict) and value.get("schema_version") == 3
+    if not (isinstance(value, dict) and value.get("schema_version") in {3, 4}
             and value.get("passed") is True
             and value.get("calibration_gold_eligible") is True):
         return False
@@ -398,7 +531,25 @@ def calibration_attestation(value, expected_reviewers=()):
         required = {tuple(row.get(key) for key in
                           ("provider", "model", "agent", "prompt_hash"))
                     for row in expected_reviewers}
-        return len(actual) == len(runs) and required <= actual
+        if not model_scoped:
+            return len(actual) == len(runs) and required <= actual
+        # A sealed model qualification may be reused by new isolated answer
+        # sessions.  It binds provider/model/prompt, never pretends that the
+        # formal answer agents themselves ran the qualification samples.
+        qualified_profiles = {(row[0], row[1], row[3]) for row in actual}
+        answer_profiles = {(row[0], row[1], row[3]) for row in required}
+        if (len(required) < 2 or not answer_profiles <= qualified_profiles
+                or not qualification_hash):
+            return False
+        base = copy.deepcopy(value)
+        # When an arbiter was separately qualified, its run is appended after
+        # the original two-session model qualification.  The frozen binding
+        # continues to point to that original attestation.
+        if len(base["review_runs"]) > 2:
+            base["review_runs"] = base["review_runs"][:2]
+            base["reviewer_count"] = 2
+            base["review_results_hash"] = digest(base["review_runs"])
+        return digest(base) == qualification_hash
     except (OSError, ValueError, TypeError, KeyError):
         return False
 
@@ -886,7 +1037,15 @@ def finalize(report):
         "review_packet_complete": _packet_complete(report),
         "judge_calibration": (statuses == {"human_reviewed"}
                               or calibration_attestation(
-                                  report.get("judge_calibration"), _answer_judges(report))),
+                                  report.get("judge_calibration"), _answer_judges(report),
+                                  model_scoped=bool(
+                                      (report.get("review_history") or [{}])[-1]
+                                      .get("reviews", {}).get("review_protocol", {})
+                                      .get("qualified_by_batch_id")),
+                                  qualification_hash=(
+                                      (report.get("review_history") or [{}])[-1]
+                                      .get("reviews", {}).get("review_protocol", {})
+                                      .get("qualification_attestation_hash")))),
         "full_three_repeat_run": (report.get("runs_per_task") == 3 and
                                    (report.get("task_scope") == "full" or
                                     reuse and report.get("task_scope") == "short_synthetic_pilot"))}

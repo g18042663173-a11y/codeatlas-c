@@ -199,6 +199,110 @@ def test_reviewed_negative_result_completes_experiment_without_claiming_gain(
     assert regressed["claims"][0]["state"] == "regressed"
 
 
+def test_detached_curated_review_keeps_frozen_answers_valid_after_runtime_moves(
+        tmp_path: Path, monkeypatch):
+    from codeatlas.contracts import digest
+    from codeatlas.eval import rubric
+
+    (tmp_path / "eval").mkdir()
+    (tmp_path / "docs").mkdir()
+    source = tmp_path / "eval/tasks.yaml"
+    answer = tmp_path / "eval/answers.yaml"
+    source.write_text("schema_version: 1\n", encoding="utf-8")
+    answer.write_text("schema_version: 1\n", encoding="utf-8")
+    manifest = {"schema_version": 1, "experiments": [{
+        "id": "detached", "kind": "knowledge_reuse", "corpus": "combined",
+        "manifest": "eval/tasks.yaml", "answer_key": "eval/answers.yaml",
+        "report": "docs/detached.json", "required_for_effect": True,
+    }]}
+    manifest_path = tmp_path / "eval/experiments.yaml"
+    manifest_path.write_text(yaml.safe_dump(manifest), encoding="utf-8")
+    gates = {name: True for name in {
+        "answer_review_complete", "paired_trials_complete",
+        "frozen_semantic_holdout", "review_provenance", "review_packet_complete",
+        "judge_calibration", "full_three_repeat_run", "protocol_identity_bound",
+        "raw_trials_bound", "review_integrity_bound", "snapshot_pinned",
+    }}
+    binding = {
+        "judge_model": "gpt-5.6-terra", "calibration_hash": "c" * 64,
+        "collection_integrity": {"raw_results_verified": True},
+    }
+    report = {
+        "status": "completed", "manifest_hash": acceptance_eval._sha256(source),
+        "answer_key_hash": acceptance_eval._sha256(answer),
+        "identity": {"old_runtime": "frozen"}, "run_hash": "r" * 64,
+        "review_status": "ai_reviewed", "answer_review_status": "completed",
+        "acceptance": {"gates": gates, "effect_observed": False,
+                       "primary_contrast": {"baselines": []}},
+        "review_history": [{"reviews": {"review_protocol": binding}}],
+        "review_attempt": {
+            "judge_model": binding["judge_model"],
+            "calibration_hash": binding["calibration_hash"],
+            "review_protocol_hash": digest(binding),
+            "raw_answer_run_hash": "r" * 64,
+        },
+    }
+    report["curated_report_hash"] = digest(report)
+    (tmp_path / "docs/detached.json").write_text(json.dumps(report), encoding="utf-8")
+    monkeypatch.setattr(acceptance_eval, "_proof_runtime_identity",
+                        lambda _kind, _root: {"new_runtime": "different"})
+    monkeypatch.setattr(rubric, "finalize", lambda _report: None)
+
+    result = acceptance_eval.proof_status(manifest_path, project_root=tmp_path)
+    item = result["items"][0]
+    assert item["identity_ok"] is True
+    assert item["runtime_identity_ok"] is False
+    assert item["detached_review_identity_ok"] is True
+    assert result["experiments_complete"] is True
+
+
+def test_judge_qualification_report_is_hash_and_policy_bound(tmp_path: Path):
+    from codeatlas.contracts import digest
+
+    (tmp_path / "eval").mkdir()
+    (tmp_path / "docs").mkdir()
+    policy = tmp_path / "eval/policy.yaml"
+    policy.write_text("schema_version: 1\nsealed: true\n", encoding="utf-8")
+    report = {
+        "schema_version": 1, "status": "completed", "selected": "primary",
+        "identity": {"policy_sha256": acceptance_eval._sha256(policy)},
+        "primary": {"status": "calibrated", "passed": True}, "fallback": None,
+        "review": {"status": "completed", "unresolved_trial_count": 0,
+                   "disagreement_count": 3},
+    }
+    report["report_hash"] = digest(report)
+    report_path = tmp_path / "docs/qualification.json"
+    report_path.write_text(json.dumps(report), encoding="utf-8")
+    manifest = {
+        "schema_version": 1,
+        "judge_qualification": {
+            "policy": "eval/policy.yaml", "report": "docs/qualification.json",
+        },
+        "experiments": [],
+    }
+    manifest_path = tmp_path / "eval/experiments.yaml"
+    manifest_path.write_text(yaml.safe_dump(manifest), encoding="utf-8")
+
+    value = acceptance_eval.proof_status(manifest_path, project_root=tmp_path)
+    assert value["judge_qualification"]["qualified"] is True
+
+    # Judge qualification and answer-review completion are separate gates.
+    report["status"] = "unresolved"
+    report["review"] = {"status": "unresolved", "unresolved_trial_count": 1}
+    report["report_hash"] = digest({k: v for k, v in report.items() if k != "report_hash"})
+    report_path.write_text(json.dumps(report), encoding="utf-8")
+    value = acceptance_eval.proof_status(manifest_path, project_root=tmp_path)
+    assert value["judge_qualification"]["qualified"] is True
+    assert value["reviews_complete"] is False
+    report["identity"]["policy_sha256"] = "0" * 64
+    report.pop("report_hash")
+    report["report_hash"] = digest(report)
+    report_path.write_text(json.dumps(report), encoding="utf-8")
+    stale = acceptance_eval.proof_status(manifest_path, project_root=tmp_path)
+    assert stale["judge_qualification"]["qualified"] is False
+    assert stale["judge_qualification"]["integrity_ok"] is False
+
+
 def test_portfolio_readiness_requires_complete_evidence_not_positive_gain():
     proof = {
         "experiments_complete": True,
@@ -206,16 +310,17 @@ def test_portfolio_readiness_requires_complete_evidence_not_positive_gain():
         "claims_complete": True,
         "effect_observed": False,
     }
-    assert acceptance_eval._portfolio_ready(True, True, proof) is True
+    assert acceptance_eval._portfolio_ready(True, True, True, proof) is True
     for field in ("experiments_complete", "reviews_complete", "claims_complete"):
         incomplete = {**proof, field: False}
-        assert acceptance_eval._portfolio_ready(True, True, incomplete) is False
+        assert acceptance_eval._portfolio_ready(True, True, True, incomplete) is False
+    assert acceptance_eval._portfolio_ready(True, True, False, proof) is False
 
 
 def test_formal_card_release_is_verified_independently_from_legacy_task_gold(
         tmp_path: Path, monkeypatch):
     import sqlite3
-    from codeatlas.experience import store
+    from codeatlas.experience import release, store
 
     markdown = tmp_path / "knowledge/cards/card-1.md"
     markdown.parent.mkdir(parents=True)
@@ -265,10 +370,25 @@ def test_formal_card_release_is_verified_independently_from_legacy_task_gold(
     monkeypatch.setattr(acceptance_eval.dbm, "query", lambda _path: conn)
     monkeypatch.setattr(acceptance_eval.dbm, "read_only", lambda _path: conn)
     monkeypatch.setattr(store, "approved_current", lambda _conn, _id: (True, ""))
+    package_path = tmp_path / "knowledge/releases/card-1.json"
+    package_path.parent.mkdir(parents=True)
+    package_path.write_text("{}\n", encoding="utf-8")
+    package_sha = acceptance_eval._sha256(package_path)
+    monkeypatch.setattr(
+        release, "load_release",
+        lambda _path, project_root: ({
+            "card_id": "card-1", "review_bundle_hash": bundle,
+            "repository": "https://example.test/repo",
+            "revision": "abc123",
+        }, "# reviewed card\n"),
+    )
 
     result = acceptance_eval._validate_formal_card(
-        {"database": "ignored.db", "formal_card": {
+        {"database": "ignored.db", "checkout_url": "https://example.test/repo",
+         "revision": "abc123", "formal_card": {
             "id": "card-1", "review_bundle_hash": bundle,
+            "release": "knowledge/releases/card-1.json",
+            "release_sha256": package_sha,
         }},
         tmp_path,
     )

@@ -9,7 +9,7 @@ import pytest
 import yaml
 from typer.testing import CliRunner
 
-from codeatlas.contracts import digest
+from codeatlas.contracts import INPUT_BUDGET, digest, estimated_tokens
 from codeatlas.eval import campaign_review as review, proof_campaign as campaign, protocol, rubric
 from codeatlas.eval.task_eval import REFUSAL_TYPE
 from codeatlas.llm.client import OpenAICompatClient, GO_MODEL
@@ -151,6 +151,34 @@ def test_calibrated_dual_reviews_use_isolated_sessions_and_preserve_raw_trials(t
         review.review(directory, client_factory=factory)
 
 
+def test_review_export_is_git_sized_and_keeps_trial_hashes(tmp_path, fake_http):
+    directory = collected(tmp_path)
+    result = review.review(directory, client_factory=factory)
+    assert result["status"] == "completed"
+    output = tmp_path / "curated.json"
+    manifest = tmp_path / "experiments.yaml"
+    manifest.write_text(yaml.safe_dump({"experiments": [{
+        "id": "reuse", "kind": "knowledge_reuse",
+        "manifest": "eval/knowledge_reuse.yaml",
+        "answer_key": "eval/knowledge_reuse.answers.yaml",
+        "report": str(output),
+    }]}), encoding="utf-8")
+    review.export_reviewed_reports(directory, attempt_id=None,
+                                   experiments_path=str(manifest))
+    curated = json.loads(output.read_text(encoding="utf-8"))
+    assert "raw_trials" not in curated and "blind_review" not in curated
+    assert len(curated["trial_results"]) == curated["executed_trial_count"] == 18
+    assert curated["curated_projection"]["trial_results_hash"] == digest(
+        curated["trial_results"])
+    assert all(row["raw_trial_hash"] and row["selected_review_hash"]
+               for row in curated["trial_results"])
+    assert output.stat().st_size < 100_000
+    from codeatlas.eval.acceptance_eval import _verify_curated_effect_report
+    assert _verify_curated_effect_report(curated)["ok"] is True
+    curated["trial_results"][0]["correct"] = not curated["trial_results"][0]["correct"]
+    assert _verify_curated_effect_report(curated)["ok"] is False
+
+
 def test_failed_calibration_stops_before_answer_scoring(tmp_path, fake_http):
     directory = collected(tmp_path)
     fake_http["mode"] = "calibration_fail"
@@ -171,6 +199,26 @@ def test_calibration_only_can_resume_same_batch_without_repeating_calls(tmp_path
                               resume=True)
     assert completed["status"] == "completed"
     assert len([row for row in fake_http["requests"][count:] if row["kind"] == "calibration"]) == 0
+
+
+def test_sealed_model_qualification_can_score_a_new_bounded_projection(tmp_path, fake_http):
+    directory = collected(tmp_path)
+    qualified = review.review(directory, client_factory=factory, attempt_id="sealed-qualification",
+                              calibration_only=True, judge_model=GO_MODEL)
+    count = len(fake_http["requests"])
+    completed = review.review(
+        directory, client_factory=factory, attempt_id="sealed-qualification.semantic-review-v1",
+        judge_model=GO_MODEL, projection_version=review.SEMANTIC_REVIEW_PROJECTION,
+        qualification_attestation=qualified["judge_calibration"],
+        qualification_batch_id=qualified["batch_id"], workers=2,
+    )
+    assert completed["status"] == "completed"
+    assert completed["binding"]["projection_audit"]["oversize_count"] == 0
+    assert completed["binding"]["qualified_by_batch_id"] == qualified["batch_id"]
+    assert len([row for row in fake_http["requests"][count:]
+                if row["kind"] == "calibration"]) == 0
+    scored = completed["reviewed_reports"]["reuse"]
+    assert scored["acceptance"]["gates"]["judge_calibration"] is True
 
 
 def test_new_versioned_review_attempt_preserves_failed_batch_and_raw_answers(tmp_path, fake_http):
@@ -205,6 +253,9 @@ def test_disagreement_uses_calibrated_third_agent_and_binds_original_scores(tmp_
     group = next(item for item in result["reviews"]["reuse"]["items"] if item.get("adjudication"))
     originals = group["independent_reviews"]
     item = arbiters[0]["payload"]["item"]
+    peer_view = arbiters[0]["payload"]["independent_reviews"]
+    assert [row["review_hash"] for row in peer_view] == [digest(row) for row in originals]
+    assert all("raw_response" not in row and "session_id" not in row for row in peer_view)
     assert group["adjudication"]["input_hash"] == digest({"packet_input_hash": item["input_hash"], "independent_reviews": originals})
     assert group["adjudication"]["resolves_review_hashes"] == [digest(score) for score in originals]
     assert protocol.review_origin(group, item["input_hash"])["review_status"] == "ai_reviewed"
@@ -222,6 +273,35 @@ def test_unresolved_is_retained_without_majority_or_json_repair(tmp_path, fake_h
     requests = len(fake_http["requests"])
     review.review(directory, resume=True, client_factory=factory)
     assert len(fake_http["requests"]) == requests
+
+
+def test_terminal_review_collection_requires_two_valid_scores_and_completed_arbitration():
+    score = {
+        "model_generated": True, "verdict": "correct", "completeness": 1,
+        "point_reviews": {"p": "met"}, "false_claim_present": False,
+        "citation_relation": "supported",
+    }
+    other = {**score, "verdict": "incomplete", "completeness": 0,
+             "point_reviews": {"p": "missing"}}
+    unresolved_arbiter = {
+        **score, "verdict": "unresolved", "completeness": None,
+        "point_reviews": {"p": "unresolved"}, "false_claim_present": None,
+        "citation_relation": "unresolved",
+    }
+    value = {"reviews": {"job": {"items": [{
+        "trial_id": "trial", "independent_reviews": [score, other],
+        "adjudication": unresolved_arbiter,
+    }]}}}
+    assert review._terminal_review_collection(value) is True
+    value["reviews"]["job"]["items"][0]["adjudication"]["model_generated"] = False
+    assert review._terminal_review_collection(value) is False
+
+
+def test_curated_boundary_never_reuses_pre_run_not_configured_message():
+    completed = review._curated_boundary(0)
+    unresolved = review._curated_boundary(1)
+    assert "完成双评" in completed and "未配置模型" not in completed
+    assert "1 个语义判断未决" in unresolved and "主对照保持未测" in unresolved
 
 
 def test_review_budget_and_interruption_survive_resume(tmp_path, fake_http):
@@ -279,6 +359,79 @@ def test_answer_outcome_is_derived_from_points_not_model_summary_label():
     assert review._validate(raw, item)["verdict"] == "incorrect"
     with pytest.raises(ValueError, match="schema keys differ"):
         review._validate({**raw, "verdict": "unresolved", "completeness": None}, item)
+
+
+def test_semantic_review_projection_keeps_explicit_and_oracle_evidence_but_drops_rank_noise():
+    common = {
+        "repository": "https://example.test/repo", "revision": "a" * 40,
+        "knowledge_set_id": "ks-1", "source_content_hash": "b" * 64,
+        "build_config_hash": "c" * 64,
+    }
+    def anchor(tag, symbol):
+        return {"tag": tag, "node_id": 4, "source_ref": f"src/a.c#L1-L3",
+                "score": 0.9, "rerank_score": 0.8,
+                "provenance": {**common, "source_ref": "src/a.c#L1-L3",
+                    "symbol": symbol, "usr": f"c:@F@{symbol}", "path": "src/a.c",
+                    "line_start": 1, "line_end": 3, "definition_hash": "d" * 64,
+                    "stale_status": "not_applicable"}}
+    source = {"tag": "E3", "kind": "pinned_source", "path": "src/a.c",
+              "lines": "1-3", "file_sha256": "e" * 64,
+              "text": "/* explanation */\nint answer(void) {\n  // fixed\n  return 42;\n}\n"}
+    item = {"input_hash": "f" * 64, "answer": "It returns 42 [E1].",
+            "citations": [], "evidence_payload": [anchor("E1", "answer"),
+                anchor("E2", "unrelated"), source],
+            "answer_key": {"expected_points": [{"id": "p", "text": "returns 42"}],
+                "forbidden_claims": [],
+                "evidence_payload": [{key: value for key, value in source.items()
+                                      if key not in {"tag"}}]}}
+    before = copy.deepcopy(item)
+    projected = review._judge_item(item, review.SEMANTIC_REVIEW_PROJECTION)
+
+    assert item == before
+    assert projected["projection"]["original_input_hash"] == item["input_hash"]
+    assert [row[0] for row in projected["evidence_payload"]["anchor_rows"]] == ["E1"]
+    assert "score" not in str(projected["evidence_payload"])
+    compact_source = projected["evidence_payload"]["other_evidence"][0]
+    assert "return 42;" in compact_source["text"]
+    assert "explanation" not in compact_source["text"] and "fixed" not in compact_source["text"]
+    assert projected["answer_key"]["evidence_payload"][0]["$ref"].endswith("/0")
+
+
+def test_semantic_review_projection_enforces_the_shared_input_budget():
+    provenance = {"repository": "r", "revision": "v", "knowledge_set_id": "ks",
+        "source_content_hash": "s" * 64, "build_config_hash": "b" * 64,
+        "source_ref": "large.c#L1-L400", "symbol": "large", "usr": "c:@F@large",
+        "path": "large.c", "line_start": 1, "line_end": 400,
+        "definition_hash": "d" * 64, "stale_status": "not_applicable"}
+    ranked = [{"tag": f"E{number}", "source_ref": provenance["source_ref"],
+               "node_id": number, "score": 1 / number,
+               "provenance": {**provenance, "symbol": f"symbol_{number}"}}
+              for number in range(1, 31)]
+    source = {"tag": "E31", "kind": "pinned_source", "path": "large.c",
+              "lines": "1-400", "file_sha256": "f" * 64,
+              "text": "\n".join(f"/* comment {i} */ int v{i} = {i};" for i in range(400))}
+    oracle = {key: value for key, value in source.items() if key != "tag"}
+    item = {"input_hash": "i" * 64, "task_id": "large", "task_type": "语义检索",
+            "question": "what happens", "answer": "The relevant anchor is [E1].",
+            "citations": ranked + [source], "evidence_payload": ranked + [source],
+            "refused": False, "answer_key": {"expected_points": [{"id": "p", "text": "fact"}],
+                "forbidden_claims": [], "evidence_payload": [oracle]}}
+    payload = {"item": review._judge_item(item, review.SEMANTIC_REVIEW_PROJECTION),
+               "rubric": {**rubric.RUBRIC, "judge_guidance": review.JUDGE_GUIDANCE,
+                           "response_schema": review.ANSWER_SCHEMA}}
+    size = estimated_tokens(review.SYSTEM + json.dumps(
+        payload, ensure_ascii=False, sort_keys=True)) + 32
+    assert size <= INPUT_BUDGET
+
+
+def test_single_reviewer_calibration_is_only_allowed_for_prequalified_arbiter(tmp_path):
+    # Public score_calibration still defaults to two reviews.  A single review
+    # is an explicit internal path used only after the two-judge attestation.
+    with pytest.raises(ValueError, match="at least 2"):
+        rubric.score_calibration(ROOT / "eval/review_calibration_v3.yaml", {"reviews": []})
+    with pytest.raises(ValueError, match="at least 1"):
+        rubric.score_calibration(ROOT / "eval/review_calibration_v3.yaml",
+                                 {"reviews": []}, minimum_reviews=1)
 
 
 def test_refusal_mode_mismatch_is_deterministically_incorrect():

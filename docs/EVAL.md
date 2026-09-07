@@ -20,9 +20,9 @@
 现有 40 道开发任务为 30/40：20 道检索、4 道影响、6 道拒答通过；旧清单中的 10 道经验复用绑定早期示例卡身份和题义，仍显示审核阻塞。主数据库现在已有两张用户正式批准的 B 卡，并以另一个与卡片内容一致的验收记录验证 Top-10 和版本引用；为避免看过结果后改 gold，旧 40 题不回写成 40/40。
 历史两道检索失败已修复，不能继续写成当前失败；具体 Recall/MRR 与运行身份从下面的报告读取，不保留另一套手写指标表。
 
-24 个真实上游维护场景已执行完整。首轮暴露的头文件配置漏放已通过把全部已解析 C/头文件实体纳入消费依赖修正；复验后 8 个有效变化漏放 0，但 8 个无关变化全部误失效，决策正确 8/16，本轮依赖指纹计算约 3.02 秒。仅主锚点哈希正确 13/16但漏放 2 个，全部失效正确 8/16。统一验收把维护收益标为 `insufficient_evidence`：安全门禁成立，精度和摊销价值未成立。该耗时不含完整解析、索引和真人复审，不能当作端到端维护成本。
+24 个真实上游维护场景已执行完整。首轮全仓指纹会让无关变化全部触发复审；改为审核材料声明结论实际消费的函数、宏和配置后，8 个有效变化全部重验证，8 个无关变化全部保留，语义决策正确 16/16，漏放和误失效均为 0，本轮依赖指纹计算约 0.83 秒。仅主锚点哈希正确 13/16，全部失效正确 8/16。统一验收仍把普遍维护收益标为 `insufficient_evidence`：该实验验证了冻结场景上的决策和故障恢复，但未测完整解析、索引重建、真人复审和摊销成本。
 
-48 道留出题、6 道经验题与新版 12 个资格校准样例已完成双 agent 源码核验，状态为 `ai_reviewed`，不等于人审，也不能证明历史未曝光。Luna 的 24 个开发冒烟和 486 个正式答案试次已采集完成；新版分层评分中两个 judge 仅命中 45/66、50/66 个 point，未达到预登记的 90% point accuracy / met recall 等门槛，因此正式答案评分没有启动。模型正确率、知识层增益和统一调用成本仍没有可宣传的数字；详见 [Luna 实验状态](runs/PROOF-LUNA-20260907-STATUS.md)。
+48 道 Wiki 题、6 道经验题与 V4A/V4B 资格集均绑定独立源码核验。510 个 Luna 答案保持冻结：Terra 在 V4A 失败，按预登记规则启用的 Sol 在互不重叠的 V4B 通过；486 个正式答案随后完成双评和必要仲裁。485 个答案形成终局语义评分，cJSON 有 1 个限定条件判断仍为 `unresolved`。lwIP Wiki 主对照为 +6.25pt，但区间触及 0；知识卡对照没有观察到收益。当前效果主张均为 `insufficient_evidence`，而不是“已证明提升”；详见 [Luna 实验状态](runs/PROOF-LUNA-20260907-STATUS.md) 与三份精简报告。
 无 Key 的工程通过、人工审核、模型效果是三个独立状态，不能互相替代。
 
 ## 运行
@@ -37,7 +37,7 @@ codeatlas acceptance-eval --mode release --use-existing
 codeatlas eval knowledge-reuse --out docs/PROOF-KNOWLEDGE-REUSE.json
 codeatlas eval maintenance --executor upstream \
   --manifest eval/upstream_maintenance.yaml \
-  --out docs/PROOF-MAINTENANCE-UPSTREAM.json
+  --out docs/PROOF-MAINTENANCE-UPSTREAM-V5.json
 codeatlas eval maintenance --execute-synthetic --out docs/PROOF-MAINTENANCE.json
 codeatlas eval calibrate-reviewer --submission path/to/calibration-submission.json
 
@@ -66,8 +66,10 @@ codeatlas eval reading --db data/kb.db --tasks eval/tasks_cjson.yaml \
 - [cJSON 开发任务](TASK-EVAL-CJSON.md) / [lwIP 开发任务](TASK-EVAL-LWIP.md)
 - [cJSON 自动回归](EVAL-CJSON.md) / [lwIP 自动回归](EVAL-LWIP.md)
 - [cJSON 六场景](WORKFLOW-EVAL-CJSON.md) / [lwIP 六场景](WORKFLOW-EVAL-LWIP.md)
-- [会话同源对照](PROOF-KNOWLEDGE-REUSE.md)
-- [真实上游维护变异](PROOF-MAINTENANCE-UPSTREAM.md)
+- [cJSON Wiki 效果对照](runs/curated/PROOF-WIKI-CJSON-V4.md)
+- [lwIP Wiki 效果对照](runs/curated/PROOF-WIKI-LWIP-V4.md)
+- [会话同源对照](runs/curated/PROOF-KNOWLEDGE-REUSE-V4.md)
+- [真实上游维护变异](PROOF-MAINTENANCE-UPSTREAM-V5.md)
 - [合成维护单元契约](PROOF-MAINTENANCE.md)
 
-两张公开复现实验卡已经用户确认并发布；模型效果评分仍因 judge 资格校准失败保持未决。发布与推送状态由统一验收和 Git 远端核验单独判断。
+两张公开复现实验卡已经用户确认并发布，当前版本验收为 10/10；旧 40 题仍保留 30/40。Sol 通过 V4B 资格并完成正式评分，但 1 个语义仲裁未决，已完成对照也没有支持稳定收益。发布与推送状态由统一验收和 Git 远端核验单独判断。

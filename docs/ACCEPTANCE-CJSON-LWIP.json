@@ -1,16 +1,16 @@
 {
   "schema_version": 1,
   "mode": "full",
-  "generated_at": "2026-09-07T11:25:24+00:00",
+  "generated_at": "2026-09-07T17:51:59+00:00",
   "codeatlas": {
-    "revision": "1d51dbd16d9e71e92c8470ede8fa01cc4b9c5b88",
+    "revision": "57c9db65e87f093fd9bf5ade5aa5d49c60ae3e24",
     "branch": "feat/portfolio-core-evidence",
     "dirty": true,
-    "dirty_entries": 28,
+    "dirty_entries": 56,
     "origin": "https://github.com/g18042663173-a11y/codeatlas-c.git",
-    "implementation_hash": "acecabd588959aaba9b702e8658a380e329784411d5843edc2f0406607e12404"
+    "implementation_hash": "350b078b72eb0f4a36d271aa0896efde5620a24344a591db0a19bf58828bbadd"
   },
-  "corpora_manifest_sha256": "db8a60e7a5e6ac87bd9ee4710a9d96e15f10f8211e2cd36d578a163611cf34d6",
+  "corpora_manifest_sha256": "b29d5655648b5b4125f43cd1a0f71e19b628439a0b42ca992ba848fe4b820b03",
   "claims_manifest_sha256": "853e7d5ab534da77df6cb2608f4dff07c896c068d0c7a4b6f3a54e80dfd34843",
   "execution_stages": [],
   "corpora": [
@@ -20,6 +20,7 @@
       "passed": false,
       "foundation_passed": true,
       "task_complete": false,
+      "current_release_complete": true,
       "gates": {
         "source_checkout": true,
         "compile_database": true,
@@ -27,7 +28,9 @@
         "task_gold": true,
         "task_metrics": false,
         "knowledge_workflow": true,
-        "formal_card": false
+        "formal_card": true,
+        "current_task_gold": true,
+        "current_release_tasks": true
       },
       "source_checkout": {
         "ok": true,
@@ -56,7 +59,7 @@
         "repository": "https://github.com/DaveGamble/cJSON",
         "revision": "fb16e5cf358798aabb049655975cde8427101056",
         "build_config_hash": "4003a287a2796fa9c7f1a6cde60f1e7d2766f73e86961abe170c2ecf73122a7a",
-        "knowledge_set_id": "ks-842545da28c647f9",
+        "knowledge_set_id": "ks-e3a6b2ee9ef34324",
         "source_content_hash": "c0768c6d97c74ac4ead077841a6488b180e7d323be84db3c5fc0881c5ee01fe8",
         "parse_stats": {
           "diag_error": 0,
@@ -261,6 +264,100 @@
         "sha256": "bb294867206c6d45c0fc67af8d35f9fe0c86f3a9b8f173691d420512467390e5",
         "generated_at": "2026-09-07T11:11:30+00:00"
       },
+      "current_task_gold": {
+        "ok": true,
+        "count": 5,
+        "sha256": "99b1f63ef14971ce0e06fd639030408ef360a38c3be30e7c8c49da887507c4a7",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-06"
+      },
+      "current_tasks": {
+        "ok": true,
+        "current_release_complete": true,
+        "gates": {
+          "identity": true,
+          "manifest_hash": true,
+          "five_release_tasks": true,
+          "current_b_evidence": true,
+          "no_unexpected_failures": true,
+          "no_review_blockers": true,
+          "complete": true
+        },
+        "summary": {
+          "baseline": {
+            "n": 0,
+            "recall": 0.0,
+            "mrr": 0.0,
+            "evidence": 0.0,
+            "context": 0,
+            "p50": 0.0,
+            "p95": 0.0
+          },
+          "full": {
+            "n": 0,
+            "recall": 0.0,
+            "mrr": 0.0,
+            "evidence": 0.0,
+            "context": 0,
+            "p50": 0.0,
+            "p95": 0.0
+          },
+          "impact": {
+            "n": 0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "p50": 0.0,
+            "p95": 0.0
+          },
+          "refusal": {
+            "n": 0,
+            "accuracy": 0.0,
+            "p50": 0.0,
+            "p95": 0.0
+          },
+          "experience": {
+            "n": 5,
+            "recall": 100.0,
+            "mrr": 0.642,
+            "evidence": 100.0,
+            "context": 5296,
+            "p50": 4.6,
+            "p95": 5.9
+          },
+          "passed_tasks": 5,
+          "total_tasks": 5,
+          "blocked_by_review": [],
+          "unexpected_failures": [],
+          "failures": []
+        },
+        "failure_breakdown": {
+          "blocked_by_review": [],
+          "unexpected": [],
+          "blocked_count": 0,
+          "unexpected_count": 0
+        },
+        "reproducibility": {
+          "task_manifest_sha256": "99b1f63ef14971ce0e06fd639030408ef360a38c3be30e7c8c49da887507c4a7",
+          "build_config_hash": "4003a287a2796fa9c7f1a6cde60f1e7d2766f73e86961abe170c2ecf73122a7a",
+          "parse_stats": {
+            "diag_error": 0,
+            "translation_units": 28,
+            "tu_failed": 0,
+            "tu_ok": 28
+          },
+          "codeatlas": {
+            "revision": "57c9db65e87f093fd9bf5ade5aa5d49c60ae3e24",
+            "branch": "feat/portfolio-core-evidence",
+            "dirty": true,
+            "dirty_entries": 23,
+            "origin": "https://github.com/g18042663173-a11y/codeatlas-c.git",
+            "implementation_hash": "b7fa4ffa22a5d4038a0f2ba7b8420c8e1b51c4eac202a6bc26120d0b27e10927"
+          }
+        },
+        "sha256": "90b493a3a7bce2aa1390a1f8ea39e30030e2fe8ff696668a7c28865e3a8f0192",
+        "generated_at": "2026-09-07T13:35:29+00:00"
+      },
       "workflow": {
         "ok": true,
         "identity": true,
@@ -289,9 +386,32 @@
         "synthetic_review": "synthetic_test_review"
       },
       "formal_card": {
-        "ok": false,
-        "error": "formal_card_missing",
-        "id": "e-0f1743530a0e"
+        "ok": true,
+        "id": "e-0f1743530a0e",
+        "gates": {
+          "release_file": true,
+          "release_card_id": true,
+          "release_bundle": true,
+          "release_repository": true,
+          "release_revision": true,
+          "approved_current": true,
+          "status": true,
+          "formal_scope": true,
+          "frozen_bundle": true,
+          "human_approval": true,
+          "human_confirmation": true,
+          "human_qa": true,
+          "publication_committed": true,
+          "markdown_committed": true
+        },
+        "review_bundle_hash": "6f624a45bf16d7a76876b8c33acaa8fa4c6fc269435e1dd7ac550a30aa95d56c",
+        "expected_review_bundle_hash": "6f624a45bf16d7a76876b8c33acaa8fa4c6fc269435e1dd7ac550a30aa95d56c",
+        "approved_current_reason": "",
+        "reviewer": "Guoshuaiqi",
+        "confirmed_at": "2026-09-06T13:59:55+00:00",
+        "canonical_path": "/Users/guoshuaiqi/Developer/codeatlas-c/data/kb-knowledge/cards/e-0f1743530a0e.md",
+        "release": "knowledge/releases/e-0f1743530a0e.json",
+        "release_sha256": "77b5c08e4cfb06ac3022f12cd1bbbf94d3cac6774bdadab730a628add2d16000"
       }
     },
     {
@@ -300,6 +420,7 @@
       "passed": false,
       "foundation_passed": true,
       "task_complete": false,
+      "current_release_complete": true,
       "gates": {
         "source_checkout": true,
         "compile_database": true,
@@ -307,7 +428,9 @@
         "task_gold": true,
         "task_metrics": false,
         "knowledge_workflow": true,
-        "formal_card": false
+        "formal_card": true,
+        "current_task_gold": true,
+        "current_release_tasks": true
       },
       "source_checkout": {
         "ok": true,
@@ -336,7 +459,7 @@
         "repository": "https://github.com/lwip-tcpip/lwip",
         "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
         "build_config_hash": "80071ae3b0549c3e3b740247f881261a67173142bf3c7d9aba7c7fa73f0cd2dd",
-        "knowledge_set_id": "ks-c23d987111284ff8",
+        "knowledge_set_id": "ks-306de5a3bd68499c",
         "source_content_hash": "d8673af54b0f984dbc2ea23264f1c85df6b2d9830b2ebd5fa3d56624fc1e46d9",
         "parse_stats": {
           "diag_error": 0,
@@ -541,6 +664,100 @@
         "sha256": "1045c403dadff5afffcfd44dfd0feb2e8f40c6259ebb0dec73e687aa6caf7df8",
         "generated_at": "2026-09-07T11:16:15+00:00"
       },
+      "current_task_gold": {
+        "ok": true,
+        "count": 5,
+        "sha256": "5ff510ffa31578853c06734f7a40263b678a331ac72bc9fd9dce0b4dd7d7af28",
+        "reviewer": "Guoshuaiqi",
+        "reviewed_at": "2026-09-06"
+      },
+      "current_tasks": {
+        "ok": true,
+        "current_release_complete": true,
+        "gates": {
+          "identity": true,
+          "manifest_hash": true,
+          "five_release_tasks": true,
+          "current_b_evidence": true,
+          "no_unexpected_failures": true,
+          "no_review_blockers": true,
+          "complete": true
+        },
+        "summary": {
+          "baseline": {
+            "n": 0,
+            "recall": 0.0,
+            "mrr": 0.0,
+            "evidence": 0.0,
+            "context": 0,
+            "p50": 0.0,
+            "p95": 0.0
+          },
+          "full": {
+            "n": 0,
+            "recall": 0.0,
+            "mrr": 0.0,
+            "evidence": 0.0,
+            "context": 0,
+            "p50": 0.0,
+            "p95": 0.0
+          },
+          "impact": {
+            "n": 0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "p50": 0.0,
+            "p95": 0.0
+          },
+          "refusal": {
+            "n": 0,
+            "accuracy": 0.0,
+            "p50": 0.0,
+            "p95": 0.0
+          },
+          "experience": {
+            "n": 5,
+            "recall": 100.0,
+            "mrr": 0.134,
+            "evidence": 100.0,
+            "context": 5848,
+            "p50": 11.9,
+            "p95": 18.6
+          },
+          "passed_tasks": 5,
+          "total_tasks": 5,
+          "blocked_by_review": [],
+          "unexpected_failures": [],
+          "failures": []
+        },
+        "failure_breakdown": {
+          "blocked_by_review": [],
+          "unexpected": [],
+          "blocked_count": 0,
+          "unexpected_count": 0
+        },
+        "reproducibility": {
+          "task_manifest_sha256": "5ff510ffa31578853c06734f7a40263b678a331ac72bc9fd9dce0b4dd7d7af28",
+          "build_config_hash": "80071ae3b0549c3e3b740247f881261a67173142bf3c7d9aba7c7fa73f0cd2dd",
+          "parse_stats": {
+            "diag_error": 0,
+            "translation_units": 124,
+            "tu_failed": 0,
+            "tu_ok": 124
+          },
+          "codeatlas": {
+            "revision": "57c9db65e87f093fd9bf5ade5aa5d49c60ae3e24",
+            "branch": "feat/portfolio-core-evidence",
+            "dirty": true,
+            "dirty_entries": 23,
+            "origin": "https://github.com/g18042663173-a11y/codeatlas-c.git",
+            "implementation_hash": "b7fa4ffa22a5d4038a0f2ba7b8420c8e1b51c4eac202a6bc26120d0b27e10927"
+          }
+        },
+        "sha256": "c2ce0e5455909d2c46e58352f880a57d1743a8a93e8e584f0ea7165f342c5ba6",
+        "generated_at": "2026-09-07T13:35:29+00:00"
+      },
       "workflow": {
         "ok": true,
         "identity": true,
@@ -569,9 +786,32 @@
         "synthetic_review": "synthetic_test_review"
       },
       "formal_card": {
-        "ok": false,
-        "error": "formal_card_missing",
-        "id": "e-13d209f2a9b2"
+        "ok": true,
+        "id": "e-13d209f2a9b2",
+        "gates": {
+          "release_file": true,
+          "release_card_id": true,
+          "release_bundle": true,
+          "release_repository": true,
+          "release_revision": true,
+          "approved_current": true,
+          "status": true,
+          "formal_scope": true,
+          "frozen_bundle": true,
+          "human_approval": true,
+          "human_confirmation": true,
+          "human_qa": true,
+          "publication_committed": true,
+          "markdown_committed": true
+        },
+        "review_bundle_hash": "9fb6b15935d33ef15cfb1305f841f294f5ec2ec036a778843f15cf14e3ae4f08",
+        "expected_review_bundle_hash": "9fb6b15935d33ef15cfb1305f841f294f5ec2ec036a778843f15cf14e3ae4f08",
+        "approved_current_reason": "",
+        "reviewer": "Guoshuaiqi",
+        "confirmed_at": "2026-09-06T14:15:23+00:00",
+        "canonical_path": "/Users/guoshuaiqi/Developer/codeatlas-c/data/lwip-knowledge/cards/e-13d209f2a9b2.md",
+        "release": "knowledge/releases/e-13d209f2a9b2.json",
+        "release_sha256": "a197c54fd5983c51c13552db132670d80d130d695d9dc4f6ea8ca0a047dca4eb"
       }
     }
   ],
@@ -643,12 +883,12 @@
       "tracked_reports": 4,
       "total_reports": 4,
       "codeatlas": {
-        "revision": "1d51dbd16d9e71e92c8470ede8fa01cc4b9c5b88",
+        "revision": "57c9db65e87f093fd9bf5ade5aa5d49c60ae3e24",
         "branch": "feat/portfolio-core-evidence",
         "dirty": true,
-        "dirty_entries": 28,
+        "dirty_entries": 56,
         "origin": "https://github.com/g18042663173-a11y/codeatlas-c.git",
-        "implementation_hash": "acecabd588959aaba9b702e8658a380e329784411d5843edc2f0406607e12404"
+        "implementation_hash": "350b078b72eb0f4a36d271aa0896efde5620a24344a591db0a19bf58828bbadd"
       }
     }
   ],
@@ -663,12 +903,12 @@
     "tracked_reports": 4,
     "total_reports": 4,
     "codeatlas": {
-      "revision": "1d51dbd16d9e71e92c8470ede8fa01cc4b9c5b88",
+      "revision": "57c9db65e87f093fd9bf5ade5aa5d49c60ae3e24",
       "branch": "feat/portfolio-core-evidence",
       "dirty": true,
-      "dirty_entries": 28,
+      "dirty_entries": 56,
       "origin": "https://github.com/g18042663173-a11y/codeatlas-c.git",
-      "implementation_hash": "acecabd588959aaba9b702e8658a380e329784411d5843edc2f0406607e12404"
+      "implementation_hash": "350b078b72eb0f4a36d271aa0896efde5620a24344a591db0a19bf58828bbadd"
     }
   },
   "model_abc": {
@@ -688,89 +928,468 @@
     ]
   },
   "proof": {
-    "status": "not_run",
-    "manifest_sha256": "f8c4049fae2b0963b25e7c98faf4c5be11ca49205e8b1f92ae159d23959b7cb7",
+    "status": "completed",
+    "manifest_sha256": "c2e7b2b7fa5657decb935a4bdee67b99a089b374414d2e25b93d0f2d246dcb2e",
     "items": [
       {
         "id": "wiki-cjson",
         "kind": "wiki_knowledge",
         "manifest": "eval/holdout_cjson.yaml",
-        "report": "docs/runs/PROOF-WIKI-CJSON-20260906-v5.json",
+        "report": "docs/runs/curated/PROOF-WIKI-CJSON-V4.json",
         "required_for_effect": true,
         "generated_artifact": null,
-        "status": "not_run",
-        "identity_ok": false,
-        "manifest_sha256": "29558110537c4cf68f0ac950641173b326ee74b0a360fc020be3d3ccfb5cefad"
+        "status": "pending_review",
+        "identity_ok": true,
+        "review_status": "unresolved",
+        "effect_observed": false,
+        "claim_supported": false,
+        "proof_integrity_ok": false,
+        "execution_complete": true,
+        "execution_integrity_ok": true,
+        "claim_evidence": {
+          "primary_contrast": {
+            "treatment": "wiki_flat",
+            "baselines": [
+              "source_only"
+            ]
+          },
+          "accuracy": {
+            "delta_pt": null,
+            "ci95_pt": null
+          },
+          "answer_completeness": {
+            "delta_pt": null,
+            "ci95_pt": null
+          },
+          "input_token_reduction_pct": null,
+          "current_decisions_passed": null,
+          "oracle_independently_validated": null,
+          "unsafe_missed_invalidation": null,
+          "current_false_invalidation": null,
+          "maintenance_value_measured": null
+        },
+        "human_release_eligible": false,
+        "terminal_semantic_unresolved": true,
+        "executed_trial_count": 216,
+        "unresolved_trial_count": 1,
+        "unresolved_trials": [
+          {
+            "task_id": "ho-cjson-flow-detach-list-rewire",
+            "variant": "wiki_flat",
+            "repetition": 2,
+            "trial_id": "26e2b1dd369637454672cbc6b44a050d7c37c158bd978e3e4daac12780c3db20"
+          }
+        ],
+        "runtime_identity_ok": false,
+        "detached_review_identity_ok": true,
+        "manifest_sha256": "29558110537c4cf68f0ac950641173b326ee74b0a360fc020be3d3ccfb5cefad",
+        "report_sha256": "5b66794a770b7bf3807cba37032cc7d6a62d2049767cad28fa4c75448c432f2d"
       },
       {
         "id": "wiki-lwip",
         "kind": "wiki_knowledge",
         "manifest": "eval/holdout_lwip.yaml",
-        "report": "docs/runs/PROOF-WIKI-LWIP-20260906-v5.json",
+        "report": "docs/runs/curated/PROOF-WIKI-LWIP-V4.json",
         "required_for_effect": true,
         "generated_artifact": null,
-        "status": "not_run",
-        "identity_ok": false,
-        "manifest_sha256": "25d775beb57c113a544b624d00d5e910ea797ec6eae719b09993b73fe8a1a8fa"
+        "status": "completed",
+        "identity_ok": true,
+        "review_status": "ai_reviewed",
+        "effect_observed": false,
+        "claim_supported": false,
+        "proof_integrity_ok": true,
+        "execution_complete": true,
+        "execution_integrity_ok": true,
+        "claim_evidence": {
+          "primary_contrast": {
+            "treatment": "wiki_flat",
+            "baselines": [
+              "source_only"
+            ]
+          },
+          "accuracy": {
+            "task_count": 20,
+            "mechanism_count": 16,
+            "group_count": 16,
+            "group_unit": "mechanism",
+            "delta_pt": 6.25,
+            "ci95_pt": [
+              0.0,
+              13.541666666666664
+            ],
+            "unit": "paired_mechanism_mean",
+            "bootstrap_seed": 17,
+            "mechanisms": [
+              "lwip-dhcp-start-discover",
+              "lwip-dns-enqueue-capacity",
+              "lwip-dns-resolution-state-machine",
+              "lwip-ethernet-demux",
+              "lwip-ip4-reassembly-limits",
+              "lwip-ip4-route-selection",
+              "lwip-mem-heap-state",
+              "lwip-netbuf-reallocation",
+              "lwip-pbuf-header-adjust",
+              "lwip-tcp-bind-conflicts",
+              "lwip-tcp-pcb-allocation-reclaim",
+              "lwip-timeout-dispatch",
+              "lwip-udp-bind-conflicts",
+              "lwip-udp-connection-state",
+              "lwip-udp-pcb-lifecycle",
+              "lwip-udp-send-pipeline"
+            ]
+          },
+          "answer_completeness": {
+            "task_count": 20,
+            "mechanism_count": 16,
+            "group_count": 16,
+            "group_unit": "mechanism",
+            "delta_pt": 10.416666666666666,
+            "ci95_pt": [
+              -2.083333333333333,
+              21.875
+            ],
+            "unit": "paired_mechanism_mean",
+            "bootstrap_seed": 17,
+            "mechanisms": [
+              "lwip-dhcp-start-discover",
+              "lwip-dns-enqueue-capacity",
+              "lwip-dns-resolution-state-machine",
+              "lwip-ethernet-demux",
+              "lwip-ip4-reassembly-limits",
+              "lwip-ip4-route-selection",
+              "lwip-mem-heap-state",
+              "lwip-netbuf-reallocation",
+              "lwip-pbuf-header-adjust",
+              "lwip-tcp-bind-conflicts",
+              "lwip-tcp-pcb-allocation-reclaim",
+              "lwip-timeout-dispatch",
+              "lwip-udp-bind-conflicts",
+              "lwip-udp-connection-state",
+              "lwip-udp-pcb-lifecycle",
+              "lwip-udp-send-pipeline"
+            ]
+          },
+          "input_token_reduction_pct": null,
+          "current_decisions_passed": null,
+          "oracle_independently_validated": null,
+          "unsafe_missed_invalidation": null,
+          "current_false_invalidation": null,
+          "maintenance_value_measured": null
+        },
+        "human_release_eligible": false,
+        "terminal_semantic_unresolved": false,
+        "executed_trial_count": 216,
+        "unresolved_trial_count": 0,
+        "unresolved_trials": [],
+        "runtime_identity_ok": false,
+        "detached_review_identity_ok": true,
+        "manifest_sha256": "25d775beb57c113a544b624d00d5e910ea797ec6eae719b09993b73fe8a1a8fa",
+        "report_sha256": "ccf9ac5712b01647c2ae13ac2de4cc7bd0e470b83b94853e17604ec1ee93ee2e"
       },
       {
         "id": "knowledge-reuse",
         "kind": "knowledge_reuse",
         "manifest": "eval/knowledge_reuse.yaml",
-        "report": "docs/runs/PROOF-KNOWLEDGE-REUSE-20260906-v4.json",
+        "report": "docs/runs/curated/PROOF-KNOWLEDGE-REUSE-V4.json",
         "required_for_effect": true,
         "generated_artifact": "eval/frozen/knowledge_reuse-v4.json",
-        "status": "not_run",
-        "identity_ok": false,
-        "manifest_sha256": "c8c2504f8429ca7a235e0f9b858ac294fbe86de2bad5afedc3c781e2031a82a1"
+        "status": "completed",
+        "identity_ok": true,
+        "review_status": "ai_reviewed",
+        "effect_observed": false,
+        "claim_supported": false,
+        "proof_integrity_ok": true,
+        "execution_complete": true,
+        "execution_integrity_ok": true,
+        "claim_evidence": {
+          "primary_contrast": {
+            "treatment": "structured_card",
+            "baselines": [
+              "raw_session",
+              "generic_summary"
+            ]
+          },
+          "accuracy": {
+            "task_count": 6,
+            "mechanism_count": 2,
+            "group_count": 2,
+            "group_unit": "case",
+            "delta_pt": 0,
+            "ci95_pt": [
+              0,
+              0
+            ],
+            "unit": "paired_case_mean",
+            "bootstrap_seed": 17,
+            "mechanisms": [
+              "cjson-nesting",
+              "lwip-netif"
+            ]
+          },
+          "answer_completeness": {
+            "task_count": 6,
+            "mechanism_count": 2,
+            "group_count": 2,
+            "group_unit": "case",
+            "delta_pt": 0.8465608465608456,
+            "ci95_pt": [
+              -0.5291005291005307,
+              2.222222222222222
+            ],
+            "unit": "paired_case_mean",
+            "bootstrap_seed": 17,
+            "mechanisms": [
+              "cjson-nesting",
+              "lwip-netif"
+            ]
+          },
+          "input_token_reduction_pct": -5.702927358149612,
+          "current_decisions_passed": null,
+          "oracle_independently_validated": null,
+          "unsafe_missed_invalidation": null,
+          "current_false_invalidation": null,
+          "maintenance_value_measured": null
+        },
+        "human_release_eligible": false,
+        "terminal_semantic_unresolved": false,
+        "executed_trial_count": 54,
+        "unresolved_trial_count": 0,
+        "unresolved_trials": [],
+        "runtime_identity_ok": false,
+        "detached_review_identity_ok": true,
+        "manifest_sha256": "c8c2504f8429ca7a235e0f9b858ac294fbe86de2bad5afedc3c781e2031a82a1",
+        "report_sha256": "f5be2ecc98290942ebb753ac424c23dcc7d8217c07b21bbf9d7b73607c1f462f"
       },
       {
         "id": "maintenance",
         "kind": "maintenance",
         "manifest": "eval/upstream_maintenance.yaml",
-        "report": "docs/runs/PROOF-MAINTENANCE-UPSTREAM-20260906-v4.json",
+        "report": "docs/PROOF-MAINTENANCE-UPSTREAM-V5.json",
         "required_for_effect": true,
         "generated_artifact": null,
-        "status": "not_run",
-        "identity_ok": false,
-        "manifest_sha256": "3854439d5a5de8ecd9a04d5a8a6620560e4e9a9d8c11beccf1ef538987a6711f"
+        "status": "completed",
+        "identity_ok": true,
+        "review_status": "deterministic_oracle",
+        "effect_observed": false,
+        "claim_supported": false,
+        "proof_integrity_ok": true,
+        "execution_complete": true,
+        "execution_integrity_ok": true,
+        "claim_evidence": {
+          "primary_contrast": {},
+          "accuracy": null,
+          "answer_completeness": null,
+          "input_token_reduction_pct": null,
+          "current_decisions_passed": true,
+          "oracle_independently_validated": true,
+          "unsafe_missed_invalidation": false,
+          "current_false_invalidation": 0,
+          "maintenance_value_measured": false
+        },
+        "human_release_eligible": false,
+        "terminal_semantic_unresolved": false,
+        "executed_trial_count": null,
+        "unresolved_trial_count": 0,
+        "unresolved_trials": [],
+        "runtime_identity_ok": true,
+        "detached_review_identity_ok": false,
+        "manifest_sha256": "3854439d5a5de8ecd9a04d5a8a6620560e4e9a9d8c11beccf1ef538987a6711f",
+        "report_sha256": "22637ae4da3e29f0d4a6de6a94b6e9f9606a8bc17f3d4cbb9b5bd960069caf58"
       }
     ],
-    "experiments_complete": false,
+    "experiments_complete": true,
     "reviews_complete": false,
-    "claims_complete": false,
+    "claims_complete": true,
     "claims": [
       {
         "id": "wiki-cjson",
         "kind": "wiki_knowledge",
-        "state": "not_measured",
-        "report": "docs/runs/PROOF-WIKI-CJSON-20260906-v5.json",
+        "state": "insufficient_evidence",
+        "report": "docs/runs/curated/PROOF-WIKI-CJSON-V4.json",
         "claim_supported": false,
-        "evidence": null
+        "evidence": {
+          "primary_contrast": {
+            "treatment": "wiki_flat",
+            "baselines": [
+              "source_only"
+            ]
+          },
+          "accuracy": {
+            "delta_pt": null,
+            "ci95_pt": null
+          },
+          "answer_completeness": {
+            "delta_pt": null,
+            "ci95_pt": null
+          },
+          "input_token_reduction_pct": null,
+          "current_decisions_passed": null,
+          "oracle_independently_validated": null,
+          "unsafe_missed_invalidation": null,
+          "current_false_invalidation": null,
+          "maintenance_value_measured": null
+        },
+        "unresolved_trial_count": 1
       },
       {
         "id": "wiki-lwip",
         "kind": "wiki_knowledge",
-        "state": "not_measured",
-        "report": "docs/runs/PROOF-WIKI-LWIP-20260906-v5.json",
+        "state": "insufficient_evidence",
+        "report": "docs/runs/curated/PROOF-WIKI-LWIP-V4.json",
         "claim_supported": false,
-        "evidence": null
+        "evidence": {
+          "primary_contrast": {
+            "treatment": "wiki_flat",
+            "baselines": [
+              "source_only"
+            ]
+          },
+          "accuracy": {
+            "task_count": 20,
+            "mechanism_count": 16,
+            "group_count": 16,
+            "group_unit": "mechanism",
+            "delta_pt": 6.25,
+            "ci95_pt": [
+              0.0,
+              13.541666666666664
+            ],
+            "unit": "paired_mechanism_mean",
+            "bootstrap_seed": 17,
+            "mechanisms": [
+              "lwip-dhcp-start-discover",
+              "lwip-dns-enqueue-capacity",
+              "lwip-dns-resolution-state-machine",
+              "lwip-ethernet-demux",
+              "lwip-ip4-reassembly-limits",
+              "lwip-ip4-route-selection",
+              "lwip-mem-heap-state",
+              "lwip-netbuf-reallocation",
+              "lwip-pbuf-header-adjust",
+              "lwip-tcp-bind-conflicts",
+              "lwip-tcp-pcb-allocation-reclaim",
+              "lwip-timeout-dispatch",
+              "lwip-udp-bind-conflicts",
+              "lwip-udp-connection-state",
+              "lwip-udp-pcb-lifecycle",
+              "lwip-udp-send-pipeline"
+            ]
+          },
+          "answer_completeness": {
+            "task_count": 20,
+            "mechanism_count": 16,
+            "group_count": 16,
+            "group_unit": "mechanism",
+            "delta_pt": 10.416666666666666,
+            "ci95_pt": [
+              -2.083333333333333,
+              21.875
+            ],
+            "unit": "paired_mechanism_mean",
+            "bootstrap_seed": 17,
+            "mechanisms": [
+              "lwip-dhcp-start-discover",
+              "lwip-dns-enqueue-capacity",
+              "lwip-dns-resolution-state-machine",
+              "lwip-ethernet-demux",
+              "lwip-ip4-reassembly-limits",
+              "lwip-ip4-route-selection",
+              "lwip-mem-heap-state",
+              "lwip-netbuf-reallocation",
+              "lwip-pbuf-header-adjust",
+              "lwip-tcp-bind-conflicts",
+              "lwip-tcp-pcb-allocation-reclaim",
+              "lwip-timeout-dispatch",
+              "lwip-udp-bind-conflicts",
+              "lwip-udp-connection-state",
+              "lwip-udp-pcb-lifecycle",
+              "lwip-udp-send-pipeline"
+            ]
+          },
+          "input_token_reduction_pct": null,
+          "current_decisions_passed": null,
+          "oracle_independently_validated": null,
+          "unsafe_missed_invalidation": null,
+          "current_false_invalidation": null,
+          "maintenance_value_measured": null
+        },
+        "unresolved_trial_count": 0
       },
       {
         "id": "knowledge-reuse",
         "kind": "knowledge_reuse",
-        "state": "not_measured",
-        "report": "docs/runs/PROOF-KNOWLEDGE-REUSE-20260906-v4.json",
+        "state": "insufficient_evidence",
+        "report": "docs/runs/curated/PROOF-KNOWLEDGE-REUSE-V4.json",
         "claim_supported": false,
-        "evidence": null
+        "evidence": {
+          "primary_contrast": {
+            "treatment": "structured_card",
+            "baselines": [
+              "raw_session",
+              "generic_summary"
+            ]
+          },
+          "accuracy": {
+            "task_count": 6,
+            "mechanism_count": 2,
+            "group_count": 2,
+            "group_unit": "case",
+            "delta_pt": 0,
+            "ci95_pt": [
+              0,
+              0
+            ],
+            "unit": "paired_case_mean",
+            "bootstrap_seed": 17,
+            "mechanisms": [
+              "cjson-nesting",
+              "lwip-netif"
+            ]
+          },
+          "answer_completeness": {
+            "task_count": 6,
+            "mechanism_count": 2,
+            "group_count": 2,
+            "group_unit": "case",
+            "delta_pt": 0.8465608465608456,
+            "ci95_pt": [
+              -0.5291005291005307,
+              2.222222222222222
+            ],
+            "unit": "paired_case_mean",
+            "bootstrap_seed": 17,
+            "mechanisms": [
+              "cjson-nesting",
+              "lwip-netif"
+            ]
+          },
+          "input_token_reduction_pct": -5.702927358149612,
+          "current_decisions_passed": null,
+          "oracle_independently_validated": null,
+          "unsafe_missed_invalidation": null,
+          "current_false_invalidation": null,
+          "maintenance_value_measured": null
+        },
+        "unresolved_trial_count": 0
       },
       {
         "id": "maintenance",
         "kind": "maintenance",
-        "state": "not_measured",
-        "report": "docs/runs/PROOF-MAINTENANCE-UPSTREAM-20260906-v4.json",
+        "state": "insufficient_evidence",
+        "report": "docs/PROOF-MAINTENANCE-UPSTREAM-V5.json",
         "claim_supported": false,
-        "evidence": null
+        "evidence": {
+          "primary_contrast": {},
+          "accuracy": null,
+          "answer_completeness": null,
+          "input_token_reduction_pct": null,
+          "current_decisions_passed": true,
+          "oracle_independently_validated": true,
+          "unsafe_missed_invalidation": false,
+          "current_false_invalidation": 0,
+          "maintenance_value_measured": false
+        },
+        "unresolved_trial_count": 0
       }
     ],
     "ai_review_done": false,
@@ -785,17 +1404,518 @@
       },
       "accuracy": null,
       "answer_completeness": null
+    },
+    "judge_qualification": {
+      "schema_version": 1,
+      "status": "unresolved",
+      "identity": {
+        "policy_sha256": "871a68e008a01f0c10c145c91c5f71572b3603b9bfea8ae6e4cb13217cb4b107",
+        "policy_hash": "c9699c0879a24fa7e59cd8a54e703ec13fdfe713cb12df0c6f491d4ddb7b24cd",
+        "campaign_id": "campaign-85926a33953647dd8e6d1ef72d902b18",
+        "answer_trials": 510,
+        "formal_answer_trials": 486,
+        "qualifications": [
+          {
+            "role": "primary",
+            "model": "gpt-5.6-terra",
+            "attempt": "v4a-terra",
+            "calibration": "eval/review_calibration_v4a.yaml",
+            "calibration_hash": "5482e4ac240fbdfae6b6b59a57d7dfc3d0785849b96a47d9596225080977ed30",
+            "calibration_input_hash": "b8ad9466919225d02da40e634ab6d1f296dadbdcad28b825180bcf96fa81b2c4",
+            "points": 66
+          },
+          {
+            "role": "fallback",
+            "model": "gpt-5.6-sol",
+            "attempt": "v4b-sol",
+            "calibration": "eval/review_calibration_v4b.yaml",
+            "calibration_hash": "bbc03b900422af15a677dc3402a513bfde9e126de36a361aff34309675e7fb19",
+            "calibration_input_hash": "fec2d82a667e7326c012b244c59437c38981a9acd159fc02e4f2e8b61a4c1af4",
+            "points": 66
+          }
+        ]
+      },
+      "selected": "fallback",
+      "primary": {
+        "status": "unresolved",
+        "reason": "judge_calibration_failed",
+        "batch_id": "002b2134f0322ec65520ed9f69e021e73903781154f82d16d1f380a83e9d8249",
+        "judge_request_count": 24,
+        "passed": false,
+        "reviewer_count": 2,
+        "reviewers": [
+          {
+            "reviewer": "campaign-85926a33953647dd8e6d1ef72d902b18/review/002b2134f0322ec6/judge-a",
+            "model": "gpt-5.6-terra",
+            "metrics": {
+              "citation_relation_accuracy": 0.9166666666666666,
+              "contradicted_as_met": 1,
+              "contradiction_recall": 0.9545454545454546,
+              "forbidden_flag_accuracy": 1.0,
+              "manipulation_detected": true,
+              "met_recall": 1.0,
+              "missed_recall": 0.9285714285714286,
+              "point_accuracy": 0.9696969696969697,
+              "response_coverage": 1.0,
+              "state_correct": {
+                "contradicted": 21,
+                "met": 30,
+                "missed": 13
+              },
+              "state_totals": {
+                "contradicted": 22,
+                "met": 30,
+                "missed": 14
+              },
+              "unsafe_citation_as_supported": 0
+            },
+            "gates": {
+              "contradiction_recall": true,
+              "forbidden_flag_accuracy": true,
+              "manipulation_detection": true,
+              "met_recall": true,
+              "missed_recall": true,
+              "no_contradiction_as_met": false,
+              "point_accuracy": true,
+              "response_coverage": true,
+              "unsafe_citation_not_supported": true
+            }
+          },
+          {
+            "reviewer": "campaign-85926a33953647dd8e6d1ef72d902b18/review/002b2134f0322ec6/judge-b",
+            "model": "gpt-5.6-terra",
+            "metrics": {
+              "citation_relation_accuracy": 0.9166666666666666,
+              "contradicted_as_met": 0,
+              "contradiction_recall": 1.0,
+              "forbidden_flag_accuracy": 1.0,
+              "manipulation_detected": true,
+              "met_recall": 1.0,
+              "missed_recall": 0.7142857142857143,
+              "point_accuracy": 0.9393939393939394,
+              "response_coverage": 1.0,
+              "state_correct": {
+                "contradicted": 22,
+                "met": 30,
+                "missed": 10
+              },
+              "state_totals": {
+                "contradicted": 22,
+                "met": 30,
+                "missed": 14
+              },
+              "unsafe_citation_as_supported": 1
+            },
+            "gates": {
+              "contradiction_recall": true,
+              "forbidden_flag_accuracy": true,
+              "manipulation_detection": true,
+              "met_recall": true,
+              "missed_recall": false,
+              "no_contradiction_as_met": true,
+              "point_accuracy": true,
+              "response_coverage": true,
+              "unsafe_citation_not_supported": false
+            }
+          }
+        ]
+      },
+      "fallback": {
+        "status": "calibrated",
+        "reason": null,
+        "batch_id": "d6add019adceba5eac7c50222bd8bd609692c3a2d9f8f31260971dc0aa36a6dd",
+        "judge_request_count": 24,
+        "passed": true,
+        "reviewer_count": 2,
+        "reviewers": [
+          {
+            "reviewer": "campaign-85926a33953647dd8e6d1ef72d902b18/review/d6add019adceba5e/judge-a",
+            "model": "gpt-5.6-sol",
+            "metrics": {
+              "citation_relation_accuracy": 1.0,
+              "contradicted_as_met": 0,
+              "contradiction_recall": 1.0,
+              "forbidden_flag_accuracy": 1.0,
+              "manipulation_detected": true,
+              "met_recall": 0.9444444444444444,
+              "missed_recall": 1.0,
+              "point_accuracy": 0.9696969696969697,
+              "response_coverage": 1.0,
+              "state_correct": {
+                "contradicted": 23,
+                "met": 34,
+                "missed": 7
+              },
+              "state_totals": {
+                "contradicted": 23,
+                "met": 36,
+                "missed": 7
+              },
+              "unsafe_citation_as_supported": 0
+            },
+            "gates": {
+              "contradiction_recall": true,
+              "forbidden_flag_accuracy": true,
+              "manipulation_detection": true,
+              "met_recall": true,
+              "missed_recall": true,
+              "no_contradiction_as_met": true,
+              "point_accuracy": true,
+              "response_coverage": true,
+              "unsafe_citation_not_supported": true
+            }
+          },
+          {
+            "reviewer": "campaign-85926a33953647dd8e6d1ef72d902b18/review/d6add019adceba5e/judge-b",
+            "model": "gpt-5.6-sol",
+            "metrics": {
+              "citation_relation_accuracy": 1.0,
+              "contradicted_as_met": 0,
+              "contradiction_recall": 1.0,
+              "forbidden_flag_accuracy": 1.0,
+              "manipulation_detected": true,
+              "met_recall": 0.9444444444444444,
+              "missed_recall": 1.0,
+              "point_accuracy": 0.9696969696969697,
+              "response_coverage": 1.0,
+              "state_correct": {
+                "contradicted": 23,
+                "met": 34,
+                "missed": 7
+              },
+              "state_totals": {
+                "contradicted": 23,
+                "met": 36,
+                "missed": 7
+              },
+              "unsafe_citation_as_supported": 0
+            },
+            "gates": {
+              "contradiction_recall": true,
+              "forbidden_flag_accuracy": true,
+              "manipulation_detection": true,
+              "met_recall": true,
+              "missed_recall": true,
+              "no_contradiction_as_met": true,
+              "point_accuracy": true,
+              "response_coverage": true,
+              "unsafe_citation_not_supported": true
+            }
+          }
+        ]
+      },
+      "review": {
+        "status": "unresolved",
+        "batch_id": "0bfa4a7453e3534cae5d12b5be22798bf885aec97813f94bca76b14e1015e3e6",
+        "attempt_id": "v4b-sol.semantic-review-v1.format-gap-recovery-v2",
+        "base_attempt_id": "v4b-sol.semantic-review-v1",
+        "projection_version": "semantic-review-v1",
+        "unresolved_trial_count": 1,
+        "disagreement_count": 129,
+        "replacement_count": 3,
+        "recovery_arbitration_count": 3,
+        "judge_request_count": 3
+      },
+      "failed_review_attempts": [
+        {
+          "attempt_id": "v4b-sol",
+          "batch_id": "d6add019adceba5eac7c50222bd8bd609692c3a2d9f8f31260971dc0aa36a6dd",
+          "judge_request_count": 230,
+          "reason": "review_input_budget_failed",
+          "status": "unresolved",
+          "unresolved_trial_count": 404
+        },
+        {
+          "attempt_id": "v4b-sol.semantic-review-v1",
+          "batch_id": "354b56ea10d14b868b96d4b783a742c4b88049fb7dbbd46273aa3438aba4e4b8",
+          "judge_request_count": 1110,
+          "reason": "format_invalid_review_positions",
+          "repairable_count": 4,
+          "status": "unresolved",
+          "unresolved_trial_count": 4
+        },
+        {
+          "attempt_id": "v4b-sol.semantic-review-v1.format-gap-recovery-v1",
+          "batch_id": "1f4c4e55733a0bd366ef505366bd2a3c51164581920a71d618e5f76cde021122",
+          "status": "unresolved",
+          "reason": "recovery_arbiter_calibration_failed",
+          "judge_request_count": 27
+        }
+      ],
+      "request_budget": {
+        "start": 1731,
+        "used": 1394,
+        "maximum": 1522
+      },
+      "boundary": "Sol is activated only after Terra semantic calibration failure.",
+      "report_hash": "f276e84169175d7c393d8f4ee2d782c833fdfce3713b7ee751abafaac2ea6e2b",
+      "qualified": true,
+      "integrity_ok": true,
+      "policy": "eval/judge_qualification_v4.yaml",
+      "report": "docs/JUDGE-QUALIFICATION-V4.json"
     }
   },
   "foundation_passed": true,
   "task_complete": false,
+  "legacy_task_complete": false,
+  "current_release_complete": true,
   "passed": false,
   "engineer_pass": true,
-  "human_release": false,
+  "human_release": true,
   "ai_effect_review": false,
   "effect_observed": false,
-  "experiments_complete": false,
-  "claims_complete": false,
+  "experiments_complete": true,
+  "reviews_complete": false,
+  "claims_complete": true,
+  "judge_qualification": {
+    "schema_version": 1,
+    "status": "unresolved",
+    "identity": {
+      "policy_sha256": "871a68e008a01f0c10c145c91c5f71572b3603b9bfea8ae6e4cb13217cb4b107",
+      "policy_hash": "c9699c0879a24fa7e59cd8a54e703ec13fdfe713cb12df0c6f491d4ddb7b24cd",
+      "campaign_id": "campaign-85926a33953647dd8e6d1ef72d902b18",
+      "answer_trials": 510,
+      "formal_answer_trials": 486,
+      "qualifications": [
+        {
+          "role": "primary",
+          "model": "gpt-5.6-terra",
+          "attempt": "v4a-terra",
+          "calibration": "eval/review_calibration_v4a.yaml",
+          "calibration_hash": "5482e4ac240fbdfae6b6b59a57d7dfc3d0785849b96a47d9596225080977ed30",
+          "calibration_input_hash": "b8ad9466919225d02da40e634ab6d1f296dadbdcad28b825180bcf96fa81b2c4",
+          "points": 66
+        },
+        {
+          "role": "fallback",
+          "model": "gpt-5.6-sol",
+          "attempt": "v4b-sol",
+          "calibration": "eval/review_calibration_v4b.yaml",
+          "calibration_hash": "bbc03b900422af15a677dc3402a513bfde9e126de36a361aff34309675e7fb19",
+          "calibration_input_hash": "fec2d82a667e7326c012b244c59437c38981a9acd159fc02e4f2e8b61a4c1af4",
+          "points": 66
+        }
+      ]
+    },
+    "selected": "fallback",
+    "primary": {
+      "status": "unresolved",
+      "reason": "judge_calibration_failed",
+      "batch_id": "002b2134f0322ec65520ed9f69e021e73903781154f82d16d1f380a83e9d8249",
+      "judge_request_count": 24,
+      "passed": false,
+      "reviewer_count": 2,
+      "reviewers": [
+        {
+          "reviewer": "campaign-85926a33953647dd8e6d1ef72d902b18/review/002b2134f0322ec6/judge-a",
+          "model": "gpt-5.6-terra",
+          "metrics": {
+            "citation_relation_accuracy": 0.9166666666666666,
+            "contradicted_as_met": 1,
+            "contradiction_recall": 0.9545454545454546,
+            "forbidden_flag_accuracy": 1.0,
+            "manipulation_detected": true,
+            "met_recall": 1.0,
+            "missed_recall": 0.9285714285714286,
+            "point_accuracy": 0.9696969696969697,
+            "response_coverage": 1.0,
+            "state_correct": {
+              "contradicted": 21,
+              "met": 30,
+              "missed": 13
+            },
+            "state_totals": {
+              "contradicted": 22,
+              "met": 30,
+              "missed": 14
+            },
+            "unsafe_citation_as_supported": 0
+          },
+          "gates": {
+            "contradiction_recall": true,
+            "forbidden_flag_accuracy": true,
+            "manipulation_detection": true,
+            "met_recall": true,
+            "missed_recall": true,
+            "no_contradiction_as_met": false,
+            "point_accuracy": true,
+            "response_coverage": true,
+            "unsafe_citation_not_supported": true
+          }
+        },
+        {
+          "reviewer": "campaign-85926a33953647dd8e6d1ef72d902b18/review/002b2134f0322ec6/judge-b",
+          "model": "gpt-5.6-terra",
+          "metrics": {
+            "citation_relation_accuracy": 0.9166666666666666,
+            "contradicted_as_met": 0,
+            "contradiction_recall": 1.0,
+            "forbidden_flag_accuracy": 1.0,
+            "manipulation_detected": true,
+            "met_recall": 1.0,
+            "missed_recall": 0.7142857142857143,
+            "point_accuracy": 0.9393939393939394,
+            "response_coverage": 1.0,
+            "state_correct": {
+              "contradicted": 22,
+              "met": 30,
+              "missed": 10
+            },
+            "state_totals": {
+              "contradicted": 22,
+              "met": 30,
+              "missed": 14
+            },
+            "unsafe_citation_as_supported": 1
+          },
+          "gates": {
+            "contradiction_recall": true,
+            "forbidden_flag_accuracy": true,
+            "manipulation_detection": true,
+            "met_recall": true,
+            "missed_recall": false,
+            "no_contradiction_as_met": true,
+            "point_accuracy": true,
+            "response_coverage": true,
+            "unsafe_citation_not_supported": false
+          }
+        }
+      ]
+    },
+    "fallback": {
+      "status": "calibrated",
+      "reason": null,
+      "batch_id": "d6add019adceba5eac7c50222bd8bd609692c3a2d9f8f31260971dc0aa36a6dd",
+      "judge_request_count": 24,
+      "passed": true,
+      "reviewer_count": 2,
+      "reviewers": [
+        {
+          "reviewer": "campaign-85926a33953647dd8e6d1ef72d902b18/review/d6add019adceba5e/judge-a",
+          "model": "gpt-5.6-sol",
+          "metrics": {
+            "citation_relation_accuracy": 1.0,
+            "contradicted_as_met": 0,
+            "contradiction_recall": 1.0,
+            "forbidden_flag_accuracy": 1.0,
+            "manipulation_detected": true,
+            "met_recall": 0.9444444444444444,
+            "missed_recall": 1.0,
+            "point_accuracy": 0.9696969696969697,
+            "response_coverage": 1.0,
+            "state_correct": {
+              "contradicted": 23,
+              "met": 34,
+              "missed": 7
+            },
+            "state_totals": {
+              "contradicted": 23,
+              "met": 36,
+              "missed": 7
+            },
+            "unsafe_citation_as_supported": 0
+          },
+          "gates": {
+            "contradiction_recall": true,
+            "forbidden_flag_accuracy": true,
+            "manipulation_detection": true,
+            "met_recall": true,
+            "missed_recall": true,
+            "no_contradiction_as_met": true,
+            "point_accuracy": true,
+            "response_coverage": true,
+            "unsafe_citation_not_supported": true
+          }
+        },
+        {
+          "reviewer": "campaign-85926a33953647dd8e6d1ef72d902b18/review/d6add019adceba5e/judge-b",
+          "model": "gpt-5.6-sol",
+          "metrics": {
+            "citation_relation_accuracy": 1.0,
+            "contradicted_as_met": 0,
+            "contradiction_recall": 1.0,
+            "forbidden_flag_accuracy": 1.0,
+            "manipulation_detected": true,
+            "met_recall": 0.9444444444444444,
+            "missed_recall": 1.0,
+            "point_accuracy": 0.9696969696969697,
+            "response_coverage": 1.0,
+            "state_correct": {
+              "contradicted": 23,
+              "met": 34,
+              "missed": 7
+            },
+            "state_totals": {
+              "contradicted": 23,
+              "met": 36,
+              "missed": 7
+            },
+            "unsafe_citation_as_supported": 0
+          },
+          "gates": {
+            "contradiction_recall": true,
+            "forbidden_flag_accuracy": true,
+            "manipulation_detection": true,
+            "met_recall": true,
+            "missed_recall": true,
+            "no_contradiction_as_met": true,
+            "point_accuracy": true,
+            "response_coverage": true,
+            "unsafe_citation_not_supported": true
+          }
+        }
+      ]
+    },
+    "review": {
+      "status": "unresolved",
+      "batch_id": "0bfa4a7453e3534cae5d12b5be22798bf885aec97813f94bca76b14e1015e3e6",
+      "attempt_id": "v4b-sol.semantic-review-v1.format-gap-recovery-v2",
+      "base_attempt_id": "v4b-sol.semantic-review-v1",
+      "projection_version": "semantic-review-v1",
+      "unresolved_trial_count": 1,
+      "disagreement_count": 129,
+      "replacement_count": 3,
+      "recovery_arbitration_count": 3,
+      "judge_request_count": 3
+    },
+    "failed_review_attempts": [
+      {
+        "attempt_id": "v4b-sol",
+        "batch_id": "d6add019adceba5eac7c50222bd8bd609692c3a2d9f8f31260971dc0aa36a6dd",
+        "judge_request_count": 230,
+        "reason": "review_input_budget_failed",
+        "status": "unresolved",
+        "unresolved_trial_count": 404
+      },
+      {
+        "attempt_id": "v4b-sol.semantic-review-v1",
+        "batch_id": "354b56ea10d14b868b96d4b783a742c4b88049fb7dbbd46273aa3438aba4e4b8",
+        "judge_request_count": 1110,
+        "reason": "format_invalid_review_positions",
+        "repairable_count": 4,
+        "status": "unresolved",
+        "unresolved_trial_count": 4
+      },
+      {
+        "attempt_id": "v4b-sol.semantic-review-v1.format-gap-recovery-v1",
+        "batch_id": "1f4c4e55733a0bd366ef505366bd2a3c51164581920a71d618e5f76cde021122",
+        "status": "unresolved",
+        "reason": "recovery_arbiter_calibration_failed",
+        "judge_request_count": 27
+      }
+    ],
+    "request_budget": {
+      "start": 1731,
+      "used": 1394,
+      "maximum": 1522
+    },
+    "boundary": "Sol is activated only after Terra semantic calibration failure.",
+    "report_hash": "f276e84169175d7c393d8f4ee2d782c833fdfce3713b7ee751abafaac2ea6e2b",
+    "qualified": true,
+    "integrity_ok": true,
+    "policy": "eval/judge_qualification_v4.yaml",
+    "report": "docs/JUDGE-QUALIFICATION-V4.json"
+  },
   "public_repro": false,
   "portfolio_ready": false
 }

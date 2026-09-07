@@ -14,6 +14,8 @@ corpora:
     wiki_dir: kb/wiki-cjson
     task_manifest: eval/tasks_cjson.yaml
     task_report: docs/TASK-EVAL-CJSON.json
+    current_task_manifest: eval/tasks_current_cjson.yaml
+    current_task_report: docs/TASK-CURRENT-CJSON.json
     workflow_manifest: eval/workflow_cjson.yaml
     workflow_report: docs/WORKFLOW-EVAL-CJSON.json
     success_session: examples/conversations/cjson-nesting-review.json
@@ -22,6 +24,8 @@ corpora:
     formal_card:
       id: e-0f1743530a0e
       review_bundle_hash: 6f624a45bf16d7a76876b8c33acaa8fa4c6fc269435e1dd7ac550a30aa95d56c
+      release: knowledge/releases/e-0f1743530a0e.json
+      release_sha256: 77b5c08e4cfb06ac3022f12cd1bbbf94d3cac6774bdadab730a628add2d16000
 
   - id: lwip
     role: scale
@@ -36,6 +40,8 @@ corpora:
     wiki_dir: kb/wiki-lwip
     task_manifest: eval/tasks_lwip.yaml
     task_report: docs/TASK-EVAL-LWIP.json
+    current_task_manifest: eval/tasks_current_lwip.yaml
+    current_task_report: docs/TASK-CURRENT-LWIP.json
     workflow_manifest: eval/workflow_lwip.yaml
     workflow_report: docs/WORKFLOW-EVAL-LWIP.json
     success_session: examples/conversations/lwip-netif-review.json
@@ -44,3 +50,5 @@ corpora:
     formal_card:
       id: e-13d209f2a9b2
       review_bundle_hash: 9fb6b15935d33ef15cfb1305f841f294f5ec2ec036a778843f15cf14e3ae4f08
+      release: knowledge/releases/e-13d209f2a9b2.json
+      release_sha256: a197c54fd5983c51c13552db132670d80d130d695d9dc4f6ea8ca0a047dca4eb

@@ -1,0 +1,54 @@
+schema_version: 1
+name: cJSON 当前正式知识卡验收集（5 题）
+repository: https://github.com/DaveGamble/cJSON
+revision: fb16e5cf358798aabb049655975cde8427101056
+public_source: cJSON 公开源码与公开可复现实验固定快照
+reviewer: Guoshuaiqi
+reviewed_at: "2026-09-06"
+failure_policy: 当前发布卡未命中、不是 approved B 级证据或主锚点 provenance 不完整即失败；不得回写旧 20 题 gold。
+
+tasks:
+  - id: current-cjson-root-cause
+    type: 已审核经验复用
+    status: approved
+    question: cJSON 嵌套深度到达 CJSON_NESTING_LIMIT 时，parse_value 失败的真实根因是什么？
+    source_permalink: https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1368-L1420
+    expected_card_title: 沉淀 cJSON 嵌套深度边界的可复现排障知识
+    main_anchor: {symbol: parse_value, path: cJSON.c, line_start: 1368}
+    rationale: 验证当前正式卡能复用被实验和源码共同确认的根因。
+
+  - id: current-cjson-condition
+    type: 已审核经验复用
+    status: approved
+    question: 排查 cJSON 嵌套限制时，低于、等于和超过 CJSON_NESTING_LIMIT 分别要验证什么边界条件？
+    source_permalink: https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1368-L1420
+    expected_card_title: 沉淀 cJSON 嵌套深度边界的可复现排障知识
+    main_anchor: {symbol: parse_value, path: cJSON.c, line_start: 1368}
+    rationale: 验证卡片保留阈值边界而不是只给笼统结论。
+
+  - id: current-cjson-reject-false-cause
+    type: 已审核经验复用
+    status: approved
+    question: cJSON 深层输入解析失败能否直接归因于内存不足？如何用嵌套限制实验排除这个错误解释？
+    source_permalink: https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1368-L1420
+    expected_card_title: 沉淀 cJSON 嵌套深度边界的可复现排障知识
+    main_anchor: {symbol: parse_value, path: cJSON.c, line_start: 1368}
+    rationale: 验证卡片能区分限制触发与未经证实的内存分配假设。
+
+  - id: current-cjson-fix
+    type: 已审核经验复用
+    status: approved
+    question: 确认是 CJSON_NESTING_LIMIT 后，应该怎样处理输入或构建配置，并避免把限制简单删除？
+    source_permalink: https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1368-L1420
+    expected_card_title: 沉淀 cJSON 嵌套深度边界的可复现排障知识
+    main_anchor: {symbol: parse_value, path: cJSON.c, line_start: 1368}
+    rationale: 验证后续处理建议来自当前已审核知识而非临时猜测。
+
+  - id: current-cjson-verification
+    type: 已审核经验复用
+    status: approved
+    question: 如何复现并验证 cJSON 嵌套深度边界，解析结果和 parse_end 应观察什么？
+    source_permalink: https://github.com/DaveGamble/cJSON/blob/fb16e5cf358798aabb049655975cde8427101056/cJSON.c#L1368-L1420
+    expected_card_title: 沉淀 cJSON 嵌套深度边界的可复现排障知识
+    main_anchor: {symbol: parse_value, path: cJSON.c, line_start: 1368}
+    rationale: 验证卡片包含可执行的复现与观测方法。

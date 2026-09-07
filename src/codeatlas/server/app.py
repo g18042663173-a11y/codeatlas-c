@@ -741,6 +741,13 @@ def api_evaluation_latest():
             "mode": acceptance_raw.get("mode"), "passed": acceptance_raw.get("passed"),
             "foundation_passed": acceptance_raw.get("foundation_passed"),
             "task_complete": acceptance_raw.get("task_complete"),
+            "legacy_task_complete": acceptance_raw.get(
+                "legacy_task_complete", acceptance_raw.get("task_complete")),
+            "current_release_complete": acceptance_raw.get("current_release_complete"),
+            "experiments_complete": acceptance_raw.get("experiments_complete"),
+            "reviews_complete": acceptance_raw.get("reviews_complete"),
+            "claims_complete": acceptance_raw.get("claims_complete"),
+            "judge_qualification": acceptance_raw.get("judge_qualification"),
             "portfolio_ready": acceptance_raw.get("portfolio_ready"),
             "engineer_pass": acceptance_raw.get("engineer_pass"),
             "human_release": acceptance_raw.get("human_release"),

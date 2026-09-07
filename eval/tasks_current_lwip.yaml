@@ -1,0 +1,54 @@
+schema_version: 1
+name: lwIP 当前正式知识卡验收集（5 题）
+repository: https://github.com/lwip-tcpip/lwip
+revision: 3d896ba0a37ff3ce73270ca5e230707fe47f60e3
+public_source: lwIP 公开源码与公开可复现实验固定快照
+reviewer: Guoshuaiqi
+reviewed_at: "2026-09-06"
+failure_policy: 当前发布卡未命中、不是 approved B 级证据或主锚点 provenance 不完整即失败；不得回写旧 20 题 gold。
+
+tasks:
+  - id: current-lwip-root-cause
+    type: 已审核经验复用
+    status: approved
+    question: netif_add 加入接口后 netif_default 仍为空的真实根因是什么？
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L286-L458
+    expected_card_title: 沉淀 netif_add 与默认接口选择分离的可复现知识
+    main_anchor: {symbol: netif_add, path: src/core/netif.c, line_start: 286}
+    rationale: 验证当前正式卡能解释接口加入与默认接口选择的职责分离。
+
+  - id: current-lwip-condition
+    type: 已审核经验复用
+    status: approved
+    question: 首个和第二个接口调用 netif_add 时，netif_list 与 netif_default 分别应满足什么条件？
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L286-L458
+    expected_card_title: 沉淀 netif_add 与默认接口选择分离的可复现知识
+    main_anchor: {symbol: netif_add, path: src/core/netif.c, line_start: 286}
+    rationale: 验证知识卡保留多接口情境中的关键限定条件。
+
+  - id: current-lwip-reject-false-cause
+    type: 已审核经验复用
+    status: approved
+    question: 能否认为 netif_add 会自动把最后加入的接口设为默认接口？如何排除这个错误解释？
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L286-L458
+    expected_card_title: 沉淀 netif_add 与默认接口选择分离的可复现知识
+    main_anchor: {symbol: netif_add, path: src/core/netif.c, line_start: 286}
+    rationale: 验证卡片能拒绝与固定源码和实验相冲突的直觉解释。
+
+  - id: current-lwip-fix
+    type: 已审核经验复用
+    status: approved
+    question: netif_add 成功后，调用方应怎样使用 netif_set_default 完成默认接口选择？
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L286-L458
+    expected_card_title: 沉淀 netif_add 与默认接口选择分离的可复现知识
+    main_anchor: {symbol: netif_add, path: src/core/netif.c, line_start: 286}
+    rationale: 验证当前发布知识包含明确、受路由策略约束的处理步骤。
+
+  - id: current-lwip-verification
+    type: 已审核经验复用
+    status: approved
+    question: 如何运行 lwIP netif_add 复现实验，并验证 list、default 和返回值？
+    source_permalink: https://github.com/lwip-tcpip/lwip/blob/3d896ba0a37ff3ce73270ca5e230707fe47f60e3/src/core/netif.c#L286-L458
+    expected_card_title: 沉淀 netif_add 与默认接口选择分离的可复现知识
+    main_anchor: {symbol: netif_add, path: src/core/netif.c, line_start: 286}
+    rationale: 验证知识卡提供了可复现的观测序列而非只有结论。

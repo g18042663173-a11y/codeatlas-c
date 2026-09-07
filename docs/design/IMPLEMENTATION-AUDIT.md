@@ -2,7 +2,7 @@
 
 本文保留先前快照改造的历史验收；后续评测修订与最新测试见 [评测合理性审计](EVALUATION-REVISION-AUDIT.md)。
 
-本轮只改本地 `feat/portfolio-core-evidence`，不提交、不推送。原有脏工作区保留，两个旧稿与 40 题 gold 的 SHA-256 未变。备份位于 `data/kb-sets/migration-backup` 和 `data/lwip-sets/migration-backup`。内部录音、图片和会话未导入公开资产。
+本轮改动保留在本地 `feat/portfolio-core-evidence`，不推送。原有两个旧稿与 40 题 gold 保持不变。备份位于 `data/kb-sets/migration-backup` 和 `data/lwip-sets/migration-backup`。内部录音、图片和会话未导入公开资产。
 
 ## 改造与证据
 
@@ -16,7 +16,7 @@
 | 锚点命中冒充理解正确 | rubric 盲审导入；主指标、分类和门禁统一重算 | 非 gold 拒答不计正确；规划分母不排除错误拒答；模型报告绑定 active 身份 |
 | 旧审核 UI 覆盖新门禁 | 清除旧函数覆盖，分离绑定、QA、当前材料批准 | 浏览器已显示材料哈希、依赖数、独立按钮；新增前端源契约测试 |
 
-本地回归：`pytest -q` **331 passed**；前端控制器 `8 passed`。其中 HTTP 协议测试只绑定本机临时端口，不调用收费服务；没有因为缺少外部语料或模型而跳过核心测试。
+最新本地回归：`pytest -q` **366 passed**；前端控制器 `8 passed`。其中 HTTP 协议测试只绑定本机临时端口，不调用收费服务；没有因为缺少外部语料或模型而跳过核心测试。
 
 ## 本轮实测
 
@@ -36,12 +36,12 @@
 - 新快照全量解析，卡片依赖为所有已解析实体加配置；不是最小语义消费集，会过度失效。传播日志选择重验证策略，不证明程序语义等价。
 - Wiki input_hash 不包含全局 commit；引用独立刷新，相同文件字节可 CAS 复用。正文/引用尚未拆成两个物理 CAS 对象。
 - 骨架是当前构建配置下的显式局部观察；未启用分支、别名和 switch fallthrough 不做 certain 语义证明。不是完整 CFG 或数据流分析。
-- 自由回答正确性需要按固定 rubric 盲审。Luna 的 510 个答案试次已采集，但评分 judge 未通过冻结资格校准，正式盲审没有启动；阅读顺序遵守和未审答案都不代表理解增益。
-- 两张正式卡仍 pending，QA 和最终确认未由用户完成。本次方案讨论不构成内容批准。
+- 自由回答正确性按固定 rubric 盲审。Luna 的 510 个答案试次保持冻结；Terra/V4A 失败后，Sol/V4B 通过。486 个正式答案完成双评与必要仲裁，但 1 个 cJSON 条件判断仍为语义未决，因此不能补算 cJSON 主对照。
+- 两张正式卡已由用户确认并发布，当前版本验收为 10/10；旧 40 题仍为 30/40，不回写旧 gold。发布包与 publication journal 共同决定能否在空数据库中恢复 B 级知识。
 - 24 个真实上游维护场景已执行完整。审核声明的函数/宏消费依赖在 16 个语义场景达到 16/16，漏放和误失效均为 0；发布中断和治理回滚使用生产持久化日志完成恢复。该结果不包含完整构建和真人复核成本，不能证明摊销价值。
-- 432 个 Wiki 答案试次和 54 个经验试次尚未调用真实模型；历史报告在实现变化后为 `stale`，不会进入当前效果结论。
+- 432 个 Wiki 答案和 54 个经验答案已完成真实模型运行。lwIP Wiki 对照的 +6.25pt 区间触及 0，知识卡对照没有观察到收益；当前效果主张均为 `insufficient_evidence`。
 
-因此基础工程、人工审核、真实模型效果分开验收。当前 `task_complete=false`、`portfolio_ready=false`；本地未提交结果不能显示公开已验证。
+因此基础工程、人工审核、真实模型效果分开验收。当前 `foundation_passed=true`、`human_release=true`、`current_release_complete=true`，但 `reviews_complete=false`、`portfolio_ready=false`；未推送、未做外部干净下载复现，不能显示公开已验证。
 
 ## 常用入口
 

@@ -1,0 +1,212 @@
+{
+  "reviewer_kind": "agent",
+  "provider": "openai",
+  "model": "gpt-5",
+  "agent": "/root/v4_source_reviewer",
+  "prompt_hash": "e7a96b2b3bdd05f156f0e439d64ea5716e47008939a3f1a1bb37e20f3a7246be",
+  "input_hash": "b8ad9466919225d02da40e634ab6d1f296dadbdcad28b825180bcf96fa81b2c4",
+  "independent": true,
+  "peer_reviews_visible": false,
+  "verdict": "approved",
+  "reviewed_at": "2026-09-07T14:11:07Z",
+  "human_reviewed": false,
+  "artifact": {
+    "path": "eval/review_calibration_v4a.yaml",
+    "calibration_id": "review-calibration-v4a-terra-primary",
+    "file_sha256": "a599a70128b7a81be30e76b19147d9f0a1fd03cf3f8cb32574f075bdd115de78",
+    "declared_input_hash": "b8ad9466919225d02da40e634ab6d1f296dadbdcad28b825180bcf96fa81b2c4",
+    "recomputed_input_hash": "b8ad9466919225d02da40e634ab6d1f296dadbdcad28b825180bcf96fa81b2c4",
+    "input_hash_match": true
+  },
+  "source_revisions": {
+    "cjson": {
+      "expected": "fb16e5cf358798aabb049655975cde8427101056",
+      "actual": "fb16e5cf358798aabb049655975cde8427101056",
+      "match": true
+    },
+    "lwip": {
+      "expected": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+      "actual": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+      "match": true
+    }
+  },
+  "counts": {
+    "samples_expected": 12,
+    "samples_actual": 12,
+    "samples_approved": 12,
+    "samples_rejected": 0,
+    "points_expected": 66,
+    "points_actual": 66,
+    "unique_sample_ids": 12,
+    "unique_point_ids": 66,
+    "categories_expected": {
+      "correct": 2,
+      "missing_condition": 2,
+      "condition_inversion": 2,
+      "true_citation_false_conclusion": 2,
+      "fabricated_citation": 1,
+      "reasonable_refusal": 1,
+      "incorrect_refusal": 1,
+      "scoring_manipulation": 1
+    },
+    "categories_actual": {
+      "correct": 2,
+      "missing_condition": 2,
+      "condition_inversion": 2,
+      "true_citation_false_conclusion": 2,
+      "fabricated_citation": 1,
+      "reasonable_refusal": 1,
+      "incorrect_refusal": 1,
+      "scoring_manipulation": 1
+    },
+    "category_counts_match": true
+  },
+  "evidence_review": {
+    "catalog_entries": 25,
+    "whole_file_hashes_verified": 25,
+    "line_ranges_verified": 25,
+    "exact_excerpts_verified": 25,
+    "excerpt_hashes_verified": 25,
+    "dangling_basis_ids": 0,
+    "unsafe_citations_marked_supported": 0,
+    "all_verified": true
+  },
+  "label_review": {
+    "decisions_verified": 12,
+    "point_result_maps_verified": 12,
+    "forbidden_flags_verified": 12,
+    "citation_relations_verified": 12,
+    "manipulation_flags_verified": 12,
+    "all_verified": true
+  },
+  "mechanism_deduplication": {
+    "internal_unique": true,
+    "internal_mechanism_count": 12,
+    "exact_overlap_with_v3": {
+      "sample_ids": 0,
+      "candidate_responses": 0
+    },
+    "exact_overlap_with_v4b": {
+      "sample_ids": 0,
+      "questions": 0,
+      "candidate_responses": 0,
+      "mechanisms": 0
+    },
+    "semantic_mechanism_overlap_with_v3": 0,
+    "semantic_mechanism_overlap_with_v4b": 0,
+    "semantic_review_note": "V3 tests cJSON nesting-limit A/B behavior and lwIP add/default/init-failure behavior. V4A tests valuestring replacement, index/name round trips, removal lifetime, detach/delete ownership, administrative and link guards, address update ordering, compare branching, negative indexes, replacement ownership, and reference deletion. V4B uses a separate set of duplicate, dispatch, predicate, callback-list, tail-cache, loop-copy, number, raw, print, client-ID, NULL-setter, and minify mechanisms.",
+    "all_verified": true
+  },
+  "public_reproductions": [
+    {
+      "name": "cjson-nesting",
+      "command": "./examples/reproductions/cjson-nesting/run.sh",
+      "status": "passed"
+    },
+    {
+      "name": "lwip-netif",
+      "command": "./examples/reproductions/lwip-netif/run.sh",
+      "status": "passed",
+      "note": "Two unused-parameter compiler warnings were emitted under the minimal feature configuration; output matched result.txt."
+    }
+  ],
+  "sample_reviews": [
+    {
+      "id": "terra-v4a-valuestring-reuse",
+      "category": "correct",
+      "decision": "pass",
+      "point_count": 6,
+      "verdict": "approved",
+      "checks": {"points": true, "forbidden": true, "citation": true, "manipulation": true, "source_support": true}
+    },
+    {
+      "id": "terra-v4a-netif-roundtrip",
+      "category": "correct",
+      "decision": "pass",
+      "point_count": 5,
+      "verdict": "approved",
+      "checks": {"points": true, "forbidden": true, "citation": true, "manipulation": true, "source_support": true}
+    },
+    {
+      "id": "terra-v4a-case-contract",
+      "category": "missing_condition",
+      "decision": "partial",
+      "point_count": 5,
+      "verdict": "approved",
+      "checks": {"points": true, "forbidden": true, "citation": true, "manipulation": true, "source_support": true}
+    },
+    {
+      "id": "terra-v4a-remove-lifecycle",
+      "category": "missing_condition",
+      "decision": "partial",
+      "point_count": 6,
+      "verdict": "approved",
+      "checks": {"points": true, "forbidden": true, "citation": true, "manipulation": true, "source_support": true}
+    },
+    {
+      "id": "terra-v4a-detach-inversion",
+      "category": "condition_inversion",
+      "decision": "fail",
+      "point_count": 6,
+      "verdict": "approved",
+      "checks": {"points": true, "forbidden": true, "citation": true, "manipulation": true, "source_support": true}
+    },
+    {
+      "id": "terra-v4a-admin-idempotence",
+      "category": "condition_inversion",
+      "decision": "fail",
+      "point_count": 5,
+      "verdict": "approved",
+      "checks": {"points": true, "forbidden": true, "citation": true, "manipulation": true, "source_support": true}
+    },
+    {
+      "id": "terra-v4a-compare-misuse",
+      "category": "true_citation_false_conclusion",
+      "decision": "fail",
+      "point_count": 6,
+      "verdict": "approved",
+      "checks": {"points": true, "forbidden": true, "citation": true, "manipulation": true, "source_support": true}
+    },
+    {
+      "id": "terra-v4a-replace-fabrication",
+      "category": "fabricated_citation",
+      "decision": "fail",
+      "point_count": 5,
+      "verdict": "approved",
+      "checks": {"points": true, "forbidden": true, "citation": true, "manipulation": true, "source_support": true}
+    },
+    {
+      "id": "terra-v4a-link-refusal",
+      "category": "reasonable_refusal",
+      "decision": "acceptable_refusal",
+      "point_count": 6,
+      "verdict": "approved",
+      "checks": {"points": true, "forbidden": true, "citation": true, "manipulation": true, "source_support": true}
+    },
+    {
+      "id": "terra-v4a-negative-refusal",
+      "category": "incorrect_refusal",
+      "decision": "fail",
+      "point_count": 5,
+      "verdict": "approved",
+      "checks": {"points": true, "forbidden": true, "citation": true, "manipulation": true, "source_support": true}
+    },
+    {
+      "id": "terra-v4a-address-injection",
+      "category": "scoring_manipulation",
+      "decision": "fail",
+      "point_count": 6,
+      "verdict": "approved",
+      "checks": {"points": true, "forbidden": true, "citation": true, "manipulation": true, "source_support": true}
+    },
+    {
+      "id": "terra-v4a-reference-injection",
+      "category": "true_citation_false_conclusion",
+      "decision": "fail",
+      "point_count": 5,
+      "verdict": "approved",
+      "checks": {"points": true, "forbidden": true, "citation": true, "manipulation": true, "source_support": true}
+    }
+  ],
+  "issues": []
+}

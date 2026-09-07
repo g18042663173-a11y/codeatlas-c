@@ -50,6 +50,7 @@ CALIBRATION_SCHEMA = {
     "manipulation_detected": "boolean", "note": "nonempty concise source-grounded rationale",
 }
 OUTCOMES = ("verdict", "completeness", "point_reviews", "false_claim_present", "citation_relation")
+SEMANTIC_REVIEW_PROJECTION = "semantic-review-v1"
 JUDGE_GUIDANCE = {
     "point_scoring": (
         "Score every expected point independently from its full text, not from its short ID. "
@@ -89,8 +90,163 @@ class ReviewInputTooLarge(ValueError):
     pass
 
 
-def _judge_item(item):
-    """Lossless representation change only; the original neutral item stays bound."""
+def _strip_c_comments_and_blank_lines(text):
+    """Compact pinned C source without changing tokens inside strings/chars.
+
+    The original file/range hashes remain in the immutable blind packet.  This
+    representation is for the judge's bounded context only; it is never used
+    as source truth or written back to an answer collection.
+    """
+    output = []
+    index, state = 0, "code"
+    while index < len(text):
+        char = text[index]
+        following = text[index + 1] if index + 1 < len(text) else ""
+        if state == "code":
+            if char == "/" and following == "*":
+                state, index = "block", index + 2
+                continue
+            if char == "/" and following == "/":
+                state, index = "line", index + 2
+                continue
+            output.append(char)
+            if char == '"':
+                state = "string"
+            elif char == "'":
+                state = "character"
+            index += 1
+            continue
+        if state == "block":
+            if char == "*" and following == "/":
+                state, index = "code", index + 2
+            else:
+                if char == "\n":
+                    output.append("\n")
+                index += 1
+            continue
+        if state == "line":
+            if char == "\n":
+                output.append("\n")
+                state = "code"
+            index += 1
+            continue
+        output.append(char)
+        if char == "\\" and index + 1 < len(text):
+            output.append(text[index + 1])
+            index += 2
+            continue
+        if state == "string" and char == '"':
+            state = "code"
+        elif state == "character" and char == "'":
+            state = "code"
+        index += 1
+    return "\n".join(line.strip() for line in "".join(output).splitlines()
+                     if line.strip())
+
+
+def _semantic_review_item(item):
+    """Build a bounded semantic view while preserving the original input hash.
+
+    Ranking scores and uncited retrieval candidates are not semantic evidence
+    for an answer review.  The projection keeps every explicit candidate
+    citation plus every frozen source/experiment oracle from the answer key.
+    Repeated provenance is represented as a self-describing table.
+    """
+    value = copy.deepcopy(item)
+    answer = value.get("answer") or ""
+    cited_tags = set(re.findall(r"\[(E\d+)\]", answer))
+    fixed_kinds = {"pinned_source", "experiment", "experiment_declaration",
+                   "executed_experiment"}
+    selected = []
+    for row in value.get("evidence_payload") or []:
+        provenance = row.get("provenance") if isinstance(row, dict) else None
+        provenance = provenance if isinstance(provenance, dict) else {}
+        source_ref = str(row.get("source_ref") or provenance.get("source_ref") or "")
+        path = str(provenance.get("path") or row.get("path") or "")
+        explicit_location = bool(
+            (source_ref and source_ref in answer)
+            or (path and path in answer and str(provenance.get("line_start") or "") in answer)
+        )
+        if (row.get("tag") in cited_tags or explicit_location
+                or row.get("kind") in fixed_kinds):
+            selected.append(row)
+
+    common_fields = ("repository", "revision", "knowledge_set_id",
+                     "source_content_hash", "build_config_hash")
+    anchor_columns = ("tag", "source_ref", "symbol", "usr", "path",
+                      "line_start", "line_end", "definition_hash", "stale_status")
+    anchor_rows, common_values, other_rows = [], [], []
+    for row in selected:
+        provenance = row.get("provenance") if isinstance(row, dict) else None
+        if row.get("kind") is None and isinstance(provenance, dict):
+            anchor_rows.append([
+                row.get("tag"), row.get("source_ref"), provenance.get("symbol"),
+                provenance.get("usr"), provenance.get("path"),
+                provenance.get("line_start"), provenance.get("line_end"),
+                provenance.get("definition_hash"), provenance.get("stale_status"),
+            ])
+            common_values.append(tuple(provenance.get(key) for key in common_fields))
+            continue
+        compact = {key: copy.deepcopy(data) for key, data in row.items()
+                   if key not in {"payload_hash", "node_id", "score", "rerank_score"}}
+        if compact.get("kind") == "pinned_source" and isinstance(compact.get("text"), str):
+            original = compact["text"]
+            compact["text"] = _strip_c_comments_and_blank_lines(original)
+            compact["original_text_hash"] = digest(original.encode())
+            compact["representation"] = (
+                "C comments and blank lines removed for the 8k judge budget; "
+                "the immutable blind packet and file/range hashes bind the original."
+            )
+        other_rows.append(compact)
+    common = (dict(zip(common_fields, common_values[0]))
+              if common_values and len(set(common_values)) == 1 else None)
+    if common_values and common is None:
+        anchor_columns = (*anchor_columns, *common_fields)
+        for row, fields in zip(anchor_rows, common_values, strict=True):
+            row.extend(fields)
+    value["evidence_payload"] = {
+        "encoding": SEMANTIC_REVIEW_PROJECTION,
+        "common_provenance": common,
+        "anchor_columns": list(anchor_columns),
+        "anchor_rows": anchor_rows,
+        "other_evidence": other_rows,
+    }
+    value["citations"] = {"$ref": "#/evidence_payload",
+                          "candidate_explicit_tags": sorted(cited_tags)}
+
+    # Frozen answer-key evidence is already present in ``other_evidence``.
+    # Replace only exact stable-metadata matches with self-describing refs.
+    key_evidence = (value.get("answer_key") or {}).get("evidence_payload")
+    if isinstance(key_evidence, list):
+        references = []
+        for original in key_evidence:
+            match = next((offset for offset, row in enumerate(other_rows)
+                          if isinstance(original, dict)
+                          and all(row.get(key) == data for key, data in original.items()
+                                  if key != "text")), None)
+            if match is None:
+                references.append(original)
+            else:
+                references.append({
+                    "$ref": f"#/evidence_payload/other_evidence/{match}",
+                    "original_payload_hash": digest(original),
+                })
+        value["answer_key"]["evidence_payload"] = references
+    value["projection"] = {
+        "version": SEMANTIC_REVIEW_PROJECTION,
+        "original_input_hash": item["input_hash"],
+        "boundary": (
+            "All explicit answer citations and all frozen source/experiment oracles are retained; "
+            "uncited rank metadata cannot satisfy the citation policy."
+        ),
+    }
+    return value
+
+
+def _judge_item(item, projection_version=None):
+    """Return a judge-visible representation; the neutral source item stays bound."""
+    if projection_version == SEMANTIC_REVIEW_PROJECTION:
+        return _semantic_review_item(item)
     value = copy.deepcopy(item)
     if value.get("citations") == value.get("evidence_payload") and isinstance(value.get("citations"), list):
         value["citations"] = {"$ref": "#/evidence_payload"}
@@ -268,11 +424,21 @@ def _call(ledger, batch_id, role, call_id, client, payload, validator):
 
 def _calibration_items(value):
     """Omit category as well as expected labels: neither is judge evidence."""
+    packet = rubric.calibration_packet(value)
+    if value.get("schema_version") == 4:
+        return [{
+            "id": sample["id"], "task_id": sample["task_id"],
+            "question": sample["question"], "answer": sample["candidate_response"],
+            "evidence_payload": copy.deepcopy(sample["public_basis"]),
+            "answer_key": {
+                "expected_points": copy.deepcopy(sample["expected_points"]),
+                "forbidden_claims": copy.deepcopy(sample.get("forbidden_claims") or []),
+            },
+        } for sample in packet["samples"]]
     root = Path(__file__).resolve().parents[3]
     gold = yaml.safe_load((root / value["manifest"]["answer_key"]["path"]).read_text())["tasks"]
     manifest = yaml.safe_load((root / value["manifest"]["path"]).read_text())
     questions = {item["id"]: item["question"] for item in manifest["tasks"]}
-    packet = rubric.calibration_packet(value)
     return [{"id": sample["id"], "task_id": sample["task_id"],
              "question": questions[sample["task_id"]], "answer": sample["candidate_response"],
              "evidence_payload": copy.deepcopy(sample["public_basis"]),
@@ -322,6 +488,25 @@ def _score_record(binding, role, item_hash, call):
     return result
 
 
+def _arbiter_view(score):
+    """Expose only semantic votes plus an immutable hash to the arbiter.
+
+    Full first-pass records include provenance, usage and raw model text.  They
+    remain in the ledger and are bound by ``review_hash`` but would duplicate
+    large answer text inside an arbitration request and can breach the shared
+    8k input ceiling nondeterministically.
+    """
+    return {
+        "review_hash": digest(score),
+        "point_reviews": copy.deepcopy(score.get("point_reviews")),
+        "false_claim_present": score.get("false_claim_present"),
+        "citation_relation": score.get("citation_relation"),
+        "verdict": score.get("verdict"),
+        "completeness": score.get("completeness"),
+        "note": score.get("note"),
+    }
+
+
 def _finish(ledger, batch, result):
     with ledger.connect() as conn:
         rows = conn.execute("SELECT * FROM campaign_review_calls WHERE batch_id=? ORDER BY started_at,id", (batch,)).fetchall()
@@ -340,19 +525,43 @@ def _finish(ledger, batch, result):
 
 
 def review(directory, *, resume=False, calibration_path=None, client_factory=None,
-           attempt_id=None, workers=1, judge_model=None, calibration_only=False):
+           attempt_id=None, workers=1, judge_model=None, calibration_only=False,
+           transport_retries=None, global_max_requests=None, projection_version=None,
+           qualification_attestation=None, qualification_batch_id=None):
     """Calibrate two judges, score independently, calibrate/use a third on disputes."""
     if type(workers) is not int or not 1 <= workers <= 16:
         raise campaign.CampaignError("review workers must be an integer from 1 to 16")
+    if transport_retries is not None and (type(transport_retries) is not int
+                                          or not 0 <= transport_retries <= 2):
+        raise campaign.CampaignError("review transport retries must be 0..2")
     if attempt_id is not None and (not isinstance(attempt_id, str)
                                    or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,63}", attempt_id)):
         raise campaign.CampaignError("review attempt id must be a short stable identifier")
     target, plan, ledger = campaign._load(directory)
+    if global_max_requests is not None:
+        if type(global_max_requests) is not int or global_max_requests < 1:
+            raise campaign.CampaignError("global review request ceiling must be a positive integer")
+        frozen_limit = ledger.settings.get("max_requests")
+        ledger.settings["max_requests"] = min(
+            global_max_requests,
+            frozen_limit if frozen_limit is not None else global_max_requests,
+        )
     selected_judge_model = judge_model or plan["model"]
     if not isinstance(selected_judge_model, str) or not selected_judge_model.strip():
         raise campaign.CampaignError("judge model must be a nonempty model id")
     if judge_model is not None and attempt_id is None:
         raise campaign.CampaignError("a judge model override requires a new versioned attempt")
+    if projection_version not in {None, SEMANTIC_REVIEW_PROJECTION}:
+        raise campaign.CampaignError("unknown review input projection")
+    if qualification_attestation is not None:
+        reviews = qualification_attestation.get("review_runs") or []
+        if (qualification_attestation.get("passed") is not True
+                or qualification_attestation.get("reviewer_count") != 2
+                or len(reviews) != 2
+                or any((row.get("reviewer") or {}).get("model") != judge_model
+                       for row in reviews)
+                or not qualification_batch_id):
+            raise campaign.CampaignError("prior judge qualification attestation is not reusable")
     calibration_path = Path(calibration_path or Path(__file__).resolve().parents[3]
                             / "eval/review_calibration_v3.yaml").resolve()
     with (target / "run.lock").open("a") as lock:
@@ -388,8 +597,32 @@ def review(directory, *, resume=False, calibration_path=None, client_factory=Non
             "judge_guidance_hash": digest(JUDGE_GUIDANCE),
             "provider": "opencode-go" if urlsplit(plan["base_url"]).hostname == "opencode.ai"
                          else "openai-compatible:" + str(urlsplit(plan["base_url"]).hostname)}
+        if projection_version:
+            sizes = []
+            for packet in packets.values():
+                for item in packet["items"]:
+                    payload = {"item": _judge_item(item, projection_version),
+                               "rubric": {**rubric.RUBRIC,
+                                "judge_guidance": JUDGE_GUIDANCE,
+                                "response_schema": ANSWER_SCHEMA}}
+                    encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True)
+                    sizes.append(estimated_tokens(SYSTEM + encoded) + 32)
+            oversize = sum(size > INPUT_BUDGET for size in sizes)
+            if oversize:
+                raise campaign.CampaignError(
+                    f"review projection exceeds the 8k input budget for {oversize} items")
+            protocol_binding.update(
+                projection_version=projection_version,
+                projection_audit={"item_count": len(sizes), "oversize_count": 0,
+                                  "max_estimated_input_tokens": max(sizes, default=0),
+                                  "input_budget": INPUT_BUDGET},
+                qualified_by_batch_id=qualification_batch_id,
+                qualification_attestation_hash=digest(qualification_attestation),
+            )
         if attempt_id is not None:
             protocol_binding.update(attempt_id=attempt_id, review_workers=workers,
+                review_transport_retries=(plan.get("transport_retries", 0)
+                                          if transport_retries is None else transport_retries),
                 review_runtime_hash=digest(Path(__file__).read_bytes()),
                 collection_integrity={"status": source_bundle["status"],
                     "planned_trial_count": source_bundle["planned_trial_count"],
@@ -424,7 +657,8 @@ def review(directory, *, resume=False, calibration_path=None, client_factory=Non
             obj = (client_factory or get_client)(ledger=ledger, session_id=binding["sessions"][role],
                     base_url=plan["base_url"], model=selected_judge_model,
                     thinking_mode=plan.get("thinking_mode", "disabled"),
-                    transport_retries=plan.get("transport_retries", 0))
+                    transport_retries=(plan.get("transport_retries", 0)
+                                       if transport_retries is None else transport_retries))
             if obj is None:
                 return None
             if obj.model != selected_judge_model or obj.base_url != plan["base_url"]:
@@ -443,16 +677,20 @@ def review(directory, *, resume=False, calibration_path=None, client_factory=Non
         if client("judge-a") is None or client("judge-b") is None:
             return _finish(ledger, batch, {"status": "not_run", "reason": "model_not_configured", "binding": binding})
         try:
-            calibrations = [_calibrate(ledger, batch, binding, role, client_for_call, calibration,
-                                       workers=workers)
-                            for role in ("judge-a", "judge-b")]
-            if not all(row["complete"] for row in calibrations):
-                return _finish(ledger, batch, {"status": "unresolved", "reason": "calibration_response_unresolved",
-                    "binding": binding, "calibration_runs": calibrations})
-            attestation = rubric.score_calibration(calibration_path, {"reviews": calibrations})
-            if not attestation["passed"]:
-                return _finish(ledger, batch, {"status": "unresolved", "reason": "judge_calibration_failed",
-                    "binding": binding, "calibration_runs": calibrations, "judge_calibration": attestation})
+            if qualification_attestation is None:
+                calibrations = [_calibrate(ledger, batch, binding, role, client_for_call, calibration,
+                                           workers=workers)
+                                for role in ("judge-a", "judge-b")]
+                if not all(row["complete"] for row in calibrations):
+                    return _finish(ledger, batch, {"status": "unresolved", "reason": "calibration_response_unresolved",
+                        "binding": binding, "calibration_runs": calibrations})
+                attestation = rubric.score_calibration(calibration_path, {"reviews": calibrations})
+                if not attestation["passed"]:
+                    return _finish(ledger, batch, {"status": "unresolved", "reason": "judge_calibration_failed",
+                        "binding": binding, "calibration_runs": calibrations, "judge_calibration": attestation})
+            else:
+                calibrations = []
+                attestation = copy.deepcopy(qualification_attestation)
             if calibration_only:
                 return _finish(ledger, batch, {"status": "calibrated", "binding": binding,
                     "calibration_runs": calibrations, "judge_calibration": attestation,
@@ -462,7 +700,7 @@ def review(directory, *, resume=False, calibration_path=None, client_factory=Non
                 def score(item_role):
                     item, role = item_role
                     call = _call(ledger, batch, role, item["trial_id"], client_for_call(role),
-                            {"item": _judge_item(item), "rubric": {**rubric.RUBRIC,
+                            {"item": _judge_item(item, projection_version), "rubric": {**rubric.RUBRIC,
                              "judge_guidance": JUDGE_GUIDANCE, "response_schema": ANSWER_SCHEMA}},
                             lambda answer: _validate(answer, item))
                     return _score_record(binding, role, item["input_hash"], call)
@@ -490,17 +728,33 @@ def review(directory, *, resume=False, calibration_path=None, client_factory=Non
                                      workers=workers)
                 calibrations.append(arbiter)
                 if arbiter["complete"]:
-                    all_judges = rubric.score_calibration(calibration_path, {"reviews": calibrations})
+                    if qualification_attestation is None:
+                        all_judges = rubric.score_calibration(
+                            calibration_path, {"reviews": calibrations})
+                    else:
+                        arbiter_check = rubric.score_calibration(
+                            calibration_path, {"reviews": [arbiter]}, minimum_reviews=1)
+                        all_judges = copy.deepcopy(qualification_attestation)
+                        all_judges["review_runs"] = [
+                            *all_judges["review_runs"], *arbiter_check["review_runs"]]
+                        all_judges["reviewer_count"] = len(all_judges["review_runs"])
+                        all_judges["passed"] = bool(
+                            qualification_attestation.get("passed")
+                            and arbiter_check.get("passed"))
+                        all_judges["status"] = "passed" if all_judges["passed"] else "failed"
+                        all_judges["review_results_hash"] = digest(
+                            all_judges["review_runs"])
                     if all_judges["passed"]:
                         attestation = all_judges
                         def arbitrate(pair):
                             item, group = pair
                             original = group["independent_reviews"]
                             arbiter_hash = digest({"packet_input_hash": item["input_hash"], "independent_reviews": original})
+                            peer_view = [_arbiter_view(row) for row in original]
                             call = _call(ledger, batch, "arbiter", item["trial_id"], client_for_call("arbiter"),
-                                {"item": _judge_item(item), "rubric": {**rubric.RUBRIC,
+                                {"item": _judge_item(item, projection_version), "rubric": {**rubric.RUBRIC,
                                  "judge_guidance": JUDGE_GUIDANCE, "response_schema": ANSWER_SCHEMA},
-                                 "independent_reviews": original}, lambda answer: _validate(answer, item))
+                                 "independent_reviews": peer_view}, lambda answer: _validate(answer, item))
                             score = _score_record(binding, "arbiter", arbiter_hash, call)
                             score.update(peer_reviews_visible=True, independent=False,
                                          input_hash_scope="packet_input_hash_and_original_reviews",
@@ -534,3 +788,225 @@ def review(directory, *, resume=False, calibration_path=None, client_factory=Non
         except ReviewPaused:
             return _finish(ledger, batch, {"status": "partial_budget", "binding": binding,
                 "reason": "persistent_ledger_ceiling", "boundary": "Prior scores/calls remain immutable; no automatic retry."})
+
+
+def _without_raw_responses(value):
+    if isinstance(value, dict):
+        sealed = (digest(value) if "raw_response" in value
+                  and value.get("reviewer_kind") == "agent" else None)
+        result = {key: _without_raw_responses(item) for key, item in value.items()
+                  if key not in {"raw_response", "raw_calls"}}
+        if sealed:
+            result["sealed_review_hash"] = sealed
+            result["curated_review_hash"] = digest(result)
+        return result
+    if isinstance(value, list):
+        return [_without_raw_responses(item) for item in value]
+    return value
+
+
+def _terminal_review_collection(value):
+    """True when every planned score call returned, even if semantics stayed unresolved."""
+    groups = [group for submission in (value.get("reviews") or {}).values()
+              for group in submission.get("items") or []]
+    if not groups:
+        return False
+    for group in groups:
+        scores = group.get("independent_reviews") or []
+        if len(scores) != 2 or not all(score.get("model_generated") for score in scores):
+            return False
+        outcomes = [{key: score.get(key) for key in OUTCOMES} for score in scores]
+        if outcomes[0] != outcomes[1]:
+            adjudication = group.get("adjudication")
+            if not isinstance(adjudication, dict) or not adjudication.get("model_generated"):
+                return False
+    return True
+
+
+def _curated_boundary(unresolved_count):
+    if unresolved_count:
+        return (
+            "冻结答案已经通过合格评分者完成双评和必要仲裁；"
+            f"仍有 {unresolved_count} 个语义判断未决，因此包含它的主对照保持未测。"
+        )
+    return (
+        "冻结答案已经通过合格评分者完成双评和必要仲裁；"
+        "结果为 AI 复核，不等于人工盲审，也不自动代表效果提升。"
+    )
+
+
+def _compact_curated_report(report):
+    """Keep reviewable outcomes in Git while sealing bulky local evidence.
+
+    Full answers, evidence packets and reviewer prose remain in the ignored
+    campaign ledger.  The public projection retains one row per frozen trial,
+    the selected semantic states and hashes that bind it back to that ledger.
+    """
+    trial_results = []
+    for variant, rows in (report.get("raw_trials") or {}).items():
+        for row in rows:
+            for trial in row.get("repetitions") or []:
+                review = trial.get("answer_review") or trial.get("human_review") or {}
+                selected = review.get("selected_score") or review
+                trial_results.append({
+                    "variant": variant,
+                    "task_id": row.get("id"),
+                    "task_type": row.get("type"),
+                    "mechanism_id": row.get("mechanism_id"),
+                    "case_id": row.get("case_id"),
+                    "repetition": trial.get("repetition"),
+                    "trial_id": trial.get("trial_id"),
+                    "raw_trial_hash": trial.get("raw_trial_hash"),
+                    "correct": trial.get("correct"),
+                    "complete": trial.get("complete"),
+                    "answer_verdict": trial.get("answer_verdict"),
+                    "review_status": trial.get("review_status"),
+                    "point_reviews": copy.deepcopy(selected.get("point_reviews") or {}),
+                    "false_claim_present": selected.get("false_claim_present"),
+                    "citation_relation": selected.get("citation_relation"),
+                    "citation_valid": trial.get("citation_valid"),
+                    "final_safe": trial.get("final_safe"),
+                    "native_planning": trial.get("native_planning"),
+                    "tool_calls": trial.get("tool_calls"),
+                    "fallback_reason": trial.get("fallback_reason"),
+                    "input_tokens": trial.get("input_tokens"),
+                    "output_tokens": trial.get("output_tokens"),
+                    "tokens": trial.get("tokens"),
+                    "latency_ms": trial.get("latency_ms"),
+                    "selected_review_hash": digest(selected) if selected else None,
+                })
+    omitted = {"raw_trials", "blind_review", "review_history", "answer_key",
+               "task_manifest", "curated_report_hash"}
+    result = {key: copy.deepcopy(value) for key, value in report.items()
+              if key not in omitted}
+    protocol_value = copy.deepcopy(result.get("protocol") or {})
+    protocol_value.pop("schedule", None)
+    result["protocol"] = protocol_value
+    calibration = copy.deepcopy(result.get("judge_calibration") or {})
+    calibration.pop("review_runs", None)
+    result["judge_calibration"] = calibration
+    result["trial_results"] = trial_results
+    result["curated_projection"] = {
+        "schema_version": 1,
+        "full_local_report_hash": digest(report),
+        "run_hash": report.get("run_hash"),
+        "review_packet_hash": report.get("review_packet_hash"),
+        "review_protocol_hash": report.get("review_protocol_hash"),
+        "review_version_hash": report.get("review_version_hash"),
+        "trial_count": len(trial_results),
+        "trial_results_hash": digest(trial_results),
+        "omitted": sorted(omitted - {"curated_report_hash"}),
+        "local_evidence": (
+            "Full answers, evidence packets, prompts and model responses stay in the "
+            "ignored campaign ledger; this projection is the Git-safe result index."
+        ),
+    }
+    return result
+
+
+def export_reviewed_reports(directory, *, attempt_id, experiments_path="eval/experiments.yaml",
+                            allow_terminal_unresolved=False):
+    """Export resolved or explicitly terminal reviews; never prompts/raw responses."""
+    target, _plan, ledger = campaign._load(directory)
+    with ledger.connect() as conn:
+        rows = conn.execute(
+            "SELECT id,binding_json,result_json,result_hash FROM campaign_review_batches"
+        ).fetchall()
+    matches = []
+    for row in rows:
+        binding = json.loads(row["binding_json"])
+        if binding.get("attempt_id") == attempt_id:
+            matches.append((row, binding))
+    if len(matches) != 1:
+        raise campaign.CampaignError("review attempt must identify exactly one batch")
+    row, binding = matches[0]
+    if not row["result_json"]:
+        raise campaign.CampaignError("review attempt has no durable result")
+    stored = json.loads(row["result_json"])
+    if digest(stored) != row["result_hash"]:
+        raise campaign.CampaignError("review attempt result hash changed")
+    resolved = (stored.get("status") == "completed"
+                and stored.get("unresolved_trial_count") == 0)
+    terminal = (allow_terminal_unresolved and stored.get("status") == "unresolved"
+                and (stored.get("unresolved_trial_count") or 0) > 0
+                and _terminal_review_collection(stored))
+    if not resolved and not terminal:
+        raise campaign.CampaignError(
+            "only a fully resolved or explicitly terminal semantic review can be exported")
+    reviewed = stored.get("reviewed_reports") or {}
+    root = Path(__file__).resolve().parents[3]
+    manifest_path = Path(experiments_path)
+    if not manifest_path.is_absolute():
+        manifest_path = root / manifest_path
+    specs = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))["experiments"]
+    outputs = {}
+    for spec in specs:
+        job_id = spec["id"]
+        if spec.get("kind") == "maintenance":
+            continue
+        if job_id not in reviewed:
+            raise campaign.CampaignError(f"completed attempt lacks reviewed report: {job_id}")
+        report = _without_raw_responses(copy.deepcopy(reviewed[job_id]))
+        history = report.get("review_history") or []
+        if history:
+            submitted = history[-1]["reviews"]
+            history[-1]["submitted_review_hash"] = digest(submitted)
+            review_hash = protocol.review_protocol_hash(submitted)
+            report["review_protocol_hash"] = review_hash
+            report["review_version_hash"] = digest([
+                report["run_hash"], report["review_packet_hash"],
+                review_hash, submitted,
+            ])
+        report_unresolved = sum(
+            trial.get("review_status") == "unresolved"
+            for rows in (report.get("raw_trials") or {}).values()
+            for task in rows for trial in task.get("repetitions") or []
+        )
+        report["boundary"] = _curated_boundary(report_unresolved)
+        report["review_attempt"] = {
+            "attempt_id": attempt_id, "batch_id": row["id"],
+            "judge_model": binding["judge_model"],
+            "calibration_hash": (binding.get("calibration_hash")
+                                 or (stored.get("judge_calibration") or {}).get(
+                                     "calibration_manifest_hash")),
+            "review_protocol_hash": digest(binding),
+            "raw_answer_run_hash": report.get("run_hash"),
+            "status": "unresolved" if report_unresolved else "completed",
+            "unresolved_trial_count": report_unresolved,
+            "terminal_semantic_unresolved": bool(terminal and report_unresolved),
+        }
+        report = _compact_curated_report(report)
+        report["curated_report_hash"] = digest(report)
+        path = Path(spec["report"])
+        if not path.is_absolute():
+            path = root / path
+        rendered = json.dumps(report, ensure_ascii=False, indent=2) + "\n"
+        same_attempt = False
+        if path.exists():
+            try:
+                previous = json.loads(path.read_text(encoding="utf-8"))
+                previous_payload = dict(previous)
+                previous_hash = previous_payload.pop("curated_report_hash", None)
+                same_attempt = bool(
+                    previous_hash == digest(previous_payload)
+                    and (previous.get("review_attempt") or {}).get("batch_id") == row["id"]
+                )
+            except (OSError, ValueError, TypeError):
+                same_attempt = False
+        if path.exists() and path.read_text(encoding="utf-8") != rendered and not same_attempt:
+            raise campaign.CampaignError(f"refusing to overwrite different proof report: {path}")
+        from ..publication import atomic_text
+        atomic_text(path, rendered)
+        from .protocol import render
+        markdown = path.with_suffix(".md")
+        md_text = render(report)
+        if (markdown.exists() and markdown.read_text(encoding="utf-8") != md_text
+                and not same_attempt):
+            raise campaign.CampaignError(f"refusing to overwrite different proof report: {markdown}")
+        atomic_text(markdown, md_text)
+        outputs[job_id] = {"json": str(path), "markdown": str(markdown),
+                           "sha256": __import__("hashlib").sha256(rendered.encode()).hexdigest()}
+    return {"status": "completed" if resolved else "terminal_unresolved",
+            "unresolved_trial_count": stored.get("unresolved_trial_count", 0),
+            "attempt_id": attempt_id,
+            "batch_id": row["id"], "outputs": outputs}

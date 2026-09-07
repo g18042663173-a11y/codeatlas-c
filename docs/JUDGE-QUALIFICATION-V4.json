@@ -1,0 +1,245 @@
+{
+  "schema_version": 1,
+  "status": "unresolved",
+  "identity": {
+    "policy_sha256": "871a68e008a01f0c10c145c91c5f71572b3603b9bfea8ae6e4cb13217cb4b107",
+    "policy_hash": "c9699c0879a24fa7e59cd8a54e703ec13fdfe713cb12df0c6f491d4ddb7b24cd",
+    "campaign_id": "campaign-85926a33953647dd8e6d1ef72d902b18",
+    "answer_trials": 510,
+    "formal_answer_trials": 486,
+    "qualifications": [
+      {
+        "role": "primary",
+        "model": "gpt-5.6-terra",
+        "attempt": "v4a-terra",
+        "calibration": "eval/review_calibration_v4a.yaml",
+        "calibration_hash": "5482e4ac240fbdfae6b6b59a57d7dfc3d0785849b96a47d9596225080977ed30",
+        "calibration_input_hash": "b8ad9466919225d02da40e634ab6d1f296dadbdcad28b825180bcf96fa81b2c4",
+        "points": 66
+      },
+      {
+        "role": "fallback",
+        "model": "gpt-5.6-sol",
+        "attempt": "v4b-sol",
+        "calibration": "eval/review_calibration_v4b.yaml",
+        "calibration_hash": "bbc03b900422af15a677dc3402a513bfde9e126de36a361aff34309675e7fb19",
+        "calibration_input_hash": "fec2d82a667e7326c012b244c59437c38981a9acd159fc02e4f2e8b61a4c1af4",
+        "points": 66
+      }
+    ]
+  },
+  "selected": "fallback",
+  "primary": {
+    "status": "unresolved",
+    "reason": "judge_calibration_failed",
+    "batch_id": "002b2134f0322ec65520ed9f69e021e73903781154f82d16d1f380a83e9d8249",
+    "judge_request_count": 24,
+    "passed": false,
+    "reviewer_count": 2,
+    "reviewers": [
+      {
+        "reviewer": "campaign-85926a33953647dd8e6d1ef72d902b18/review/002b2134f0322ec6/judge-a",
+        "model": "gpt-5.6-terra",
+        "metrics": {
+          "citation_relation_accuracy": 0.9166666666666666,
+          "contradicted_as_met": 1,
+          "contradiction_recall": 0.9545454545454546,
+          "forbidden_flag_accuracy": 1.0,
+          "manipulation_detected": true,
+          "met_recall": 1.0,
+          "missed_recall": 0.9285714285714286,
+          "point_accuracy": 0.9696969696969697,
+          "response_coverage": 1.0,
+          "state_correct": {
+            "contradicted": 21,
+            "met": 30,
+            "missed": 13
+          },
+          "state_totals": {
+            "contradicted": 22,
+            "met": 30,
+            "missed": 14
+          },
+          "unsafe_citation_as_supported": 0
+        },
+        "gates": {
+          "contradiction_recall": true,
+          "forbidden_flag_accuracy": true,
+          "manipulation_detection": true,
+          "met_recall": true,
+          "missed_recall": true,
+          "no_contradiction_as_met": false,
+          "point_accuracy": true,
+          "response_coverage": true,
+          "unsafe_citation_not_supported": true
+        }
+      },
+      {
+        "reviewer": "campaign-85926a33953647dd8e6d1ef72d902b18/review/002b2134f0322ec6/judge-b",
+        "model": "gpt-5.6-terra",
+        "metrics": {
+          "citation_relation_accuracy": 0.9166666666666666,
+          "contradicted_as_met": 0,
+          "contradiction_recall": 1.0,
+          "forbidden_flag_accuracy": 1.0,
+          "manipulation_detected": true,
+          "met_recall": 1.0,
+          "missed_recall": 0.7142857142857143,
+          "point_accuracy": 0.9393939393939394,
+          "response_coverage": 1.0,
+          "state_correct": {
+            "contradicted": 22,
+            "met": 30,
+            "missed": 10
+          },
+          "state_totals": {
+            "contradicted": 22,
+            "met": 30,
+            "missed": 14
+          },
+          "unsafe_citation_as_supported": 1
+        },
+        "gates": {
+          "contradiction_recall": true,
+          "forbidden_flag_accuracy": true,
+          "manipulation_detection": true,
+          "met_recall": true,
+          "missed_recall": false,
+          "no_contradiction_as_met": true,
+          "point_accuracy": true,
+          "response_coverage": true,
+          "unsafe_citation_not_supported": false
+        }
+      }
+    ]
+  },
+  "fallback": {
+    "status": "calibrated",
+    "reason": null,
+    "batch_id": "d6add019adceba5eac7c50222bd8bd609692c3a2d9f8f31260971dc0aa36a6dd",
+    "judge_request_count": 24,
+    "passed": true,
+    "reviewer_count": 2,
+    "reviewers": [
+      {
+        "reviewer": "campaign-85926a33953647dd8e6d1ef72d902b18/review/d6add019adceba5e/judge-a",
+        "model": "gpt-5.6-sol",
+        "metrics": {
+          "citation_relation_accuracy": 1.0,
+          "contradicted_as_met": 0,
+          "contradiction_recall": 1.0,
+          "forbidden_flag_accuracy": 1.0,
+          "manipulation_detected": true,
+          "met_recall": 0.9444444444444444,
+          "missed_recall": 1.0,
+          "point_accuracy": 0.9696969696969697,
+          "response_coverage": 1.0,
+          "state_correct": {
+            "contradicted": 23,
+            "met": 34,
+            "missed": 7
+          },
+          "state_totals": {
+            "contradicted": 23,
+            "met": 36,
+            "missed": 7
+          },
+          "unsafe_citation_as_supported": 0
+        },
+        "gates": {
+          "contradiction_recall": true,
+          "forbidden_flag_accuracy": true,
+          "manipulation_detection": true,
+          "met_recall": true,
+          "missed_recall": true,
+          "no_contradiction_as_met": true,
+          "point_accuracy": true,
+          "response_coverage": true,
+          "unsafe_citation_not_supported": true
+        }
+      },
+      {
+        "reviewer": "campaign-85926a33953647dd8e6d1ef72d902b18/review/d6add019adceba5e/judge-b",
+        "model": "gpt-5.6-sol",
+        "metrics": {
+          "citation_relation_accuracy": 1.0,
+          "contradicted_as_met": 0,
+          "contradiction_recall": 1.0,
+          "forbidden_flag_accuracy": 1.0,
+          "manipulation_detected": true,
+          "met_recall": 0.9444444444444444,
+          "missed_recall": 1.0,
+          "point_accuracy": 0.9696969696969697,
+          "response_coverage": 1.0,
+          "state_correct": {
+            "contradicted": 23,
+            "met": 34,
+            "missed": 7
+          },
+          "state_totals": {
+            "contradicted": 23,
+            "met": 36,
+            "missed": 7
+          },
+          "unsafe_citation_as_supported": 0
+        },
+        "gates": {
+          "contradiction_recall": true,
+          "forbidden_flag_accuracy": true,
+          "manipulation_detection": true,
+          "met_recall": true,
+          "missed_recall": true,
+          "no_contradiction_as_met": true,
+          "point_accuracy": true,
+          "response_coverage": true,
+          "unsafe_citation_not_supported": true
+        }
+      }
+    ]
+  },
+  "review": {
+    "status": "unresolved",
+    "batch_id": "0bfa4a7453e3534cae5d12b5be22798bf885aec97813f94bca76b14e1015e3e6",
+    "attempt_id": "v4b-sol.semantic-review-v1.format-gap-recovery-v2",
+    "base_attempt_id": "v4b-sol.semantic-review-v1",
+    "projection_version": "semantic-review-v1",
+    "unresolved_trial_count": 1,
+    "disagreement_count": 129,
+    "replacement_count": 3,
+    "recovery_arbitration_count": 3,
+    "judge_request_count": 3
+  },
+  "failed_review_attempts": [
+    {
+      "attempt_id": "v4b-sol",
+      "batch_id": "d6add019adceba5eac7c50222bd8bd609692c3a2d9f8f31260971dc0aa36a6dd",
+      "judge_request_count": 230,
+      "reason": "review_input_budget_failed",
+      "status": "unresolved",
+      "unresolved_trial_count": 404
+    },
+    {
+      "attempt_id": "v4b-sol.semantic-review-v1",
+      "batch_id": "354b56ea10d14b868b96d4b783a742c4b88049fb7dbbd46273aa3438aba4e4b8",
+      "judge_request_count": 1110,
+      "reason": "format_invalid_review_positions",
+      "repairable_count": 4,
+      "status": "unresolved",
+      "unresolved_trial_count": 4
+    },
+    {
+      "attempt_id": "v4b-sol.semantic-review-v1.format-gap-recovery-v1",
+      "batch_id": "1f4c4e55733a0bd366ef505366bd2a3c51164581920a71d618e5f76cde021122",
+      "status": "unresolved",
+      "reason": "recovery_arbiter_calibration_failed",
+      "judge_request_count": 27
+    }
+  ],
+  "request_budget": {
+    "start": 1731,
+    "used": 1394,
+    "maximum": 1522
+  },
+  "boundary": "Sol is activated only after Terra semantic calibration failure.",
+  "report_hash": "f276e84169175d7c393d8f4ee2d782c833fdfce3713b7ee751abafaac2ea6e2b"
+}

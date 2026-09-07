@@ -114,14 +114,18 @@ def campaign_report(directory: str, out: str | None = None, job: str | None = No
 @campaign_app.command("review")
 def campaign_review(directory: str, resume: bool = False, out: str | None = None,
                     attempt: str | None = None, workers: int = 1,
-                    judge_model: str | None = None, calibration_only: bool = False):
+                    judge_model: str | None = None, calibration: str | None = None,
+                    calibration_only: bool = False,
+                    transport_retries: int | None = typer.Option(None, "--transport-retries")):
     """先校准两个 V4 Flash 独立 judge，再盲审；分歧由已校准第三 agent 仲裁。"""
     from .eval.campaign_review import review
     if out:
         from .eval.protocol import ensure_new_outputs
         ensure_new_outputs(out)
     result = review(directory, resume=resume, attempt_id=attempt, workers=workers,
-                    judge_model=judge_model, calibration_only=calibration_only)
+                    judge_model=judge_model, calibration_path=calibration,
+                    calibration_only=calibration_only,
+                    transport_retries=transport_retries)
     if out:
         from .publication import atomic_text
         atomic_text(Path(out), json.dumps(result, ensure_ascii=False, indent=2))
@@ -173,10 +177,47 @@ def proof_review(campaign_dir: str = typer.Option(..., "--campaign"),
                  attempt: str | None = typer.Option(None, "--attempt"),
                  workers: int = typer.Option(1, "--workers"),
                  judge_model: str | None = typer.Option(None, "--judge-model"),
-                 calibration_only: bool = typer.Option(False, "--calibration-only")):
+                 calibration: str | None = typer.Option(None, "--calibration"),
+                 calibration_only: bool = typer.Option(False, "--calibration-only"),
+                 transport_retries: int | None = typer.Option(None, "--transport-retries")):
     """校准并运行双 Agent 盲审；结果始终标记为 AI review。"""
     return campaign_review(campaign_dir, resume, out, attempt, workers, judge_model,
-                           calibration_only)
+                           calibration, calibration_only, transport_retries)
+
+
+@proof_app.command("export-review")
+def proof_export_review(campaign_dir: str = typer.Option(..., "--campaign"),
+                        attempt: str = typer.Option(..., "--attempt"),
+                        experiments: str = typer.Option(
+                            "eval/experiments.yaml", "--experiments"),
+                        allow_terminal_unresolved: bool = typer.Option(
+                            False, "--allow-terminal-unresolved")):
+    """导出精简评审；语义未决必须显式允许且技术调用已完整。"""
+    from .eval.campaign_review import export_reviewed_reports
+    result = export_reviewed_reports(campaign_dir, attempt_id=attempt,
+                                     experiments_path=experiments,
+                                     allow_terminal_unresolved=allow_terminal_unresolved)
+    console.print_json(data=result)
+
+
+@proof_app.command("qualified-review")
+def proof_qualified_review(
+        campaign_dir: str = typer.Option(..., "--campaign"),
+        policy: str = typer.Option("eval/judge_qualification_v4.yaml", "--policy"),
+        resume: bool = typer.Option(False, "--resume"),
+        calibration_only: bool = typer.Option(False, "--calibration-only")):
+    """按密封策略执行 Terra 资格门禁，并仅在语义失败时启用 Sol。"""
+    from .eval.qualification import QualificationError, run
+    try:
+        result = run(policy, campaign_dir=campaign_dir, resume=resume,
+                     calibration_only=calibration_only)
+    except (OSError, ValueError, QualificationError) as exc:
+        console.print(f"[red]评分资格执行失败：{exc}[/]")
+        raise typer.Exit(2) from exc
+    console.print_json(data={
+        key: value for key, value in result.items()
+        if key not in {"primary", "fallback", "review"}
+    })
 
 
 @proof_app.command("report")
@@ -1039,6 +1080,37 @@ def card_rebuild(db: str = DEFAULT_DB, no_index: bool = False):
     result = store.rebuild(dbm.connect(db), rebuild_index=not no_index)
     console.print(f"[green][OK][/] 从 Markdown 重建 {result['cards']} 张卡，"
                   f"一致性={result['ok']} 索引={result['index_rebuilt']}")
+
+
+@card_app.command("release-export")
+def card_release_export(exp_id: str, db: str = DEFAULT_DB,
+                        project_root: str = ".", out: str = "knowledge"):
+    """导出已提交的人类审核卡为可跟踪、可重建的正式发布包。"""
+    from .experience.release import CardReleaseError, export_release
+    try:
+        result = export_release(dbm.connect(db), exp_id, project_root=project_root,
+                                release_dir=out)
+    except (KeyError, OSError, ValueError, CardReleaseError) as exc:
+        console.print(f"[red]正式发布包导出失败：{exc}[/]")
+        raise typer.Exit(2) from exc
+    console.print_json(data=result)
+
+
+@card_app.command("release-import")
+def card_release_import(release: str, db: str = DEFAULT_DB,
+                        project_root: str = ".",
+                        rebuild_index: bool = typer.Option(
+                            False, "--rebuild-index",
+                            help="仅供非快照数据库；快照库应重新 build/activate。")):
+    """将受版本控制的正式卡发布包投影到当前固定语料数据库。"""
+    from .experience.release import CardReleaseError, import_release
+    try:
+        result = import_release(dbm.connect(db), release, project_root=project_root,
+                                rebuild_index=rebuild_index)
+    except (KeyError, OSError, ValueError, CardReleaseError) as exc:
+        console.print(f"[red]正式发布包导入失败：{exc}[/]")
+        raise typer.Exit(2) from exc
+    console.print_json(data=result)
 
 
 @agent_app.command("run")

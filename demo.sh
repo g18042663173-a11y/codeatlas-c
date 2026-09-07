@@ -75,6 +75,9 @@ PY
   REPORT=docs/EVAL-LWIP.md
   TASKS=eval/tasks_lwip.yaml
   TASK_REPORT=docs/TASK-EVAL-LWIP.md
+  CURRENT_TASKS=eval/tasks_current_lwip.yaml
+  CURRENT_TASK_REPORT=docs/TASK-CURRENT-LWIP.md
+  RELEASE=knowledge/releases/e-13d209f2a9b2.json
   WIKI_OUT=kb/wiki-lwip
   PARSE_ARGS="--compile-db corpus/lwip"
 }
@@ -110,30 +113,40 @@ PY
   REPORT=docs/EVAL-CJSON.md
   TASKS=eval/tasks_cjson.yaml
   TASK_REPORT=docs/TASK-EVAL-CJSON.md
+  CURRENT_TASKS=eval/tasks_current_cjson.yaml
+  CURRENT_TASK_REPORT=docs/TASK-CURRENT-CJSON.md
+  RELEASE=knowledge/releases/e-0f1743530a0e.json
   WIKI_OUT=kb/wiki-cjson
   PARSE_ARGS="--compile-db corpus/cJSON"
 }
 
 [ "$CORPUS" = "cjson" ] && setup_cjson || setup_lwip
-TOTAL_STEPS=8
-[ "$PORTFOLIO" = true ] && TOTAL_STEPS=9
-[ "$WORKFLOW" = true ] && TOTAL_STEPS=10
+TOTAL_STEPS=11
+[ "$PORTFOLIO" = true ] && TOTAL_STEPS=12
+[ "$WORKFLOW" = true ] && TOTAL_STEPS=13
 
 echo "▶ 1-5/$TOTAL_STEPS 冻结源码、解析、Wiki、索引、完整性验证并切换快照"
 "${CODEATLAS[@]}" snapshot build "$REPO" "$REPO/compile_commands.json" --db "$DB" --activate
-echo "▶ 6/$TOTAL_STEPS 影响分析"; "${CODEATLAS[@]}" impact $SYMBOL --db $DB --depth 3
-echo "▶ 7/$TOTAL_STEPS 消融实验"; "${CODEATLAS[@]}" eval --db $DB --questions $QUESTIONS --data-dir $DATA --out $REPORT
-echo "▶ 8/$TOTAL_STEPS 人工审核任务评测"
+echo "▶ 6/$TOTAL_STEPS 导入受版本控制的正式知识卡"
+"${CODEATLAS[@]}" card release-import "$RELEASE" --db "$DB"
+echo "▶ 7/$TOTAL_STEPS 重建并原子切换含正式卡的知识快照"
+"${CODEATLAS[@]}" snapshot build "$REPO" "$REPO/compile_commands.json" --db "$DB" --activate
+echo "▶ 8/$TOTAL_STEPS 影响分析"; "${CODEATLAS[@]}" impact "$SYMBOL" --db "$DB" --depth 3
+echo "▶ 9/$TOTAL_STEPS 消融实验"; "${CODEATLAS[@]}" eval --db "$DB" --questions "$QUESTIONS" --data-dir "$DATA" --out "$REPORT"
+echo "▶ 10/$TOTAL_STEPS 旧 20 题开发回归（保留历史 gold）"
 "${CODEATLAS[@]}" task-eval --db $DB --tasks "$TASKS" --data-dir $DATA \
   --out "$TASK_REPORT" --require-approved
+echo "▶ 11/$TOTAL_STEPS 当前正式卡 5 题验收"
+"${CODEATLAS[@]}" task-eval --db "$DB" --tasks "$CURRENT_TASKS" --data-dir "$DATA" \
+  --out "$CURRENT_TASK_REPORT" --require-approved
 if [ "$PORTFOLIO" = true ]; then
-  echo "▶ 9/$TOTAL_STEPS 求职专用演示（隔离数据库）"
+  echo "▶ 12/$TOTAL_STEPS 求职专用演示（隔离数据库）"
   WORKFLOW_ARGS=()
   [ "$WORKFLOW" = true ] && WORKFLOW_ARGS=(--workflow)
   "${CODEATLAS[@]}" portfolio-demo --db data/kb.db --work-dir data/portfolio-demo "${WORKFLOW_ARGS[@]}"
 fi
 if [ "$WORKFLOW" = true ]; then
-  echo "▶ 10/$TOTAL_STEPS Agent / 会话知识卡闭环评测（隔离数据库）"
+  echo "▶ 13/$TOTAL_STEPS Agent / 会话知识卡闭环评测（隔离数据库）"
   "${CODEATLAS[@]}" workflow-eval --db data/kb.db \
     --work-dir data/portfolio-demo/workflow-eval \
     --out docs/WORKFLOW-EVAL-CJSON.md
@@ -142,6 +155,7 @@ fi
 echo
 echo "完成。评测报告：$REPORT"
 echo "任务评测报告：$TASK_REPORT"
+echo "当前知识卡验收：$CURRENT_TASK_REPORT"
 [ "$PORTFOLIO" = true ] && echo "求职演示留档：data/portfolio-demo/PORTFOLIO-DEMO.md"
 [ "$WORKFLOW" = true ] && echo "闭环评测留档：docs/WORKFLOW-EVAL-CJSON.md"
 echo "启动界面：codeatlas serve --db $DB --data-dir $DATA"

@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "card_id": "e-0f1743530a0e",
+  "review_bundle_hash": "6f624a45bf16d7a76876b8c33acaa8fa4c6fc269435e1dd7ac550a30aa95d56c",
+  "markdown_path": "knowledge/cards/e-0f1743530a0e.md",
+  "markdown_sha256": "2a04cc8a725d4518491c2e5c8680cda67280add0a14e9d7d95916a4048aa0986",
+  "repository": "https://github.com/DaveGamble/cJSON",
+  "revision": "fb16e5cf358798aabb049655975cde8427101056",
+  "source_publication": {
+    "op_id": "pub-d049ae58168043aaacdfde917c006336",
+    "committed_at": "2026-09-06T13:59:55.883361+00:00"
+  },
+  "confirmations": [
+    {
+      "exp_id": "e-0f1743530a0e",
+      "bundle_hash": "6f624a45bf16d7a76876b8c33acaa8fa4c6fc269435e1dd7ac550a30aa95d56c",
+      "reviewer": "Guoshuaiqi",
+      "reviewer_type": "human",
+      "confirmed_at": "2026-09-06T13:59:55+00:00"
+    }
+  ],
+  "experiments": [
+    {
+      "path": "examples/reproductions/cjson-nesting/README.md",
+      "sha256": "9546b1293c74c21041a5f8858cdd5b22334d542c4064a7fc55af1485a87dc46a"
+    },
+    {
+      "path": "examples/reproductions/cjson-nesting/reproduce.c",
+      "sha256": "cda8b6b0fef4cf4721d1086778637731b1337a56ae5fbe398afea849f30ad784"
+    },
+    {
+      "path": "examples/reproductions/cjson-nesting/result.txt",
+      "sha256": "ed76b1069221053876dd4995aaee6e228f4983ad8f97717d51bf1ff02be0b133"
+    },
+    {
+      "path": "examples/reproductions/cjson-nesting/run.sh",
+      "sha256": "529274dbbd63556db765061836196cc91af288bcff2d449fc03c3bf9843cf481"
+    }
+  ],
+  "checksum": "92457ea7af8989be9e95e6a681b37f68e952bf87bc2ed6119d90e728bf379368"
+}

@@ -141,15 +141,37 @@ def review_origin(record, expected_input_hash=None, *, outcome_fields=(
         raise ValueError("two distinct agent identities required")
     outcomes = [{key: item.get(key) for key in outcome_fields} for item in independent]
     selected = independent[0] if outcomes[0] == outcomes[1] else None
+    def sealed_hash(item):
+        sealed = item.get("sealed_review_hash")
+        curated = item.get("curated_review_hash")
+        if sealed is None and curated is None:
+            return digest(item), False
+        if (not re.fullmatch(r"[0-9a-f]{64}", str(sealed or ""))
+                or not re.fullmatch(r"[0-9a-f]{64}", str(curated or ""))):
+            raise ValueError("curated review seals must be SHA-256")
+        payload = {key: value for key, value in item.items()
+                   if key != "curated_review_hash"}
+        if digest(payload) != curated:
+            raise ValueError("curated review projection changed")
+        return sealed, True
+
     adjudication = record.get("adjudication")
     if adjudication is not None:
         # The arbiter's input includes both original, separately hashed reviews.
-        arbiter_input = digest({"packet_input_hash": expected_input_hash,
-                                "independent_reviews": independent})
-        if _reviewer(adjudication, arbiter_input) != "agent" or adjudication["agent"] in agents:
+        review_hashes = [sealed_hash(item) for item in independent]
+        curated = all(item[1] for item in review_hashes)
+        if curated:
+            arbiter_input = adjudication.get("input_hash")
+        else:
+            arbiter_input = digest({"packet_input_hash": expected_input_hash,
+                                    "independent_reviews": independent})
+        if (_reviewer(adjudication, arbiter_input) != "agent"
+                or adjudication["agent"] in agents):
             raise ValueError("adjudication requires a third distinct agent")
-        if adjudication.get("resolves_review_hashes") != [digest(item) for item in independent]:
+        if adjudication.get("resolves_review_hashes") != [item[0] for item in review_hashes]:
             raise ValueError("adjudication must bind both original independent review hashes")
+        if curated:
+            sealed_hash(adjudication)
         selected = adjudication
     resolved = selected is not None and selected.get("verdict") != "unresolved"
     return {"review_status": "ai_reviewed" if resolved else "unresolved",
@@ -520,9 +542,13 @@ def render(report):
              "重复试次用于测波动，不扩充独立样本数；安全统计所有试次。", "",
              "| 方案 | 题数 | 试次 | 待审 | 正确率 % | 完整度 % | 引用标签合法率 % |",
              "|---|---:|---:|---:|---:|---:|---:|"]
+    compact_trials = report.get("trial_results") or []
     for key, arm in report["variants"].items():
         m = arm["metrics"]
-        lines.append(f"| {arm.get('name', key)} | {len(report['raw_trials'][key])} | {m['trial_count']} | "
+        task_count = (len(report["raw_trials"][key]) if "raw_trials" in report
+                      else len({row.get("task_id") for row in compact_trials
+                                if row.get("variant") == key}))
+        lines.append(f"| {arm.get('name', key)} | {task_count} | {m['trial_count']} | "
                      f"{m['pending']} | {fmt(m['accuracy'])} | {fmt(m['completeness'])} | "
                      f"{fmt(m['effective_citation_rate'])} |")
     lines += ["", "## 门禁与成对差异", "",

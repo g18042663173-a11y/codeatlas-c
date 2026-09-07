@@ -209,6 +209,48 @@ def recall_bm25(conn: sqlite3.Connection, q: str, limit: int = 30) -> list[int]:
     return [r["rowid"] for r in rows]
 
 
+def recall_reviewed_experience(conn: sqlite3.Connection, q: str,
+                               limit: int = 10) -> list[int]:
+    """Give approved knowledge its own lexical lane.
+
+    Code-heavy repositories can contribute hundreds of A/C chunks for a broad
+    term such as ``memory`` before a highly relevant reviewed card reaches the
+    shared BM25 cut-off.  This lane does not promote arbitrary cards: the card
+    must already be visible, match FTS, and share at least two distinct public
+    query terms.  The normal evidence/currentness gates remain authoritative.
+    """
+    match = _fts_query(q)
+    if not match:
+        return []
+    tokens = {
+        token.lower() for token in re.findall(
+            r"[A-Za-z_][A-Za-z0-9_]*|[\u4e00-\u9fff]{2,}", _enrich_query(q)
+        ) if len(token) >= 2
+    }
+    if len(tokens) < 2:
+        return []
+    try:
+        rows = conn.execute(
+            """SELECT c.rowid,c.title,c.text FROM chunk_fts f
+                 JOIN chunk c ON c.rowid=f.rowid
+                WHERE chunk_fts MATCH ? AND c.visible=1
+                  AND c.kind='experience' AND c.evidence_level='B'
+                ORDER BY bm25(chunk_fts),c.rowid LIMIT ?""",
+            (match, limit * 4),
+        ).fetchall()
+    except sqlite3.OperationalError as exc:
+        log.warning("经验卡 FTS 查询失败: %s", exc)
+        return []
+    accepted: list[int] = []
+    for row in rows:
+        blob = f"{row['title']} {row['text']}".lower()
+        if sum(token in blob for token in tokens) >= 2:
+            accepted.append(row["rowid"])
+        if len(accepted) >= limit:
+            break
+    return accepted
+
+
 def _exact_symbol_rowids(conn: sqlite3.Connection, q: str, limit: int = 4) -> list[int]:
     """Return only exact function-name chunks explicitly written in the query."""
     names = sorted(set(re.findall(r"\b[A-Za-z_]\w{2,}\b", q)), key=lambda x: -len(x))
@@ -718,6 +760,7 @@ def ask(conn: sqlite3.Connection, q: str, *, embedder=None, budget_tokens: int =
 
     r_sym = recall_symbol(conn, q) if use_symbol else []
     r_bm = recall_bm25(conn, q) if use_bm25 else []
+    r_exp = recall_reviewed_experience(conn, q) if use_bm25 else []
     r_vec = recall_vector(conn, q, embedder, data_dir=data_dir) if use_vector else []
 
     # A nearest-neighbour index always returns *something*, even when the query has
@@ -737,7 +780,7 @@ def ask(conn: sqlite3.Connection, q: str, *, embedder=None, budget_tokens: int =
     # vote preserves high-precision facts while still allowing repeated
     # BM25+vector agreement to promote a candidate.
     weights = [1.5 if mode == "symbol" else 1.0, 1.0, 0.35]
-    fused = rrf([r_sym, r_bm, r_vec], weights=weights)
+    fused = rrf([r_sym, r_bm, r_vec, r_exp], weights=weights + [1.0])
 
     direct_callers = bool(re.search(r"谁(?:直接)?调用|哪些函数(?:直接)?调用|who\s+calls", q, re.I))
     direct_callees = bool(re.search(r"调用了哪些|calls?\s+which|callees?", q, re.I))
@@ -765,7 +808,8 @@ def ask(conn: sqlite3.Connection, q: str, *, embedder=None, budget_tokens: int =
         conn, _enrich_query(q), ctx["citations"], rr, explain=explain
     )
     reranked = _reserve_bm25_code_slots(conn, reranked, r_bm, q)
-    reranked = _reserve_strong_reviewed_experience(conn, reranked, r_bm)
+    reranked = _reserve_strong_reviewed_experience(conn, reranked, r_exp or r_bm,
+                                                    max_bm25_rank=3)
     if direct_callers or direct_callees:
         reranked = _prioritize_direct_graph(conn, reranked, heads, exact_symbol_ids)
     ctx["citations"] = reranked
@@ -777,6 +821,7 @@ def ask(conn: sqlite3.Connection, q: str, *, embedder=None, budget_tokens: int =
                   repository=dbm.get_meta(conn, "repo", "unversioned"),
                   revision=dbm.get_meta(conn, "revision", "unversioned"),
                   recall=dict(symbol=len(r_sym), bm25=len(r_bm), vector=len(r_vec),
+                              reviewed_experience=len(r_exp),
                               fused=len(fused), graph_heads=len(heads)),
                   context_tokens=ctx["total_tokens"], ab_evidence=ctx["ab_evidence"])
     if explain:

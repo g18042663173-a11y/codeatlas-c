@@ -10,6 +10,10 @@ def test_workspace_local_assets_and_safe_static_mount():
     assert 'id="workspaceForm"' in html and 'data-tab="review"' in html
     assert 'expected_bundle_hash' in html and 'save_draft:false' in html
     assert 'data-action="review"' in html and 'aria-current="page"' in html
+    assert '30 / 40（保留历史结果）' in html
+    assert "['被测答案','Luna · 冻结 510 个']" in html
+    assert "['最终评分模型',selected]" in html
+    assert "95% [" in html and "unresolved_trials" in html
     for asset in ('workspace.css', 'workspace.js', 'icons/home.svg', 'icons/LICENSE'):
         assert client.get('/static/' + asset).status_code == 200
     assert client.get('/static/%2e%2e/app.py').status_code == 404

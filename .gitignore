@@ -23,3 +23,6 @@ __pycache__/
 # model prompts/responses.  Keep only the concise, curated status report.
 /docs/runs/**
 !/docs/runs/PROOF-LUNA-20260907-STATUS.md
+!/docs/runs/curated/
+!/docs/runs/curated/*.json
+!/docs/runs/curated/*.md

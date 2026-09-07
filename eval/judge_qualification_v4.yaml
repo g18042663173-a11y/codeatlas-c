@@ -1,0 +1,23 @@
+schema_version: 1
+sealed: true
+workers: 2
+transport_retries: 0
+max_new_requests: 1522
+report: docs/JUDGE-QUALIFICATION-V4.json
+excluded_v3: eval/review_calibration_v3.yaml
+primary:
+  model: gpt-5.6-terra
+  calibration: eval/review_calibration_v4a.yaml
+  sha256: 5482e4ac240fbdfae6b6b59a57d7dfc3d0785849b96a47d9596225080977ed30
+  attempt: v4a-terra
+fallback:
+  model: gpt-5.6-sol
+  calibration: eval/review_calibration_v4b.yaml
+  sha256: bbc03b900422af15a677dc3402a513bfde9e126de36a361aff34309675e7fb19
+  attempt: v4b-sol
+  activate_only_when: judge_calibration_failed
+boundary:
+  - Terra must complete and fail the semantic qualification before Sol can be opened.
+  - Transport failures and uncertain calls resume the same immutable attempt and never activate Sol.
+  - Both failure paths stop unresolved; no third model or lowered threshold is allowed.
+  - The 510 Luna answers, questions, gold and run hashes remain unchanged.
