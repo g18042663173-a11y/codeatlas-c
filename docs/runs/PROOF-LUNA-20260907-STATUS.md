@@ -67,10 +67,12 @@
 - `tests/test_proof_campaign.py`（排除 CLI help 渲染单例）：16 passed
 - `tests/ui_workspace.test.cjs`：8 passed
 - CLI 已通过真实 `prepare / preflight / run / report / review` 路径执行
-- Python 全量回归本次未完成：macOS 读取 `.venv/site-packages/rich/theme.py` 时出现 `[Errno 60] Operation timed out`；这不是断言失败，但在环境恢复前不能写成本轮全量通过
+- 在不受 iCloud 占位影响的干净本地副本中重新创建环境并运行
+  `PYTHONPATH=src .venv/bin/pytest -q -rs --disable-warnings`：338 passed，3 warnings，58.76 秒
 
 ## 下一步门槛
 
 在冻结新的评分方案前，不再发送正式 judge 请求。需要先把校准从“单次整对象完全一致”改成可审计的分层门禁，重新做独立 gold 复核，并在新的留出校准集上预登记通过标准。只有校准、双评分和必要仲裁完成后，才能生成 Wiki/知识卡效果结论并把 `experiments_complete` 改为 true。
 
-旧 40 道开发回归仍保持 30/40；本批实验不会回写旧 gold。当前没有提交、推送或公开复现。
+旧 40 道开发回归仍保持 30/40；本批实验不会回写旧 gold。当前实现已本地提交为
+`ea2afa9`，尚未推送或完成公开复现。
