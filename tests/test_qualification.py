@@ -143,8 +143,14 @@ def test_repairable_summary_separates_format_gaps_from_semantic_unresolved():
         "point_reviews": {"p": "unresolved"}, "false_claim_present": None,
         "citation_relation": "unresolved",
     }
+    transport = {
+        "model_generated": False, "execution_status": "unresolved",
+        "error_type": "URLError", "verdict": "unresolved",
+    }
     result = {"reviews": {"job": {"items": [
         {"trial_id": "format", "independent_reviews": [invalid, resolved]},
+        {"trial_id": "dual", "independent_reviews": [invalid, invalid]},
+        {"trial_id": "transport", "independent_reviews": [transport, resolved]},
         {"trial_id": "semantic", "independent_reviews": [semantic, semantic]},
         {"trial_id": "arbiter", "independent_reviews": [resolved, {
             **resolved, "verdict": "incomplete", "completeness": 0,
@@ -154,12 +160,17 @@ def test_repairable_summary_separates_format_gaps_from_semantic_unresolved():
 
     summary = review_recovery.repairable_summary(result)
 
-    assert summary["repairable_count"] == 2
+    assert summary["repairable_count"] == 4
+    assert summary["single_role_recoverable_count"] == 2
+    assert summary["dual_independent_gap_trials"] == 1
     assert summary["independent_gaps"] == [
-        {"job_id": "job", "trial_id": "format", "slots": [0]}]
+        {"job_id": "job", "trial_id": "format", "slots": [0]},
+        {"job_id": "job", "trial_id": "dual", "slots": [0, 1]},
+    ]
     assert summary["adjudication_gaps"] == [
         {"job_id": "job", "trial_id": "arbiter"}]
     assert summary["nonrepairable_unresolved"] == [
+        {"job_id": "job", "trial_id": "transport"},
         {"job_id": "job", "trial_id": "semantic"}]
 
 

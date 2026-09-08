@@ -1,0 +1,114 @@
+{
+  "schema_version": 2,
+  "kind": "terminal_review_attempt_audit",
+  "attempt_id": "knowledge-v2-sol-review.compact-v1",
+  "batch_id": "0b78ef809c57e7e22bcbe4611cd3dc5f0053661b3b3534201052c1ccfdfb5d05",
+  "status": "unresolved",
+  "judge_model": "gpt-5.6-sol",
+  "projection_version": "knowledge-reuse-review-v1",
+  "review_collection_status": "unresolved",
+  "qualification": {
+    "passed": true,
+    "reviewer_count": 3,
+    "thresholds": {
+      "point_accuracy_min": 0.9,
+      "met_recall_min": 0.9,
+      "missed_recall_min": 0.85,
+      "contradiction_recall_min": 0.9,
+      "contradicted_as_met_max": 0,
+      "forbidden_flag_accuracy_min": 1.0,
+      "unsafe_citation_as_supported_max": 0,
+      "manipulation_detection_required": true,
+      "response_coverage_required": 1.0
+    }
+  },
+  "counts": {
+    "answer_trials": 324,
+    "independent_scores_expected": 648,
+    "independent_scores_valid": 635,
+    "independent_scores_repairable_invalid": 7,
+    "independent_scores_transport_or_unknown": 6,
+    "disagreements": 82,
+    "adjudications_valid": 80,
+    "adjudications_repairable_invalid": 0,
+    "adjudications_transport_or_unknown": 2,
+    "unresolved_trials": 14,
+    "repairable_score_positions": 7,
+    "single_role_recoverable_positions": 3,
+    "dual_independent_gap_trials": 2,
+    "semantic_or_unknown_unresolved_trials": 9
+  },
+  "failure_types": {
+    "independent_scores": {
+      "URLError": 6,
+      "ValueError": 7
+    },
+    "adjudications": {
+      "TimeoutError": 1,
+      "URLError": 1
+    }
+  },
+  "jobs": {
+    "knowledge-reuse-v2": {
+      "run_hash": "59b44b8a7b1503010b97f3fb51ee10dfc9ef1c40403d686cab9be4ab49de87fb",
+      "review_status": "unresolved",
+      "variants": {
+        "raw_session": {
+          "trials": 108,
+          "resolved": 101,
+          "unresolved": 7,
+          "correctness_lower_bound": 0.4074074074074074,
+          "correctness_upper_bound": 0.4722222222222222,
+          "input_tokens_total": null,
+          "input_tokens_known_total": 464772,
+          "input_usage_missing": 2
+        },
+        "generic_summary": {
+          "trials": 108,
+          "resolved": 105,
+          "unresolved": 3,
+          "correctness_lower_bound": 0.48148148148148145,
+          "correctness_upper_bound": 0.5092592592592593,
+          "input_tokens_total": null,
+          "input_tokens_known_total": 491808,
+          "input_usage_missing": 2
+        },
+        "structured_card": {
+          "trials": 108,
+          "resolved": 104,
+          "unresolved": 4,
+          "correctness_lower_bound": 0.48148148148148145,
+          "correctness_upper_bound": 0.5185185185185185,
+          "input_tokens_total": null,
+          "input_tokens_known_total": 484326,
+          "input_usage_missing": 2
+        }
+      },
+      "paired_usage": {
+        "complete_triplets": 106,
+        "input_tokens": {
+          "raw_session": 464772,
+          "generic_summary": 491808,
+          "structured_card": 484326
+        },
+        "structured_card_vs_raw_reduction_pct": -4.207224187343472,
+        "boundary": "Descriptive complete-triplet subset; missing provider usage is not imputed."
+      }
+    }
+  },
+  "followups": [
+    {
+      "attempt_id": "knowledge-v2-sol-review.compact-v1.format-recovery-v1",
+      "batch_id": "0f5ac41c14229cd7ad13cfc465f952949e4fece41a5b1dab178d2cb9ee138180",
+      "status": "unresolved",
+      "reason": "replacement_calibration_response_unresolved",
+      "replacement_calibration_status": null
+    }
+  ],
+  "known_limitations": [
+    "The historical v1 projection mapped a cited source to answer-key evidence by same-file identity without requiring line-range overlap. Its citation-relation scores are excluded from effect proof; v2 fixes future attempts without rewriting this frozen run."
+  ],
+  "claim_status": "insufficient_evidence",
+  "boundary": "This audit proves collection and review execution state, not a positive effect. Correctness ranges keep unresolved trials in the denominator; no missing score is imputed.",
+  "audit_hash": "c2adf8f3f576b59c24c719e3e85c0f5fb83ba8609bc73af445f12cdba5daf2bf"
+}

@@ -400,7 +400,10 @@ def execute_trial(job, event, client):
     if job["kind"] == "knowledge_reuse":
         case = next(c for c in job["template"]["materials"]["cases"] if c["case_id"] == task["case_id"])
         system, user = reuse.messages_for(case, task, arm)
-        answer = reuse._answer(client, system, user)
+        answer = reuse._answer(
+            client, system, user,
+            complete_input=job["template"].get("schema_version") == 2,
+        )
         citations, valid = reuse._references(answer, case)
         return {"answer": answer, "citations": citations, "citation_valid": valid,
                 "case_id": case["case_id"], "source_digest": case["source_digest"],

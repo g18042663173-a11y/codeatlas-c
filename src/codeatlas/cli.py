@@ -229,6 +229,17 @@ def proof_export_review(campaign_dir: str = typer.Option(..., "--campaign"),
     console.print_json(data=result)
 
 
+@proof_app.command("export-attempt-audit")
+def proof_export_attempt_audit(
+        campaign_dir: str = typer.Option(..., "--campaign"),
+        attempt: str = typer.Option(..., "--attempt"),
+        out: str = typer.Option(..., "--out")):
+    """即使仍有结构、网络或语义未决，也导出不含原始回答的终态审计。"""
+    from .eval.campaign_review import export_attempt_audit
+    console.print_json(data=export_attempt_audit(
+        campaign_dir, attempt_id=attempt, out=out))
+
+
 @proof_app.command("qualified-review")
 def proof_qualified_review(
         campaign_dir: str = typer.Option(..., "--campaign"),
@@ -427,16 +438,26 @@ def eval_knowledge_reuse(
 @eval_app.command("knowledge-produce")
 def eval_knowledge_produce(
         manifest: str = "eval/knowledge_reuse.yaml",
-        out: str = "eval/frozen/knowledge_reuse-v4.pending.json",
-        ledger_path: str = "data/proof/knowledge-production.sqlite3"):
+        out: str = "data/proof/knowledge-production/knowledge-reuse.pending.json",
+        ledger_path: str = "data/proof/knowledge-production.sqlite3",
+        max_requests: int | None = typer.Option(None, "--max-requests"),
+        base_url: str | None = typer.Option(None, "--base-url"),
+        model: str | None = typer.Option(None, "--model")):
     """用隔离模型会话生成摘要/知识卡材料；产物双审前不能进入实验。"""
     from .eval import knowledge_production
     from .eval.protocol import ensure_new_outputs
-    from .llm.client import GO_BASE_URL, GO_MODEL, get_client
+    from .eval import knowledge_reuse_eval
+    from .llm.client import get_client
     from .llm.ledger import RequestLedger
 
     ensure_new_outputs(out)
-    ledger = RequestLedger(ledger_path, max_requests=4)
+    prepared = knowledge_reuse_eval.prepare(manifest, project_root=Path.cwd())
+    required_requests = len(prepared["cases"]) * len(knowledge_production.ARMS)
+    if max_requests is not None and max_requests != required_requests:
+        raise typer.BadParameter(
+            f"--max-requests must equal the frozen product count ({required_requests})"
+        )
+    ledger = RequestLedger(ledger_path, max_requests=required_requests)
     campaign_id = "knowledge-production-" + hashlib.sha256(
         (str(Path(manifest).resolve()) + str(time.time_ns())).encode()
     ).hexdigest()[:16]
@@ -446,7 +467,7 @@ def eval_knowledge_produce(
             campaign_id=campaign_id,
             client_factory=lambda role, case_id: get_client(
                 ledger=ledger, session_id=f"{campaign_id}:{role}:{case_id}",
-                base_url=GO_BASE_URL, model=GO_MODEL,
+                base_url=base_url, model=model, transport_retries=0,
             ),
         )
     except (ValueError, json.JSONDecodeError) as exc:
@@ -458,10 +479,49 @@ def eval_knowledge_produce(
     console.print(f"[green][OK][/] 已生成 {len(result['products'])} 份待双审材料 → {out}")
 
 
+@eval_app.command("knowledge-material-review-model")
+def eval_knowledge_material_review_model(
+        artifact: str,
+        manifest: str = "eval/knowledge_reuse.yaml",
+        out: str = "data/proof/knowledge-material-review/knowledge-reuse.frozen.json",
+        ledger_path: str = "data/proof/knowledge-material-review.sqlite3",
+        max_requests: int = typer.Option(72, "--max-requests", min=1),
+        base_url: str | None = typer.Option(None, "--base-url"),
+        model: str | None = typer.Option(None, "--model")):
+    """用两个隔离模型角色复核压缩材料；原文回退只做字节一致性检查。"""
+    from .eval import knowledge_production
+    from .eval.protocol import ensure_new_outputs
+    from .llm.client import get_client
+    from .llm.ledger import RequestLedger
+    from .publication import atomic_text
+
+    ensure_new_outputs(out)
+    pending = json.loads(Path(artifact).read_text(encoding="utf-8"))
+    ledger = RequestLedger(ledger_path, max_requests=max_requests)
+    campaign_id = "knowledge-material-review-" + pending["artifact_hash"][:16]
+    try:
+        result = knowledge_production.review_with_model(
+            pending, manifest, project_root=Path.cwd(), campaign_id=campaign_id,
+            client_factory=lambda role: get_client(
+                ledger=ledger, session_id=f"{campaign_id}:{role}",
+                base_url=base_url, model=model, transport_retries=0,
+            ),
+        )
+    except (ValueError, json.JSONDecodeError) as exc:
+        console.print(f"[red]模型材料复核失败：{exc}；已完成请求保留在账本中。[/]")
+        raise typer.Exit(2) from exc
+    atomic_text(Path(out), json.dumps(result, ensure_ascii=False, indent=2))
+    console.print(
+        f"材料复核：{result['status']} / 请求 {ledger.summary()['requests']} → {out}"
+    )
+    if result["status"] != "frozen":
+        raise typer.Exit(1)
+
+
 @eval_app.command("knowledge-material-review")
 def eval_knowledge_material_review(
         artifact: str, reviews: str,
-        out: str = "eval/frozen/knowledge_reuse-v4.json"):
+        out: str = "data/proof/knowledge-material-review/knowledge-reuse.frozen.json"):
     """应用两名隔离 reviewer（及必要仲裁）的逐 section 复核结果。"""
     from .eval import knowledge_production
     from .eval.protocol import ensure_new_outputs

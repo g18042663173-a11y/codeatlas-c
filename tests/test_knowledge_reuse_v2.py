@@ -68,6 +68,33 @@ class FakeProducer:
         return json.dumps({"sections": self.sections})
 
 
+class FakeMaterialReviewer:
+    model = "fixed-review-model"
+    transport_retries = 0
+
+    def __init__(self, session_id, calls):
+        self.session_id = session_id
+        self.calls = calls
+        self.last_response_meta = {}
+        self.last_usage = {}
+
+    def _chat(self, system, user, max_tokens, *, json_object=False,
+              complete_input_budget=None):
+        assert json_object and complete_input_budget == 8000
+        payload = json.loads(user)
+        self.calls.append((self.session_id, payload))
+        self.last_response_meta = {"model": self.model, "finish_reason": "stop",
+                                   "content_hash": "a" * 64, "transport_attempts": 1}
+        self.last_usage = {"prompt_tokens": 100, "completion_tokens": 20,
+                           "total_tokens": 120}
+        return json.dumps({"items": [
+            {"section_id": row["section_id"], "verdict": "supported"}
+            for row in payload["sections"]
+        ]})
+
+    _json = staticmethod(json.loads)
+
+
 def make_artifact(v2_manifest, damage=None):
     path, root, _ = v2_manifest
     case = reuse.prepare(path, project_root=root)["cases"][0]
@@ -146,6 +173,71 @@ def test_v2_production_enforces_shared_source_model_and_budget(v2_manifest):
         assert meta["status"] == "compressed"
         assert meta["budget_tokens"] == min(600, meta["raw_session_tokens"] * 3 // 5)
         assert estimated_tokens(product["text"]) <= meta["budget_tokens"]
+
+
+def test_v2_model_material_dual_review_isolated_and_frozen(v2_manifest):
+    artifact, _ = make_artifact(v2_manifest)
+    path, root, _ = v2_manifest
+    calls = []
+    clients = {}
+    def factory(role):
+        clients.setdefault(role, FakeMaterialReviewer("review:" + role, calls))
+        return clients[role]
+    frozen = production.review_with_model(
+        artifact, path, project_root=root, client_factory=factory,
+        campaign_id="material-review-test",
+    )
+    assert frozen["status"] == "frozen" and frozen["review_status"] == "ai_reviewed"
+    assert {row[0] for row in calls} == {"review:judge-a", "review:judge-b"}
+    assert len(calls) == 4
+    assert all("question" not in json.dumps(payload).lower() for _, payload in calls)
+    target = root / "reviewed.json"
+    target.write_text(json.dumps(frozen))
+    assert production.load_frozen(target, reuse.prepare(path, project_root=root)) == frozen
+
+
+def test_v2_exact_source_fallback_needs_no_paid_material_review(v2_manifest):
+    artifact, _ = make_artifact(v2_manifest, "missing_fact")
+    path, root, _ = v2_manifest
+    calls = []
+    clients = {}
+    def factory(role):
+        clients.setdefault(role, FakeMaterialReviewer("review:" + role, calls))
+        return clients[role]
+    frozen = production.review_with_model(
+        artifact, path, project_root=root, client_factory=factory,
+        campaign_id="material-review-fallback-test",
+    )
+    assert frozen["status"] == "frozen" and calls == []
+    assert all(item["basis"] == "deterministic_exact_source_copy"
+               for review in frozen["material_reviews"]["independent_reviews"]
+               for item in review["items"])
+
+
+def test_v2_unresolved_review_falls_back_and_rebinds_without_more_model_calls(v2_manifest):
+    artifact, _ = make_artifact(v2_manifest)
+    path, root, _ = v2_manifest
+    section_ids = [s["id"] for p in artifact["products"] for s in p["sections"]]
+    rejected = section_ids[0]
+    submission = {"artifact_hash": artifact["artifact_hash"], "independent_reviews": [
+        {"reviewer_kind": "agent", "agent": role, "session_id": "review:" + role,
+         "peer_reviews_visible": False,
+         "items": [{"section_id": sid,
+                    "verdict": "unresolved" if sid == rejected else "supported"}
+                   for sid in section_ids]}
+        for role in ("a", "b")
+    ]}
+    reviewed = production.apply_reviews(artifact, submission)
+    assert reviewed["status"] == "pending_review"
+    fallback = production.fallback_review_failures(
+        artifact, reviewed, path, project_root=root,
+    )
+    assert fallback["review_fallback_history"]["model_requests"] == 0
+    frozen = production.rebind_reviews_after_fallback(fallback, reviewed)
+    assert frozen["status"] == "frozen"
+    target = root / "fallback-reviewed.json"
+    target.write_text(json.dumps(frozen))
+    assert production.load_frozen(target, reuse.prepare(path, project_root=root)) == frozen
 
 
 @pytest.mark.parametrize("damage", ["missing_fact", "oversize", "bad_citation"])

@@ -51,6 +51,8 @@ CALIBRATION_SCHEMA = {
 }
 OUTCOMES = ("verdict", "completeness", "point_reviews", "false_claim_present", "citation_relation")
 SEMANTIC_REVIEW_PROJECTION = "semantic-review-v1"
+KNOWLEDGE_REVIEW_PROJECTION_V1 = "knowledge-reuse-review-v1"
+KNOWLEDGE_REVIEW_PROJECTION = "knowledge-reuse-review-v2"
 JUDGE_GUIDANCE = {
     "point_scoring": (
         "Score every expected point independently from its full text, not from its short ID. "
@@ -243,10 +245,103 @@ def _semantic_review_item(item):
     return value
 
 
+def _knowledge_review_item(item, projection_version=KNOWLEDGE_REVIEW_PROJECTION):
+    """Build an arm-blind, bounded view for knowledge-reuse answer scoring.
+
+    The material shown to the answering model is an experimental treatment,
+    not source truth.  Showing raw-session/summary/card text to the judge would
+    both reveal the arm and duplicate the frozen source/experiment oracle.  The
+    view therefore keeps candidate citation identities, maps source citations
+    to the relevant oracle rows, and withholds treatment prose.  Citation
+    syntax/integrity remains a deterministic gate on the immutable packet.
+    """
+    value = copy.deepcopy(item)
+    answer = str(value.get("answer") or "")
+    cited_tags = set(re.findall(r"\[(E\d+)\]", answer))
+    answer_key = value.get("answer_key") or {}
+
+    required_ids = set()
+    for point in answer_key.get("expected_points") or []:
+        required_ids.update(point.get("evidence") or [])
+    for claim in answer_key.get("forbidden_evidence") or []:
+        required_ids.update(claim.get("evidence") or [])
+    executable = answer_key.get("executable_verification") or {}
+    required_ids.update(executable.get("observation_evidence") or [])
+    required_ids.update(executable.get("build_evidence") or [])
+
+    oracle_source = [row for row in answer_key.get("evidence_payload") or []
+                     if row.get("id") in required_ids]
+    bodies = {}
+
+    def oracle_row(row):
+        text = str(row.get("text") or "")
+        body_id = "B" + digest(text.encode())[:12]
+        bodies.setdefault(body_id, {"text": text})
+        keep = ("tag", "id", "kind", "path", "line_start", "line_end",
+                "json_pointer", "source_span", "repository", "revision")
+        compact = {key: copy.deepcopy(row[key]) for key in keep
+                   if row.get(key) not in (None, "", [])}
+        compact["body"] = body_id
+        return compact
+
+    oracle_rows = [oracle_row(row) for row in oracle_source]
+    candidate_rows = []
+    for row in value.get("evidence_payload") or []:
+        if row.get("tag") not in cited_tags:
+            continue
+        keep = ("tag", "kind", "path", "line_start", "line_end")
+        compact = {key: copy.deepcopy(row[key]) for key in keep
+                   if row.get(key) not in (None, "", [])}
+        row_start, row_end = row.get("line_start"), row.get("line_end")
+        overlapping = sorted({
+            oracle.get("id") for oracle in oracle_source
+            if oracle.get("id") and oracle.get("path") == row.get("path")
+            and (projection_version == KNOWLEDGE_REVIEW_PROJECTION_V1
+                 or (all(isinstance(value, int) for value in (
+                        row_start, row_end, oracle.get("line_start"), oracle.get("line_end")))
+                     and max(row_start, oracle["line_start"])
+                        <= min(row_end, oracle["line_end"])))
+        })
+        if overlapping:
+            compact["oracle_refs"] = overlapping
+        else:
+            compact["content_visibility"] = "withheld_experimental_treatment"
+        candidate_rows.append(compact)
+
+    answer_key = copy.deepcopy(answer_key)
+    answer_key.pop("evidence_payload", None)
+    answer_key["evidence_ref"] = "#/evidence_payload/oracle_evidence"
+    value["answer_key"] = answer_key
+    value["candidate_citation_tags"] = sorted(cited_tags)
+    value["evidence_payload"] = {
+        "encoding": projection_version,
+        "bodies": bodies,
+        "body_semantics": "body names exact text in bodies; oracle_refs name answer-key evidence ids",
+        "candidate_evidence": candidate_rows,
+        "oracle_evidence": oracle_rows,
+    }
+    value["citations"] = {
+        "candidate_explicit_tags": sorted(cited_tags),
+        "integrity_boundary": "validated against the immutable original packet outside the semantic judge",
+    }
+    value["projection"] = {
+        "version": projection_version,
+        "original_input_hash": item["input_hash"],
+        "boundary": (
+            "The judge sees the frozen source/experiment oracle but not raw-session, summary, or card treatment prose. "
+            "This prevents arm leakage; treatment citation syntax and existence are checked deterministically."
+        ),
+    }
+    return value
+
+
 def _judge_item(item, projection_version=None):
     """Return a judge-visible representation; the neutral source item stays bound."""
     if projection_version == SEMANTIC_REVIEW_PROJECTION:
         return _semantic_review_item(item)
+    if projection_version in {KNOWLEDGE_REVIEW_PROJECTION_V1,
+                              KNOWLEDGE_REVIEW_PROJECTION}:
+        return _knowledge_review_item(item, projection_version)
     from .evidence_repair import PROJECTION, judge_view
     if projection_version == PROJECTION:
         return judge_view(item)
@@ -593,7 +688,9 @@ def review(directory, *, resume=False, calibration_path=None, client_factory=Non
         raise campaign.CampaignError("a judge model override requires a new versioned attempt")
     from .evidence_repair import PROJECTION
     from .wiki_review_projection import VERSION as WIKI_PROJECTION
-    if projection_version not in {None, SEMANTIC_REVIEW_PROJECTION, PROJECTION, WIKI_PROJECTION}:
+    if projection_version not in {None, SEMANTIC_REVIEW_PROJECTION,
+                                  KNOWLEDGE_REVIEW_PROJECTION_V1,
+                                  KNOWLEDGE_REVIEW_PROJECTION, PROJECTION, WIKI_PROJECTION}:
         raise campaign.CampaignError("unknown review input projection")
     if qualification_attestation is not None:
         reviews = qualification_attestation.get("review_runs") or []
@@ -1155,3 +1252,213 @@ def export_reviewed_reports(directory, *, attempt_id, experiments_path="eval/exp
             "unresolved_trial_count": stored.get("unresolved_trial_count", 0),
             "attempt_id": attempt_id,
             "batch_id": row["id"], "outputs": outputs}
+
+
+def export_attempt_audit(directory, *, attempt_id, out):
+    """Export a compact audit even when format gaps prevent an effect report."""
+    _target, _plan, ledger = campaign._load(directory)
+    with ledger.connect() as conn:
+        rows = conn.execute(
+            "SELECT id,binding_json,result_json,result_hash FROM campaign_review_batches"
+        ).fetchall()
+    matches = []
+    decoded = []
+    for row in rows:
+        binding = json.loads(row["binding_json"])
+        result = json.loads(row["result_json"]) if row["result_json"] else None
+        if result is not None and digest(result) != row["result_hash"]:
+            raise campaign.CampaignError("review attempt result hash changed")
+        decoded.append((row, binding, result))
+        if binding.get("attempt_id") == attempt_id:
+            matches.append((row, binding, result))
+    if len(matches) != 1 or matches[0][2] is None:
+        raise campaign.CampaignError("review attempt must identify one durable batch")
+    row, binding, stored = matches[0]
+
+    from .review_recovery import REPAIRABLE_ERRORS, repairable_summary
+    gaps = repairable_summary(stored)
+    jobs = {}
+    for job_id, report in (stored.get("reviewed_reports") or {}).items():
+        variants = {}
+        usage_by_variant = {}
+        for variant, tasks in (report.get("raw_trials") or {}).items():
+            trials = [trial for task in tasks for trial in task.get("repetitions") or []]
+            usage_by_variant[variant] = {
+                (task.get("id"), trial.get("repetition")): trial.get("input_tokens")
+                for task in tasks for trial in task.get("repetitions") or []
+                if isinstance(trial.get("input_tokens"), (int, float))
+                and not isinstance(trial.get("input_tokens"), bool)
+            }
+            resolved = [trial for trial in trials
+                        if trial.get("review_status") in {"ai_reviewed", "human_reviewed"}
+                        and type(trial.get("correct")) is bool]
+            correct = sum(trial["correct"] is True for trial in resolved)
+            unresolved = len(trials) - len(resolved)
+            input_values = [trial.get("input_tokens") for trial in trials
+                            if isinstance(trial.get("input_tokens"), (int, float))
+                            and not isinstance(trial.get("input_tokens"), bool)]
+            variants[variant] = {
+                "trials": len(trials), "resolved": len(resolved), "unresolved": unresolved,
+                "correctness_lower_bound": correct / len(trials) if trials else None,
+                "correctness_upper_bound": ((correct + unresolved) / len(trials)
+                                            if trials else None),
+                "input_tokens_total": sum(input_values) if len(input_values) == len(trials) else None,
+                "input_tokens_known_total": sum(input_values),
+                "input_usage_missing": len(trials) - len(input_values),
+            }
+        paired_keys = (set.intersection(*(set(values) for values in usage_by_variant.values()))
+                       if usage_by_variant else set())
+        paired_totals = {variant: sum(values[key] for key in paired_keys)
+                         for variant, values in usage_by_variant.items()}
+        raw_total, card_total = (paired_totals.get("raw_session"),
+                                 paired_totals.get("structured_card"))
+        jobs[job_id] = {
+            "run_hash": report.get("run_hash"),
+            "review_status": report.get("answer_review_status"),
+            "variants": variants,
+            "paired_usage": {
+                "complete_triplets": len(paired_keys),
+                "input_tokens": paired_totals,
+                "structured_card_vs_raw_reduction_pct": (
+                    100 * (1 - card_total / raw_total) if raw_total and card_total is not None else None),
+                "boundary": "Descriptive complete-triplet subset; missing provider usage is not imputed.",
+            },
+        }
+
+    groups = [group for submission in (stored.get("reviews") or {}).values()
+              for group in submission.get("items") or []]
+    independent = [score for group in groups for score in group.get("independent_reviews") or []]
+    adjudications = [group.get("adjudication") for group in groups if group.get("adjudication")]
+
+    def unresolved_types(scores):
+        values = {}
+        for score in scores:
+            if not isinstance(score, dict) or score.get("model_generated") is not False:
+                continue
+            error = str(score.get("error_type") or "UnknownError")
+            values[error] = values.get(error, 0) + 1
+        return dict(sorted(values.items()))
+
+    independent_failures = unresolved_types(independent)
+    adjudication_failures = unresolved_types(adjudications)
+    independent_repairable = sum(
+        count for error, count in independent_failures.items()
+        if error in REPAIRABLE_ERRORS
+    )
+    adjudication_repairable = sum(
+        count for error, count in adjudication_failures.items()
+        if error in REPAIRABLE_ERRORS
+    )
+    followups = []
+    for child_row, child_binding, child in decoded:
+        if child_binding.get("base_attempt_id") != attempt_id or child is None:
+            continue
+        followups.append({
+            "attempt_id": child_binding.get("attempt_id"), "batch_id": child_row["id"],
+            "status": child.get("status"), "reason": child.get("reason"),
+            "replacement_calibration_status": (child.get("replacement_calibration") or {}).get("status"),
+        })
+    qualification = stored.get("judge_calibration") or {}
+    projection_version = binding.get("projection_version")
+    known_limitations = []
+    if projection_version == KNOWLEDGE_REVIEW_PROJECTION_V1:
+        known_limitations.append(
+            "The historical v1 projection mapped a cited source to answer-key evidence by "
+            "same-file identity without requiring line-range overlap. Its citation-relation "
+            "scores are excluded from effect proof; v2 fixes future attempts without rewriting "
+            "this frozen run."
+        )
+    review_collection_status = "not_reviewed" if not groups else (
+        "unresolved" if stored.get("unresolved_trial_count") else "complete"
+    )
+    audit = {
+        "schema_version": 2,
+        "kind": "terminal_review_attempt_audit",
+        "attempt_id": attempt_id,
+        "batch_id": row["id"],
+        "status": stored.get("status"),
+        "judge_model": binding.get("judge_model"),
+        "projection_version": projection_version,
+        "review_collection_status": review_collection_status,
+        "qualification": {
+            "passed": qualification.get("passed"),
+            "reviewer_count": qualification.get("reviewer_count"),
+            "thresholds": qualification.get("thresholds"),
+        },
+        "counts": {
+            "answer_trials": sum(sum(v["trials"] for v in job["variants"].values())
+                                 for job in jobs.values()),
+            "independent_scores_expected": len(groups) * 2,
+            "independent_scores_valid": sum(score.get("model_generated") is True
+                                            for score in independent),
+            "independent_scores_repairable_invalid": independent_repairable,
+            "independent_scores_transport_or_unknown": (
+                sum(independent_failures.values()) - independent_repairable
+            ),
+            "disagreements": stored.get("disagreement_count"),
+            "adjudications_valid": sum(score.get("model_generated") is True
+                                       for score in adjudications),
+            "adjudications_repairable_invalid": adjudication_repairable,
+            "adjudications_transport_or_unknown": (
+                sum(adjudication_failures.values()) - adjudication_repairable
+            ),
+            "unresolved_trials": stored.get("unresolved_trial_count"),
+            "repairable_score_positions": gaps["repairable_count"],
+            "single_role_recoverable_positions": gaps["single_role_recoverable_count"],
+            "dual_independent_gap_trials": gaps["dual_independent_gap_trials"],
+            "semantic_or_unknown_unresolved_trials": len(gaps["nonrepairable_unresolved"]),
+        },
+        "failure_types": {
+            "independent_scores": independent_failures,
+            "adjudications": adjudication_failures,
+        },
+        "jobs": jobs,
+        "followups": followups,
+        "known_limitations": known_limitations,
+        "claim_status": (
+            "not_reviewed" if not groups else
+            "insufficient_evidence" if stored.get("unresolved_trial_count") else
+            "review_complete"
+        ),
+        "boundary": (
+            "This audit proves collection and review execution state, not a positive effect. "
+            "Correctness ranges keep unresolved trials in the denominator; no missing score is imputed."
+        ),
+    }
+    audit["audit_hash"] = digest(audit)
+    path = Path(out)
+    from ..publication import atomic_text
+    atomic_text(path, json.dumps(audit, ensure_ascii=False, indent=2) + "\n")
+    lines = [
+        "# CodeAtlas 12-case knowledge-card review audit", "",
+        f"Status: `{audit['status']}`; claim: `{audit['claim_status']}`.", "",
+        audit["boundary"], "",
+        "| Measure | Count |", "|---|---:|",
+    ]
+    for key, value in audit["counts"].items():
+        lines.append(f"| {key} | {value} |")
+    lines += ["", "Failure types:", ""]
+    for stage, values in audit["failure_types"].items():
+        rendered = ", ".join(f"{key}={value}" for key, value in values.items()) or "none"
+        lines.append(f"- `{stage}`: {rendered}")
+    if known_limitations:
+        lines += ["", "Known limitations:", ""]
+        lines.extend(f"- {value}" for value in known_limitations)
+    lines += ["", "| Variant | Trials | Resolved | Correctness range | Input tokens |",
+              "|---|---:|---:|---:|---:|"]
+    for job in jobs.values():
+        for variant, values in job["variants"].items():
+            low, high = values["correctness_lower_bound"], values["correctness_upper_bound"]
+            interval = "not measured" if low is None else f"{low:.3f}–{high:.3f}"
+            tokens = (values["input_tokens_total"] if values["input_tokens_total"] is not None
+                      else f"{values['input_tokens_known_total']} + {values['input_usage_missing']} missing")
+            lines.append(f"| {variant} | {values['trials']} | {values['resolved']} | {interval} | {tokens} |")
+        paired = job["paired_usage"]
+        change = paired["structured_card_vs_raw_reduction_pct"]
+        lines += ["", (f"Complete usage triplets: {paired['complete_triplets']}; "
+                        f"structured-card vs raw-session input reduction: "
+                        f"{'not measured' if change is None else f'{change:.2f}%'}.")]
+    lines += ["", "The full prompts, answers, reviewer prose and request ledger remain local and ignored.", ""]
+    atomic_text(path.with_suffix(".md"), "\n".join(lines))
+    return {"status": "exported", "json": str(path), "markdown": str(path.with_suffix('.md')),
+            "audit_hash": audit["audit_hash"]}

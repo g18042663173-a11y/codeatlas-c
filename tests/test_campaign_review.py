@@ -347,6 +347,39 @@ def test_unresolved_is_retained_without_majority_or_json_repair(tmp_path, fake_h
     assert len(fake_http["requests"]) == requests
 
 
+def test_attempt_audit_exports_format_gaps_without_claiming_effect(tmp_path, fake_http):
+    directory = collected(tmp_path)
+    fake_http["mode"] = "malformed"
+    result = review.review(directory, attempt_id="audit-format", client_factory=factory)
+    assert result["status"] == "unresolved"
+    output = tmp_path / "attempt-audit.json"
+    exported = review.export_attempt_audit(
+        directory, attempt_id="audit-format", out=output)
+    audit = json.loads(output.read_text())
+    assert exported["status"] == "exported" and output.with_suffix(".md").exists()
+    assert audit["claim_status"] == "insufficient_evidence"
+    assert audit["counts"]["independent_scores_repairable_invalid"] == 1
+    assert audit["counts"]["independent_scores_transport_or_unknown"] == 0
+    assert audit["failure_types"]["independent_scores"] == {"JSONDecodeError": 1}
+    assert audit["counts"]["unresolved_trials"] == 1
+    assert audit["audit_hash"] == digest({k: v for k, v in audit.items() if k != "audit_hash"})
+
+
+def test_attempt_audit_does_not_call_a_calibration_failure_review_complete(tmp_path, fake_http):
+    directory = collected(tmp_path)
+    fake_http["mode"] = "calibration_fail"
+    result = review.review(
+        directory, attempt_id="audit-calibration-failure", client_factory=factory)
+    assert result["status"] == "unresolved" and "reviews" not in result
+    output = tmp_path / "calibration-audit.json"
+    review.export_attempt_audit(
+        directory, attempt_id="audit-calibration-failure", out=output)
+    audit = json.loads(output.read_text())
+    assert audit["review_collection_status"] == "not_reviewed"
+    assert audit["claim_status"] == "not_reviewed"
+    assert audit["counts"]["answer_trials"] == 0
+
+
 def test_terminal_review_collection_requires_two_valid_scores_and_completed_arbitration():
     score = {
         "model_generated": True, "verdict": "correct", "completeness": 1,
@@ -567,6 +600,95 @@ def test_lossless_evidence_reference_and_oversized_item_fail_closed(tmp_path, fa
                        {"item": {"evidence_payload": "x" * 50000}, "rubric": {}}, lambda obj: obj)
     assert call["state"] == "unresolved" and call["error_type"] == "ReviewInputTooLarge"
     assert ledger.summary()["requests"] == before
+
+
+def test_knowledge_review_projection_is_arm_blind_and_bounded():
+    sentinel = "RAW_TREATMENT_MUST_NOT_REACH_JUDGE " * 1200
+    item = {
+        "trial_id": "trial-1", "task_id": "case.question", "task_type": "experience",
+        "question": "What happened?", "answer": "The checked condition held. [E1][E2][E3]",
+        "refused": False, "input_hash": "a" * 64, "source_verification": {"status": "verified"},
+        "citations": [],
+        "evidence_payload": [
+            {"tag": "E1", "kind": "source", "path": "src/a.c", "line_start": 10,
+             "line_end": 14, "text": "if (ready) { return 0; }"},
+            {"tag": "E2", "kind": "material", "text": sentinel},
+            {"tag": "E3", "kind": "source", "path": "src/a.c", "line_start": 80,
+             "line_end": 82, "text": "unrelated();"},
+        ],
+        "answer_key": {
+            "expected_points": [{"id": "P1", "text": "ready is checked", "evidence": ["S"]}],
+            "forbidden_claims": ["ready is ignored"],
+            "forbidden_evidence": [{"claim_index": 0, "evidence": ["S"]}],
+            "evidence_payload": [
+                {"id": "S", "tag": "K1", "kind": "source", "path": "src/a.c",
+                 "line_start": 10, "line_end": 14, "text": "if (ready) { return 0; }"},
+                {"id": "UNUSED", "kind": "source", "path": "src/unused.c",
+                 "line_start": 1, "line_end": 1, "text": "unused"},
+            ],
+            "executable_verification": {"observation_evidence": [], "build_evidence": []},
+            "reviewer_kind": "agent", "status": "ai_reviewed",
+        },
+    }
+    value = review._judge_item(item, review.KNOWLEDGE_REVIEW_PROJECTION)
+    encoded = json.dumps(value, ensure_ascii=False, sort_keys=True)
+    assert sentinel not in encoded and "UNUSED" not in encoded
+    assert value["answer"] == item["answer"]
+    assert value["answer_key"]["expected_points"] == item["answer_key"]["expected_points"]
+    candidates = {row["tag"]: row for row in value["evidence_payload"]["candidate_evidence"]}
+    assert candidates["E1"]["oracle_refs"] == ["S"]
+    assert candidates["E2"]["content_visibility"] == "withheld_experimental_treatment"
+    assert candidates["E3"]["content_visibility"] == "withheld_experimental_treatment"
+    legacy = review._judge_item(item, review.KNOWLEDGE_REVIEW_PROJECTION_V1)
+    legacy_candidates = {
+        row["tag"]: row for row in legacy["evidence_payload"]["candidate_evidence"]
+    }
+    assert legacy_candidates["E3"]["oracle_refs"] == ["S"]
+    payload = {"item": value, "rubric": {**rubric.RUBRIC,
+        "judge_guidance": review.JUDGE_GUIDANCE, "response_schema": review.ANSWER_SCHEMA}}
+    assert estimated_tokens(review.SYSTEM + json.dumps(payload, ensure_ascii=False, sort_keys=True)) + 32 < INPUT_BUDGET
+
+
+def test_format_gap_recovery_preserves_the_base_bounded_projection():
+    from codeatlas.eval import review_recovery
+    assert review_recovery._recovery_projection({
+        "projection_version": review.SEMANTIC_REVIEW_PROJECTION,
+    }) == review.SEMANTIC_REVIEW_PROJECTION
+    assert review_recovery._recovery_projection({
+        "projection_version": review.KNOWLEDGE_REVIEW_PROJECTION,
+    }) == review.KNOWLEDGE_REVIEW_PROJECTION
+    assert review_recovery._recovery_projection({
+        "projection_version": review.KNOWLEDGE_REVIEW_PROJECTION_V1,
+    }) == review.KNOWLEDGE_REVIEW_PROJECTION_V1
+    with pytest.raises(campaign.CampaignError, match="bounded semantic projection"):
+        review_recovery._recovery_projection({"projection_version": "unbounded"})
+
+
+def test_format_recovery_does_not_retry_unknown_adjudication_or_dual_slots():
+    from codeatlas.eval import review_recovery
+    valid = {"model_generated": True, "verdict": "correct", "completeness": 1,
+             "point_reviews": {"p": "met"}, "false_claim_present": False,
+             "citation_relation": "supported"}
+    disagree = {**valid, "verdict": "incomplete", "completeness": 0,
+                "point_reviews": {"p": "missing"}}
+    unknown = {"model_generated": False, "execution_status": "unresolved",
+               "error_type": "TimeoutError", "verdict": "unresolved"}
+    group = {"trial_id": "unknown", "independent_reviews": [valid, disagree],
+             "adjudication": unknown}
+    assert not review_recovery._recovery_arbitration_allowed(
+        "job", group, repairable_adjudications=set(), replacement_trials=set())
+    assert review_recovery._recovery_arbitration_allowed(
+        "job", group,
+        repairable_adjudications={("job", "unknown")}, replacement_trials=set())
+
+    invalid = {**unknown, "error_type": "ValueError"}
+    gaps = review_recovery.repairable_summary({"reviews": {"job": {"items": [{
+        "trial_id": "dual", "independent_reviews": [invalid, invalid],
+    }]}}})
+    assert gaps["dual_independent_gap_trials"] == 1
+    assert gaps["single_role_recoverable_count"] == 0
+    with pytest.raises(campaign.CampaignError, match="both independent review slots"):
+        review_recovery._validate_recovery_gaps(gaps)
 
 
 def test_partial_smoke_reviews_are_saved_but_not_applied_as_full_proof(tmp_path, fake_http):

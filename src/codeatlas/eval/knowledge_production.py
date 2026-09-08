@@ -488,6 +488,258 @@ def apply_reviews(artifact: dict, submission: dict) -> dict:
     return result
 
 
+MATERIAL_REVIEW_SYSTEM = (
+    "你是隔离的知识材料证据审阅员。只根据输入中的冻结必要事实判断待审 section，"
+    "不得使用外部知识，不得补写结论。条件、否定、边界和引用标签必须一致。"
+    "supported 表示 section 的全部陈述均被必要事实直接支持；存在额外断言或冲突时标记 unsupported；"
+    "材料不足时标记 unresolved。只输出 JSON："
+    "{\"items\":[{\"section_id\":\"...\",\"verdict\":\"supported|unsupported|unresolved\"}]}。"
+)
+
+
+def _material_review_payload(case: dict, product: dict, section_ids=None) -> dict:
+    selected = set(section_ids or [section["id"] for section in product["sections"]])
+    return {
+        "repository": case["repository"],
+        "revision": case["revision"],
+        "required_facts": case["required_facts"],
+        "sections": [
+            {"section_id": section["id"], "heading": section["heading"],
+             "content": section["content"], "evidence_tags": section["evidence_tags"]}
+            for section in product["sections"] if section["id"] in selected
+        ],
+    }
+
+
+def _parse_material_review(client, case: dict, product: dict, *, section_ids=None) -> tuple[list[dict], dict]:
+    expected = set(section_ids or [section["id"] for section in product["sections"]])
+    payload = _material_review_payload(case, product, expected)
+    raw = client._chat(
+        MATERIAL_REVIEW_SYSTEM,
+        json.dumps(payload, ensure_ascii=False, sort_keys=True),
+        max_tokens=MAX_OUTPUT_TOKENS,
+        json_object=True,
+        complete_input_budget=INPUT_BUDGET,
+    )
+    parsed = client._json(raw) if hasattr(client, "_json") else json.loads(raw)
+    if not isinstance(parsed, dict) or set(parsed) != {"items"} or not isinstance(parsed["items"], list):
+        raise ValueError("material reviewer must return only items")
+    rows = parsed["items"]
+    if (len(rows) != len(expected)
+            or {row.get("section_id") for row in rows} != expected
+            or any(set(row) != {"section_id", "verdict"} for row in rows)
+            or any(row.get("verdict") not in {"supported", "unsupported", "unresolved"}
+                   for row in rows)):
+        raise ValueError("material reviewer returned an invalid section decision set")
+    audit = {
+        "response_metadata": {key: (getattr(client, "last_response_meta", {}) or {}).get(key)
+                              for key in ("model", "finish_reason", "content_hash", "transport_attempts")},
+        "usage": copy.deepcopy(getattr(client, "last_usage", {}) or {}),
+    }
+    return rows, audit
+
+
+def review_with_model(artifact: dict, manifest_path: str | Path, *, project_root=None,
+                      client_factory=None, campaign_id=None) -> dict:
+    """Dual-review compressed model products; exact-source fallbacks need no model call.
+
+    The function never sees follow-up questions or the answer key. Each reviewer
+    uses one isolated stateless session across products; malformed outputs become
+    unresolved decisions and are never retried. A third isolated session reviews
+    only disagreements.
+    """
+    from . import knowledge_reuse_eval as reuse
+    from ..llm.client import get_client
+
+    if artifact.get("artifact_hash") != digest(_production_payload(artifact)):
+        raise ValueError("generated material artifact changed")
+    prepared = reuse.prepare(manifest_path, project_root=project_root)
+    if artifact.get("manifest_hash") != prepared["manifest_hash"]:
+        raise ValueError("material review targets another manifest")
+    cases = {case["case_id"]: case for case in prepared["cases"]}
+    products = artifact.get("products") or []
+    expected_products = {(case_id, arm) for case_id in cases for arm in ARMS}
+    if {(p.get("case_id"), p.get("arm")) for p in products} != expected_products:
+        raise ValueError("material review requires the complete product set")
+    identifier = campaign_id or "material-review-" + uuid.uuid4().hex
+    factory = client_factory or (
+        lambda role: get_client(session_id=f"{identifier}:{role}", transport_retries=0)
+    )
+
+    independent_reviews = []
+    decision_maps = []
+    for role in ("judge-a", "judge-b"):
+        client = factory(role)
+        if client is None:
+            raise ValueError("material reviewer model is not configured")
+        if getattr(client, "transport_retries", 0) != 0:
+            raise ValueError("material reviewer must use zero transport retries")
+        items, calls = [], []
+        for product in products:
+            case = cases[product["case_id"]]
+            if product.get("compression", {}).get("used_full_material"):
+                expected = _full_sections(case, product["arm"])
+                if product.get("sections") != expected or product.get("text") != _material_text(expected):
+                    raise ValueError("exact-source fallback differs from frozen source")
+                items.extend({"section_id": section["id"], "verdict": "supported",
+                              "basis": "deterministic_exact_source_copy"}
+                             for section in expected)
+                continue
+            ids = [section["id"] for section in product["sections"]]
+            try:
+                rows, audit = _parse_material_review(client, case, product)
+            except Exception as exc:
+                rows = [{"section_id": section_id, "verdict": "unresolved"} for section_id in ids]
+                audit = {"error_type": type(exc).__name__}
+            items.extend(rows)
+            calls.append({"product_id": product["id"], **audit})
+        review = {
+            "reviewer_kind": "agent", "agent": role,
+            "session_id": getattr(client, "session_id", None),
+            "peer_reviews_visible": False, "items": items, "calls": calls,
+        }
+        independent_reviews.append(review)
+        decision_maps.append({row["section_id"]: row["verdict"] for row in items})
+
+    disagreements = {
+        section_id for section_id in decision_maps[0]
+        if decision_maps[0][section_id] != decision_maps[1][section_id]
+    }
+    submission = {"artifact_hash": artifact["artifact_hash"],
+                  "independent_reviews": independent_reviews}
+    if disagreements:
+        client = factory("arbiter")
+        if client is None or getattr(client, "transport_retries", 0) != 0:
+            raise ValueError("material arbitrator must be configured with zero retries")
+        items, calls = [], []
+        for product in products:
+            ids = disagreements & {section["id"] for section in product["sections"]}
+            if not ids:
+                continue
+            try:
+                rows, audit = _parse_material_review(
+                    client, cases[product["case_id"]], product, section_ids=ids)
+            except Exception as exc:
+                rows = [{"section_id": section_id, "verdict": "unresolved"}
+                        for section_id in sorted(ids)]
+                audit = {"error_type": type(exc).__name__}
+            items.extend(rows)
+            calls.append({"product_id": product["id"], **audit})
+        submission["arbitration"] = {
+            "reviewer_kind": "agent", "agent": "arbiter",
+            "session_id": getattr(client, "session_id", None),
+            "peer_reviews_visible": False, "items": items, "calls": calls,
+        }
+    return apply_reviews(artifact, submission)
+
+
+def fallback_review_failures(artifact: dict, reviewed: dict, manifest_path: str | Path,
+                             *, project_root=None) -> dict:
+    """Replace products rejected by source review with their complete frozen source.
+
+    This is a terminal safety fallback, not another model revision. The original
+    candidate and its source-review result remain linked from the new artifact.
+    """
+    from . import knowledge_reuse_eval as reuse
+
+    if artifact.get("artifact_hash") != digest(_production_payload(artifact)):
+        raise ValueError("generated material artifact changed")
+    if (reviewed.get("artifact_hash") != artifact["artifact_hash"]
+            or reviewed.get("reviewed_artifact_hash") != digest({
+                key: value for key, value in reviewed.items()
+                if key != "reviewed_artifact_hash"
+            })):
+        raise ValueError("material fallback requires the intact source review")
+    failures = {section_id: verdict for section_id, verdict in
+                (reviewed.get("section_verdicts") or {}).items()
+                if verdict != "supported"}
+    if not failures:
+        raise ValueError("material review has no failed section to fall back")
+    prepared = reuse.prepare(manifest_path, project_root=project_root)
+    cases = {case["case_id"]: case for case in prepared["cases"]}
+    result = copy.deepcopy(artifact)
+    parent_hash = result.pop("artifact_hash")
+    changed = []
+    for product in result.get("products", []):
+        product_failures = {
+            section["id"]: failures[section["id"]]
+            for section in product.get("sections", []) if section["id"] in failures
+        }
+        if not product_failures:
+            continue
+        case = cases[product["case_id"]]
+        selected = _select_product(
+            case, product["arm"], [], candidate_hash=digest(product.get("candidate")),
+            error_type="MaterialReviewRejected",
+        )
+        product.update(selected)
+        product["review_fallback"] = {
+            "reason": "material_review_not_supported",
+            "source_reviewed_artifact_hash": reviewed["reviewed_artifact_hash"],
+            "failed_sections": product_failures,
+            "model_requests": 0,
+        }
+        changed.append(product["id"])
+    if not changed:
+        raise ValueError("failed review sections do not belong to this artifact")
+    result.update(
+        status="pending_review", review_status="unresolved",
+        parent_artifact_hash=parent_hash,
+        review_fallback_history={
+            "source_reviewed_artifact_hash": reviewed["reviewed_artifact_hash"],
+            "product_ids": sorted(changed), "model_requests": 0,
+        },
+    )
+    result["artifact_hash"] = digest(_production_payload(result))
+    return result
+
+
+def rebind_reviews_after_fallback(artifact: dict, prior_reviewed: dict) -> dict:
+    """Bind unchanged supported decisions and exact-copy fallbacks to a new hash."""
+    if artifact.get("artifact_hash") != digest(_production_payload(artifact)):
+        raise ValueError("fallback artifact changed")
+    if prior_reviewed.get("reviewed_artifact_hash") != digest({
+            key: value for key, value in prior_reviewed.items()
+            if key != "reviewed_artifact_hash"}):
+        raise ValueError("prior material review changed")
+    old_products = {product["id"]: product for product in prior_reviewed.get("products", [])}
+    old_reviews = prior_reviewed.get("material_reviews", {}).get("independent_reviews") or []
+    if len(old_reviews) != 2:
+        raise ValueError("prior dual review is incomplete")
+    decisions = [{item["section_id"]: item["verdict"] for item in review["items"]}
+                 for review in old_reviews]
+    rebound = []
+    for review, verdicts in zip(old_reviews, decisions, strict=True):
+        items = []
+        for product in artifact.get("products", []):
+            old_sections = {section["id"]: section for section in
+                            old_products.get(product["id"], {}).get("sections", [])}
+            fallback = bool(product.get("review_fallback"))
+            for section in product.get("sections", []):
+                if fallback:
+                    basis = "deterministic_exact_source_copy"
+                else:
+                    old = old_sections.get(section["id"])
+                    if old is None or digest(old) != digest(section) or verdicts.get(section["id"]) != "supported":
+                        raise ValueError("cannot reuse a changed or unsupported section review")
+                    basis = "prior_review_same_section_hash"
+                items.append({"section_id": section["id"], "verdict": "supported",
+                              "basis": basis, "section_hash": digest(section)})
+        rebound.append({
+            "reviewer_kind": "agent", "agent": review["agent"],
+            "session_id": review["session_id"], "peer_reviews_visible": False,
+            "items": items, "rebound_without_model_call": True,
+            "source_reviewed_artifact_hash": prior_reviewed["reviewed_artifact_hash"],
+        })
+    submission = {
+        "artifact_hash": artifact["artifact_hash"],
+        "independent_reviews": rebound,
+        "rebound_from_reviewed_artifact_hash": prior_reviewed["reviewed_artifact_hash"],
+        "additional_model_requests": 0,
+    }
+    return apply_reviews(artifact, submission)
+
+
 def load_frozen(path: str | Path, prepared: dict) -> dict:
     artifact = json.loads(Path(path).read_text(encoding="utf-8"))
     original = artifact.get("artifact_hash")
@@ -533,7 +785,18 @@ def load_frozen(path: str | Path, prepared: dict) -> dict:
                     or not isinstance(candidate["response_metadata"], dict)):
                 raise ValueError("compression candidate audit record is missing")
             error_type = None
-            if candidate["response_metadata"].get("finish_reason") == "length":
+            if product.get("review_fallback"):
+                fallback = product["review_fallback"]
+                if (not isinstance(fallback, dict)
+                        or fallback.get("reason") != "material_review_not_supported"
+                        or not isinstance(fallback.get("source_reviewed_artifact_hash"), str)
+                        or len(fallback["source_reviewed_artifact_hash"]) != 64
+                        or not isinstance(fallback.get("failed_sections"), dict)
+                        or not fallback["failed_sections"]
+                        or fallback.get("model_requests") != 0):
+                    raise ValueError("material review fallback audit is invalid")
+                sections, error_type = [], "MaterialReviewRejected"
+            elif candidate["response_metadata"].get("finish_reason") == "length":
                 sections, error_type = [], "OutputTruncated"
             else:
                 if not isinstance(candidate.get("raw"), str):
@@ -544,7 +807,7 @@ def load_frozen(path: str | Path, prepared: dict) -> dict:
                     sections, error_type = [], type(exc).__name__
                     if isinstance(exc, json.JSONDecodeError):
                         error_type = "ValueError"
-            if candidate["error_type"] != error_type:
+            if not product.get("review_fallback") and candidate["error_type"] != error_type:
                 raise ValueError("compression candidate error differs from replay")
             selected = _select_product(case, arm, sections, candidate_hash=digest(candidate),
                                        error_type=error_type)

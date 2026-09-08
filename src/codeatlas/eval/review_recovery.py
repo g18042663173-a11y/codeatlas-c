@@ -1,4 +1,4 @@
-"""Auditable recovery for format-invalid answer reviews.
+"""Auditable recovery for explicitly classified non-semantic answer-review gaps.
 
 This module never retries a valid score.  It fills only review positions whose
 stored model response did not produce a score, using a new qualified session,
@@ -24,7 +24,17 @@ from . import protocol, rubric
 
 
 RECOVERY_VERSION = "format-gap-recovery-v1"
-REPAIRABLE_ERRORS = {"ValueError", "ReviewInputTooLarge"}
+REPAIRABLE_ERRORS = {"ValueError", "JSONDecodeError", "ReviewInputTooLarge"}
+
+
+def _recovery_projection(base_binding: dict[str, Any]) -> str:
+    projection = base_binding.get("projection_version")
+    allowed = {review.SEMANTIC_REVIEW_PROJECTION,
+               review.KNOWLEDGE_REVIEW_PROJECTION_V1,
+               review.KNOWLEDGE_REVIEW_PROJECTION}
+    if projection not in allowed:
+        raise campaign.CampaignError("recovery requires a bounded semantic projection")
+    return projection
 
 
 def _stored_batch(ledger, attempt_id: str) -> tuple[str, dict[str, Any], dict[str, Any]]:
@@ -109,7 +119,22 @@ def repairable_summary(result: dict[str, Any]) -> dict[str, Any]:
         "adjudication_gaps": adjudication,
         "nonrepairable_unresolved": nonrepairable,
         "repairable_count": sum(len(row["slots"]) for row in independent) + len(adjudication),
+        "single_role_recoverable_count": (
+            sum(len(row["slots"]) for row in independent if len(row["slots"]) == 1)
+            + len(adjudication)
+        ),
+        "dual_independent_gap_trials": sum(len(row["slots"]) > 1 for row in independent),
     }
+
+
+def _validate_recovery_gaps(gaps: dict[str, Any]) -> None:
+    if gaps["repairable_count"] == 0:
+        raise campaign.CampaignError("base review has no explicitly repairable score positions")
+    if gaps["dual_independent_gap_trials"]:
+        raise campaign.CampaignError(
+            "single replacement role cannot recover both independent review slots; "
+            "a separately frozen two-role protocol is required"
+        )
 
 
 def _compact_arbiter_view(score: dict[str, Any]) -> dict[str, Any]:
@@ -122,6 +147,23 @@ def _compact_arbiter_view(score: dict[str, Any]) -> dict[str, Any]:
         "verdict": score.get("verdict"),
         "completeness": score.get("completeness"),
     }
+
+
+def _recovery_arbitration_allowed(
+        job_id: str, group: dict[str, Any], *,
+        repairable_adjudications: set[tuple[str, str]],
+        replacement_trials: set[tuple[str, str]]) -> bool:
+    """Return true only for a frozen repairable gap or a replaced score pair.
+
+    A missing/failed adjudication with an unknown transport outcome is not an
+    implicit retry authorization.  It remains unresolved unless it was
+    classified as repairable before this recovery attempt.
+    """
+    key = (job_id, group.get("trial_id"))
+    if key not in repairable_adjudications and key not in replacement_trials:
+        return False
+    current = group.get("adjudication")
+    return not (current and current.get("model_generated") and key not in replacement_trials)
 
 
 def _finish(ledger, batch_id: str, result: dict[str, Any]) -> dict[str, Any]:
@@ -166,14 +208,10 @@ def recover(directory: str | Path, *, base_attempt_id: str, attempt_id: str,
         }
         base_batch_id, base_binding, base = _stored_batch(ledger, base_attempt_id)
         gaps = repairable_summary(base)
-        if gaps["nonrepairable_unresolved"]:
-            raise campaign.CampaignError("base review has semantic or unknown unresolved items")
-        if gaps["repairable_count"] == 0:
-            raise campaign.CampaignError("base review has no format-invalid positions to recover")
+        _validate_recovery_gaps(gaps)
         if base_binding.get("judge_model") != judge_model:
             raise campaign.CampaignError("recovery judge model differs from the base attempt")
-        if base_binding.get("projection_version") != review.SEMANTIC_REVIEW_PROJECTION:
-            raise campaign.CampaignError("recovery requires the bounded semantic projection")
+        projection_version = _recovery_projection(base_binding)
         if (base_binding.get("qualified_by_batch_id") != qualification_batch_id
                 or digest(qualification_attestation)
                 != base_binding.get("qualification_attestation_hash")):
@@ -217,7 +255,7 @@ def recover(directory: str | Path, *, base_attempt_id: str, attempt_id: str,
             "prompt_hash": digest(review.SYSTEM),
             "schema_hash": digest([review.ANSWER_SCHEMA, review.CALIBRATION_SCHEMA]),
             "judge_guidance_hash": digest(review.JUDGE_GUIDANCE),
-            "projection_version": review.SEMANTIC_REVIEW_PROJECTION,
+            "projection_version": projection_version,
             "qualified_by_batch_id": qualification_batch_id,
             "qualification_attestation_hash": digest(qualification_attestation),
             "repairable_summary": gaps,
@@ -339,7 +377,7 @@ def recover(directory: str | Path, *, base_attempt_id: str, attempt_id: str,
             call = review._call(
                 ledger, batch_id, "replacement", f"replacement:{item['trial_id']}:{slot}",
                 client_for_call("replacement"),
-                {"item": review._judge_item(item, review.SEMANTIC_REVIEW_PROJECTION),
+                {"item": review._judge_item(item, projection_version),
                  "rubric": {**rubric.RUBRIC, "judge_guidance": review.JUDGE_GUIDANCE,
                             "response_schema": review.ANSWER_SCHEMA}},
                 lambda answer: review._validate(answer, item),
@@ -365,18 +403,29 @@ def recover(directory: str | Path, *, base_attempt_id: str, attempt_id: str,
         for (_job_id, _item, group, slot), score in replacement_rows:
             group["independent_reviews"][slot] = score
 
+        repairable_adjudications = {
+            (row["job_id"], row["trial_id"]) for row in gaps["adjudication_gaps"]
+        }
+        replacement_trials = {
+            (job_id, item["trial_id"]) for job_id, item, _group, _slot in replacements
+        }
         arbitration = []
         for job_id, rows in groups.items():
             for group in rows:
+                key = (job_id, group["trial_id"])
                 scores = group.get("independent_reviews") or []
                 if len(scores) != 2 or not all(row.get("model_generated") for row in scores):
                     continue
                 outcomes = [{key: score.get(key) for key in review.OUTCOMES} for score in scores]
                 if outcomes[0] == outcomes[1]:
-                    group.pop("adjudication", None)
+                    if key in replacement_trials:
+                        group.pop("adjudication", None)
                     continue
                 current = group.get("adjudication")
-                if current and current.get("model_generated"):
+                if not _recovery_arbitration_allowed(
+                        job_id, group,
+                        repairable_adjudications=repairable_adjudications,
+                        replacement_trials=replacement_trials):
                     continue
                 arbitration.append((job_id, items_by_job[job_id][group["trial_id"]], group))
 
@@ -412,7 +461,7 @@ def recover(directory: str | Path, *, base_attempt_id: str, attempt_id: str,
                     "independent_reviews": original,
                 })
                 payload = {
-                    "item": review._judge_item(item, review.SEMANTIC_REVIEW_PROJECTION),
+                    "item": review._judge_item(item, projection_version),
                     "rubric": {**rubric.RUBRIC, "judge_guidance": review.JUDGE_GUIDANCE,
                                "response_schema": review.ANSWER_SCHEMA},
                     "independent_reviews": [_compact_arbiter_view(row) for row in original],
@@ -478,6 +527,7 @@ def recover(directory: str | Path, *, base_attempt_id: str, attempt_id: str,
             "reviewed_reports": reviewed,
             "boundary": (
                 "Only format-invalid score positions were replaced. Valid base scores, "
-                "frozen Luna answers, questions, gold and thresholds were not rerun or changed."
+                "frozen Luna answers, questions, gold and thresholds were not rerun or changed. "
+                "Semantic or unknown unresolved decisions from the base attempt remain unresolved."
             ),
         })
