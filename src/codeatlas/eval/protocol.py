@@ -372,7 +372,22 @@ def paired_effect(raw, treatment, baseline, field, kinds=None, seed=17):
             "unit": "paired_task_mean", "bootstrap_seed": seed}
 
 
-def grouped_paired_effect(raw, treatment, baseline, field, kinds=None, seed=17):
+def _bootstrap_interval(boot: list[float], confidence_level: float) -> list[float] | None:
+    if not boot:
+        return None
+    if confidence_level == .95:
+        # Preserve the frozen historical convention byte-for-byte.
+        return [boot[49], boot[1949]]
+    if not .5 < confidence_level < 1:
+        raise ValueError("confidence_level must be between .5 and 1")
+    tail = (1 - confidence_level) / 2
+    lower = min(len(boot) - 1, int(tail * len(boot)))
+    upper = min(len(boot) - 1, max(lower, int((1 - tail) * len(boot)) - 1))
+    return [boot[lower], boot[upper]]
+
+
+def grouped_paired_effect(raw, treatment, baseline, field, kinds=None, seed=17,
+                          confidence_level=.95):
     """Pair tasks, then aggregate and bootstrap their declared independent unit."""
     by_arm = {}
     groups = {}
@@ -389,7 +404,8 @@ def grouped_paired_effect(raw, treatment, baseline, field, kinds=None, seed=17):
     ids = sorted(set(by_arm[treatment]) & set(by_arm[baseline]))
     if not ids:
         return {"task_count": 0, "mechanism_count": 0, "delta_pt": None,
-                "ci95_pt": None, "unit": "paired_mechanism_mean"}
+                "ci95_pt": None, "confidence_level": confidence_level,
+                "confidence_interval_pt": None, "unit": "paired_mechanism_mean"}
     mechanism_values = {}
     for task_id in ids:
         mechanism_values.setdefault(groups[task_id], []).append(
@@ -402,15 +418,18 @@ def grouped_paired_effect(raw, treatment, baseline, field, kinds=None, seed=17):
         and not next(row for row in raw[treatment] if row["id"] == task_id).get("mechanism_id")
         for task_id in ids
     ) else "mechanism"
+    interval = _bootstrap_interval(boot, confidence_level) if len(deltas) > 1 else None
     return {"task_count": len(ids), "mechanism_count": len(deltas),
             "group_count": len(deltas), "group_unit": independent_unit,
             "delta_pt": statistics.mean(deltas),
-            "ci95_pt": [boot[49], boot[1949]] if len(deltas) > 1 else None,
+            "ci95_pt": interval if confidence_level == .95 else None,
+            "confidence_level": confidence_level, "confidence_interval_pt": interval,
             "unit": f"paired_{independent_unit}_mean", "bootstrap_seed": seed,
             "mechanisms": sorted(mechanism_values)}
 
 
-def repository_grouped_paired_effect(reports, treatment, baseline, field, kinds=None, seed=17):
+def repository_grouped_paired_effect(reports, treatment, baseline, field, kinds=None, seed=17,
+                                     confidence_level=.95):
     """Equal-weight repositories after task repeats and mechanisms are averaged.
 
     The value-proof benchmark has two intentionally different corpora.  Pooling
@@ -449,7 +468,8 @@ def repository_grouped_paired_effect(reports, treatment, baseline, field, kinds=
             task_count += len(ids)
     if not repositories:
         return {"repository_count": 0, "task_count": 0, "mechanism_count": 0,
-                "delta_pt": None, "ci95_pt": None,
+                "delta_pt": None, "ci95_pt": None, "confidence_level": confidence_level,
+                "confidence_interval_pt": None,
                 "unit": "equal_repository_of_paired_mechanism_means"}
     observed = statistics.mean(statistics.mean(row["mechanisms"]) for row in repositories)
     rng = random.Random(seed)
@@ -459,12 +479,14 @@ def repository_grouped_paired_effect(reports, treatment, baseline, field, kinds=
                           for row in repositories]
         boot.append(statistics.mean(per_repository))
     boot.sort()
+    interval = (_bootstrap_interval(boot, confidence_level) if sum(
+        len(row["mechanisms"]) for row in repositories) > 1 else None)
     return {
         "repository_count": len(repositories), "task_count": task_count,
         "mechanism_count": sum(len(row["mechanisms"]) for row in repositories),
         "delta_pt": observed,
-        "ci95_pt": [boot[49], boot[1949]] if sum(
-            len(row["mechanisms"]) for row in repositories) > 1 else None,
+        "ci95_pt": interval if confidence_level == .95 else None,
+        "confidence_level": confidence_level, "confidence_interval_pt": interval,
         "unit": "equal_repository_of_paired_mechanism_means",
         "bootstrap_seed": seed,
         "repositories": [{"repository": row["repository"],

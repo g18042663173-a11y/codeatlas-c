@@ -155,6 +155,15 @@ def test_combined_effect_weights_repositories_after_mechanisms():
     assert effect["mechanism_count"] == 3
     assert effect["delta_pt"] == -25
 
+    strict = protocol.repository_grouped_paired_effect(
+        repositories, "wiki", "source", "correct", confidence_level=.975,
+    )
+    assert strict["confidence_level"] == .975
+    assert strict["confidence_interval_pt"] is not None
+    assert strict["ci95_pt"] is None
+    assert strict["confidence_interval_pt"][0] <= effect["ci95_pt"][0]
+    assert strict["confidence_interval_pt"][1] >= effect["ci95_pt"][1]
+
 
 @pytest.mark.parametrize("damage", ["missing_repeat", "duplicate_task", "different_task"])
 def test_unpaired_trials_fail_the_gate(damage):
@@ -262,6 +271,36 @@ def test_reading_protocol_uses_identical_code_index_and_isolated_trials(kb, tmp_
     assert all("variant" not in row for row in result["blind_review"]["items"])
 
 
+def test_formal_reading_can_freeze_the_two_predeclared_primary_arms(kb, tmp_path, monkeypatch):
+    source = reading_eval._copy(kb[0])
+    source.execute("INSERT OR REPLACE INTO wiki_page(id,level,title,md,status,sources) "
+                   "VALUES('test-wiki','repo','Wiki','test','ok','[]')")
+    source.commit()
+    observed = []
+
+    def fake_run(conn, question, **kwargs):
+        observed.append(kwargs["read_mode"])
+        raise RuntimeError("offline-fixture")
+
+    monkeypatch.setattr(agent, "run", fake_run)
+    result = reading_eval.evaluate(
+        source, str(_tasks(tmp_path)), client=_ProtocolModel(), runs=1,
+        arms=["source_only", "wiki_flat"],
+    )
+    source.close()
+    assert set(result["raw_trials"]) == {"source_only", "wiki_flat"}
+    assert result["protocol"]["variants"] == ["source_only", "wiki_flat"]
+    assert observed == ["flat"] * 4
+    assert result["acceptance"]["secondary_reading_contrasts"] == {}
+
+
+def test_reading_arm_selection_fails_closed():
+    with pytest.raises(ValueError, match="source_only and wiki_flat"):
+        reading_eval._selected_arms(["source_only", "wiki_progressive"])
+    with pytest.raises(ValueError, match="unknown reading arm"):
+        reading_eval._selected_arms(["source_only", "wiki_flat", "surprise"])
+
+
 def test_frozen_gold_requires_hash_points_and_review(tmp_path):
     tasks_path = tmp_path / "tasks.yaml"
     tasks_path.write_text("existing gold")
@@ -294,9 +333,19 @@ def test_reading_report_round_trips_through_review_cli(kb, tmp_path):
     from typer.testing import CliRunner
     from codeatlas.cli import app
     conn = reading_eval._copy(kb[0])
+    class ReadBeforeAnswer(_ProtocolModel):
+        def next_action(self, query, events):
+            self._record()
+            if not any(event.get("tool") == "code_read" for event in events):
+                return {"action": "tool", "tool": "code_read",
+                        "arguments": {"path": "mini.c", "line_start": 20, "line_end": 23}}
+            return {"action": "finish"}
     try:
         generator.generate(conn, "tests/fixtures/mini_c")
-        result = reading_eval.evaluate(conn, str(_tasks(tmp_path)), client=_ProtocolModel(), runs=1)
+        # The old fixture immediately finished with one mandatory retrieval
+        # block above 8k and relied on string truncation. A complete narrow read
+        # makes that older retrieval body eligible for whole-block omission.
+        result = reading_eval.evaluate(conn, str(_tasks(tmp_path)), client=ReadBeforeAnswer(), runs=1)
     finally:
         conn.close()
     packet = result["blind_review"]

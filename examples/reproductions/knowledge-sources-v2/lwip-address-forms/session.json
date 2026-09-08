@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "lwip-address-forms",
+  "source_type": "public_synthetic",
+  "session_kind": "captured_public_fixture_trace",
+  "not_a_human_transcript": true,
+  "license": "CC0-1.0 (fixture and trace); upstream code retains its original license",
+  "source_ref": "examples/reproductions/knowledge-sources-v2/lwip-address-forms",
+  "repository": "https://github.com/lwip-tcpip/lwip",
+  "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Public fixture input; operations and input bytes are C literals, not a production incident:\n/* CC0-1.0: real parser with the pinned unit-test configuration. */\n#include <assert.h>\n#include <stdio.h>\n#include <string.h>\n#include \"lwip/ip4_addr.h\"\nint main(void) {\n    const char *inputs[]={\"127.1\",\"0x7f.1\",\"0177.0.0.1\",\"127.0.0.1\",\"1.2.65535\",\"256.1.1.1\",\"1.2.3.256\",\"08.0.0.1\",\"1.2.3.4x\"};\n    const char *expected[]={\"127.0.0.1\",\"127.0.0.1\",\"127.0.0.1\",\"127.0.0.1\",\"1.2.255.255\",NULL,NULL,NULL,NULL};\n    for(unsigned i=0;i<sizeof(inputs)/sizeof(inputs[0]);++i) {\n        ip4_addr_t address;char text[IP4ADDR_STRLEN_MAX];\n        int ok=ip4addr_aton(inputs[i],&address);assert(ok==(expected[i]!=NULL));\n        if(ok) {assert(ip4addr_ntoa_r(&address,text,sizeof(text)));assert(strcmp(text,expected[i])==0);}\n        printf(\"input=%s accepted=%d normalized=%s\\n\",inputs[i],ok,ok?text:\"not_available\");\n    }\n    return 0;\n}\n"
+    },
+    {
+      "role": "tool",
+      "content": "Actual build commands and captured results:\n[\n  {\n    \"argv\": [\n      \"cc\",\n      \"-std=c99\",\n      \"-Wall\",\n      \"-Wextra\",\n      \"-ffunction-sections\",\n      \"-fdata-sections\",\n      \"-DLWIP_DEBUG\",\n      \"-Icorpus/lwip/src/include\",\n      \"-Icorpus/lwip/contrib/ports/unix/port/include\",\n      \"-Icorpus/lwip/test/unit\",\n      \"-MMD\",\n      \"-MF\",\n      \"BUILD/part-0.d\",\n      \"-c\",\n      \"corpus/lwip/src/core/ipv4/ip4_addr.c\",\n      \"-o\",\n      \"BUILD/part-0.o\"\n    ],\n    \"cwd\": \"PROJECT_ROOT\",\n    \"stdin\": \"\",\n    \"exit_code\": 0,\n    \"stdout\": \"\",\n    \"stderr\": \"\",\n    \"stdout_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n    \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n  },\n  {\n    \"argv\": [\n      \"cc\",\n      \"-std=c99\",\n      \"-Wall\",\n      \"-Wextra\",\n      \"-ffunction-sections\",\n      \"-fdata-sections\",\n      \"-DLWIP_DEBUG\",\n      \"-Icorpus/lwip/src/include\",\n      \"-Icorpus/lwip/contrib/ports/unix/port/include\",\n      \"-Icorpus/lwip/test/unit\",\n      \"-MMD\",\n      \"-MF\",\n      \"BUILD/part-1.d\",\n      \"-c\",\n      \"corpus/lwip/src/core/def.c\",\n      \"-o\",\n      \"BUILD/part-1.o\"\n    ],\n    \"cwd\": \"PROJECT_ROOT\",\n    \"stdin\": \"\",\n    \"exit_code\": 0,\n    \"stdout\": \"\",\n    \"stderr\": \"\",\n    \"stdout_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n    \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n  },\n  {\n    \"argv\": [\n      \"cc\",\n      \"-std=c99\",\n      \"-Wall\",\n      \"-Wextra\",\n      \"-ffunction-sections\",\n      \"-fdata-sections\",\n      \"-DLWIP_DEBUG\",\n      \"-Icorpus/lwip/src/include\",\n      \"-Icorpus/lwip/contrib/ports/unix/port/include\",\n      \"-Icorpus/lwip/test/unit\",\n      \"-MMD\",\n      \"-MF\",\n      \"BUILD/part-2.d\",\n      \"-c\",\n      \"examples/reproductions/knowledge-sources-v2/lwip-address-forms/reproduce.c\",\n      \"-o\",\n      \"BUILD/part-2.o\"\n    ],\n    \"cwd\": \"PROJECT_ROOT\",\n    \"stdin\": \"\",\n    \"exit_code\": 0,\n    \"stdout\": \"\",\n    \"stderr\": \"\",\n    \"stdout_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n    \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n  },\n  {\n    \"argv\": [\n      \"cc\",\n      \"-Wl,-dead_strip\",\n      \"BUILD/part-0.o\",\n      \"BUILD/part-1.o\",\n      \"BUILD/part-2.o\",\n      \"-lm\",\n      \"-o\",\n      \"BUILD/reproduce\"\n    ],\n    \"cwd\": \"PROJECT_ROOT\",\n    \"stdin\": \"\",\n    \"exit_code\": 0,\n    \"stdout\": \"\",\n    \"stderr\": \"\",\n    \"stdout_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n    \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n  }\n]\n"
+    },
+    {
+      "role": "tool",
+      "content": "Actual executable command and captured result:\n{\n  \"argv\": [\n    \"BUILD/reproduce\"\n  ],\n  \"cwd\": \"PROJECT_ROOT\",\n  \"stdin\": \"\",\n  \"exit_code\": 0,\n  \"stdout\": \"input=127.1 accepted=1 normalized=127.0.0.1\\ninput=0x7f.1 accepted=1 normalized=127.0.0.1\\ninput=0177.0.0.1 accepted=1 normalized=127.0.0.1\\ninput=127.0.0.1 accepted=1 normalized=127.0.0.1\\ninput=1.2.65535 accepted=1 normalized=1.2.255.255\\ninput=256.1.1.1 accepted=0 normalized=not_available\\ninput=1.2.3.256 accepted=0 normalized=not_available\\ninput=08.0.0.1 accepted=0 normalized=not_available\\ninput=1.2.3.4x accepted=0 normalized=not_available\\n\",\n  \"stderr\": \"\",\n  \"stdout_sha256\": \"07ce436f150f4fa533d0d11673ca6431dc1b6f943f8e2783feafb38c2ffd82e3\",\n  \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n}\n"
+    },
+    {
+      "role": "tool",
+      "content": "Preserved initial failure (not the final result):\nCommand: cc -Wl,-dead_strip BUILD/part-0.o BUILD/part-1.o -lm -o BUILD/reproduce\nexit: 1\nstdout:\nstderr:\nUndefined symbols for architecture arm64:\n  \"_lwip_htonl\", referenced from:\n      _ip4addr_aton in part-0.o\nld: symbol(s) not found for architecture arm64\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\n\n"
+    }
+  ]
+}
+

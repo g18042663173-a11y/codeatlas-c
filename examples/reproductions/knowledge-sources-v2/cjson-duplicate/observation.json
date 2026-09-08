@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "BUILD/reproduce"
+  ],
+  "cwd": "PROJECT_ROOT",
+  "stdin": "",
+  "exit_code": 0,
+  "stdout": "shallow object=1 children=0\ndeep after_source_mutation source=9 copy=1 distinct=1\nreference after_storage_mutation source=Borrowed copy=borrowed copy_is_reference=0\n",
+  "stderr": "",
+  "stdout_sha256": "03e98d683a2e7ac5fe083edd2f84cfe19776ca680ec3fc4eb2e2cb82e85db059",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}
+

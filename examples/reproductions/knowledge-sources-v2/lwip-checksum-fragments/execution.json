@@ -1,0 +1,253 @@
+{
+  "schema_version": 2,
+  "artifact_kind": "public_source_reproduction",
+  "id": "lwip-checksum-fragments",
+  "repository": "lwip",
+  "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+  "status": "reproduced",
+  "environment": {
+    "system": "Darwin",
+    "machine": "arm64",
+    "compiler": {
+      "argv": [
+        "cc",
+        "--version"
+      ],
+      "cwd": "PROJECT_ROOT",
+      "stdin": "",
+      "exit_code": 0,
+      "stdout": "Apple clang version 21.0.0 (clang-2100.3.33.1)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n",
+      "stderr": "",
+      "stdout_sha256": "0d586d46a939eadd69bd458ed9dfb10874d948af7dda03c363a58d19eac2d570",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "input": {
+    "kind": "compiled_fixture",
+    "fixture": {
+      "path": "examples/reproductions/knowledge-sources-v2/lwip-checksum-fragments/reproduce.c",
+      "sha256": "9b6503a5381ef36a07b0f5f5f0186ee021e607086eb63471d1820ebce00fd13a"
+    },
+    "argv": [],
+    "stdin": "",
+    "description": "Exact input bytes and operation sequences are C literals in the hash-bound fixture; no generated input or network."
+  },
+  "build_config": {
+    "flags": [
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-ffunction-sections",
+      "-fdata-sections",
+      "-DLWIP_DEBUG",
+      "-Icorpus/lwip/src/include",
+      "-Icorpus/lwip/contrib/ports/unix/port/include",
+      "-Icorpus/lwip/test/unit"
+    ],
+    "files": [
+      {
+        "path": "corpus/lwip/test/unit/lwipopts.h",
+        "sha256": "250dfc64740e6ffdc27957427cfb2baa2d190dae0bef88bf7dca6bb1e987f0d3"
+      },
+      {
+        "path": "corpus/lwip/src/include/lwip/opt.h",
+        "sha256": "d750b825d4e399eca387bdeb98a78dc96267095eb8f15cdb39e4e88d23c14360"
+      },
+      {
+        "path": "corpus/lwip/contrib/ports/unix/port/include/arch/cc.h",
+        "sha256": "21958d9da2108f7ea68bb5a8f003afb7062ca17e9cf2620c19df8809d6db2f44"
+      }
+    ],
+    "compile_commands": {
+      "path": "corpus/lwip/compile_commands.json",
+      "sha256": "8ae29a8ad49c1c08671a1b34c697cb81aa5ab41d0d9446083d8a80183c2ed9e9"
+    }
+  },
+  "sources": [
+    {
+      "path": "corpus/lwip/src/core/inet_chksum.c",
+      "sha256": "fc82b44fc866704a51c0aacd6037b10802b88e8576e1b691917cd2b863878b1b"
+    }
+  ],
+  "anchors": [
+    {
+      "path": "corpus/lwip/src/core/inet_chksum.c",
+      "sha256": "fc82b44fc866704a51c0aacd6037b10802b88e8576e1b691917cd2b863878b1b",
+      "symbol": "inet_chksum",
+      "line_start": 554,
+      "line_end": 558,
+      "text": "u16_t\ninet_chksum(const void *dataptr, u16_t len)\n{\n  return (u16_t)~(unsigned int)LWIP_CHKSUM(dataptr, len);\n}\n",
+      "content_hash": "b4d2ffe1f2adfeab83862136d05ed8a214f40b23f551f519ca8508a8ea9f0dab"
+    },
+    {
+      "path": "corpus/lwip/src/core/inet_chksum.c",
+      "sha256": "fc82b44fc866704a51c0aacd6037b10802b88e8576e1b691917cd2b863878b1b",
+      "symbol": "inet_chksum_pbuf",
+      "line_start": 567,
+      "line_end": 588,
+      "text": "u16_t\ninet_chksum_pbuf(struct pbuf *p)\n{\n  u32_t acc;\n  struct pbuf *q;\n  int swapped = 0;\n\n  acc = 0;\n  for (q = p; q != NULL; q = q->next) {\n    acc += LWIP_CHKSUM(q->payload, q->len);\n    acc = FOLD_U32T(acc);\n    if (q->len % 2 != 0) {\n      swapped = !swapped;\n      acc = SWAP_BYTES_IN_WORD(acc);\n    }\n  }\n\n  if (swapped) {\n    acc = SWAP_BYTES_IN_WORD(acc);\n  }\n  return (u16_t)~(acc & 0xffffUL);\n}\n",
+      "content_hash": "9126d2fa893172d45198a14e6c82ed0761793e43bbe535969cd3ba890355c0c4"
+    },
+    {
+      "path": "corpus/lwip/src/core/inet_chksum.c",
+      "sha256": "fc82b44fc866704a51c0aacd6037b10802b88e8576e1b691917cd2b863878b1b",
+      "symbol": "lwip_standard_chksum",
+      "line_start": 132,
+      "line_end": 173,
+      "text": "u16_t\nlwip_standard_chksum(const void *dataptr, int len)\n{\n  const u8_t *pb = (const u8_t *)dataptr;\n  const u16_t *ps;\n  u16_t t = 0;\n  u32_t sum = 0;\n  int odd = ((mem_ptr_t)pb & 1);\n\n  /* Get aligned to u16_t */\n  if (odd && len > 0) {\n    ((u8_t *)&t)[1] = *pb++;\n    len--;\n  }\n\n  /* Add the bulk of the data */\n  ps = (const u16_t *)(const void *)pb;\n  while (len > 1) {\n    sum += *ps++;\n    len -= 2;\n  }\n\n  /* Consume left-over byte, if any */\n  if (len > 0) {\n    ((u8_t *)&t)[0] = *(const u8_t *)ps;\n  }\n\n  /* Add end bytes */\n  sum += t;\n\n  /* Fold 32-bit sum to 16 bits\n     calling this twice is probably faster than if statements... */\n  sum = FOLD_U32T(sum);\n  sum = FOLD_U32T(sum);\n\n  /* Swap if alignment was odd */\n  if (odd) {\n    sum = SWAP_BYTES_IN_WORD(sum);\n  }\n\n  return (u16_t)sum;\n}\n",
+      "content_hash": "85f20bc04e18930aaef65c513f76d6dc3d747bbb19788dde14a7c36a4a7513ef"
+    }
+  ],
+  "steps": [
+    {
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-Wall",
+        "-Wextra",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-DLWIP_DEBUG",
+        "-Icorpus/lwip/src/include",
+        "-Icorpus/lwip/contrib/ports/unix/port/include",
+        "-Icorpus/lwip/test/unit",
+        "-MMD",
+        "-MF",
+        "BUILD/part-0.d",
+        "-c",
+        "corpus/lwip/src/core/inet_chksum.c",
+        "-o",
+        "BUILD/part-0.o"
+      ],
+      "cwd": "PROJECT_ROOT",
+      "stdin": "",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-Wall",
+        "-Wextra",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-DLWIP_DEBUG",
+        "-Icorpus/lwip/src/include",
+        "-Icorpus/lwip/contrib/ports/unix/port/include",
+        "-Icorpus/lwip/test/unit",
+        "-MMD",
+        "-MF",
+        "BUILD/part-1.d",
+        "-c",
+        "examples/reproductions/knowledge-sources-v2/lwip-checksum-fragments/reproduce.c",
+        "-o",
+        "BUILD/part-1.o"
+      ],
+      "cwd": "PROJECT_ROOT",
+      "stdin": "",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "cc",
+        "-Wl,-dead_strip",
+        "BUILD/part-0.o",
+        "BUILD/part-1.o",
+        "-lm",
+        "-o",
+        "BUILD/reproduce"
+      ],
+      "cwd": "PROJECT_ROOT",
+      "stdin": "",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "BUILD/reproduce"
+      ],
+      "cwd": "PROJECT_ROOT",
+      "stdin": "",
+      "exit_code": 0,
+      "stdout": "input_hex=0001f203f4f5f6f711 contiguous_checksum=110d\nsplit=1+2+6 checksum=110d equal_contiguous=1\nsplit=3+3+3 checksum=110d equal_contiguous=1\nsplit=4+4+1 checksum=110d equal_contiguous=1\nsplit=2+2+5 checksum=110d equal_contiguous=1\nunaligned_same_bytes checksum=110d equal_contiguous=1\nprefix_len=8 checksum=220d full_len=9 checksum=110d\n",
+      "stderr": "",
+      "stdout_sha256": "eb068ccfd634b879e30074d15136e1bd26010aa1194600107bde2aa604797c42",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "runner": {
+    "path": "examples/reproductions/knowledge-sources-v2/run.py",
+    "sha256": "7b5ff41efddaa1799d38728f9e61e385e14720e0bbc73bbafc1c3ecee87d9b26"
+  },
+  "dependencies": [
+    {
+      "path": "corpus/lwip/src/core/inet_chksum.c",
+      "sha256": "fc82b44fc866704a51c0aacd6037b10802b88e8576e1b691917cd2b863878b1b"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/opt.h",
+      "sha256": "d750b825d4e399eca387bdeb98a78dc96267095eb8f15cdb39e4e88d23c14360"
+    },
+    {
+      "path": "corpus/lwip/test/unit/lwipopts.h",
+      "sha256": "250dfc64740e6ffdc27957427cfb2baa2d190dae0bef88bf7dca6bb1e987f0d3"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/debug.h",
+      "sha256": "1f3545fc48dec531f2dff50fffa1094bd4bdd0fca5bb96e32f82c559e33a4fce"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/arch.h",
+      "sha256": "9801c4638064a3f7f27a90ed4b01867fa65128c67303d40536867dad1ad03f78"
+    },
+    {
+      "path": "corpus/lwip/contrib/ports/unix/port/include/arch/cc.h",
+      "sha256": "21958d9da2108f7ea68bb5a8f003afb7062ca17e9cf2620c19df8809d6db2f44"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/inet_chksum.h",
+      "sha256": "df6720f78e47afde2315d6a9dee1bb5b26f76692ce3e040c574409493435c933"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/pbuf.h",
+      "sha256": "0b84e49877d81241874c101d24aa6fd815e6e78407f0894f88af371e04437196"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/err.h",
+      "sha256": "af26b573fc5c6a31877fdcde35e15382ac0c8b01f35af3f5a4429f9cf5dd323d"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/ip_addr.h",
+      "sha256": "90e9886f4fc5e96058d19d3504415d52ee37d8ebd7d29aeede3435f247cb4146"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/def.h",
+      "sha256": "224152c2266e14b418ee0e7e1704df9c103011630240548221a91cf6aff64d90"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/ip4_addr.h",
+      "sha256": "58f6c9a179e8719fb91f2b76b489be45e05365c3958dbba55f00a4d134adf535"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/ip6_addr.h",
+      "sha256": "9dea395e61fdcc6676afdfd322838c185cb87d8b38c39b0ad0b83b206f300c00"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/ip6_zone.h",
+      "sha256": "4b1dfc44be4c4c138ac41d17fdfc88712fab42557c899193e46bc4e6972e4641"
+    }
+  ],
+  "material_utf8_bytes": 8920,
+  "material_estimated_tokens": 2974
+}

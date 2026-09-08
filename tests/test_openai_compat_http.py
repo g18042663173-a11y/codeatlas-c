@@ -97,9 +97,11 @@ def test_real_http_protocol_runs_model_first_agent_without_key_leak(kb):
     assert all(item["path"] == "/v1/chat/completions" for item in state.requests)
     assert all(item["authorized"] and item["model"] == "fixture-model" for item in state.requests)
     first_planner_input = json.loads(state.requests[0]["messages"][1]["content"])
-    assert first_planner_input["allowed_next"] == [
-        "resolve_symbol", "code_read", "analyze_impact", "finish",
-    ]
+    expected = ["search_evidence"]
+    if first_planner_input["prior_events"][0]["wiki_available"]:
+        expected += ["wiki_outline", "wiki_section"]
+    assert first_planner_input["allowed_next"] == expected + [
+        "resolve_symbol", "code_read", "analyze_impact", "finish"]
     assert client.last_usage["total_tokens"] == 16 and client.last_latency_ms >= 0
     assert client.request_count == 3 and client.usage_totals["total_tokens"] == 48
     assert "test-key" not in json.dumps(agent.get_run(conn, result["id"]), ensure_ascii=False)

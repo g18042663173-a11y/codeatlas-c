@@ -30,16 +30,18 @@ from ..summary import head as head_mod
 log = logging.getLogger(__name__)
 
 MAX_ATTEMPT = 3
+MECHANISM_DEPTH = 2
+MECHANISM_MAX_FUNCTIONS = 6
 
 # schema.md 规定的必需章节。缺任何一个即判定生成失败。
 REQUIRED_SECTIONS = {
-    "file": ["## 职责与边界", "## 关键入口和接口", "## 确定调用流程",
+    "file": ["## 职责与边界", "## 关键入口和接口", "## 确定调用流程", "## 可核验机制说明",
              "## 条件与错误路径", "## 类型、字段与全局引用", "## 候选线索与材料边界"],
     "module": ["## 职责与边界", "## 包含文件", "## 关键入口和接口",
-               "## 确定调用流程", "## 条件与错误路径", "## 类型、字段与全局引用",
+               "## 确定调用流程", "## 可核验机制说明", "## 条件与错误路径", "## 类型、字段与全局引用",
                "## 候选线索与材料边界"],
     "repo": ["## 职责与边界", "## 模块列表", "## 关键入口和接口",
-             "## 确定调用流程", "## 条件与错误路径", "## 类型、字段与全局引用",
+             "## 确定调用流程", "## 可核验机制说明", "## 条件与错误路径", "## 类型、字段与全局引用",
              "## 候选线索与材料边界"],
 }
 
@@ -80,6 +82,96 @@ def _module_of(path: str, repository: str = "") -> str:
 
 
 # ---------------------------------------------------------------- 事实收集
+
+def _mechanism_id(entry: sqlite3.Row) -> str:
+    """Stable across line movement; never derived from an evaluation question."""
+    # A C USR can repeat for translation-unit entry names such as ``main``.
+    # Bind the anchor to the repository-relative definition as well, keeping it
+    # stable across line movement without colliding across files.
+    return _hash("mechanism-v1", entry["usr"] or "", entry["path"] or "", entry["id"])
+
+
+def _mechanism(conn: sqlite3.Connection, entry: sqlite3.Row) -> dict:
+    """Build a bounded compiler-fact IR for one public entry.
+
+    A certain call edge is only reported as a call.  It is deliberately not
+    promoted into a causal or whole-program behaviour statement.
+    """
+    queue = [(entry["id"], 0)]
+    seen: set[str] = set()
+    rows: dict[str, sqlite3.Row] = {}
+    edges: list[dict] = []
+    truncated = False
+    while queue:
+        node_id, depth = queue.pop(0)
+        if node_id in seen:
+            continue
+        if len(seen) >= MECHANISM_MAX_FUNCTIONS:
+            truncated = True
+            break
+        row = conn.execute(
+            "SELECT * FROM node WHERE id=? AND kind='function' AND is_definition=1",
+            (node_id,),
+        ).fetchone()
+        if row is None:
+            continue
+        seen.add(node_id)
+        rows[node_id] = row
+        outgoing = conn.execute(
+            """SELECT dn.* FROM edge e JOIN node dn ON dn.id=e.dst
+                WHERE e.src=? AND e.kind='calls' AND e.confidence='certain'
+                  AND dn.kind='function' AND dn.is_definition=1
+                ORDER BY dn.path,dn.line_start,dn.name""",
+            (node_id,),
+        ).fetchall()
+        for target in outgoing:
+            edges.append({
+                "caller_id": node_id, "caller": row["name"], "caller_path": row["path"],
+                "caller_line": row["line_start"], "callee_id": target["id"],
+                "callee": target["name"], "callee_path": target["path"],
+                "callee_line": target["line_start"], "confidence": "certain",
+            })
+            if depth < MECHANISM_DEPTH and target["id"] not in seen:
+                queue.append((target["id"], depth + 1))
+            elif depth >= MECHANISM_DEPTH:
+                truncated = True
+    facts = []
+    if seen:
+        marks = ",".join("?" for _ in seen)
+        for row in conn.execute(
+            f"SELECT * FROM semantic_fact WHERE confidence='certain' "
+            f"AND function_id IN ({marks}) ORDER BY path,line_start,id",
+            sorted(seen),
+        ):
+            try:
+                payload = json.loads(row["payload_json"])
+            except (TypeError, ValueError):
+                continue
+            facts.append({
+                "id": row["id"], "function_id": row["function_id"], "kind": row["kind"],
+                "path": row["path"], "line_start": row["line_start"],
+                "line_end": row["line_end"], "payload": payload,
+            })
+    candidate_count = 0
+    if seen:
+        marks = ",".join("?" for _ in seen)
+        candidate_count = conn.execute(
+            f"SELECT COUNT(*) FROM edge WHERE kind='calls' AND confidence='candidate' "
+            f"AND src IN ({marks})", sorted(seen),
+        ).fetchone()[0]
+    return {
+        "id": _mechanism_id(entry), "entry_id": entry["id"], "entry_usr": entry["usr"],
+        "entry": entry["name"], "signature": entry["signature"], "path": entry["path"],
+        "line_start": entry["line_start"], "line_end": entry["line_end"],
+        "functions": [{"id": row["id"], "name": row["name"], "usr": row["usr"],
+                       "path": row["path"], "line_start": row["line_start"],
+                       "line_end": row["line_end"], "definition_hash": row["definition_hash"]}
+                      for row in rows.values()],
+        "calls": edges, "facts": facts, "candidate_calls": candidate_count,
+        "scope": {"depth": MECHANISM_DEPTH, "max_functions": MECHANISM_MAX_FUNCTIONS,
+                  "truncated": truncated or bool(queue)},
+        "validation": {"source": "compiler_rule_ir", "model_statement": "not_present"},
+    }
 
 def _file_facts(conn: sqlite3.Connection, file_row: sqlite3.Row) -> dict:
     fns = conn.execute(
@@ -136,9 +228,11 @@ def _file_facts(conn: sqlite3.Connection, file_row: sqlite3.Row) -> dict:
              JOIN node n ON n.id=b.function_id
             WHERE b.path=? ORDER BY b.line_start LIMIT 80""", (file_row["path"],),
     ).fetchall()
+    mechanisms = [_mechanism(conn, fn) for fn in fns if not fn["is_static"]]
     return dict(fns=fns, includes=includes, out_calls=out_calls, call_flows=call_flows,
                 in_calls=in_calls, candidate_calls=cand, references=references,
                 declarations=declarations, branches=branches,
+                mechanisms=mechanisms,
                 semantic_facts=conn.execute("SELECT * FROM semantic_fact WHERE path=? ORDER BY line_start,id", (file_row["path"],)).fetchall())
 
 
@@ -160,6 +254,7 @@ def _file_input_hash(repository: str, revision: str, path: str, facts: dict) -> 
         "declarations": [{key: row[key] for key in row.keys() if key not in ("line_start", "line_end")} for row in facts["declarations"]],
         "branches": [(row["function_id"], row["kind"], row["source_hash"]) for row in facts["branches"]],
         "semantic_facts": [row["payload_json"] for row in facts.get("semantic_facts", [])],
+        "mechanisms": facts.get("mechanisms", []),
     }
     return _hash(json.dumps(payload, ensure_ascii=False, sort_keys=True, default=str))
 
@@ -203,6 +298,63 @@ def _render_file(row: sqlite3.Row, f: dict) -> str:
         L.append("跨文件流入：" + "、".join(f"`{r['p']}`({r['c']})" for r in f["in_calls"]))
     if f["out_calls"]:
         L.append("跨文件流出：" + "、".join(f"`{r['p']}`({r['c']})" for r in f["out_calls"]))
+
+    L += ["", "## 可核验机制说明", ""]
+    if not f["mechanisms"]:
+        L.append("本文件没有公开函数定义，因此不生成运行机制陈述。")
+    for mechanism in f["mechanisms"]:
+        mid = mechanism["id"]
+        L += [f'<a id="mechanism-{mid}"></a>',
+              f"### `{mechanism['entry']}` · `{mid}`", "",
+              f"- **适用入口**：`{mechanism['signature'] or mechanism['entry']}` "
+              f"[A:{mechanism['path']}:L{mechanism['line_start']}-L{mechanism['line_end']}]",
+              f"- **边界**：仅组织 {mechanism['scope']['depth']} 跳内、最多 "
+              f"{mechanism['scope']['max_functions']} 个函数的当前构建事实。"]
+        if mechanism["calls"]:
+            L.append("- **确定调用**：")
+            for call in mechanism["calls"]:
+                L.append(f"  - `{call['caller']}` → `{call['callee']}` "
+                         f"[A:{call['caller_path']}:L{call['caller_line']}] "
+                         f"[A:{call['callee_path']}:L{call['callee_line']}]")
+        else:
+            L.append("- **确定调用**：在有界范围内未观察到函数调用边。")
+        conditions = [fact for fact in mechanism["facts"]
+                      if fact["kind"] in {"guard", "branch_set", "decider"}]
+        writes = [fact for fact in mechanism["facts"] if fact["kind"] == "state_write"]
+        exits = [fact for fact in mechanism["facts"] if fact["kind"] == "error_path"]
+        if conditions:
+            L.append("- **条件与分支事实**：")
+            for fact in conditions[:12]:
+                payload = fact["payload"]
+                condition = payload.get("condition") or payload.get("control_kind") or "显式分支"
+                L.append(f"  - `{fact['kind']}`: `{str(condition).replace('`', '')}` "
+                         f"[A:{fact['path']}:L{fact['line_start']}-L{fact['line_end']}]")
+            if len(conditions) > 12:
+                L.append(f"  - 另有 {len(conditions) - 12} 条条件事实未在本页展开；当前说明不完整。")
+        if writes:
+            L.append("- **状态写入事实**：")
+            for fact in writes[:12]:
+                payload = fact["payload"]
+                L.append(f"  - `{str(payload.get('target', '')).replace('`', '')}` "
+                         f"`{payload.get('operator', '=')}` `{str(payload.get('value', '')).replace('`', '')}` "
+                         f"[A:{fact['path']}:L{fact['line_start']}-L{fact['line_end']}]")
+            if len(writes) > 12:
+                L.append(f"  - 另有 {len(writes) - 12} 条状态写入事实未在本页展开；当前说明不完整。")
+        if exits:
+            L.append("- **退出事实**：")
+            for fact in exits[:12]:
+                expression = str(fact["payload"].get("expression", "return")).replace("`", "")
+                L.append(f"  - `{expression}`；错误语义分类为 `unknown` "
+                         f"[A:{fact['path']}:L{fact['line_start']}-L{fact['line_end']}]")
+            if len(exits) > 12:
+                L.append(f"  - 另有 {len(exits) - 12} 条退出事实未在本页展开；当前说明不完整。")
+        boundaries = []
+        if mechanism["candidate_calls"]:
+            boundaries.append(f"{mechanism['candidate_calls']} 条 candidate 调用未纳入确定流程")
+        if mechanism["scope"]["truncated"]:
+            boundaries.append("调用闭包超出两跳或六函数，当前说明不完整")
+        L.append("- **反例与材料不足**：" + ("；".join(boundaries) if boundaries else
+                 "没有额外 candidate 线索；仍不推断跨函数因果、别名或未启用预处理分支。"))
 
     L += ["", "## 条件与错误路径", ""]
     for fact in f.get("semantic_facts", [])[:40]:
@@ -284,6 +436,20 @@ def _render_module(module: str, files: list[sqlite3.Row], conn) -> str:
     L += ["", "## 确定调用流程", ""]
     L += ([f"- `{row['a']}` → `{row['b']}`（{row['c']} 条确定调用）" for row in cross]
           or ["模块内文件没有跨文件确定调用。"])
+    L += ["", "## 可核验机制说明", ""]
+    public_entries = conn.execute(
+        f"""SELECT id,name,usr,path,line_start FROM node
+              WHERE kind='function' AND is_definition=1 AND is_static=0
+                AND path IN ({placeholders}) ORDER BY path,line_start,name""", paths,
+    ).fetchall()
+    if public_entries:
+        for entry in public_entries:
+            mid = _mechanism_id(entry)
+            file_page = entry["path"].replace("/", "__")
+            L.append(f"- [`{entry['name']}`](../files/{file_page}.md#mechanism-{mid}) · `{mid}` "
+                     f"[A:{entry['path']}:L{entry['line_start']}]")
+    else:
+        L.append("本模块没有可组织为机制说明的公开函数入口。")
     L += ["", "## 条件与错误路径", "",
           f"模块文件中记录 {branch_count} 个显式条件/返回源码范围；详见文件页。"
           "它们不构成完整控制流结论。", "", "## 类型、字段与全局引用", ""]
@@ -319,6 +485,18 @@ def _render_repo(conn, modules: dict, stats: dict) -> str:
         L.append("没有函数定义。")
     L += ["", "## 确定调用流程", "",
           f"图中共有 {stats['edges_certain']} 条 certain 关系；具体流程下钻到模块页与文件页。", "",
+          "## 可核验机制说明", ""]
+    for module, files in sorted(modules.items(), key=lambda item: item[0]):
+        paths = [row["path"] for row in files]
+        marks = ",".join("?" for _ in paths) or "NULL"
+        count = conn.execute(
+            f"SELECT COUNT(*) FROM node WHERE kind='function' AND is_definition=1 "
+            f"AND is_static=0 AND path IN ({marks})", paths,
+        ).fetchone()[0]
+        L.append(f"- [`{module}`](modules/{module.replace('/', '__')}.md)：{count} 个公开入口的有界机制骨架")
+    if not modules:
+        L.append("没有可用模块。")
+    L += ["",
           "## 条件与错误路径", "",
           f"共记录 {branch_count} 个显式语法范围；不包装为完整控制流/数据流。", "",
           "## 类型、字段与全局引用", ""]
@@ -420,7 +598,22 @@ def generate(conn: sqlite3.Connection, repo: str, *, levels: tuple[str, ...] =
             md = _render_file(f, facts)
             if llm_client is not None:
                 md = _llm_polish(llm_client, md, "file", st)
+            # A bounded mechanism may display a frontier call whose callee is not
+            # expanded into ``functions``.  Both ends still participate in the
+            # rendered claim and therefore must invalidate the page when either
+            # source definition changes.
+            mechanism_nodes = {
+                node["id"] for item in facts["mechanisms"] for node in item["functions"]
+            }
+            mechanism_nodes.update(
+                endpoint
+                for item in facts["mechanisms"]
+                for call in item["calls"]
+                for endpoint in (call["caller_id"], call["callee_id"])
+            )
             srcs = [f"node:{f['id']}"] + [f"node:{x['id']}" for x in facts["fns"]]
+            srcs += [f"node:{node_id}" for node_id in sorted(mechanism_nodes)
+                     if node_id != f["id"] and all(node_id != x["id"] for x in facts["fns"])]
             ok = _write(conn, page_id, "file", f["id"], f["path"], md, srcs, ih)
             _upsert_task(conn, page_id, f["id"], "file", "done" if ok else "failed")
             st["file" if ok else "failed"] += 1
@@ -541,6 +734,7 @@ def integrity(conn: sqlite3.Connection, *, out_dir: str | None = None) -> dict:
         page_id = "files/" + file_row["path"].replace("/", "__")
         if page_id not in current:
             errors.append(f"缺少文件页:{file_row['path']}")
+    mechanism_ids: list[str] = []
     for page in current.values():
         try:
             sources = json.loads(page["sources"] or "[]")
@@ -556,6 +750,15 @@ def integrity(conn: sqlite3.Connection, *, out_dir: str | None = None) -> dict:
                 exists = None
             if not exists:
                 errors.append(f"回链缺失:{page['id']}->{source}")
+        if page["level"] == "file":
+            mechanism_ids.extend(re.findall(r'<a id="mechanism-([0-9a-f]{16})"></a>', page["md"] or ""))
+    expected_mechanisms = conn.execute(
+        "SELECT COUNT(*) FROM node WHERE kind='function' AND is_definition=1 AND is_static=0"
+    ).fetchone()[0]
+    if len(mechanism_ids) != expected_mechanisms:
+        errors.append(f"机制覆盖不完整:{len(mechanism_ids)}/{expected_mechanisms}")
+    if len(mechanism_ids) != len(set(mechanism_ids)):
+        errors.append("机制 ID 不唯一")
 
     # Recompute every module's scoped cross-file calls and compare them with the
     # rendered page.  This prevents an accidentally reused repository-level Top N
@@ -610,10 +813,85 @@ def integrity(conn: sqlite3.Connection, *, out_dir: str | None = None) -> dict:
         "pages": len(current),
         "module_scope_checked": module_scope_checked,
         "module_scope_ok": module_scope_ok,
+        "mechanism_count": len(mechanism_ids),
+        "mechanism_expected": expected_mechanisms,
+        "mechanism_integrity_ok": len(mechanism_ids) == expected_mechanisms == len(set(mechanism_ids)),
         "file_coverage": conn.execute(
             "SELECT COUNT(*) FROM node WHERE kind='file' AND path IS NOT NULL"
         ).fetchone()[0],
     }
+
+
+def _read_fence(line: str, fence: str | None) -> str | None:
+    marker = re.match(r"^ {0,3}(`{3,}|~{3,})(.*)$", line.rstrip("\r\n"))
+    if marker and fence is None:
+        return marker[1]
+    if (marker and fence and marker[1][0] == fence[0]
+            and len(marker[1]) >= len(fence) and not marker[2].strip()):
+        return None
+    return fence
+
+
+def _readable_sections(markdown: str) -> list[tuple[str, str]]:
+    """Find real level-two headings, never headings inside code/JSON fences."""
+    lines = markdown.splitlines(keepends=True)
+    headings, fence = [], None
+    for index, line in enumerate(lines):
+        heading = re.match(r"^##\s+(.+?)\s*$", line)
+        if fence is None and heading:
+            headings.append((index, heading[1]))
+        fence = _read_fence(line, fence)
+    return [(title, "".join(lines[index + 1:headings[n + 1][0] if n + 1 < len(headings) else len(lines)]).strip())
+            for n, (index, title) in enumerate(headings)]
+
+
+def _section_read_blocks(markdown: str) -> list[str]:
+    """Lossless paragraphs/list entries; fences and whole mechanism entries stay atomic.
+
+    Section headings remain attached to the first body block. A mechanism's
+    claim, conditions and boundary remain together through its next anchor or
+    level-three heading. No sentence-length/byte slicing is used.
+    """
+    cuts, position, fence = [0], 0, None
+    content, blank, list_item, mechanism, anchor = False, False, False, False, False
+    paragraph_done = False
+    for line in markdown.splitlines(keepends=True):
+        if fence is None:
+            new_anchor = bool(re.match(r'^<a\s+id=["\']mechanism-', line))
+            subheading = bool(re.match(r"^###\s+", line))
+            bullet = bool(re.match(r"^(?:[-+*]|\d+[.)])\s+", line))
+            boundary = ((new_anchor or (subheading and not anchor)) and content)
+            if not mechanism and line.strip() and content and ((blank and paragraph_done) or (bullet and list_item)):
+                boundary = True
+            if boundary:
+                cuts.append(position)
+                content, list_item = False, False
+            if new_anchor or subheading:
+                mechanism = True
+                anchor = new_anchor
+            elif line.strip():
+                anchor = False
+            blank = not line.strip()
+            if bullet:
+                list_item = True
+            if line.strip() and not new_anchor and not re.match(r"^#{2,6}\s+", line):
+                content = True
+        fence = _read_fence(line, fence)
+        if line.strip():
+            # A visual blank line alone is not proof that a conditional
+            # sentence ended. Keep unfinished prose with its following block.
+            paragraph_done = bool(re.search(r"[.!?。！？][*_`]*$", line.rstrip())
+                                  or re.match(r"^ {0,3}(?:`{3,}|~{3,})\s*$", line))
+        position += len(line)
+    return [markdown[start:end] for start, end in zip(cuts, cuts[1:] + [len(markdown)])]
+
+
+def _wiki_read_oversize(tool: str, arguments: dict, required_budget: int) -> dict:
+    continuation = ({"tool": tool, "arguments": {**arguments, "budget": required_budget}}
+                    if required_budget <= 8000 else None)
+    return {"error": tool + "_block_oversize", "status": "oversize",
+            "required_budget": required_budget, "maximum_budget": 8000,
+            "continuation": continuation, "next_offset": None, "truncated": True}
 
 
 def outline(conn: sqlite3.Connection, module: str | None = None, *, offset: int = 0, budget: int = 2000) -> dict:
@@ -626,20 +904,33 @@ def outline(conn: sqlite3.Connection, module: str | None = None, *, offset: int 
     for row in rows:
         if module and module.lower() not in (row["id"] + " " + row["title"]).lower():
             continue
-        sections = re.findall(r"^##\s+(.+)$", row["md"] or "", re.M)
+        sections = [title for title, _ in _readable_sections(row["md"] or "")]
+        if not sections:
+            continue
         pages.append({"page_id": row["id"], "level": row["level"],
                       "title": row["title"], "sections": sections,
                       "section_ids": {title: _hash(row["id"], title)[:16] for title in sections}})
+    base = {"pages": [], "wiki_unavailable": not bool(pages),
+            "next_offset": None, "truncated": False, "pagination_version": "wiki-blocks-v1",
+            "knowledge_set_id": dbm.get_meta(conn, "knowledge_set_id"),
+            "build_config_hash": dbm.get_meta(conn, "build_config_hash", "")}
+    if type(offset) is not int or offset < 0 or type(budget) is not int or budget < 1:
+        return {**base, "error": "wiki_outline_invalid_pagination"}
     selected = []
-    for item in pages[max(0, offset):]:
-        if selected and len(json.dumps(selected + [item], ensure_ascii=False).encode()) > max(200, min(budget, 8000))*3:
+    for item in pages[offset:]:
+        needed = (len(json.dumps(selected + [item], ensure_ascii=False, separators=(",", ":")).encode()) + 2) // 3
+        if needed > min(budget, 8000):
+            if not selected:
+                arguments = {"offset": offset, **({"module": module} if module else {})}
+                return {**base, **_wiki_read_oversize("wiki_outline", arguments, needed)}
             break
         selected.append(item)
     next_offset = offset + len(selected)
-    return {"pages": selected, "wiki_unavailable": not bool(pages),
+    if not selected:
+        return {**base, "error": "wiki_outline_empty"}
+    return {**base, "pages": selected,
             "next_offset": next_offset if next_offset < len(pages) else None,
-            "truncated": next_offset < len(pages), "knowledge_set_id": dbm.get_meta(conn, "knowledge_set_id"),
-            "build_config_hash": dbm.get_meta(conn, "build_config_hash", "")}
+            "truncated": next_offset < len(pages)}
 
 
 def section(conn: sqlite3.Connection, page_id: str, section_name: str, *, offset: int = 0, budget: int = 2000) -> dict:
@@ -649,16 +940,17 @@ def section(conn: sqlite3.Connection, page_id: str, section_name: str, *, offset
     if row is None:
         return {"error": "wiki_page_unavailable", "page_id": page_id}
     wanted = section_name.removeprefix("##").strip()
-    chunks = re.split(r"(?m)^##\s+", row["md"] or "")
+    chunks = _readable_sections(row["md"] or "")
     selected = None
-    for chunk in chunks[1:]:
-        heading, _, body = chunk.partition("\n")
+    for heading, body in chunks:
         if heading.strip() == wanted or wanted.lower() in heading.lower() or _hash(page_id, heading.strip())[:16] == wanted:
+            if not body.strip():
+                return {"error": "wiki_section_empty", "page_id": page_id, "section": wanted, "markdown": ""}
             selected = f"## {heading.strip()}\n{body.strip()}"
             break
     if selected is None:
         return {"error": "wiki_section_not_found", "page_id": page_id,
-                "available": re.findall(r"^##\s+(.+)$", row["md"] or "", re.M)}
+                "available": [heading for heading, _ in chunks]}
     citation = {
         "tag": "C1", "level": "C", "uid": f"wiki:{page_id}",
         "title": f"{row['title']} / {wanted}", "source_ref": page_id,
@@ -669,13 +961,35 @@ def section(conn: sqlite3.Connection, page_id: str, section_name: str, *, offset
             "build_config_hash": dbm.get_meta(conn, "build_config_hash", ""),
         },
     }
-    raw = selected.encode()
-    limit = max(100, min(budget, 8000)) * 3
-    part = raw[max(0, offset):offset + limit].decode("utf-8", "ignore")
-    end = offset + len(part.encode())
-    return {"page_id": page_id, "section": wanted, "markdown": part,
-            "next_offset": end if end < len(raw) else None, "truncated": end < len(raw),
+    base = {"page_id": page_id, "section": wanted, "markdown": "", "next_offset": None,
+            "truncated": False, "pagination_version": "wiki-blocks-v1",
             "knowledge_set_id": dbm.get_meta(conn, "knowledge_set_id"), "citations": [citation]}
+    if type(offset) is not int or offset < 0 or type(budget) is not int or budget < 1:
+        return {**base, "error": "wiki_section_invalid_pagination"}
+    blocks = _section_read_blocks(selected)
+    offsets = [0]
+    for block in blocks:
+        offsets.append(offsets[-1] + len(block.encode()))
+    if offset not in offsets:
+        safe_offset = max(start for start in offsets[:-1] if start <= offset)
+        return {**base, "error": "wiki_section_invalid_offset", "continuation": {
+            "tool": "wiki_section", "arguments": {"page_id": page_id, "section": wanted,
+                                                      "offset": safe_offset, "budget": min(budget, 8000)}}}
+    if offset == offsets[-1]:
+        return {**base, "error": "wiki_section_empty_page"}
+    parts, used = [], 0
+    for block in blocks[offsets.index(offset):]:
+        size = len(block.encode())
+        if used + size > min(budget, 8000) * 3:
+            if not parts:
+                arguments = {"page_id": page_id, "section": wanted, "offset": offset}
+                return {**base, **_wiki_read_oversize("wiki_section", arguments, (size + 2) // 3)}
+            break
+        parts.append(block)
+        used += size
+    end = offset + used
+    return {**base, "markdown": "".join(parts),
+            "next_offset": end if end < offsets[-1] else None, "truncated": end < offsets[-1]}
 
 
 def export(conn: sqlite3.Connection, out_dir: str) -> int:

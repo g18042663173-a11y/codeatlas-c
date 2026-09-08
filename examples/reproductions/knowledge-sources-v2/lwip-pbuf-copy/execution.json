@@ -1,0 +1,353 @@
+{
+  "schema_version": 2,
+  "artifact_kind": "public_source_reproduction",
+  "id": "lwip-pbuf-copy",
+  "repository": "lwip",
+  "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+  "status": "reproduced",
+  "environment": {
+    "system": "Darwin",
+    "machine": "arm64",
+    "compiler": {
+      "argv": [
+        "cc",
+        "--version"
+      ],
+      "cwd": "PROJECT_ROOT",
+      "stdin": "",
+      "exit_code": 0,
+      "stdout": "Apple clang version 21.0.0 (clang-2100.3.33.1)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n",
+      "stderr": "",
+      "stdout_sha256": "0d586d46a939eadd69bd458ed9dfb10874d948af7dda03c363a58d19eac2d570",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "input": {
+    "kind": "compiled_fixture",
+    "fixture": {
+      "path": "examples/reproductions/knowledge-sources-v2/lwip-pbuf-copy/reproduce.c",
+      "sha256": "e95244cc97b8493818c364389963d08c8bc2b311890f97e0a26e615e50ff9941"
+    },
+    "argv": [],
+    "stdin": "",
+    "description": "Exact input bytes and operation sequences are C literals in the hash-bound fixture; no generated input or network."
+  },
+  "build_config": {
+    "flags": [
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-ffunction-sections",
+      "-fdata-sections",
+      "-DLWIP_DEBUG",
+      "-Icorpus/lwip/src/include",
+      "-Icorpus/lwip/contrib/ports/unix/port/include",
+      "-Icorpus/lwip/test/unit"
+    ],
+    "files": [
+      {
+        "path": "corpus/lwip/test/unit/lwipopts.h",
+        "sha256": "250dfc64740e6ffdc27957427cfb2baa2d190dae0bef88bf7dca6bb1e987f0d3"
+      },
+      {
+        "path": "corpus/lwip/src/include/lwip/opt.h",
+        "sha256": "d750b825d4e399eca387bdeb98a78dc96267095eb8f15cdb39e4e88d23c14360"
+      },
+      {
+        "path": "corpus/lwip/contrib/ports/unix/port/include/arch/cc.h",
+        "sha256": "21958d9da2108f7ea68bb5a8f003afb7062ca17e9cf2620c19df8809d6db2f44"
+      }
+    ],
+    "compile_commands": {
+      "path": "corpus/lwip/compile_commands.json",
+      "sha256": "8ae29a8ad49c1c08671a1b34c697cb81aa5ab41d0d9446083d8a80183c2ed9e9"
+    }
+  },
+  "sources": [
+    {
+      "path": "corpus/lwip/src/core/pbuf.c",
+      "sha256": "2f953eb2bc5b696b2eea156386cc4f99c793859bbf65cee967653bdf3374db61"
+    }
+  ],
+  "anchors": [
+    {
+      "path": "corpus/lwip/src/core/pbuf.c",
+      "sha256": "2f953eb2bc5b696b2eea156386cc4f99c793859bbf65cee967653bdf3374db61",
+      "symbol": "pbuf_copy_partial",
+      "line_start": 1060,
+      "line_end": 1091,
+      "text": "u16_t\npbuf_copy_partial(const struct pbuf *buf, void *dataptr, u16_t len, u16_t offset)\n{\n  const struct pbuf *p;\n  u16_t left = 0;\n  u16_t buf_copy_len;\n  u16_t copied_total = 0;\n\n  LWIP_ERROR(\"pbuf_copy_partial: invalid buf\", (buf != NULL), return 0;);\n  LWIP_ERROR(\"pbuf_copy_partial: invalid dataptr\", (dataptr != NULL), return 0;);\n\n  /* Note some systems use byte copy if dataptr or one of the pbuf payload pointers are unaligned. */\n  for (p = buf; len != 0 && p != NULL; p = p->next) {\n    if ((offset != 0) && (offset >= p->len)) {\n      /* don't copy from this buffer -> on to the next */\n      offset = (u16_t)(offset - p->len);\n    } else {\n      /* copy from this buffer. maybe only partially. */\n      buf_copy_len = (u16_t)(p->len - offset);\n      if (buf_copy_len > len) {\n        buf_copy_len = len;\n      }\n      /* copy the necessary parts of the buffer */\n      MEMCPY(&((char *)dataptr)[left], &((char *)p->payload)[offset], buf_copy_len);\n      copied_total = (u16_t)(copied_total + buf_copy_len);\n      left = (u16_t)(left + buf_copy_len);\n      len = (u16_t)(len - buf_copy_len);\n      offset = 0;\n    }\n  }\n  return copied_total;\n}\n",
+      "content_hash": "c61174ca191a5dd9b67cc01a2b369ec380f51b805c19320d265e61b58de96b02"
+    },
+    {
+      "path": "corpus/lwip/src/core/pbuf.c",
+      "sha256": "2f953eb2bc5b696b2eea156386cc4f99c793859bbf65cee967653bdf3374db61",
+      "symbol": "pbuf_get_contiguous",
+      "line_start": 1110,
+      "line_end": 1138,
+      "text": "void *\npbuf_get_contiguous(const struct pbuf *p, void *buffer, size_t bufsize, u16_t len, u16_t offset)\n{\n  const struct pbuf *q;\n  u16_t out_offset;\n\n  LWIP_ERROR(\"pbuf_get_contiguous: invalid buf\", (p != NULL), return NULL;);\n  LWIP_ERROR(\"pbuf_get_contiguous: invalid bufsize\", (buffer == NULL) || (bufsize >= len), return NULL;);\n\n  q = pbuf_skip_const(p, offset, &out_offset);\n  if (q != NULL) {\n    if (q->len >= (out_offset + len)) {\n      /* all data in this pbuf, return zero-copy */\n      return (u8_t *)q->payload + out_offset;\n    }\n    if (buffer == NULL) {\n      /* the caller does not want to copy */\n      return NULL;\n    }\n    /* need to copy */\n    if (pbuf_copy_partial(q, buffer, len, out_offset) != len) {\n      /* copying failed: pbuf is too short */\n      return NULL;\n    }\n    return buffer;\n  }\n  /* pbuf is too short (offset does not fit in) */\n  return NULL;\n}\n",
+      "content_hash": "f3bf684b9c31f1a2228906898bee3f591008dabf1c50f01894f2546d7a50fbed"
+    },
+    {
+      "path": "corpus/lwip/src/core/pbuf.c",
+      "sha256": "2f953eb2bc5b696b2eea156386cc4f99c793859bbf65cee967653bdf3374db61",
+      "symbol": "pbuf_skip_const",
+      "line_start": 1191,
+      "line_end": 1206,
+      "text": "static const struct pbuf *\npbuf_skip_const(const struct pbuf *in, u16_t in_offset, u16_t *out_offset)\n{\n  u16_t offset_left = in_offset;\n  const struct pbuf *q = in;\n\n  /* get the correct pbuf */\n  while ((q != NULL) && (q->len <= offset_left)) {\n    offset_left = (u16_t)(offset_left - q->len);\n    q = q->next;\n  }\n  if (out_offset != NULL) {\n    *out_offset = offset_left;\n  }\n  return q;\n}\n",
+      "content_hash": "659929972560bc9d146e0138772d41c310e35f511e3a5a0f36859a8b17a2807b"
+    }
+  ],
+  "steps": [
+    {
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-Wall",
+        "-Wextra",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-DLWIP_DEBUG",
+        "-Icorpus/lwip/src/include",
+        "-Icorpus/lwip/contrib/ports/unix/port/include",
+        "-Icorpus/lwip/test/unit",
+        "-MMD",
+        "-MF",
+        "BUILD/part-0.d",
+        "-c",
+        "corpus/lwip/src/core/pbuf.c",
+        "-o",
+        "BUILD/part-0.o"
+      ],
+      "cwd": "PROJECT_ROOT",
+      "stdin": "",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-Wall",
+        "-Wextra",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-DLWIP_DEBUG",
+        "-Icorpus/lwip/src/include",
+        "-Icorpus/lwip/contrib/ports/unix/port/include",
+        "-Icorpus/lwip/test/unit",
+        "-MMD",
+        "-MF",
+        "BUILD/part-1.d",
+        "-c",
+        "examples/reproductions/knowledge-sources-v2/lwip-pbuf-copy/reproduce.c",
+        "-o",
+        "BUILD/part-1.o"
+      ],
+      "cwd": "PROJECT_ROOT",
+      "stdin": "",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "cc",
+        "-Wl,-dead_strip",
+        "BUILD/part-0.o",
+        "BUILD/part-1.o",
+        "-lm",
+        "-o",
+        "BUILD/reproduce"
+      ],
+      "cwd": "PROJECT_ROOT",
+      "stdin": "",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "BUILD/reproduce"
+      ],
+      "cwd": "PROJECT_ROOT",
+      "stdin": "",
+      "exit_code": 0,
+      "stdout": "copy offset=2 requested=5 copied=5 text=cdefg\ncopy offset=7 requested=9 copied=2 text=hi\ncontiguous offset=3 len=2 zero_copy=1\ncross_fragment without_scratch=null\ncross_fragment with_scratch copied=1 text=cdef\nbeyond_packet offset=8 len=4 result=null\n",
+      "stderr": "",
+      "stdout_sha256": "b55878711d00b5d5ee9183aa8c58d57b18bea98c274dc9abf5530ef12a33dffd",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "runner": {
+    "path": "examples/reproductions/knowledge-sources-v2/run.py",
+    "sha256": "7b5ff41efddaa1799d38728f9e61e385e14720e0bbc73bbafc1c3ecee87d9b26"
+  },
+  "dependencies": [
+    {
+      "path": "corpus/lwip/src/core/pbuf.c",
+      "sha256": "2f953eb2bc5b696b2eea156386cc4f99c793859bbf65cee967653bdf3374db61"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/opt.h",
+      "sha256": "d750b825d4e399eca387bdeb98a78dc96267095eb8f15cdb39e4e88d23c14360"
+    },
+    {
+      "path": "corpus/lwip/test/unit/lwipopts.h",
+      "sha256": "250dfc64740e6ffdc27957427cfb2baa2d190dae0bef88bf7dca6bb1e987f0d3"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/debug.h",
+      "sha256": "1f3545fc48dec531f2dff50fffa1094bd4bdd0fca5bb96e32f82c559e33a4fce"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/arch.h",
+      "sha256": "9801c4638064a3f7f27a90ed4b01867fa65128c67303d40536867dad1ad03f78"
+    },
+    {
+      "path": "corpus/lwip/contrib/ports/unix/port/include/arch/cc.h",
+      "sha256": "21958d9da2108f7ea68bb5a8f003afb7062ca17e9cf2620c19df8809d6db2f44"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/pbuf.h",
+      "sha256": "0b84e49877d81241874c101d24aa6fd815e6e78407f0894f88af371e04437196"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/err.h",
+      "sha256": "af26b573fc5c6a31877fdcde35e15382ac0c8b01f35af3f5a4429f9cf5dd323d"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/stats.h",
+      "sha256": "02d5512b59cce1c006388c6535134dd7f84e866ecca5f72bc632fb0718634b9f"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/mem.h",
+      "sha256": "6a3403dd83cc564cdb1b2f712baf925b522fe2755ccebef3dc17ffd3c19319c6"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/memp.h",
+      "sha256": "79dfd019219330cf08deb1360483eb7d1da7a1a7a304034ef65ad52feefba1ef"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/priv/memp_std.h",
+      "sha256": "86cdf1d80f2716a07011dc763e5fa614cd2b555382cb7d6750176116def67a0f"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/priv/memp_priv.h",
+      "sha256": "37aff2894bbe25f1888e43b96be80f4c1a43a24867c0fc9aceb4093328682937"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/priv/mem_priv.h",
+      "sha256": "c90c9b64c8ea95c05d5b8b10d706acb53b6cc124166e8dd85b397698679f7920"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/def.h",
+      "sha256": "224152c2266e14b418ee0e7e1704df9c103011630240548221a91cf6aff64d90"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/sys.h",
+      "sha256": "3455bc027fd97de759f962f664c6084242f08dd80e5c65834cc05aa0a0802e8e"
+    },
+    {
+      "path": "corpus/lwip/contrib/ports/unix/port/include/arch/sys_arch.h",
+      "sha256": "f4ea66a183fbfcadcffe41bec149d11094c0907a6de1bf4cfba0e313ad98e948"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/netif.h",
+      "sha256": "6e958aa1bd23b7381c09a873f7af919323f87ec50a2d3055a46f75275c2a121b"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/ip_addr.h",
+      "sha256": "90e9886f4fc5e96058d19d3504415d52ee37d8ebd7d29aeede3435f247cb4146"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/ip4_addr.h",
+      "sha256": "58f6c9a179e8719fb91f2b76b489be45e05365c3958dbba55f00a4d134adf535"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/ip6_addr.h",
+      "sha256": "9dea395e61fdcc6676afdfd322838c185cb87d8b38c39b0ad0b83b206f300c00"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/ip6_zone.h",
+      "sha256": "4b1dfc44be4c4c138ac41d17fdfc88712fab42557c899193e46bc4e6972e4641"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/priv/tcp_priv.h",
+      "sha256": "07df02da365d83e5a488b4cf9e61d8319132d11b6830a7fe6b04c2912fd3d4c9"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/tcp.h",
+      "sha256": "eb514477b21ed78dd4d527f4aea3bed5585200e285b85c666689b9c43b77a89a"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/tcpbase.h",
+      "sha256": "cf4b048f3bc228ab364cde15eb6be5eca961fab09036c699c2c4b1437ab90aff"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/ip.h",
+      "sha256": "dc040fd513b7fff5de699e235e2a09623f2a80d813c09ae91f9c6af067f756e8"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/ip4.h",
+      "sha256": "188a62765c765fb07cda26a695f17c9c1674c0da7539c71e4d8f79b3f6f6ba21"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/prot/ip4.h",
+      "sha256": "1c88192c8897087f3316dba4062890f2daef8a92c839e95c7607199b58dc2184"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/ip6.h",
+      "sha256": "7681c2948f700aa565c387ca20654f7322991ca15de7fd4e8f342a8ce44abe57"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/prot/ip6.h",
+      "sha256": "c0514e97f153f2e5cf514e6f1f4350fd2cbcb7073ebc05495b436c638bd32109"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/prot/ip.h",
+      "sha256": "eb5371e5ac58467253d813bc58726e317f91abadb10336497de0d64645ec01cd"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/icmp.h",
+      "sha256": "84f63c9fbc6f6d66ef437f834279c25c20bfa78834eb0ee347c70377f7f8d8c8"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/prot/icmp.h",
+      "sha256": "5acac93c34363f3ca07f3f14c8861f09cf822096e6654941a307f1c78914cf5c"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/icmp6.h",
+      "sha256": "f790cd444ecbe2e605b2f1a1deab3e6e9662ba6e87fd47b401912c5a118ee836"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/prot/icmp6.h",
+      "sha256": "a3fdc254460b9e2c45cbfb1ad2402c055b34b907a09fb5337a0f26e068302074"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/prot/tcp.h",
+      "sha256": "db67bb5ea0517a8cd9e30ebf655743f69ce05e77ca6e4a113e8c60e69bd7c48a"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/inet_chksum.h",
+      "sha256": "df6720f78e47afde2315d6a9dee1bb5b26f76692ce3e040c574409493435c933"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/tcpip.h",
+      "sha256": "c772dbff8e46a86ffa65ec62e5b304e75525b6bcfef94917fb7de1045449f603"
+    },
+    {
+      "path": "corpus/lwip/src/include/lwip/timeouts.h",
+      "sha256": "991e773fa429d97c9852f3f46defe9ca60675978418a82fe7ba9cdc2ed1247e2"
+    }
+  ],
+  "material_utf8_bytes": 9588,
+  "material_estimated_tokens": 3196
+}

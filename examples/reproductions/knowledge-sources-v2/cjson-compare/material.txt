@@ -1,0 +1,200 @@
+Repository: cjson
+Revision: fb16e5cf358798aabb049655975cde8427101056
+
+
+Input model: compiled C literals; empty argv and stdin.
+
+
+Fixture:
+/* CC0-1.0: object/array/type comparison matrix. */
+#include <assert.h>
+#include <stdio.h>
+#include "cJSON.h"
+struct vector { const char *left,*right; int sensitive,equal; };
+int main(void) {
+    const struct vector cases[]={
+        {"{\"a\":1,\"b\":2}","{\"b\":2,\"a\":1}",1,1},
+        {"[1,2]","[2,1]",1,0},
+        {"{\"Name\":\"x\"}","{\"name\":\"x\"}",0,1},
+        {"{\"Name\":\"x\"}","{\"name\":\"x\"}",1,0},
+        {"{\"k\":\"X\"}","{\"k\":\"x\"}",0,0},
+        {"{\"a\":1}","{\"a\":1,\"b\":2}",1,0},
+        {"{\"a\":1,\"b\":2}","{\"a\":1}",1,0},
+        {"1","\"1\"",0,0},
+        {"{\"items\":[true,null,{\"x\":3}]}","{\"items\":[true,null,{\"x\":3}]}",1,1},
+        {"{\"items\":[true,null,{\"x\":3}]}","{\"items\":[true,null,{\"x\":4}]}",1,0}
+    };
+    for(unsigned i=0;i<sizeof(cases)/sizeof(cases[0]);++i) {
+        cJSON *a=cJSON_Parse(cases[i].left), *b=cJSON_Parse(cases[i].right);assert(a && b);
+        int equal=cJSON_Compare(a,b,cases[i].sensitive);
+        printf("vector=%u sensitive=%d left=%s right=%s equal=%d\n",i+1,cases[i].sensitive,cases[i].left,cases[i].right,equal);
+        assert(equal==cases[i].equal);cJSON_Delete(a);cJSON_Delete(b);
+    }
+    return 0;
+}
+
+
+Source: corpus/cJSON/cJSON.c:3072-3195
+CJSON_PUBLIC(cJSON_bool) cJSON_Compare(const cJSON * const a, const cJSON * const b, const cJSON_bool case_sensitive)
+{
+    if ((a == NULL) || (b == NULL) || ((a->type & 0xFF) != (b->type & 0xFF)))
+    {
+        return false;
+    }
+
+    /* check if type is valid */
+    switch (a->type & 0xFF)
+    {
+        case cJSON_False:
+        case cJSON_True:
+        case cJSON_NULL:
+        case cJSON_Number:
+        case cJSON_String:
+        case cJSON_Raw:
+        case cJSON_Array:
+        case cJSON_Object:
+            break;
+
+        default:
+            return false;
+    }
+
+    /* identical objects are equal */
+    if (a == b)
+    {
+        return true;
+    }
+
+    switch (a->type & 0xFF)
+    {
+        /* in these cases and equal type is enough */
+        case cJSON_False:
+        case cJSON_True:
+        case cJSON_NULL:
+            return true;
+
+        case cJSON_Number:
+            if (compare_double(a->valuedouble, b->valuedouble))
+            {
+                return true;
+            }
+            return false;
+
+        case cJSON_String:
+        case cJSON_Raw:
+            if ((a->valuestring == NULL) || (b->valuestring == NULL))
+            {
+                return false;
+            }
+            if (strcmp(a->valuestring, b->valuestring) == 0)
+            {
+                return true;
+            }
+
+            return false;
+
+        case cJSON_Array:
+        {
+            cJSON *a_element = a->child;
+            cJSON *b_element = b->child;
+
+            for (; (a_element != NULL) && (b_element != NULL);)
+            {
+                if (!cJSON_Compare(a_element, b_element, case_sensitive))
+                {
+                    return false;
+                }
+
+                a_element = a_element->next;
+                b_element = b_element->next;
+            }
+
+            /* one of the arrays is longer than the other */
+            if (a_element != b_element) {
+                return false;
+            }
+
+            return true;
+        }
+
+        case cJSON_Object:
+        {
+            cJSON *a_element = NULL;
+            cJSON *b_element = NULL;
+            cJSON_ArrayForEach(a_element, a)
+            {
+                /* TODO This has O(n^2) runtime, which is horrible! */
+                b_element = get_object_item(b, a_element->string, case_sensitive);
+                if (b_element == NULL)
+                {
+                    return false;
+                }
+
+                if (!cJSON_Compare(a_element, b_element, case_sensitive))
+                {
+                    return false;
+                }
+            }
+
+            /* doing this twice, once on a and b to prevent true comparison if a subset of b
+             * TODO: Do this the proper way, this is just a fix for now */
+            cJSON_ArrayForEach(b_element, b)
+            {
+                a_element = get_object_item(a, b_element->string, case_sensitive);
+                if (a_element == NULL)
+                {
+                    return false;
+                }
+
+                if (!cJSON_Compare(b_element, a_element, case_sensitive))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        default:
+            return false;
+    }
+}
+
+
+Command: cc -std=c99 -Wall -Wextra -ffunction-sections -fdata-sections -Icorpus/cJSON -MMD -MF BUILD/part-0.d -c corpus/cJSON/cJSON.c -o BUILD/part-0.o
+stdin: <empty>
+exit: 0
+stdout:
+stderr:
+
+
+Command: cc -std=c99 -Wall -Wextra -ffunction-sections -fdata-sections -Icorpus/cJSON -MMD -MF BUILD/part-1.d -c examples/reproductions/knowledge-sources-v2/cjson-compare/reproduce.c -o BUILD/part-1.o
+stdin: <empty>
+exit: 0
+stdout:
+stderr:
+
+
+Command: cc -Wl,-dead_strip BUILD/part-0.o BUILD/part-1.o -lm -o BUILD/reproduce
+stdin: <empty>
+exit: 0
+stdout:
+stderr:
+
+
+Command: BUILD/reproduce
+stdin: <empty>
+exit: 0
+stdout:
+vector=1 sensitive=1 left={"a":1,"b":2} right={"b":2,"a":1} equal=1
+vector=2 sensitive=1 left=[1,2] right=[2,1] equal=0
+vector=3 sensitive=0 left={"Name":"x"} right={"name":"x"} equal=1
+vector=4 sensitive=1 left={"Name":"x"} right={"name":"x"} equal=0
+vector=5 sensitive=0 left={"k":"X"} right={"k":"x"} equal=0
+vector=6 sensitive=1 left={"a":1} right={"a":1,"b":2} equal=0
+vector=7 sensitive=1 left={"a":1,"b":2} right={"a":1} equal=0
+vector=8 sensitive=0 left=1 right="1" equal=0
+vector=9 sensitive=1 left={"items":[true,null,{"x":3}]} right={"items":[true,null,{"x":3}]} equal=1
+vector=10 sensitive=1 left={"items":[true,null,{"x":3}]} right={"items":[true,null,{"x":4}]} equal=0
+stderr:
+

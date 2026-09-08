@@ -1,0 +1,3 @@
+# Captured fixture artifacts intentionally preserve upstream source whitespace
+# because their exact bytes are covered by the reproducibility manifest.
+examples/reproductions/knowledge-sources-v2/** -whitespace

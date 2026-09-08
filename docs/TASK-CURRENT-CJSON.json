@@ -119,40 +119,40 @@
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 13.1,
-          "context_tokens": 4442,
+          "latency_ms": 18.3,
+          "context_tokens": 4480,
           "errors": []
         },
         "BM25 + 符号": {
           "hit": true,
           "mrr": 0.333,
           "evidence_complete": true,
-          "latency_ms": 2.5,
-          "context_tokens": 4477,
+          "latency_ms": 9.7,
+          "context_tokens": 4421,
           "errors": []
         },
         "+ 本地向量": {
           "hit": true,
           "mrr": 0.333,
           "evidence_complete": true,
-          "latency_ms": 54.8,
-          "context_tokens": 4459,
+          "latency_ms": 119.4,
+          "context_tokens": 4497,
           "errors": []
         },
         "+ certain 图扩展": {
           "hit": true,
           "mrr": 0.333,
           "evidence_complete": true,
-          "latency_ms": 8.4,
-          "context_tokens": 5678,
+          "latency_ms": 22.1,
+          "context_tokens": 5716,
           "errors": []
         },
         "完整无模型": {
           "hit": true,
           "mrr": 0.111,
           "evidence_complete": true,
-          "latency_ms": 5.9,
-          "context_tokens": 5678,
+          "latency_ms": 17.5,
+          "context_tokens": 5716,
           "errors": []
         }
       },
@@ -180,40 +180,40 @@
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 1.3,
-          "context_tokens": 4393,
+          "latency_ms": 4.3,
+          "context_tokens": 4482,
           "errors": []
         },
         "BM25 + 符号": {
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 2.2,
-          "context_tokens": 4414,
+          "latency_ms": 8.6,
+          "context_tokens": 4503,
           "errors": []
         },
         "+ 本地向量": {
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 2.7,
-          "context_tokens": 4351,
+          "latency_ms": 12.7,
+          "context_tokens": 4440,
           "errors": []
         },
         "+ certain 图扩展": {
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 4.7,
-          "context_tokens": 5815,
+          "latency_ms": 14.8,
+          "context_tokens": 5921,
           "errors": []
         },
         "完整无模型": {
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 4.8,
-          "context_tokens": 5815,
+          "latency_ms": 16.6,
+          "context_tokens": 5921,
           "errors": []
         }
       },
@@ -241,40 +241,40 @@
           "hit": true,
           "mrr": 0.5,
           "evidence_complete": true,
-          "latency_ms": 1.2,
-          "context_tokens": 3891,
+          "latency_ms": 3.8,
+          "context_tokens": 3893,
           "errors": []
         },
         "BM25 + 符号": {
           "hit": true,
-          "mrr": 0.2,
+          "mrr": 0.167,
           "evidence_complete": true,
-          "latency_ms": 1.9,
-          "context_tokens": 3919,
+          "latency_ms": 5.4,
+          "context_tokens": 3921,
           "errors": []
         },
         "+ 本地向量": {
           "hit": true,
           "mrr": 0.2,
           "evidence_complete": true,
-          "latency_ms": 2.6,
-          "context_tokens": 3921,
+          "latency_ms": 7.4,
+          "context_tokens": 3923,
           "errors": []
         },
         "+ certain 图扩展": {
           "hit": true,
           "mrr": 0.1,
           "evidence_complete": true,
-          "latency_ms": 3.7,
-          "context_tokens": 5343,
+          "latency_ms": 13.1,
+          "context_tokens": 5362,
           "errors": []
         },
         "完整无模型": {
           "hit": true,
           "mrr": 0.1,
           "evidence_complete": true,
-          "latency_ms": 4.3,
-          "context_tokens": 5343,
+          "latency_ms": 15.2,
+          "context_tokens": 5362,
           "errors": []
         }
       },
@@ -302,7 +302,7 @@
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 0.5,
+          "latency_ms": 1.8,
           "context_tokens": 2975,
           "errors": []
         },
@@ -310,7 +310,7 @@
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 1.5,
+          "latency_ms": 4.8,
           "context_tokens": 2975,
           "errors": []
         },
@@ -318,7 +318,7 @@
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 2.0,
+          "latency_ms": 6.7,
           "context_tokens": 3342,
           "errors": []
         },
@@ -326,16 +326,16 @@
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 3.3,
-          "context_tokens": 4719,
+          "latency_ms": 11.3,
+          "context_tokens": 4736,
           "errors": []
         },
         "完整无模型": {
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 3.6,
-          "context_tokens": 4719,
+          "latency_ms": 12.7,
+          "context_tokens": 4736,
           "errors": []
         }
       },
@@ -363,15 +363,15 @@
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 1.1,
-          "context_tokens": 3867,
+          "latency_ms": 3.9,
+          "context_tokens": 3883,
           "errors": []
         },
         "BM25 + 符号": {
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 2.3,
+          "latency_ms": 7.0,
           "context_tokens": 3966,
           "errors": []
         },
@@ -379,24 +379,24 @@
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 2.5,
-          "context_tokens": 3928,
+          "latency_ms": 8.7,
+          "context_tokens": 3944,
           "errors": []
         },
         "+ certain 图扩展": {
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 4.1,
-          "context_tokens": 4923,
+          "latency_ms": 14.1,
+          "context_tokens": 4939,
           "errors": []
         },
         "完整无模型": {
           "hit": true,
           "mrr": 1.0,
           "evidence_complete": true,
-          "latency_ms": 4.6,
-          "context_tokens": 4923,
+          "latency_ms": 15.7,
+          "context_tokens": 4939,
           "errors": []
         }
       },
@@ -411,7 +411,7 @@
     "passed": false
   },
   "out": "docs/TASK-CURRENT-CJSON.md",
-  "generated_at": "2026-09-07T13:35:29+00:00",
+  "generated_at": "2026-09-08T10:39:25+00:00",
   "reproducibility": {
     "task_manifest_sha256": "99b1f63ef14971ce0e06fd639030408ef360a38c3be30e7c8c49da887507c4a7",
     "build_config_hash": "4003a287a2796fa9c7f1a6cde60f1e7d2766f73e86961abe170c2ecf73122a7a",
@@ -422,12 +422,12 @@
       "tu_ok": 28
     },
     "codeatlas": {
-      "revision": "57c9db65e87f093fd9bf5ade5aa5d49c60ae3e24",
+      "revision": "936cdc02d26fd8c6cd907c862977ad873e1af027",
       "branch": "feat/portfolio-core-evidence",
       "dirty": true,
-      "dirty_entries": 23,
+      "dirty_entries": 130,
       "origin": "https://github.com/g18042663173-a11y/codeatlas-c.git",
-      "implementation_hash": "b7fa4ffa22a5d4038a0f2ba7b8420c8e1b51c4eac202a6bc26120d0b27e10927"
+      "implementation_hash": "786084f447793d1784d49887275a30d3c95064a419487dc0fe8fbae4869fb252"
     }
   },
   "summary": {
@@ -468,9 +468,9 @@
       "recall": 100.0,
       "mrr": 0.642,
       "evidence": 100.0,
-      "context": 5296,
-      "p50": 4.6,
-      "p95": 5.9
+      "context": 5335,
+      "p50": 15.7,
+      "p95": 17.5
     },
     "passed_tasks": 5,
     "total_tasks": 5,
@@ -479,9 +479,9 @@
     "failures": []
   },
   "json_report": "docs/TASK-CURRENT-CJSON.json",
-  "knowledge_set_id": "ks-e3a6b2ee9ef34324",
+  "knowledge_set_id": "ks-326a55bc3478403e",
   "source_content_hash": "c0768c6d97c74ac4ead077841a6488b180e7d323be84db3c5fc0881c5ee01fe8",
   "build_config_hash": "4003a287a2796fa9c7f1a6cde60f1e7d2766f73e86961abe170c2ecf73122a7a",
   "revision": "fb16e5cf358798aabb049655975cde8427101056",
-  "implementation_hash": "0a9ad420c11a1eb186b886849d4e1f97f53d0ce1bef8c8a31edf4bbe65b8d9eb"
+  "implementation_hash": "890e8382d2243f20f1cf1159bfdfc0b89c3eb96d0ff797ef976b7f37274e14d2"
 }

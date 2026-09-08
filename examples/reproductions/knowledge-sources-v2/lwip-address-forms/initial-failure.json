@@ -1,0 +1,163 @@
+{
+  "schema_version": 2,
+  "artifact_kind": "public_source_reproduction",
+  "id": "lwip-address-forms",
+  "repository": "lwip",
+  "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+  "status": "reproducibility_blocked",
+  "environment": {
+    "system": "Darwin",
+    "machine": "arm64",
+    "compiler": {
+      "argv": [
+        "cc",
+        "--version"
+      ],
+      "cwd": "PROJECT_ROOT",
+      "stdin": "",
+      "exit_code": 0,
+      "stdout": "Apple clang version 21.0.0 (clang-2100.3.33.1)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n",
+      "stderr": "",
+      "stdout_sha256": "0d586d46a939eadd69bd458ed9dfb10874d948af7dda03c363a58d19eac2d570",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "input": {
+    "kind": "compiled_fixture",
+    "fixture": {
+      "path": "examples/reproductions/knowledge-sources-v2/lwip-address-forms/reproduce.c",
+      "sha256": "a49628b50507c03cb56683840779aba88ad3361eff08f954d6c935e7f4e6dc14"
+    },
+    "argv": [],
+    "stdin": "",
+    "description": "Exact input bytes and operation sequences are C literals in the hash-bound fixture; no generated input or network."
+  },
+  "build_config": {
+    "flags": [
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-ffunction-sections",
+      "-fdata-sections",
+      "-DLWIP_DEBUG",
+      "-Icorpus/lwip/src/include",
+      "-Icorpus/lwip/contrib/ports/unix/port/include",
+      "-Icorpus/lwip/test/unit"
+    ],
+    "files": [
+      {
+        "path": "corpus/lwip/test/unit/lwipopts.h",
+        "sha256": "250dfc64740e6ffdc27957427cfb2baa2d190dae0bef88bf7dca6bb1e987f0d3"
+      },
+      {
+        "path": "corpus/lwip/src/include/lwip/opt.h",
+        "sha256": "d750b825d4e399eca387bdeb98a78dc96267095eb8f15cdb39e4e88d23c14360"
+      },
+      {
+        "path": "corpus/lwip/contrib/ports/unix/port/include/arch/cc.h",
+        "sha256": "21958d9da2108f7ea68bb5a8f003afb7062ca17e9cf2620c19df8809d6db2f44"
+      }
+    ],
+    "compile_commands": {
+      "path": "corpus/lwip/compile_commands.json",
+      "sha256": "8ae29a8ad49c1c08671a1b34c697cb81aa5ab41d0d9446083d8a80183c2ed9e9"
+    }
+  },
+  "sources": [
+    {
+      "path": "corpus/lwip/src/core/ipv4/ip4_addr.c",
+      "sha256": "b440b85c9e49e60510cfa61d40e24b0e2ad480e23a821a94017e42df09dcf8be"
+    }
+  ],
+  "anchors": [
+    {
+      "path": "corpus/lwip/src/core/ipv4/ip4_addr.c",
+      "sha256": "b440b85c9e49e60510cfa61d40e24b0e2ad480e23a821a94017e42df09dcf8be",
+      "symbol": "ip4addr_aton",
+      "line_start": 145,
+      "line_end": 258,
+      "text": "ip4addr_aton(const char *cp, ip4_addr_t *addr)\n{\n  u32_t val;\n  u8_t base;\n  char c;\n  u32_t parts[4];\n  u32_t *pp = parts;\n\n  c = *cp;\n  for (;;) {\n    /*\n     * Collect number up to ``.''.\n     * Values are specified as for C:\n     * 0x=hex, 0=octal, 1-9=decimal.\n     */\n    if (!lwip_isdigit(c)) {\n      return 0;\n    }\n    val = 0;\n    base = 10;\n    if (c == '0') {\n      c = *++cp;\n      if (c == 'x' || c == 'X') {\n        base = 16;\n        c = *++cp;\n      } else {\n        base = 8;\n      }\n    }\n    for (;;) {\n      if (lwip_isdigit(c)) {\n        if((base == 8) && ((u32_t)(c - '0') >= 8))\n          break;\n        val = (val * base) + (u32_t)(c - '0');\n        c = *++cp;\n      } else if (base == 16 && lwip_isxdigit(c)) {\n        val = (val << 4) | (u32_t)(c + 10 - (lwip_islower(c) ? 'a' : 'A'));\n        c = *++cp;\n      } else {\n        break;\n      }\n    }\n    if (c == '.') {\n      /*\n       * Internet format:\n       *  a.b.c.d\n       *  a.b.c   (with c treated as 16 bits)\n       *  a.b (with b treated as 24 bits)\n       */\n      if (pp >= parts + 3) {\n        return 0;\n      }\n      *pp++ = val;\n      c = *++cp;\n    } else {\n      break;\n    }\n  }\n  /*\n   * Check for trailing characters.\n   */\n  if (c != '\\0' && !lwip_isspace(c)) {\n    return 0;\n  }\n  /*\n   * Concoct the address according to\n   * the number of parts specified.\n   */\n  switch (pp - parts + 1) {\n\n    case 0:\n      return 0;       /* initial nondigit */\n\n    case 1:             /* a -- 32 bits */\n      break;\n\n    case 2:             /* a.b -- 8.24 bits */\n      if (val > 0xffffffUL) {\n        return 0;\n      }\n      if (parts[0] > 0xff) {\n        return 0;\n      }\n      val |= parts[0] << 24;\n      break;\n\n    case 3:             /* a.b.c -- 8.8.16 bits */\n      if (val > 0xffff) {\n        return 0;\n      }\n      if ((parts[0] > 0xff) || (parts[1] > 0xff)) {\n        return 0;\n      }\n      val |= (parts[0] << 24) | (parts[1] << 16);\n      break;\n\n    case 4:             /* a.b.c.d -- 8.8.8.8 bits */\n      if (val > 0xff) {\n        return 0;\n      }\n      if ((parts[0] > 0xff) || (parts[1] > 0xff) || (parts[2] > 0xff)) {\n        return 0;\n      }\n      val |= (parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8);\n      break;\n    default:\n      LWIP_ASSERT(\"unhandled\", 0);\n      break;\n  }\n  if (addr) {\n    ip4_addr_set_u32(addr, lwip_htonl(val));\n  }\n  return 1;\n}\n",
+      "content_hash": "97c88efd43272ca076f5e7828f254a7db41d886ac2e2d6133b964a6587b05436"
+    },
+    {
+      "path": "corpus/lwip/src/core/ipv4/ip4_addr.c",
+      "sha256": "b440b85c9e49e60510cfa61d40e24b0e2ad480e23a821a94017e42df09dcf8be",
+      "symbol": "ip4addr_ntoa_r",
+      "line_start": 285,
+      "line_end": 321,
+      "text": "ip4addr_ntoa_r(const ip4_addr_t *addr, char *buf, int buflen)\n{\n  u32_t s_addr;\n  char inv[3];\n  char *rp;\n  u8_t *ap;\n  u8_t rem;\n  u8_t n;\n  u8_t i;\n  int len = 0;\n\n  s_addr = ip4_addr_get_u32(addr);\n\n  rp = buf;\n  ap = (u8_t *)&s_addr;\n  for (n = 0; n < 4; n++) {\n    i = 0;\n    do {\n      rem = *ap % (u8_t)10;\n      *ap /= (u8_t)10;\n      inv[i++] = (char)('0' + rem);\n    } while (*ap);\n    while (i--) {\n      if (len++ >= buflen) {\n        return NULL;\n      }\n      *rp++ = inv[i];\n    }\n    if (len++ >= buflen) {\n      return NULL;\n    }\n    *rp++ = '.';\n    ap++;\n  }\n  *--rp = 0;\n  return buf;\n}\n",
+      "content_hash": "850cbda43ddf00f027975c8b26091a04fb01c54cb5f68bd8b895de67e46ac0ef"
+    }
+  ],
+  "steps": [
+    {
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-Wall",
+        "-Wextra",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-DLWIP_DEBUG",
+        "-Icorpus/lwip/src/include",
+        "-Icorpus/lwip/contrib/ports/unix/port/include",
+        "-Icorpus/lwip/test/unit",
+        "-c",
+        "corpus/lwip/src/core/ipv4/ip4_addr.c",
+        "-o",
+        "BUILD/part-0.o"
+      ],
+      "cwd": "PROJECT_ROOT",
+      "stdin": "",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-Wall",
+        "-Wextra",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-DLWIP_DEBUG",
+        "-Icorpus/lwip/src/include",
+        "-Icorpus/lwip/contrib/ports/unix/port/include",
+        "-Icorpus/lwip/test/unit",
+        "-c",
+        "examples/reproductions/knowledge-sources-v2/lwip-address-forms/reproduce.c",
+        "-o",
+        "BUILD/part-1.o"
+      ],
+      "cwd": "PROJECT_ROOT",
+      "stdin": "",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "cc",
+        "-Wl,-dead_strip",
+        "BUILD/part-0.o",
+        "BUILD/part-1.o",
+        "-lm",
+        "-o",
+        "BUILD/reproduce"
+      ],
+      "cwd": "PROJECT_ROOT",
+      "stdin": "",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Undefined symbols for architecture arm64:\n  \"_lwip_htonl\", referenced from:\n      _ip4addr_aton in part-0.o\nld: symbol(s) not found for architecture arm64\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\n",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "82e8fcc0d4b91b64b86abd14f20c89150c19a14cff487954bd5abece36dbf1ea"
+    }
+  ],
+  "blocked_phase": "link"
+}

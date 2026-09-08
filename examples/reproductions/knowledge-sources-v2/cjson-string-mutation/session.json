@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "cjson-string-mutation",
+  "source_type": "public_synthetic",
+  "session_kind": "captured_public_fixture_trace",
+  "not_a_human_transcript": true,
+  "license": "CC0-1.0 (fixture and trace); upstream code retains its original license",
+  "source_ref": "examples/reproductions/knowledge-sources-v2/cjson-string-mutation",
+  "repository": "https://github.com/DaveGamble/cJSON",
+  "revision": "fb16e5cf358798aabb049655975cde8427101056",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Public fixture input; operations and input bytes are C literals, not a production incident:\n/* CC0-1.0: owned and reference string mutation. */\n#include <assert.h>\n#include <stdio.h>\n#include <string.h>\n#include \"cJSON.h\"\nint main(void) {\n    cJSON *owned=cJSON_CreateString(\"abcdef\");\n    cJSON *reference=cJSON_CreateStringReference(\"external\");\n    cJSON *number=cJSON_CreateNumber(4);\n    assert(owned && reference && number);\n    char *original=owned->valuestring;\n    char *result=cJSON_SetValuestring(owned,\"xy\");\n    assert(result==original && strcmp(result,\"xy\")==0);\n    printf(\"owned shorten=xy reused_storage=%d\\n\",result==original);\n    result=cJSON_SetValuestring(owned,\"a much longer replacement\");\n    assert(result && strcmp(result,\"a much longer replacement\")==0);\n    printf(\"owned grow=%s\\n\",result);\n    assert(cJSON_SetValuestring(reference,\"changed\")==NULL);\n    assert(strcmp(reference->valuestring,\"external\")==0);\n    printf(\"reference rejected=1 preserved=%s\\n\",reference->valuestring);\n    assert(cJSON_SetValuestring(number,\"string\")==NULL);\n    printf(\"number rejected=1 value=%.0f\\n\",number->valuedouble);\n    cJSON_Delete(owned);cJSON_Delete(reference);cJSON_Delete(number);\n    return 0;\n}\n"
+    },
+    {
+      "role": "tool",
+      "content": "Actual build commands and captured results:\n[\n  {\n    \"argv\": [\n      \"cc\",\n      \"-std=c99\",\n      \"-Wall\",\n      \"-Wextra\",\n      \"-ffunction-sections\",\n      \"-fdata-sections\",\n      \"-Icorpus/cJSON\",\n      \"-MMD\",\n      \"-MF\",\n      \"BUILD/part-0.d\",\n      \"-c\",\n      \"corpus/cJSON/cJSON.c\",\n      \"-o\",\n      \"BUILD/part-0.o\"\n    ],\n    \"cwd\": \"PROJECT_ROOT\",\n    \"stdin\": \"\",\n    \"exit_code\": 0,\n    \"stdout\": \"\",\n    \"stderr\": \"\",\n    \"stdout_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n    \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n  },\n  {\n    \"argv\": [\n      \"cc\",\n      \"-std=c99\",\n      \"-Wall\",\n      \"-Wextra\",\n      \"-ffunction-sections\",\n      \"-fdata-sections\",\n      \"-Icorpus/cJSON\",\n      \"-MMD\",\n      \"-MF\",\n      \"BUILD/part-1.d\",\n      \"-c\",\n      \"examples/reproductions/knowledge-sources-v2/cjson-string-mutation/reproduce.c\",\n      \"-o\",\n      \"BUILD/part-1.o\"\n    ],\n    \"cwd\": \"PROJECT_ROOT\",\n    \"stdin\": \"\",\n    \"exit_code\": 0,\n    \"stdout\": \"\",\n    \"stderr\": \"\",\n    \"stdout_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n    \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n  },\n  {\n    \"argv\": [\n      \"cc\",\n      \"-Wl,-dead_strip\",\n      \"BUILD/part-0.o\",\n      \"BUILD/part-1.o\",\n      \"-lm\",\n      \"-o\",\n      \"BUILD/reproduce\"\n    ],\n    \"cwd\": \"PROJECT_ROOT\",\n    \"stdin\": \"\",\n    \"exit_code\": 0,\n    \"stdout\": \"\",\n    \"stderr\": \"\",\n    \"stdout_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n    \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n  }\n]\n"
+    },
+    {
+      "role": "tool",
+      "content": "Actual executable command and captured result:\n{\n  \"argv\": [\n    \"BUILD/reproduce\"\n  ],\n  \"cwd\": \"PROJECT_ROOT\",\n  \"stdin\": \"\",\n  \"exit_code\": 0,\n  \"stdout\": \"owned shorten=xy reused_storage=1\\nowned grow=a much longer replacement\\nreference rejected=1 preserved=external\\nnumber rejected=1 value=4\\n\",\n  \"stderr\": \"\",\n  \"stdout_sha256\": \"f1355030cad09b52f265d1bf74f2ae4d51fa4814ba5539a3aa0d5377f666ed83\",\n  \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n}\n"
+    }
+  ]
+}
+

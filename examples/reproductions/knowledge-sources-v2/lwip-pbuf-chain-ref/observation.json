@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "BUILD/reproduce"
+  ],
+  "cwd": "PROJECT_ROOT",
+  "stdin": "",
+  "exit_code": 0,
+  "stdout": "cat first_total=5 tail_ref=1 tail_total=3\nchain first_total=9 middle_total=7 tail_ref=2 tail_total=4\nexplicit_ref tail_ref=3 first_ref=1 middle_ref=1\nlifetime=caller_owned_stack no_pbuf_free_called\n",
+  "stderr": "",
+  "stdout_sha256": "2a07cd9b6b2c4a6562a8e2b9a2432e79e35525f9d208a0542d0221426da1f85c",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}
+

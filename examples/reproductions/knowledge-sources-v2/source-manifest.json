@@ -1,0 +1,794 @@
+{
+  "schema_version": 2,
+  "artifact_kind": "knowledge_reuse_source_manifest",
+  "artifact_scope": "isolated_experiment",
+  "stage": "source_only",
+  "strip_knowledge_role": true,
+  "case_count": 12,
+  "cases": [
+    {
+      "id": "cjson-parse-end",
+      "corpus": "cjson",
+      "repository": "https://github.com/DaveGamble/cJSON",
+      "revision": "fb16e5cf358798aabb049655975cde8427101056",
+      "status": "reproduced",
+      "session": {
+        "path": "examples/reproductions/knowledge-sources-v2/cjson-parse-end/session.json",
+        "sha256": "c93bd3bce2a68f332d5c969b04946ccbbf39e13067849fac07ab59307f254917"
+      },
+      "attachments": [
+        {
+          "path": "corpus/cJSON/cJSON.c",
+          "sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+          "line_start": 1147,
+          "line_end": 1224,
+          "kind": "source"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/cjson-parse-end/reproduce.c",
+          "sha256": "88c46b228d0d485bfcfe18967e21d7b5b66a061ed7d407d2ee34d1a64526a5a8",
+          "kind": "harness"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/cjson-parse-end/commands.json",
+          "sha256": "604da71cd08408982761b6d7bd8df6f017bfd12d700e3f5073ba642afb67f746",
+          "kind": "command"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/cjson-parse-end/observation.json",
+          "sha256": "eba6a5ba54772b0341a6a5265383509bc082c85192e358befc9e1293ddc60e31",
+          "kind": "observation"
+        }
+      ],
+      "execution": {
+        "path": "examples/reproductions/knowledge-sources-v2/cjson-parse-end/execution.json",
+        "sha256": "7d7e2c1e68682819be31f5d8783e164d6841d0d26a164e02d3f92584a395ee9e"
+      },
+      "full_material": {
+        "path": "examples/reproductions/knowledge-sources-v2/cjson-parse-end/material.txt",
+        "sha256": "83b35e27d0d4111cc79781ca315a3a88190b0c42509c353f712960da884465a4"
+      },
+      "material_estimated_tokens": 1305,
+      "material_utf8_bytes": 3913,
+      "initial_failure_records": [],
+      "length_rank_within_repository": 2,
+      "length_bucket": "short"
+    },
+    {
+      "id": "cjson-string-mutation",
+      "corpus": "cjson",
+      "repository": "https://github.com/DaveGamble/cJSON",
+      "revision": "fb16e5cf358798aabb049655975cde8427101056",
+      "status": "reproduced",
+      "session": {
+        "path": "examples/reproductions/knowledge-sources-v2/cjson-string-mutation/session.json",
+        "sha256": "1d2fe740c68400212c50ca9b68b1c2ddc41677e0847cd74026664c5d456a39aa"
+      },
+      "attachments": [
+        {
+          "path": "corpus/cJSON/cJSON.c",
+          "sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+          "line_start": 435,
+          "line_end": 476,
+          "kind": "source"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/cjson-string-mutation/reproduce.c",
+          "sha256": "0f9e0c8f96edc5c778d6d6b83eda3555805ce446dedd90d3936ac28c700a8ab7",
+          "kind": "harness"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/cjson-string-mutation/commands.json",
+          "sha256": "9b438d4d6ad18bfcbc6e820bb7d8938633674edf19f48a940bb30953727d0ca2",
+          "kind": "command"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/cjson-string-mutation/observation.json",
+          "sha256": "7ef82834e23149d7540b068aefce41ef73a721905d972d01e947242b3fcf851a",
+          "kind": "observation"
+        }
+      ],
+      "execution": {
+        "path": "examples/reproductions/knowledge-sources-v2/cjson-string-mutation/execution.json",
+        "sha256": "20c8c1a14c4a70683fb0b079450f7cfb34ac27ced772b4b686ab1a4a960bdbb9"
+      },
+      "full_material": {
+        "path": "examples/reproductions/knowledge-sources-v2/cjson-string-mutation/material.txt",
+        "sha256": "f9fb0c160f7c53a57ec69ce8701d4264535b8acc18bb521136fa1201d0b11d4b"
+      },
+      "material_estimated_tokens": 1117,
+      "material_utf8_bytes": 3350,
+      "initial_failure_records": [],
+      "length_rank_within_repository": 1,
+      "length_bucket": "short"
+    },
+    {
+      "id": "cjson-duplicate",
+      "corpus": "cjson",
+      "repository": "https://github.com/DaveGamble/cJSON",
+      "revision": "fb16e5cf358798aabb049655975cde8427101056",
+      "status": "reproduced",
+      "session": {
+        "path": "examples/reproductions/knowledge-sources-v2/cjson-duplicate/session.json",
+        "sha256": "1825a0d6fad496804cbd267e595c5ff04722dd99b8f527f5ea13b27f91202471"
+      },
+      "attachments": [
+        {
+          "path": "corpus/cJSON/cJSON.c",
+          "sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+          "line_start": 2784,
+          "line_end": 2787,
+          "kind": "source"
+        },
+        {
+          "path": "corpus/cJSON/cJSON.c",
+          "sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+          "line_start": 2789,
+          "line_end": 2873,
+          "kind": "source"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/cjson-duplicate/reproduce.c",
+          "sha256": "e560f9d01038f220c71913328e89c99ed6c1ace4508a8fe54e4640ea79993775",
+          "kind": "harness"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/cjson-duplicate/commands.json",
+          "sha256": "1d80ecc2e6b454c43fd1eb8a06b90ce4129505e0f95d858a367f65057d493d69",
+          "kind": "command"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/cjson-duplicate/observation.json",
+          "sha256": "825dd8d0c36c273d7b586692f8b1fd51abae9c066914a739734b8eccb50966b2",
+          "kind": "observation"
+        }
+      ],
+      "execution": {
+        "path": "examples/reproductions/knowledge-sources-v2/cjson-duplicate/execution.json",
+        "sha256": "74be4a1f49c630369fb52b5d81794069ec587100e33adf1d4b711a9d6c292edf"
+      },
+      "full_material": {
+        "path": "examples/reproductions/knowledge-sources-v2/cjson-duplicate/material.txt",
+        "sha256": "f60a722b26c9f6159507d81dcacd5f27246c1c5f2dc8d352df218791a379993f"
+      },
+      "material_estimated_tokens": 1624,
+      "material_utf8_bytes": 4870,
+      "initial_failure_records": [],
+      "length_rank_within_repository": 4,
+      "length_bucket": "medium"
+    },
+    {
+      "id": "cjson-replace-object",
+      "corpus": "cjson",
+      "repository": "https://github.com/DaveGamble/cJSON",
+      "revision": "fb16e5cf358798aabb049655975cde8427101056",
+      "status": "reproduced",
+      "session": {
+        "path": "examples/reproductions/knowledge-sources-v2/cjson-replace-object/session.json",
+        "sha256": "409277eec680b68b531e087893b1e269e8c8f7d72f3715e3d9772c9436be22b3"
+      },
+      "attachments": [
+        {
+          "path": "corpus/cJSON/cJSON.c",
+          "sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+          "line_start": 2427,
+          "line_end": 2448,
+          "kind": "source"
+        },
+        {
+          "path": "corpus/cJSON/cJSON.c",
+          "sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+          "line_start": 2368,
+          "line_end": 2415,
+          "kind": "source"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/cjson-replace-object/reproduce.c",
+          "sha256": "c5834420b8007f9880e213015023793a9f63d548215cfd05faa09171ff11e587",
+          "kind": "harness"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/cjson-replace-object/commands.json",
+          "sha256": "5474978b03276900b27225b0f6e2f09e83b6e21c8a2e8523818334eaf2e3ee91",
+          "kind": "command"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/cjson-replace-object/observation.json",
+          "sha256": "7b3946f9b9bee1718ba9f3b80d3a922891e17acf335367222b786a05f332a62e",
+          "kind": "observation"
+        }
+      ],
+      "execution": {
+        "path": "examples/reproductions/knowledge-sources-v2/cjson-replace-object/execution.json",
+        "sha256": "b879cb95fca45c1d6ea4f3b2c52af4d1473bb8d130863105775e0f4cf983f387"
+      },
+      "full_material": {
+        "path": "examples/reproductions/knowledge-sources-v2/cjson-replace-object/material.txt",
+        "sha256": "8edf02e8e68ca146c7f9d288524f9516a2fe4bb34c14ec260ff8225df3d8fa98"
+      },
+      "material_estimated_tokens": 1420,
+      "material_utf8_bytes": 4258,
+      "initial_failure_records": [],
+      "length_rank_within_repository": 3,
+      "length_bucket": "medium"
+    },
+    {
+      "id": "cjson-compare",
+      "corpus": "cjson",
+      "repository": "https://github.com/DaveGamble/cJSON",
+      "revision": "fb16e5cf358798aabb049655975cde8427101056",
+      "status": "reproduced",
+      "session": {
+        "path": "examples/reproductions/knowledge-sources-v2/cjson-compare/session.json",
+        "sha256": "07b57473667678d5c53286a9e450874a7daca623e9e585df62038e640305cded"
+      },
+      "attachments": [
+        {
+          "path": "corpus/cJSON/cJSON.c",
+          "sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+          "line_start": 3072,
+          "line_end": 3195,
+          "kind": "source"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/cjson-compare/reproduce.c",
+          "sha256": "e6c025d49278f7d9b00ede5c025bd68a9319d960ca8e59d151f80a7385df158e",
+          "kind": "harness"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/cjson-compare/commands.json",
+          "sha256": "57a67a1334808de35a8a6bf11a5ee99a3f02124a2c651515adea28c11133aca8",
+          "kind": "command"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/cjson-compare/observation.json",
+          "sha256": "965399f6effda5a9007a63830f34be9ec97e18cf8208f4ae18d3f0383d3b5fd8",
+          "kind": "observation"
+        }
+      ],
+      "execution": {
+        "path": "examples/reproductions/knowledge-sources-v2/cjson-compare/execution.json",
+        "sha256": "600d1e9032b085c1858bf0e925eb7af1d38db0f4d5b2ade5c80ed9a71a2f6aa9"
+      },
+      "full_material": {
+        "path": "examples/reproductions/knowledge-sources-v2/cjson-compare/material.txt",
+        "sha256": "57b53b52a589e21119fe9df5727c07767773c6db2ec6fd1a4c42dce1f0e813aa"
+      },
+      "material_estimated_tokens": 1976,
+      "material_utf8_bytes": 5928,
+      "initial_failure_records": [],
+      "length_rank_within_repository": 5,
+      "length_bucket": "long"
+    },
+    {
+      "id": "cjson-unicode",
+      "corpus": "cjson",
+      "repository": "https://github.com/DaveGamble/cJSON",
+      "revision": "fb16e5cf358798aabb049655975cde8427101056",
+      "status": "reproduced",
+      "session": {
+        "path": "examples/reproductions/knowledge-sources-v2/cjson-unicode/session.json",
+        "sha256": "0122ec5bcb8674ab6a9ab9e5a0a274e633e509a137d3f6482282cfa08881fb02"
+      },
+      "attachments": [
+        {
+          "path": "corpus/cJSON/cJSON.c",
+          "sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+          "line_start": 666,
+          "line_end": 699,
+          "kind": "source"
+        },
+        {
+          "path": "corpus/cJSON/cJSON.c",
+          "sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+          "line_start": 703,
+          "line_end": 821,
+          "kind": "source"
+        },
+        {
+          "path": "corpus/cJSON/cJSON.c",
+          "sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+          "line_start": 824,
+          "line_end": 951,
+          "kind": "source"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/cjson-unicode/reproduce.c",
+          "sha256": "12c8df109c6f0515172d2c74486af53436233a0978123fea975c6cc84d946bfc",
+          "kind": "harness"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/cjson-unicode/commands.json",
+          "sha256": "ca8dba3c45a28f0a7cbefcfa6860fb2ac8bad45bb352a29ab3f12a349da86ea7",
+          "kind": "command"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/cjson-unicode/observation.json",
+          "sha256": "80350c48195d874adfa381d3cdea5c72f3405c355c25283b03fc6c233d98ac39",
+          "kind": "observation"
+        }
+      ],
+      "execution": {
+        "path": "examples/reproductions/knowledge-sources-v2/cjson-unicode/execution.json",
+        "sha256": "96308b3b7a9b96e4d3f1079f1817bf040440bc9d3f3fc01cee07bc7a544ed0c5"
+      },
+      "full_material": {
+        "path": "examples/reproductions/knowledge-sources-v2/cjson-unicode/material.txt",
+        "sha256": "171261517d62cc7213e97e2af03def4775ce41dfe42b53d292688fba72e248a5"
+      },
+      "material_estimated_tokens": 4317,
+      "material_utf8_bytes": 12951,
+      "initial_failure_records": [
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/cjson-unicode/initial-failure.json",
+          "sha256": "fc02d1dc1ad452035d469761b30c5fa431233867640c3e5617c4ed45a39e76db"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/cjson-unicode/initial-failure.c",
+          "sha256": "fedf9f68478a70cc2681159db052d6cbea060d0cce5fa1d6b1dd3e2db608f64f"
+        }
+      ],
+      "length_rank_within_repository": 6,
+      "length_bucket": "long"
+    },
+    {
+      "id": "lwip-address-forms",
+      "corpus": "lwip",
+      "repository": "https://github.com/lwip-tcpip/lwip",
+      "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+      "status": "reproduced",
+      "session": {
+        "path": "examples/reproductions/knowledge-sources-v2/lwip-address-forms/session.json",
+        "sha256": "505dc7f9d3990ed8491e0d859cdb76136a809011beb60fc4d78e4e11242e92d1"
+      },
+      "attachments": [
+        {
+          "path": "corpus/lwip/src/core/ipv4/ip4_addr.c",
+          "sha256": "b440b85c9e49e60510cfa61d40e24b0e2ad480e23a821a94017e42df09dcf8be",
+          "line_start": 144,
+          "line_end": 258,
+          "kind": "source"
+        },
+        {
+          "path": "corpus/lwip/src/core/ipv4/ip4_addr.c",
+          "sha256": "b440b85c9e49e60510cfa61d40e24b0e2ad480e23a821a94017e42df09dcf8be",
+          "line_start": 284,
+          "line_end": 321,
+          "kind": "source"
+        },
+        {
+          "path": "corpus/lwip/src/core/def.c",
+          "sha256": "a12f3ef6c087efb6d4ec524cf332ff438d2504c17d60c263d0bb1b82b79eb2cd",
+          "line_start": 89,
+          "line_end": 93,
+          "kind": "source"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/lwip-address-forms/reproduce.c",
+          "sha256": "a49628b50507c03cb56683840779aba88ad3361eff08f954d6c935e7f4e6dc14",
+          "kind": "harness"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/lwip-address-forms/commands.json",
+          "sha256": "d7e5ea4975c1c0009bd9049e8dba19e76794040716d0c79a8715ceab9bd76805",
+          "kind": "command"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/lwip-address-forms/observation.json",
+          "sha256": "0d3969e43d6f55a0ad11509307a4dca98d216c1c41f19b9199d896c4edfc118e",
+          "kind": "observation"
+        },
+        {
+          "path": "corpus/lwip/test/unit/lwipopts.h",
+          "sha256": "250dfc64740e6ffdc27957427cfb2baa2d190dae0bef88bf7dca6bb1e987f0d3",
+          "kind": "build_configuration"
+        }
+      ],
+      "execution": {
+        "path": "examples/reproductions/knowledge-sources-v2/lwip-address-forms/execution.json",
+        "sha256": "71fdb24c1db9d50ce824653ebe3a41d421213535d5633bc3f5bbdaf0c6b3cfc4"
+      },
+      "full_material": {
+        "path": "examples/reproductions/knowledge-sources-v2/lwip-address-forms/material.txt",
+        "sha256": "86b4e003b9be6217aa8dd16a5390c4788976ca9516d514e97452904d97706b15"
+      },
+      "material_estimated_tokens": 3543,
+      "material_utf8_bytes": 10627,
+      "initial_failure_records": [
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/lwip-address-forms/initial-failure.json",
+          "sha256": "e4a9622d869c214181d542444a70292749a47cdd09677b479b5017727e7abca7"
+        }
+      ],
+      "length_rank_within_repository": 6,
+      "length_bucket": "long"
+    },
+    {
+      "id": "lwip-pbuf-header",
+      "corpus": "lwip",
+      "repository": "https://github.com/lwip-tcpip/lwip",
+      "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+      "status": "reproduced",
+      "session": {
+        "path": "examples/reproductions/knowledge-sources-v2/lwip-pbuf-header/session.json",
+        "sha256": "744592a5c369a6256fd1ad9ccb97076e2035d3b67bcb506ca04123f3d49e883e"
+      },
+      "attachments": [
+        {
+          "path": "corpus/lwip/src/core/pbuf.c",
+          "sha256": "2f953eb2bc5b696b2eea156386cc4f99c793859bbf65cee967653bdf3374db61",
+          "line_start": 477,
+          "line_end": 533,
+          "kind": "source"
+        },
+        {
+          "path": "corpus/lwip/src/core/pbuf.c",
+          "sha256": "2f953eb2bc5b696b2eea156386cc4f99c793859bbf65cee967653bdf3374db61",
+          "line_start": 586,
+          "line_end": 618,
+          "kind": "source"
+        },
+        {
+          "path": "corpus/lwip/src/core/pbuf.c",
+          "sha256": "2f953eb2bc5b696b2eea156386cc4f99c793859bbf65cee967653bdf3374db61",
+          "line_start": 620,
+          "line_end": 628,
+          "kind": "source"
+        },
+        {
+          "path": "corpus/lwip/src/core/pbuf.c",
+          "sha256": "2f953eb2bc5b696b2eea156386cc4f99c793859bbf65cee967653bdf3374db61",
+          "line_start": 650,
+          "line_end": 654,
+          "kind": "source"
+        },
+        {
+          "path": "corpus/lwip/src/core/pbuf.c",
+          "sha256": "2f953eb2bc5b696b2eea156386cc4f99c793859bbf65cee967653bdf3374db61",
+          "line_start": 660,
+          "line_end": 664,
+          "kind": "source"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/lwip-pbuf-header/reproduce.c",
+          "sha256": "be5fbf7a1c6cede8148046ac8ae3319242b8e79400bab7cb785036ff8b963f2e",
+          "kind": "harness"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/lwip-pbuf-header/commands.json",
+          "sha256": "886c2b1e6fbc43d9b8f48140476e1878b9ff4473df9632cd87646652ca31eda5",
+          "kind": "command"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/lwip-pbuf-header/observation.json",
+          "sha256": "4c8f82ca3cbf523740339eda7aa6623178e4203f2503f3a071b80e4669fe77b2",
+          "kind": "observation"
+        },
+        {
+          "path": "corpus/lwip/test/unit/lwipopts.h",
+          "sha256": "250dfc64740e6ffdc27957427cfb2baa2d190dae0bef88bf7dca6bb1e987f0d3",
+          "kind": "build_configuration"
+        }
+      ],
+      "execution": {
+        "path": "examples/reproductions/knowledge-sources-v2/lwip-pbuf-header/execution.json",
+        "sha256": "10984acdce6937c5d14ce445176d78c86d457b5f4d4a5176d66ee3697356afc2"
+      },
+      "full_material": {
+        "path": "examples/reproductions/knowledge-sources-v2/lwip-pbuf-header/material.txt",
+        "sha256": "7b7d8b047987e575362dae7f85bf9eb6ea11591c433b2c57e50d7faf741a171d"
+      },
+      "material_estimated_tokens": 3482,
+      "material_utf8_bytes": 10444,
+      "initial_failure_records": [],
+      "length_rank_within_repository": 5,
+      "length_bucket": "long"
+    },
+    {
+      "id": "lwip-pbuf-chain-ref",
+      "corpus": "lwip",
+      "repository": "https://github.com/lwip-tcpip/lwip",
+      "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+      "status": "reproduced",
+      "session": {
+        "path": "examples/reproductions/knowledge-sources-v2/lwip-pbuf-chain-ref/session.json",
+        "sha256": "4004481d6ce4a82aa5471280883cf3f66d832cbe8419778a95c947b77c254bdc"
+      },
+      "attachments": [
+        {
+          "path": "corpus/lwip/src/core/pbuf.c",
+          "sha256": "2f953eb2bc5b696b2eea156386cc4f99c793859bbf65cee967653bdf3374db61",
+          "line_start": 856,
+          "line_end": 880,
+          "kind": "source"
+        },
+        {
+          "path": "corpus/lwip/src/core/pbuf.c",
+          "sha256": "2f953eb2bc5b696b2eea156386cc4f99c793859bbf65cee967653bdf3374db61",
+          "line_start": 899,
+          "line_end": 906,
+          "kind": "source"
+        },
+        {
+          "path": "corpus/lwip/src/core/pbuf.c",
+          "sha256": "2f953eb2bc5b696b2eea156386cc4f99c793859bbf65cee967653bdf3374db61",
+          "line_start": 832,
+          "line_end": 840,
+          "kind": "source"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/lwip-pbuf-chain-ref/reproduce.c",
+          "sha256": "9a0ab2cee8b6feb38e301487c098bd1e8a12f8903bc9cc1a8808f0aef4ca96fa",
+          "kind": "harness"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/lwip-pbuf-chain-ref/commands.json",
+          "sha256": "57a4672ff65a2fc585d513c16119e25199fe91e786ee0f4ffdc657d000b53171",
+          "kind": "command"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/lwip-pbuf-chain-ref/observation.json",
+          "sha256": "47b7e944c4e314cda24926e0579420474a0d2e04705a96ecfaba76cda1b6f851",
+          "kind": "observation"
+        },
+        {
+          "path": "corpus/lwip/test/unit/lwipopts.h",
+          "sha256": "250dfc64740e6ffdc27957427cfb2baa2d190dae0bef88bf7dca6bb1e987f0d3",
+          "kind": "build_configuration"
+        }
+      ],
+      "execution": {
+        "path": "examples/reproductions/knowledge-sources-v2/lwip-pbuf-chain-ref/execution.json",
+        "sha256": "dbd1233554a59824566f6ac11bd39c11b8ba60f5b016b03804fb77925af8be63"
+      },
+      "full_material": {
+        "path": "examples/reproductions/knowledge-sources-v2/lwip-pbuf-chain-ref/material.txt",
+        "sha256": "29907cd278403ebf1cea6661025aad73d362d7a2cc1de690088c37b6e0b438c0"
+      },
+      "material_estimated_tokens": 2784,
+      "material_utf8_bytes": 8352,
+      "initial_failure_records": [],
+      "length_rank_within_repository": 1,
+      "length_bucket": "short"
+    },
+    {
+      "id": "lwip-pbuf-copy",
+      "corpus": "lwip",
+      "repository": "https://github.com/lwip-tcpip/lwip",
+      "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+      "status": "reproduced",
+      "session": {
+        "path": "examples/reproductions/knowledge-sources-v2/lwip-pbuf-copy/session.json",
+        "sha256": "225768dba1af58b97e8ff4c0c636038f3f295f4eaf80593cee32ed514f62b1ce"
+      },
+      "attachments": [
+        {
+          "path": "corpus/lwip/src/core/pbuf.c",
+          "sha256": "2f953eb2bc5b696b2eea156386cc4f99c793859bbf65cee967653bdf3374db61",
+          "line_start": 1060,
+          "line_end": 1091,
+          "kind": "source"
+        },
+        {
+          "path": "corpus/lwip/src/core/pbuf.c",
+          "sha256": "2f953eb2bc5b696b2eea156386cc4f99c793859bbf65cee967653bdf3374db61",
+          "line_start": 1110,
+          "line_end": 1138,
+          "kind": "source"
+        },
+        {
+          "path": "corpus/lwip/src/core/pbuf.c",
+          "sha256": "2f953eb2bc5b696b2eea156386cc4f99c793859bbf65cee967653bdf3374db61",
+          "line_start": 1191,
+          "line_end": 1206,
+          "kind": "source"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/lwip-pbuf-copy/reproduce.c",
+          "sha256": "e95244cc97b8493818c364389963d08c8bc2b311890f97e0a26e615e50ff9941",
+          "kind": "harness"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/lwip-pbuf-copy/commands.json",
+          "sha256": "328bf0ec4be97575c1ea85e8782e742d2bb629031a33fbb7d0d3f09aa57ed60e",
+          "kind": "command"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/lwip-pbuf-copy/observation.json",
+          "sha256": "92cae944b31b4838a2eceb3737493e2a87fc61eb69b75a8bdc3ab801968b2283",
+          "kind": "observation"
+        },
+        {
+          "path": "corpus/lwip/test/unit/lwipopts.h",
+          "sha256": "250dfc64740e6ffdc27957427cfb2baa2d190dae0bef88bf7dca6bb1e987f0d3",
+          "kind": "build_configuration"
+        }
+      ],
+      "execution": {
+        "path": "examples/reproductions/knowledge-sources-v2/lwip-pbuf-copy/execution.json",
+        "sha256": "728e9345f9ef0a76b1a908bf0f0af7885b404c1f235959844bd86f311da6ec48"
+      },
+      "full_material": {
+        "path": "examples/reproductions/knowledge-sources-v2/lwip-pbuf-copy/material.txt",
+        "sha256": "e32facaec05fcd57c977c7086e5d11acbf23a5000bcde3710274abf171f58c20"
+      },
+      "material_estimated_tokens": 3196,
+      "material_utf8_bytes": 9588,
+      "initial_failure_records": [],
+      "length_rank_within_repository": 4,
+      "length_bucket": "medium"
+    },
+    {
+      "id": "lwip-pbuf-take",
+      "corpus": "lwip",
+      "repository": "https://github.com/lwip-tcpip/lwip",
+      "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+      "status": "reproduced",
+      "session": {
+        "path": "examples/reproductions/knowledge-sources-v2/lwip-pbuf-take/session.json",
+        "sha256": "b2ec4ae1d5dc0bd4843563d50db7720b13a4220d2726ca1062ecc6c0e4892a13"
+      },
+      "attachments": [
+        {
+          "path": "corpus/lwip/src/core/pbuf.c",
+          "sha256": "2f953eb2bc5b696b2eea156386cc4f99c793859bbf65cee967653bdf3374db61",
+          "line_start": 1279,
+          "line_end": 1302,
+          "kind": "source"
+        },
+        {
+          "path": "corpus/lwip/src/core/pbuf.c",
+          "sha256": "2f953eb2bc5b696b2eea156386cc4f99c793859bbf65cee967653bdf3374db61",
+          "line_start": 1235,
+          "line_end": 1266,
+          "kind": "source"
+        },
+        {
+          "path": "corpus/lwip/src/core/pbuf.c",
+          "sha256": "2f953eb2bc5b696b2eea156386cc4f99c793859bbf65cee967653bdf3374db61",
+          "line_start": 1217,
+          "line_end": 1222,
+          "kind": "source"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/lwip-pbuf-take/reproduce.c",
+          "sha256": "439b14b103c09e4641161c0c4fd1c2ea8ecc3fcc16dc65783a2513a5a3e01512",
+          "kind": "harness"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/lwip-pbuf-take/commands.json",
+          "sha256": "3e543243f9b7d4f9819f84a339509d093171feeab0bbd6a0d881bc33a9868a54",
+          "kind": "command"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/lwip-pbuf-take/observation.json",
+          "sha256": "1a4143d7447396893b2b170d217ce68f33b5f92492690018a633b7fb5ef8f44a",
+          "kind": "observation"
+        },
+        {
+          "path": "corpus/lwip/test/unit/lwipopts.h",
+          "sha256": "250dfc64740e6ffdc27957427cfb2baa2d190dae0bef88bf7dca6bb1e987f0d3",
+          "kind": "build_configuration"
+        }
+      ],
+      "execution": {
+        "path": "examples/reproductions/knowledge-sources-v2/lwip-pbuf-take/execution.json",
+        "sha256": "8711aaac9f6baa2db51d4b039077ef4b12adc2d7d74950ff1f0ad6870d0dc45d"
+      },
+      "full_material": {
+        "path": "examples/reproductions/knowledge-sources-v2/lwip-pbuf-take/material.txt",
+        "sha256": "9072134acf0c8c0ab1a1b6f2ae60d78af7e84eaa60c5adf1e153056b862dd8f9"
+      },
+      "material_estimated_tokens": 3102,
+      "material_utf8_bytes": 9306,
+      "initial_failure_records": [],
+      "length_rank_within_repository": 3,
+      "length_bucket": "medium"
+    },
+    {
+      "id": "lwip-checksum-fragments",
+      "corpus": "lwip",
+      "repository": "https://github.com/lwip-tcpip/lwip",
+      "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+      "status": "reproduced",
+      "session": {
+        "path": "examples/reproductions/knowledge-sources-v2/lwip-checksum-fragments/session.json",
+        "sha256": "e46f82e6f6303f332c4b1b74a785d119450610a80d621522edf4c8c262c9adfa"
+      },
+      "attachments": [
+        {
+          "path": "corpus/lwip/src/core/inet_chksum.c",
+          "sha256": "fc82b44fc866704a51c0aacd6037b10802b88e8576e1b691917cd2b863878b1b",
+          "line_start": 554,
+          "line_end": 558,
+          "kind": "source"
+        },
+        {
+          "path": "corpus/lwip/src/core/inet_chksum.c",
+          "sha256": "fc82b44fc866704a51c0aacd6037b10802b88e8576e1b691917cd2b863878b1b",
+          "line_start": 567,
+          "line_end": 588,
+          "kind": "source"
+        },
+        {
+          "path": "corpus/lwip/src/core/inet_chksum.c",
+          "sha256": "fc82b44fc866704a51c0aacd6037b10802b88e8576e1b691917cd2b863878b1b",
+          "line_start": 132,
+          "line_end": 173,
+          "kind": "source"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/lwip-checksum-fragments/reproduce.c",
+          "sha256": "9b6503a5381ef36a07b0f5f5f0186ee021e607086eb63471d1820ebce00fd13a",
+          "kind": "harness"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/lwip-checksum-fragments/commands.json",
+          "sha256": "0b3b1eb66bea19ddef1201d6c2d62a1824bbc088953c5f47b6a5b78770bd6f2c",
+          "kind": "command"
+        },
+        {
+          "path": "examples/reproductions/knowledge-sources-v2/lwip-checksum-fragments/observation.json",
+          "sha256": "4a447298e71c6f530142be46bec295fba167eee31990432f60fcda2c8bddf1bf",
+          "kind": "observation"
+        },
+        {
+          "path": "corpus/lwip/test/unit/lwipopts.h",
+          "sha256": "250dfc64740e6ffdc27957427cfb2baa2d190dae0bef88bf7dca6bb1e987f0d3",
+          "kind": "build_configuration"
+        }
+      ],
+      "execution": {
+        "path": "examples/reproductions/knowledge-sources-v2/lwip-checksum-fragments/execution.json",
+        "sha256": "cbfe31d0f37106c57da3113ee04e9325b97f33e2a65431f014e4ea27d9d47c80"
+      },
+      "full_material": {
+        "path": "examples/reproductions/knowledge-sources-v2/lwip-checksum-fragments/material.txt",
+        "sha256": "3702fe4823fbd665e8cb1934f7230a30cb4d13b398d129a7b68887bce6838ece"
+      },
+      "material_estimated_tokens": 2974,
+      "material_utf8_bytes": 8920,
+      "initial_failure_records": [],
+      "length_rank_within_repository": 2,
+      "length_bucket": "short"
+    }
+  ],
+  "source_contract": {
+    "inputs": "fixed public C fixtures and observed local traces",
+    "downstream_missing": [
+      "follow_up_tasks",
+      "required_facts_source_span_contract",
+      "extractive_layout_template",
+      "reviewed_answer_key"
+    ],
+    "not_an_executable_answer_manifest": true,
+    "models_called": 0,
+    "summary_or_card_products": 0
+  },
+  "length_metric": {
+    "formula": "ceil(len(material.txt UTF-8 bytes) / 3)",
+    "includes": [
+      "complete fixture inputs",
+      "selected complete source definitions",
+      "fixed lwipopts",
+      "all final commands/stdout/stderr/exit",
+      "preserved initial failures"
+    ],
+    "audit_only_excluded": [
+      "hash indexes",
+      "compiler version banner",
+      "transitive header bodies not part of selected definitions"
+    ],
+    "stratification": "Within each repository sort by measured tokens then id; ranks 1-2 short, 3-4 medium, 5-6 long. Relative strata, not absolute long-session claims.",
+    "padding_added": false
+  },
+  "runner": {
+    "path": "examples/reproductions/knowledge-sources-v2/run.py",
+    "sha256": "7b5ff41efddaa1799d38728f9e61e385e14720e0bbc73bbafc1c3ecee87d9b26"
+  },
+  "verifier": {
+    "path": "examples/reproductions/knowledge-sources-v2/verify.py",
+    "sha256": "3547e4d45da9fbd3a9c527ea8b8b3ad77661528322c1463b512cbc4b6ebc7fe6"
+  },
+  "boundary": "Local API/fixture observations only; not network/production incidents, independent holdout certification, model answers, summaries, cards, or evidence of compression gain."
+}

@@ -359,7 +359,19 @@ def api_cards():
              WHERE status IN ('pending','approved','rejected','stale','superseded')
              ORDER BY updated_at DESC, id DESC LIMIT 100"""
     ).fetchall()
-    return {"items": [exp_store.get(c, row["id"]) for row in rows]}
+    return {"items": [_card_view(c, row["id"]) for row in rows]}
+
+
+def _card_view(c, exp_id):
+    """Add a derived reading view; never change the approved publication bundle."""
+    from ..eval.knowledge_production import formal_card_answer_view
+    card = exp_store.get(c, exp_id)
+    if card.get("status") == "approved" and card.get("artifact_scope", "formal") == "formal":
+        messages = [dict(row) for row in c.execute(
+            "SELECT content FROM conversation_message WHERE session_id=? ORDER BY ordinal",
+            (card.get("session_id"),))]
+        card["answer_view"] = formal_card_answer_view(card, messages)
+    return card
 
 
 @app.get("/api/session/examples")
@@ -500,7 +512,7 @@ def api_agent_save_draft(run_id: str):
 @app.get("/api/card/{exp_id}")
 def api_card(exp_id: str):
     try:
-        return exp_store.get(conn(), exp_id)
+        return _card_view(conn(), exp_id)
     except KeyError as exc:
         raise HTTPException(404, str(exc)) from exc
 
@@ -715,6 +727,32 @@ def api_evaluation_latest():
     workflow_raw = next((raw for raw in workflow_candidates if raw
                          and raw.get("repository") == repository
                          and raw.get("revision") == revision), None)
+    coverage_raw = read_json(PROJECT_ROOT / "docs" / "VALUE-PROOF-COVERAGE.json")
+    coverage = None
+    if (coverage_raw and coverage_raw.get("kind") == "value_proof_coverage_inventory"
+            and isinstance(coverage_raw.get("corpora"), list)
+            and any(
+                item.get("repository") == repository and item.get("revision") == revision
+                for item in coverage_raw["corpora"] if isinstance(item, dict)
+            )):
+        from ..eval import value_proof
+        try:
+            value_proof.validate_inventory_integrity(coverage_raw)
+        except value_proof.ValueProofError:
+            stale_reports.append("value-proof-coverage:hash_mismatch")
+        else:
+            coverage = {
+                "status": coverage_raw.get("status"),
+                "coverage_ready": coverage_raw.get("coverage_ready"),
+                "inventory_hash": coverage_raw.get("inventory_hash"),
+                "target_mechanisms_per_repository": coverage_raw.get(
+                    "target_mechanisms_per_repository"),
+                "corpora": [{key: item.get(key) for key in (
+                    "id", "automatic_candidate_count", "target_count",
+                    "selected_count", "status")}
+                    for item in coverage_raw["corpora"] if isinstance(item, dict)],
+                "boundary": coverage_raw.get("boundary"),
+            }
     acceptance_raw = read_json(PROJECT_ROOT / "docs" / "ACCEPTANCE-CJSON-LWIP.json")
     if (acceptance_raw and current_set and (acceptance_raw.get("codeatlas") or {}).get("implementation_hash")
             != implementation_hash(PROJECT_ROOT)):
@@ -817,13 +855,14 @@ def api_evaluation_latest():
                 "generated_at": abc_raw.get("generated_at"),
             }
 
-    if not acceptance and not workflow and not task_eval and not model_eval and not model_abc:
+    if not acceptance and not workflow and not task_eval and not model_eval and not model_abc and not coverage:
         return {"available": False, "stale_reports": stale_reports,
                 "message": "尚未生成当前代码快照的受控评测报告，或旧报告已过期；请运行 demo.sh 后刷新。"}
     result = {
         "available": True, "repository": repository, "revision": revision,
         "workflow": workflow, "task_eval": task_eval, "model_eval": model_eval,
-        "model_abc": model_abc, "acceptance": acceptance, "stale_reports": stale_reports,
+        "model_abc": model_abc, "acceptance": acceptance, "coverage": coverage,
+        "stale_reports": stale_reports,
     }
     # Preserve the previous flat workflow shape for existing local clients.
     if workflow:

@@ -7,6 +7,7 @@ import sqlite3
 import time
 import uuid
 from collections import defaultdict
+from copy import deepcopy
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -14,17 +15,16 @@ from typing import Any
 from . import conversation
 from . import db as dbm
 from .conversation import get_session
+from .contracts import (AGENT_TOOL_CONTRACT, agent_action_contract, budget_json_messages,
+                        planner_diagnostics, tool_continuation, validate_agent_action)
 from .experience import store
 from .graph import traverse
 from .retrieve import engine
 from .wiki import generator as wiki_generator
 
-ALLOWED_TOOLS = {
-    "search_evidence", "wiki_outline", "wiki_section", "resolve_symbol",
-    "code_read", "analyze_impact",
-}
+ALLOWED_TOOLS = set(AGENT_TOOL_CONTRACT)
 MAX_TOOL_CALLS = 6
-PROMPT_VERSION = "agent-wiki-first-v3"
+PROMPT_VERSION = "agent-block-context-v4"
 AGENT_MODES = {"auto", "model", "rule"}
 _TAGS = re.compile(r"\[([ABC]\d+)\]")
 
@@ -99,66 +99,20 @@ def _rule_plan(conn: sqlite3.Connection, query: str) -> list[dict[str, Any]]:
 
 
 def _validate_call(raw: Any) -> dict[str, Any]:
-    if not isinstance(raw, dict) or raw.get("tool") not in ALLOWED_TOOLS:
-        raise AgentError("模型请求了不允许的工具")
-    arguments = raw.get("arguments")
-    if not isinstance(arguments, dict):
-        raise AgentError("工具参数必须是对象")
-    tool = raw["tool"]
-    allowed = {
-        "search_evidence": {"query"}, "resolve_symbol": {"symbol"},
-        "analyze_impact": {"symbol", "depth"},
-        "wiki_outline": {"module", "offset", "budget"}, "wiki_section": {"page_id", "section", "offset", "budget"},
-        "code_read": {"usr", "path", "line_start", "line_end"},
-    }[tool]
-    if set(arguments) - allowed:
-        raise AgentError("工具参数包含不允许字段")
-    for key in ("offset", "budget"):
-        if key in arguments and (type(arguments[key]) is not int or arguments[key] < (1 if key == "budget" else 0)):
-            raise AgentError("分页和预算参数非法")
-    if tool in ("search_evidence", "resolve_symbol", "analyze_impact"):
-        required = "query" if tool == "search_evidence" else "symbol"
-        if not isinstance(arguments.get(required), str) or not arguments[required].strip():
-            raise AgentError(f"{tool} 缺少 {required}")
-    elif tool == "wiki_outline":
-        if "module" in arguments and (not isinstance(arguments["module"], str)
-                                       or not arguments["module"].strip()):
-            raise AgentError("wiki_outline.module 必须是非空字符串")
-    elif tool == "wiki_section":
-        if not all(isinstance(arguments.get(key), str) and arguments[key].strip()
-                   for key in ("page_id", "section")):
-            raise AgentError("wiki_section 缺少 page_id/section")
-    elif tool == "code_read":
-        by_usr = isinstance(arguments.get("usr"), str) and bool(arguments["usr"].strip())
-        by_path = isinstance(arguments.get("path"), str) and bool(arguments["path"].strip())
-        if by_usr == by_path:
-            raise AgentError("code_read 必须且只能提供 usr 或 path")
-        if by_path:
-            start, end = arguments.get("line_start"), arguments.get("line_end")
-            if not isinstance(start, int) or not isinstance(end, int) or start < 1 or end < start:
-                raise AgentError("code_read path 模式需要合法 line_start/line_end")
-            if end - start + 1 > 300:
-                raise AgentError("code_read 单次最多读取 300 行")
-    if tool == "analyze_impact":
-        depth = arguments.get("depth", 2)
-        if not isinstance(depth, int) or not 1 <= depth <= 4:
-            raise AgentError("impact depth 必须介于 1 和 4")
-        arguments = {"symbol": arguments["symbol"], "depth": depth}
-    return {"tool": tool, "arguments": arguments}
+    action = _validate_action(raw)
+    if action["action"] != "tool":
+        raise AgentError("工具调用不能是 finish")
+    return {"tool": action["tool"], "arguments": action["arguments"]}
 
 
 def _validate_action(raw: Any) -> dict[str, Any]:
-    # Compatibility for v1 clients that returned a bare tool call.
-    if isinstance(raw, dict) and "action" not in raw and "tool" in raw:
-        return {"action": "tool", **_validate_call(raw)}
-    if not isinstance(raw, dict) or raw.get("action") not in ("tool", "finish"):
-        raise AgentError("模型动作必须是 tool 或 finish")
-    if raw["action"] == "finish":
-        if set(raw) != {"action"}:
-            raise AgentError("finish 动作不能携带额外字段")
-        return {"action": "finish"}
-    call = _validate_call(raw)
-    return {"action": "tool", **call}
+    try:
+        action = validate_agent_action(raw)
+    except ValueError as exc:
+        raise AgentError(str(exc)) from exc
+    if action.get("tool") == "analyze_impact":
+        action["arguments"].setdefault("depth", 2)
+    return action
 
 
 def _execute(conn: sqlite3.Connection, call: dict[str, Any], *, embedder,
@@ -221,7 +175,12 @@ def _code_read(conn: sqlite3.Connection, args: dict[str, Any]) -> dict[str, Any]
     if not conn.execute("SELECT 1 FROM node WHERE kind='file' AND path=?", (rel,)).fetchone():
         raise AgentError("code_read 路径不属于当前解析快照")
     if end - start + 1 > 300:
-        raise AgentError("code_read 单次最多读取 300 行")
+        # A USR may name a definition larger than one read. Do not silently
+        # truncate it or lose its location in a generic exception.
+        return {"error": "code_read_range_oversize", "status": "oversize",
+                "path": rel, "line_start": start, "line_end": end,
+                "continuation": {"tool": "code_read", "arguments": {
+                    "path": rel, "line_start": start, "line_end": start + 299}}}
     lines = target.read_text(encoding="utf-8", errors="replace").splitlines()
     if start > len(lines):
         return {"error": "line_out_of_range", "path": rel, "line_count": len(lines)}
@@ -359,19 +318,22 @@ def _valid_card_extraction(card: Any, citations: list[dict[str, Any]]) -> bool:
 
 
 def _compact_events(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Project event metadata, never slice a tool body or serialized JSON.
+
+    agent-tool-result-v1 omits only planner_diagnostics from the persisted
+    result. Replay pointers hash this projection, not the surrounding audit.
+    """
     compact = []
     for event in events:
-        result = dict(event["result"])
-        if "citations" in result:
-            result["citations"] = [_prompt_citation(c) for c in result["citations"]]
-        raw = _safe_json(result)
-        result = json.loads(raw) if len(raw) <= 4000 else {
-            "truncated": True, "summary": raw[:3800],
-        }
-        compact.append({"tool": event["tool"], "phase": event["phase"],
+        result = deepcopy(event["result"])
+        # Diagnostics belong to the local audit trace, not model evidence.
+        result.pop("planner_diagnostics", None)
+        compact.append({"tool": event["tool"], "phase": event.get("phase"),
+                        "status": event.get("status"),
+                        "result_projection": "agent-tool-result-v1",
                         "wiki_available": event.get("wiki_available"),
                         "wiki_required": event.get("wiki_required"),
-                        "arguments": event["arguments"],
+                        "arguments": deepcopy(event["arguments"]),
                         "result": result})
     return compact
 
@@ -396,24 +358,12 @@ def _model_action(client, query: str, events: list[dict[str, Any]], read_mode="p
 
 def _enforce_wiki_order(query: str, events: list[dict[str, Any]], action: dict[str, Any],
                         wiki_available: bool) -> None:
-    if not (_requires_wiki(query) and wiki_available):
-        return
-    used = [event["tool"] for event in events]
-    if action["action"] == "finish":
-        if not all(tool in used for tool in ("search_evidence", "wiki_outline", "wiki_section")):
-            raise AgentError("概念/功能/排障题必须先完成 Wiki-first 三步")
-        return
-    tool = action["tool"]
-    prerequisites = {
-        "search_evidence": (),
-        "wiki_outline": ("search_evidence",),
-        "wiki_section": ("search_evidence", "wiki_outline"),
-        "resolve_symbol": ("search_evidence", "wiki_outline", "wiki_section"),
-        "code_read": ("search_evidence", "wiki_outline", "wiki_section"),
-        "analyze_impact": ("search_evidence", "wiki_outline", "wiki_section"),
-    }[tool]
-    if not all(required in used for required in prerequisites):
-        raise AgentError(f"{tool} 违反 Wiki-first 阶段约束")
+    contract = agent_action_contract(events, wiki_available=wiki_available,
+                                    wiki_required=_requires_wiki(query))
+    try:
+        validate_agent_action(action, allowed_next=contract["allowed_next"])
+    except ValueError as exc:
+        raise AgentError("动作违反当前已完成工具的 Wiki-first 阶段约束") from exc
 
 
 def _run_call(conn: sqlite3.Connection, call: dict[str, Any], *, embedder,
@@ -424,9 +374,34 @@ def _run_call(conn: sqlite3.Connection, call: dict[str, Any], *, embedder,
     except Exception as exc:
         return {**call, "phase": _phase(call["tool"]), "result": {"error": type(exc).__name__},
                 "citation_tags": [], "status": "failed", "duration_ms": round((time.perf_counter()-started)*1000, 1)}
+    if call["tool"].startswith("wiki_") and not result.get("error"):
+        if call["tool"] == "wiki_outline":
+            pages = result.get("pages")
+            readable = isinstance(pages, list) and bool(pages) and all(
+                isinstance(page, dict) and isinstance(page.get("page_id"), str) and page["page_id"].strip()
+                and isinstance(page.get("sections"), list) and bool(page["sections"])
+                and all(isinstance(title, str) and title.strip() for title in page["sections"])
+                for page in pages)
+        else:
+            markdown = result.get("markdown")
+            readable = isinstance(markdown, str) and bool(re.sub(r"(?m)^#{1,6}\s+.*$", "", markdown).strip())
+        if not readable or result.get("wiki_unavailable") or result.get("status") in ("oversize", "failed"):
+            result = {**result, "error": call["tool"] + "_unreadable"}
+    continuation = tool_continuation(call["tool"], call["arguments"], result)
+    if continuation:
+        result = {**result, "continuation": continuation}
     return {**call, "phase": _phase(call["tool"]), "result": result,
-            "citation_tags": [], "status": "completed",
+            "citation_tags": [], "status": "failed" if result.get("error") else "completed",
             "duration_ms": round((time.perf_counter() - started) * 1000, 1)}
+
+
+def _planner_diagnostic(client, *, error_class=None) -> dict:
+    raw = getattr(client, "last_planner_diagnostics", {})
+    raw = raw if isinstance(raw, dict) else {}
+    return planner_diagnostics(content_hash=raw.get("content_hash"),
+                               finish_reason=raw.get("finish_reason"),
+                               error_class=error_class or raw.get("error_class"),
+                               usage=raw.get("usage"))
 
 
 def _persist_run(conn: sqlite3.Connection, *, run_id: str, session_id: str | None,
@@ -511,6 +486,7 @@ def _run(conn, query, *, data_dir, embedder, session_id, llm_client, save_draft,
                  "result": {"refused": evidence["refused"], "ab_evidence": evidence["ab_evidence"],
                             "citations": evidence["citations"], "context": evidence.get("context", "")}}
     events: list[dict[str, Any]] = [preflight]
+    planner_log: list[dict] = []
     if read_mode == "progressive" and _requires_wiki(query) and wiki_available:
         preflight["result"]["context"] = "Search discovery only; read Wiki sections then code_read for source text."
     if evidence["refused"]:
@@ -522,12 +498,23 @@ def _run(conn, query, *, data_dir, embedder, session_id, llm_client, save_draft,
         try:
             for _ in range(MAX_TOOL_CALLS - 1):
                 before_attempt = len(events)
-                action = _model_action(llm_client, query, events, read_mode)
-                if read_mode == "progressive":
-                    _enforce_wiki_order(query, events, action, wiki_available)
+                try:
+                    # Assign stable citation tags/identity before hashing a
+                    # planner view; final persistence must not reidentify it.
+                    _build_registry(conn, evidence, events)
+                    action = _model_action(llm_client, query, events, read_mode)
+                    contract = agent_action_contract(events, read_mode=read_mode,
+                                                     wiki_available=wiki_available,
+                                                     wiki_required=_requires_wiki(query))
+                    validate_agent_action(action, allowed_next=contract["allowed_next"])
+                except Exception as exc:
+                    planner_log.append(_planner_diagnostic(llm_client, error_class=type(exc).__name__))
+                    raise
+                planner_log.append(_planner_diagnostic(llm_client))
                 if action["action"] == "finish":
                     if not events:
                         raise AgentError("模型未调用任何证据工具就结束")
+                    events[-1]["result"].setdefault("planner_diagnostics", []).append(planner_log[-1])
                     break
                 call = {"tool": action["tool"], "arguments": action["arguments"]}
                 fingerprint = _safe_json(call)
@@ -535,12 +522,20 @@ def _run(conn, query, *, data_dir, embedder, session_id, llm_client, save_draft,
                     raise AgentError("模型重复请求相同工具调用")
                 seen_calls.add(fingerprint)
                 events.append(_run_call(conn, call, embedder=embedder, data_dir=data_dir))
+                events[-1]["result"]["planner_diagnostics"] = [planner_log[-1]]
         except Exception as exc:
             execution_mode = "rule"
             fallback_reason = f"model_plan_invalid:{type(exc).__name__}"
             if len(events) == before_attempt and len(events) < MAX_TOOL_CALLS:
+                diagnostic = _planner_diagnostic(llm_client, error_class=type(exc).__name__)
+                if planner_log:
+                    planner_log[-1] = diagnostic
+                failed_result = {"error": type(exc).__name__, "planner_diagnostics": [diagnostic]}
+                from .contracts import ContextBudgetExceeded
+                if isinstance(exc, ContextBudgetExceeded):
+                    failed_result["context_budget"] = exc.details
                 events.append({"tool": "planning_attempt", "arguments": {}, "phase": "discover",
-                               "result": {"error": type(exc).__name__}, "status": "rejected",
+                               "result": failed_result, "status": "rejected",
                                "citation_tags": [], "duration_ms": 0})
             remaining = MAX_TOOL_CALLS - len(events)
             for call in _rule_plan(conn, query):
@@ -550,31 +545,42 @@ def _run(conn, query, *, data_dir, embedder, session_id, llm_client, save_draft,
                     continue
                 if call == {"tool": "search_evidence", "arguments": {"query": query}}:
                     continue
+                if call["tool"] not in agent_action_contract(
+                        events, read_mode=read_mode, wiki_available=wiki_available,
+                        wiki_required=_requires_wiki(query))["allowed_next"]:
+                    continue
                 events.append(_run_call(conn, call, embedder=embedder, data_dir=data_dir))
                 remaining -= 1
     else:
         for call in _rule_plan(conn, query):
             if call == {"tool": "search_evidence", "arguments": {"query": query}}:
                 continue
-            if read_mode == "flat" and call["tool"].startswith("wiki_"):
-                continue
             if len(events) >= MAX_TOOL_CALLS:
                 break
+            if call["tool"] not in agent_action_contract(
+                    events, read_mode=read_mode, wiki_available=wiki_available,
+                    wiki_required=_requires_wiki(query))["allowed_next"]:
+                continue
             events.append(_run_call(conn, call, embedder=embedder, data_dir=data_dir))
 
     registry = _build_registry(conn, evidence, events)
     answer: str | None = None
     answer_source = "refusal" if evidence["refused"] else "evidence_pack"
     if not evidence["refused"] and execution_mode == "model" and hasattr(llm_client, "answer"):
-        # Keep newest verification text first if the shared HTTP budget trims
-        # the tail; chronological tool names and all attempts remain explicit.
-        tool_context = _safe_json({"order": [e["tool"] for e in events],
-                                   "events_newest_first": list(reversed(_compact_events(events)))})
         try:
-            candidate = llm_client.answer(
-                engine.SYSTEM_PROMPT, query,
-                f"===== 本次证据注册表 =====\n{_safe_json([_prompt_citation(c) for c in registry])}\n===== 只读工具事实 =====\n{tool_context}",
-            )
+            if hasattr(llm_client, "answer_structured"):
+                candidate = llm_client.answer_structured(
+                    engine.SYSTEM_PROMPT, query, _compact_events(events), registry)
+            else:
+                # Keep the legacy answer(system, question, context) API. Budget
+                # its standard question wrapper too; the supplied context is
+                # complete JSON and never a fragment of a serialized object.
+                prefix = f"问题：{query}\n\n证据：\n"
+                _, context, _ = budget_json_messages(
+                    engine.SYSTEM_PROMPT + prefix,
+                    {"query": query, **agent_action_contract(events, read_mode="flat"),
+                     "evidence": registry, "prior_events": _compact_events(events)})
+                candidate = llm_client.answer(engine.SYSTEM_PROMPT, query, context)
             from .contracts import answer_verification
             if not answer_verification(candidate, registry, conn)["citation_valid"]:
                 raise AgentError("模型回答未通过引用校验")
@@ -629,6 +635,7 @@ def _run(conn, query, *, data_dir, embedder, session_id, llm_client, save_draft,
         "draft_id": draft_id, "latency_ms": latency_ms,
         "knowledge_set_id": set_id, "source_content_hash": source_hash, "read_mode": read_mode,
         "verification": verification, "tool_attempts": len(events),
+        "planner_diagnostics": planner_log,
     }
 
 

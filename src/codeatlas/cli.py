@@ -264,6 +264,46 @@ def proof_closeout(campaign_dir: str = typer.Option(..., "--campaign"),
     console.print_json(data=prepare(campaign_dir, out_dir=out_dir))
 
 
+@proof_app.command("inventory")
+def proof_inventory(
+        manifest: str = typer.Option("eval/value_proof_inventory.yaml", "--manifest"),
+        out: str = typer.Option("docs/VALUE-PROOF-COVERAGE.json", "--out"),
+        review: list[str] | None = typer.Option(None, "--review")):
+    """Zero-cost mechanism coverage gate; it never calls a model."""
+    from .eval.value_proof import inventory, render_inventory, validate_reviews
+    from .publication import atomic_text
+    result = inventory(manifest, project_root=Path.cwd())
+    if review:
+        result = validate_reviews(
+            result, [json.loads(Path(path).read_text(encoding="utf-8")) for path in review]
+        )
+    atomic_text(Path(out), json.dumps(result, ensure_ascii=False, indent=2))
+    atomic_text(Path(out).with_suffix(".md"), render_inventory(result))
+    console.print_json(data={
+        "status": result["status"], "coverage_ready": result["coverage_ready"],
+        "inventory_hash": result["inventory_hash"],
+        "corpora": [{key: row[key] for key in
+                     ("id", "automatic_candidate_count", "target_count", "selected_count", "status")}
+                    for row in result["corpora"]],
+        "out": out,
+    })
+    if result["status"] == "coverage_blocked":
+        raise typer.Exit(1)
+
+
+@proof_app.command("dry-run")
+def proof_dry_run(
+        out: str | None = typer.Option(None, "--out"),
+        product_count: int | None = typer.Option(None, "--product-count")):
+    """Calculate request ceilings without reading credentials or dispatching calls."""
+    from .eval.value_proof import request_budget
+    result = request_budget(product_count=product_count)
+    if out:
+        from .publication import atomic_text
+        atomic_text(Path(out), json.dumps(result, ensure_ascii=False, indent=2))
+    console.print_json(data=result)
+
+
 @snapshot_app.command("status")
 def snapshot_status(db: str = DEFAULT_DB):
     from . import snapshots

@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "BUILD/reproduce"
+  ],
+  "cwd": "PROJECT_ROOT",
+  "stdin": "",
+  "exit_code": 0,
+  "stdout": "copy offset=2 requested=5 copied=5 text=cdefg\ncopy offset=7 requested=9 copied=2 text=hi\ncontiguous offset=3 len=2 zero_copy=1\ncross_fragment without_scratch=null\ncross_fragment with_scratch copied=1 text=cdef\nbeyond_packet offset=8 len=4 result=null\n",
+  "stderr": "",
+  "stdout_sha256": "b55878711d00b5d5ee9183aa8c58d57b18bea98c274dc9abf5530ef12a33dffd",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}
+

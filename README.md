@@ -1,6 +1,13 @@
 # CodeAtlas
 
-> 2026-09-08 评分更正：cJSON Wiki 复评已完成 216/216；知识复用新批次为 53/54，1 个因请求超时未决；lwIP 因 5 个完整评分包超 8k 仍待处理。cJSON 完整度有正向观察，但主指标正确率区间跨零，不宣称稳定提升。原始答案、gold 和旧报告不变。详见[当前进度](docs/REVIEW-REPAIR-STATUS.md)、[知识卡审计](docs/REUSE-EVIDENCE-AUDIT.md)、[Wiki 审计](docs/WIKI-EVIDENCE-AUDIT.md)。
+> 2026-09-08 收尾状态：历史 510 个 Luna 答案、题目、gold 和报告全部保留；486 个正式答案已完成 Sol 双审及必要仲裁。旧实验的 Wiki 正确率差值为 +5.84pt，但区间跨零；两个知识卡案例的输入 token 增加 5.70%，所以两项收益都没有被包装成已证明。新一轮已修复阅读与压缩契约，并冻结 12 个公开复现案例及 36 道 AI 源码复核题；但 Wiki 零付费覆盖清点只找到 cJSON 38 个合格未曝光机制，低于预登记的每库 40 个，新正式付费实验因此停在 `coverage_blocked`。详见[覆盖报告](docs/VALUE-PROOF-COVERAGE.md)与[证明协议](docs/design/VALUE-PROOF-PROTOCOL.md)。
+
+| 新一轮收益验证状态 | 值 | 含义 |
+|---|---|---|
+| `engineering_complete` | `true` | 阅读契约、机制 Wiki、12 个公开案例和离线门禁已实现并通过回归 |
+| `protocol_ready` | `false` | 知识卡题集已就绪，但 Wiki 留出覆盖未达到冻结门槛 |
+| `experiments_complete` | `false` | 新的 528 + 324 个答案试次均未启动 |
+| `benefit_supported` | `false` | 沿用历史“证据不足/未观察到压缩收益”，不把未运行当作负结果 |
 
 CodeAtlas 是一个面向复杂 C 工程的可信 AI 研发辅助原型。它先用编译器建立代码事实，再让检索和 Agent 在这些事实之上工作：回答能回到固定版本的源码，经验要经过人工审核，代码改变后旧经验会自动失效；没有可靠证据时直接拒答。
 
@@ -41,7 +48,7 @@ compile_commands.json + 固定 Git revision
 - 分层知识：为每个纳入索引的 `.c/.h` 文件生成文件页，再汇总模块页和仓库页；页面覆盖职责、入口、certain 调用、显式分支/错误路径、类型/字段/全局引用与 candidate 边界。每次构建校验页面覆盖、Markdown 链接和 `sources` 回链，失去依赖的旧页会变成 `stale` 并退出检索。
 - 版本化证据：A 级代码引用返回 repository、revision、USR、符号、文件范围和定义哈希；B 级只来自已审核且锚点仍有效的知识卡；C 级 Wiki 只能作为背景。
 - 经验治理：会话先设置目标，再确认候选。批准要求精确锚点、完整依赖、绑定当前材料哈希的 QA 和人工确认。Markdown 保存内容，发布日志保存提交事实；重建必须同时验证两者，不能把任意旧 Markdown 重新发布。回滚代码时仍应用当前审核、失效和替代状态。
-- 渐进 Agent：概念、功能和排障题先读 Wiki，再用源码核验；定位、调用链和影响题可直接走结构化工具。最多 6 次调用，只开放 `search_evidence`、`wiki_outline`、`wiki_section`、`resolve_symbol`、`code_read`、`analyze_impact`。非法 JSON、路径越界、伪造引用、超时或接口异常都会留下明确原因并安全回退。
+- 渐进 Agent：概念、功能和排障题只有在成功取得 Wiki 目录与完整章节后才算完成前置阅读，再用源码核验；空页、失败调用或破碎条件句不会解锁后续阶段。定位、调用链和影响题可直接走结构化工具。最多 6 次调用，只开放 `search_evidence`、`wiki_outline`、`wiki_section`、`resolve_symbol`、`code_read`、`analyze_impact`。工具契约同时生成提示词与本地校验；历史结果按完整 JSON 块取舍，不截断条件或引用。
 - 无 Key 可运行：解析、Wiki、检索、影响分析、审核、失效和全部离线评测都不依赖模型。API Key 只从环境变量读取，不进入数据库、日志、运行轨迹或网页。
 
 引用合法不代表回答正确。结构化陈述必须匹配已保存的事实；模型自由叙述即使引用真实源码，也只能标为待人工复核。两种结果分开显示、分开评测。
@@ -69,6 +76,8 @@ cJSON 直接使用 Dave Gamble 的官方 GitHub 仓库；lwIP 的官方开发源
 - [cJSON 六场景闭环](docs/WORKFLOW-EVAL-CJSON.md)
 - [lwIP 六场景闭环](docs/WORKFLOW-EVAL-LWIP.md)
 - [双语料统一验收](docs/ACCEPTANCE-CJSON-LWIP.md)
+- [机制型 Wiki 离线重建验证](docs/VALUE-PROOF-WIKI-VALIDATION.md)
+- [12 个新公开知识案例](examples/reproductions/knowledge-sources-v2/README.md)
 - [三类价值证明协议](docs/design/VALUE-PROOF-PROTOCOL.md)
 - [Luna 答案与 V4 评分收口状态](docs/runs/PROOF-LUNA-20260907-STATUS.md)
 - [cJSON Wiki 效果对照](docs/runs/curated/PROOF-WIKI-CJSON-V5.md)
@@ -101,7 +110,12 @@ codeatlas acceptance-eval --mode fast    # PR：测试 + cJSON + cJSON 知识闭
 codeatlas acceptance-eval --mode full    # 定时/手动：cJSON + lwIP 全链路
 codeatlas acceptance-eval --mode release # 发布前：只验证已提交 full 快照和公开 URL
 
-codeatlas eval knowledge-reuse          # 无 Key 时冻结并校验两例同源材料
+codeatlas eval knowledge-reuse \
+  --manifest eval/knowledge_reuse_v2.yaml \
+  --answer-key eval/knowledge_reuse_v2.answers.yaml \
+  --out /tmp/codeatlas-reuse-v2.json     # 无 Key：校验 12 案例/36 题，不执行答案
+codeatlas eval proof inventory          # 零付费清点未曝光机制；不足时退出码 1
+codeatlas eval proof dry-run            # 只算开发/正式请求上界，不读取 Key 或授权
 codeatlas eval maintenance --executor upstream \
   --manifest eval/upstream_maintenance.yaml \
   --out docs/PROOF-MAINTENANCE-UPSTREAM-V5.json
@@ -169,7 +183,7 @@ codeatlas eval proof report --campaign data/proof/campaign-v1
 
 报告把锚点召回、标签合法与答案 rubric 分开；未审准确率为 null，不按零分展示。`eval review <原报告> <评分JSON> <新报告JSON>` 导入带来源的逐点评审并同步 JSON、Markdown；AI 评审只能标为 `ai_reviewed`，不会冒充人审，原始试次也不覆盖。`eval reading` 在相同代码检索底座上比较无 Wiki、Wiki 自由阅读和渐进阅读，输出中性盲审包；旧名 `wiki_flat` 不代表全文平铺。对照采用固定 seed 的成对交错调度，先平均同题重复，再按机制等权汇总并 bootstrap。服务未给出完整 token 时记未测，经验题节省不计入代码题收益。
 
-锚点命中提升不能解锁答案增益门禁。效果结论绑定独立语义 gold、完整三次运行、通过资格集的双 agent 盲审和必要仲裁；校准只对实际 provider、model、agent、prompt 与输入哈希有效。这些结果标为 `ai_reviewed`，不冒充人审。源码、实现、题集或批准卡变化会使报告过期。旧 cJSON 未决项已在完整证据复评中得到终局；当前剩余为知识复用 1 个传输未知答案与 lwIP 预算阻断，不删除失败记录或自动重发未知请求。
+锚点命中提升不能解锁答案增益门禁。效果结论绑定独立语义 gold、完整三次运行、通过资格集的双 agent 盲审和必要仲裁；校准只对实际 provider、model、agent、prompt 与输入哈希有效。这些结果标为 `ai_reviewed`，不冒充人审。源码、实现、题集或批准卡变化会使报告过期。旧 486 个正式答案均已形成终局；新 12 案例/36 题的 gold 已完成两份独立 AI 源码复核，但新摘要/精简卡生产和 324 个答案试次尚未执行，因此不产生新收益结论。
 
 ## 本机交互演示
 
@@ -182,6 +196,6 @@ codeatlas serve --db data/kb.db --data-dir data
 
 ## 项目边界
 
-当前版本不做多用户团队服务、生产权限审计、自动监听真实会话、IDE/MCP 插件或自动修改代码。模型是可选的规划与表达层，不是事实来源、审核者或发布者。两张公开 B 卡已完成用户审核并可由发布包重建；真实模型实验也已执行，但有 1 个 Wiki 语义仲裁未决，知识复用旧评分因引用映射缺陷停用。项目可以展示工程机制与负面实验，不能包装成企业级平台、生产效果或已证明优于直接读代码。
+当前版本不做多用户团队服务、生产权限审计、自动监听真实会话、IDE/MCP 插件或自动修改代码。模型是可选的规划与表达层，不是事实来源、审核者或发布者。两张公开 B 卡已完成用户审核并可由发布包重建；历史 486 个正式答案复核已完成且未决为 0，但主收益仍没有得到支持。新的严格留出实验因固定 cJSON 覆盖不足停在 `coverage_blocked`，没有启动付费批次。项目可以展示工程机制、评测纪律与负面结果，不能包装成企业级平台、生产效果或已证明优于直接读代码。
 
 更多说明：[架构](docs/ARCHITECTURE.md) · [评测口径](docs/EVAL.md) · [Agent 与知识卡](docs/AGENT_WORKFLOW.md) · [面试 STAR](docs/INTERVIEW_STAR.md)

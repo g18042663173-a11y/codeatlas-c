@@ -1,0 +1,38 @@
+schema_version: 1
+name: CodeAtlas Wiki 收益新留出覆盖清点
+target_mechanisms_per_repository: 40
+
+# 只把这些冻结历史材料用于暴露排除；新题集不能反过来修改此列表。
+exposure_inputs:
+  - eval/tasks_cjson.yaml
+  - eval/tasks_lwip.yaml
+  - eval/tasks_current_cjson.yaml
+  - eval/tasks_current_lwip.yaml
+  - eval/holdout_cjson.yaml
+  - eval/holdout_lwip.yaml
+  - eval/holdout_cjson.answers.yaml
+  - eval/holdout_lwip.answers.yaml
+  - eval/knowledge_reuse.yaml
+  - eval/knowledge_reuse.answers.yaml
+  - eval/proof_smoke.yaml
+  - eval/review_calibration.yaml
+  - eval/review_calibration_v3.yaml
+  - eval/review_calibration_v4a.yaml
+  - eval/review_calibration_v4b.yaml
+  - eval/maintenance.yaml
+  - eval/upstream_maintenance.yaml
+
+corpora:
+  - id: cjson
+    repository: https://github.com/DaveGamble/cJSON
+    revision: fb16e5cf358798aabb049655975cde8427101056
+    database: data/kb.db
+    production_paths:
+      - cJSON.c
+      - cJSON_Utils.c
+  - id: lwip
+    repository: https://github.com/lwip-tcpip/lwip
+    revision: 3d896ba0a37ff3ce73270ca5e230707fe47f60e3
+    database: data/lwip.db
+    production_paths:
+      - src/

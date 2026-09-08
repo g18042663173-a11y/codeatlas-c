@@ -48,6 +48,78 @@ def test_wiki_covers_header_and_passes_backlink_integrity(tmp_path):
     ).fetchone()[0]
 
 
+def test_wiki_mechanisms_are_stable_bounded_and_compiler_grounded(tmp_path):
+    conn = _fresh(tmp_path)
+    first = generator.generate(conn, str(CORPUS), resume=False)
+    page = conn.execute("SELECT md FROM wiki_page WHERE id='files/mini.c'").fetchone()[0]
+    assert first["integrity"]["mechanism_integrity_ok"] is True
+    assert first["integrity"]["mechanism_count"] == conn.execute(
+        "SELECT COUNT(*) FROM node WHERE kind='function' AND is_definition=1 AND is_static=0"
+    ).fetchone()[0]
+    assert "## 可核验机制说明" in page
+    assert "**适用入口**" in page and "**反例与材料不足**" in page
+    assert "错误语义分类为 `unknown`" in page
+    ids_before = set(__import__("re").findall(r'mechanism-([0-9a-f]{16})', page))
+    assert ids_before
+
+    # Pure line movement is citation metadata, not mechanism identity.
+    conn.execute("UPDATE node SET line_start=line_start+10,line_end=line_end+10 "
+                 "WHERE kind='function' AND path='mini.c'")
+    conn.commit()
+    generator.generate(conn, str(CORPUS), resume=False)
+    moved = conn.execute("SELECT md FROM wiki_page WHERE id='files/mini.c'").fetchone()[0]
+    ids_after = set(__import__("re").findall(r'mechanism-([0-9a-f]{16})', moved))
+    assert ids_after == ids_before
+    conn.execute("UPDATE node SET line_start=line_start-10,line_end=line_end-10 "
+                 "WHERE kind='function' AND path='mini.c'")
+    conn.commit()
+    generator.generate(conn, str(CORPUS), resume=False)
+
+
+def test_mechanism_ids_do_not_collide_for_repeated_translation_unit_usr():
+    first = {"usr": "c:@F@main", "path": "tests/one.c", "id": "fn-one"}
+    second = {"usr": "c:@F@main", "path": "tests/two.c", "id": "fn-two"}
+    assert generator._mechanism_id(first) != generator._mechanism_id(second)
+
+
+def test_mechanism_wiki_never_character_truncates_an_atomic_fact(tmp_path):
+    conn = _fresh(tmp_path)
+    fact = conn.execute(
+        """SELECT sf.id,sf.payload_json,n.path FROM semantic_fact sf
+             JOIN node n ON n.id=sf.function_id
+            WHERE sf.kind='error_path' AND n.is_definition=1 AND n.is_static=0
+            ORDER BY sf.id LIMIT 1"""
+    ).fetchone()
+    assert fact is not None
+    payload = json.loads(fact["payload_json"])
+    expression = "return (" + " && ".join(f"guard_{number}" for number in range(40)) + ")"
+    assert len(expression) > 240
+    payload["expression"] = expression
+    conn.execute("UPDATE semantic_fact SET payload_json=? WHERE id=?",
+                 (json.dumps(payload, sort_keys=True), fact["id"]))
+    conn.commit()
+    generator.generate(conn, str(CORPUS), out_dir=str(tmp_path / "wiki"), resume=False)
+    page_id = f"files/{fact['path']}"
+    page = conn.execute("SELECT md FROM wiki_page WHERE id=?", (page_id,)).fetchone()[0]
+    assert expression in page
+    assert expression[:240] in page
+
+
+def test_wiki_mechanism_sources_join_existing_dependency_graph(tmp_path):
+    conn = _fresh(tmp_path)
+    generator.generate(conn, str(CORPUS), resume=False)
+    parse = conn.execute(
+        "SELECT id FROM node WHERE name='cJSON_ParseWithOpts' AND is_definition=1"
+    ).fetchone()[0]
+    page = conn.execute("SELECT sources FROM wiki_page WHERE id='files/mini.c'").fetchone()[0]
+    assert f'node:{parse}' in json.loads(page)
+    deps = conn.execute(
+        "SELECT dependency_id,fingerprint FROM knowledge_dependency "
+        "WHERE owner_type='wiki' AND owner_id='files/mini.c'"
+    ).fetchall()
+    assert any(row["dependency_id"] == parse and row["fingerprint"] != "unknown" for row in deps)
+
+
 def test_module_call_rows_are_scoped_to_module_files(tmp_path):
     conn = _fresh(tmp_path)
     # Add two artificial modules to make a repository-level leakage obvious.

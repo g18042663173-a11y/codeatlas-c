@@ -36,7 +36,7 @@
 |---|---:|---|---:|
 | certain 影响集合 | 0 | P 0.0 / R 0.0 / F1 0.0 | 0 / 0ms |
 | 无证据拒答 | 0 | 准确率 0.0% | 0 / 0ms |
-| 已审核经验复用 | 5 | B 卡 Recall@10 100.0% / MRR 0.134 | 12 / 19ms |
+| 已审核经验复用 | 5 | B 卡 Recall@10 100.0% / MRR 0.118 | 34 / 73ms |
 
 ### 开发回归检索门槛（非模型效果门槛）
 
@@ -49,7 +49,7 @@
 
 - 审核：`approved`；Guoshuaiqi / 2026-09-06；问题：netif_add 加入接口后 netif_default 仍为空的真实根因是什么？
 - 预期 B 卡：`沉淀 netif_add 与默认接口选择分离的可复现知识`；主锚点：netif_add (src/core/netif.c:L286)
-- 结果：命中=True，MRR=0.125，锚点完整=True。
+- 结果：命中=True，MRR=0.111，锚点完整=True。
 
 ### current-lwip-condition · 已审核经验复用 · 通过
 
@@ -61,19 +61,19 @@
 
 - 审核：`approved`；Guoshuaiqi / 2026-09-06；问题：能否认为 netif_add 会自动把最后加入的接口设为默认接口？如何排除这个错误解释？
 - 预期 B 卡：`沉淀 netif_add 与默认接口选择分离的可复现知识`；主锚点：netif_add (src/core/netif.c:L286)
-- 结果：命中=True，MRR=0.125，锚点完整=True。
+- 结果：命中=True，MRR=0.111，锚点完整=True。
 
 ### current-lwip-fix · 已审核经验复用 · 通过
 
 - 审核：`approved`；Guoshuaiqi / 2026-09-06；问题：netif_add 成功后，调用方应怎样使用 netif_set_default 完成默认接口选择？
 - 预期 B 卡：`沉淀 netif_add 与默认接口选择分离的可复现知识`；主锚点：netif_add (src/core/netif.c:L286)
-- 结果：命中=True，MRR=0.111，锚点完整=True。
+- 结果：命中=True，MRR=0.1，锚点完整=True。
 
 ### current-lwip-verification · 已审核经验复用 · 通过
 
 - 审核：`approved`；Guoshuaiqi / 2026-09-06；问题：如何运行 lwIP netif_add 复现实验，并验证 list、default 和返回值？
 - 预期 B 卡：`沉淀 netif_add 与默认接口选择分离的可复现知识`；主锚点：netif_add (src/core/netif.c:L286)
-- 结果：命中=True，MRR=0.167，锚点完整=True。
+- 结果：命中=True，MRR=0.125，锚点完整=True。
 
 ## 失败案例
 

@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "kind": "mechanism_wiki_offline_validation",
+  "status": "passed",
+  "models_called": 0,
+  "source_databases": {
+    "cjson": "data/kb.db",
+    "lwip": "data/lwip.db"
+  },
+  "execution": "copy each database to a fresh temporary directory; generate file/module/repository Wiki with resume=false; export; run integrity",
+  "results": {
+    "cjson": {
+      "revision": "fb16e5cf358798aabb049655975cde8427101056",
+      "build_config_hash": "4003a287a2796fa9c7f1a6cde60f1e7d2766f73e86961abe170c2ecf73122a7a",
+      "files": 34,
+      "modules": 3,
+      "repositories": 1,
+      "pages": 38,
+      "mechanisms": 122,
+      "expected_mechanisms": 122,
+      "module_scopes_checked": 3,
+      "errors": 0
+    },
+    "lwip": {
+      "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+      "build_config_hash": "80071ae3b0549c3e3b740247f881261a67173142bf3c7d9aba7c7fa73f0cd2dd",
+      "files": 266,
+      "modules": 18,
+      "repositories": 1,
+      "pages": 285,
+      "mechanisms": 616,
+      "expected_mechanisms": 616,
+      "module_scopes_checked": 18,
+      "errors": 0
+    }
+  },
+  "integrity": {
+    "file_coverage_complete": true,
+    "mechanism_ids_unique": true,
+    "mechanism_coverage_complete": true,
+    "module_call_scope_valid": true,
+    "local_links_and_backlinks_valid": true
+  },
+  "implementation_files": {
+    "src/codeatlas/wiki/generator.py": "8d59b82d1f5fd76e2e3cfe4c88182428ab694331345aff9b2a60c00726957c84",
+    "src/codeatlas/agent.py": "69122aed27d2f0a9d3734ab4f42cb37d0e7e6e6eb415f285de08050c6ca4f937",
+    "src/codeatlas/contracts.py": "d904716cba4bdee071b60651d59a212356ab9bbd28bce96adcc5f2c242fc98d8"
+  },
+  "boundary": "This proves deterministic generation and structural integrity on the current local databases. It does not prove that Wiki prose improves model correctness; the new held-out effect campaign remains blocked by cJSON coverage 38/40."
+}

@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "BUILD/reproduce"
+  ],
+  "cwd": "PROJECT_ROOT",
+  "stdin": "",
+  "exit_code": 0,
+  "stdout": "REF add4 result=1 offset=4 len=7 total=7\nREF remove2 result=0 offset=6 len=5 total=5\nincrement_magnitude <= p->lenREF remove6 result=1 offset=6 len=5 total=5\nREF force_add6 valid_reserved_storage result=0 offset=0 len=11 total=11\n",
+  "stderr": "",
+  "stdout_sha256": "19a5ed2ec95893203dbd37cc921781974513ffe4fce546d23cec65d5729ddd5d",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}
+

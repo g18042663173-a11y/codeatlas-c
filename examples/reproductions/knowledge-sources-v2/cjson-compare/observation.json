@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "BUILD/reproduce"
+  ],
+  "cwd": "PROJECT_ROOT",
+  "stdin": "",
+  "exit_code": 0,
+  "stdout": "vector=1 sensitive=1 left={\"a\":1,\"b\":2} right={\"b\":2,\"a\":1} equal=1\nvector=2 sensitive=1 left=[1,2] right=[2,1] equal=0\nvector=3 sensitive=0 left={\"Name\":\"x\"} right={\"name\":\"x\"} equal=1\nvector=4 sensitive=1 left={\"Name\":\"x\"} right={\"name\":\"x\"} equal=0\nvector=5 sensitive=0 left={\"k\":\"X\"} right={\"k\":\"x\"} equal=0\nvector=6 sensitive=1 left={\"a\":1} right={\"a\":1,\"b\":2} equal=0\nvector=7 sensitive=1 left={\"a\":1,\"b\":2} right={\"a\":1} equal=0\nvector=8 sensitive=0 left=1 right=\"1\" equal=0\nvector=9 sensitive=1 left={\"items\":[true,null,{\"x\":3}]} right={\"items\":[true,null,{\"x\":3}]} equal=1\nvector=10 sensitive=1 left={\"items\":[true,null,{\"x\":3}]} right={\"items\":[true,null,{\"x\":4}]} equal=0\n",
+  "stderr": "",
+  "stdout_sha256": "d4e327c3cc5fdcee4b656c0fea04c4da523993d9ec7a1cefc4021f2a707783be",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}
+

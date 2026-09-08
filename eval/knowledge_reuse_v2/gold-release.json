@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "knowledge_reuse_gold_release",
+  "status": "ai_reviewed",
+  "source_manifest_sha256": "3870534cc47af568ed09e6efe512de309ac75253b556972d45b901ce79e561c1",
+  "manifest_sha256": "58b1e4f662c0dbbaad8a2deaca2395d16493bf68a9cead9a415d331bb5e5ae00",
+  "reviewed_candidate_answer_key_sha256": "5b889d72f5fee1b197075489e7f91768e2eec33ac2a68e616ca1e4aeb7d69821",
+  "released_answer_key_sha256": "97335b8adbf292f341eb88eed91cfb2a7cf86d77b1af23245544644c7d457fc4",
+  "answer_key_input_hash": "f3576d8aabffda03b34a0ac103fb487bd6eab543b5e51edb3ba33b2bc8f26a29",
+  "review_files": {
+    "eval/knowledge_reuse_v2.gold-review-a.json": "8183802058056f488a1d0ed085642c883db6165500361c6669aa79c463ecc635",
+    "eval/knowledge_reuse_v2.gold-review-b.json": "6f7d2134fd1103e3a446ee1589cefcd68a508a241d0f700d41fe4b080a1616cd"
+  },
+  "reviewers": [
+    "/root/closeout_plan_review",
+    "/root/detach_source_b"
+  ],
+  "counts": {
+    "cases": 12,
+    "questions": 36,
+    "expected_points": 72,
+    "forbidden_claims": 72,
+    "answer_packets": 108,
+    "maximum_estimated_input_tokens": 7979,
+    "input_limit": 8000
+  },
+  "effect_eligible": true,
+  "human_release_eligible": false,
+  "models_called_for_answers_or_products": 0,
+  "boundary": "The frozen gold is eligible for a future AI-reviewed fixed-case effect experiment. The release itself is not human review, a completed model experiment, or evidence of compression benefit."
+}

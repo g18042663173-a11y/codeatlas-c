@@ -1,0 +1,179 @@
+{
+  "schema_version": 2,
+  "artifact_kind": "public_source_reproduction",
+  "id": "cjson-duplicate",
+  "repository": "cjson",
+  "revision": "fb16e5cf358798aabb049655975cde8427101056",
+  "status": "reproduced",
+  "environment": {
+    "system": "Darwin",
+    "machine": "arm64",
+    "compiler": {
+      "argv": [
+        "cc",
+        "--version"
+      ],
+      "cwd": "PROJECT_ROOT",
+      "stdin": "",
+      "exit_code": 0,
+      "stdout": "Apple clang version 21.0.0 (clang-2100.3.33.1)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n",
+      "stderr": "",
+      "stdout_sha256": "0d586d46a939eadd69bd458ed9dfb10874d948af7dda03c363a58d19eac2d570",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "input": {
+    "kind": "compiled_fixture",
+    "fixture": {
+      "path": "examples/reproductions/knowledge-sources-v2/cjson-duplicate/reproduce.c",
+      "sha256": "e560f9d01038f220c71913328e89c99ed6c1ace4508a8fe54e4640ea79993775"
+    },
+    "argv": [],
+    "stdin": "",
+    "description": "Exact input bytes and operation sequences are C literals in the hash-bound fixture; no generated input or network."
+  },
+  "build_config": {
+    "flags": [
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-ffunction-sections",
+      "-fdata-sections",
+      "-Icorpus/cJSON"
+    ],
+    "files": [
+      {
+        "path": "corpus/cJSON/cJSON.h",
+        "sha256": "25b0145150d500498e4d209cec69c18c42cf818bffcc54690be3b895a2a16dee"
+      }
+    ],
+    "compile_commands": {
+      "path": "corpus/cJSON/compile_commands.json",
+      "sha256": "15a6c321e05e783176e573b2852778348de69d6ac8e61ececb46fe83d3d7dbbf"
+    }
+  },
+  "sources": [
+    {
+      "path": "corpus/cJSON/cJSON.c",
+      "sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852"
+    }
+  ],
+  "anchors": [
+    {
+      "path": "corpus/cJSON/cJSON.c",
+      "sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+      "symbol": "cJSON_Duplicate",
+      "line_start": 2784,
+      "line_end": 2787,
+      "text": "CJSON_PUBLIC(cJSON *) cJSON_Duplicate(const cJSON *item, cJSON_bool recurse)\n{\n    return cJSON_Duplicate_rec(item, 0, recurse );\n}\n",
+      "content_hash": "79cc049e242f7d3894317741d672b3384f221b1b6d6eb4bf306907e12dce8d60"
+    },
+    {
+      "path": "corpus/cJSON/cJSON.c",
+      "sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+      "symbol": "cJSON_Duplicate_rec",
+      "line_start": 2789,
+      "line_end": 2873,
+      "text": "cJSON * cJSON_Duplicate_rec(const cJSON *item, size_t depth, cJSON_bool recurse)\n{\n    cJSON *newitem = NULL;\n    cJSON *child = NULL;\n    cJSON *next = NULL;\n    cJSON *newchild = NULL;\n\n    /* Bail on bad ptr */\n    if (!item)\n    {\n        goto fail;\n    }\n    /* Create new item */\n    newitem = cJSON_New_Item(&global_hooks);\n    if (!newitem)\n    {\n        goto fail;\n    }\n    /* Copy over all vars */\n    newitem->type = item->type & (~cJSON_IsReference);\n    newitem->valueint = item->valueint;\n    newitem->valuedouble = item->valuedouble;\n    if (item->valuestring)\n    {\n        newitem->valuestring = (char*)cJSON_strdup((unsigned char*)item->valuestring, &global_hooks);\n        if (!newitem->valuestring)\n        {\n            goto fail;\n        }\n    }\n    if (item->string)\n    {\n        newitem->string = (item->type&cJSON_StringIsConst) ? item->string : (char*)cJSON_strdup((unsigned char*)item->string, &global_hooks);\n        if (!newitem->string)\n        {\n            goto fail;\n        }\n    }\n    /* If non-recursive, then we're done! */\n    if (!recurse)\n    {\n        return newitem;\n    }\n    /* Walk the ->next chain for the child. */\n    child = item->child;\n    while (child != NULL)\n    {\n        if(depth >= CJSON_CIRCULAR_LIMIT) {\n            goto fail;\n        }\n        newchild = cJSON_Duplicate_rec(child, depth + 1, true); /* Duplicate (with recurse) each item in the ->next chain */\n        if (!newchild)\n        {\n            goto fail;\n        }\n        if (next != NULL)\n        {\n            /* If newitem->child already set, then crosswire ->prev and ->next and move on */\n            next->next = newchild;\n            newchild->prev = next;\n            next = newchild;\n        }\n        else\n        {\n            /* Set newitem->child and move to it */\n            newitem->child = newchild;\n            next = newchild;\n        }\n        child = child->next;\n    }\n    if (newitem && newitem->child)\n    {\n        newitem->child->prev = newchild;\n    }\n\n    return newitem;\n\nfail:\n    if (newitem != NULL)\n    {\n        cJSON_Delete(newitem);\n    }\n\n    return NULL;\n}\n",
+      "content_hash": "6d34499f37c6be44da7717101fdd6a8cb3ce6ba6631597ab429f446a4f75ebe9"
+    }
+  ],
+  "steps": [
+    {
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-Wall",
+        "-Wextra",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-Icorpus/cJSON",
+        "-MMD",
+        "-MF",
+        "BUILD/part-0.d",
+        "-c",
+        "corpus/cJSON/cJSON.c",
+        "-o",
+        "BUILD/part-0.o"
+      ],
+      "cwd": "PROJECT_ROOT",
+      "stdin": "",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-Wall",
+        "-Wextra",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-Icorpus/cJSON",
+        "-MMD",
+        "-MF",
+        "BUILD/part-1.d",
+        "-c",
+        "examples/reproductions/knowledge-sources-v2/cjson-duplicate/reproduce.c",
+        "-o",
+        "BUILD/part-1.o"
+      ],
+      "cwd": "PROJECT_ROOT",
+      "stdin": "",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "cc",
+        "-Wl,-dead_strip",
+        "BUILD/part-0.o",
+        "BUILD/part-1.o",
+        "-lm",
+        "-o",
+        "BUILD/reproduce"
+      ],
+      "cwd": "PROJECT_ROOT",
+      "stdin": "",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "BUILD/reproduce"
+      ],
+      "cwd": "PROJECT_ROOT",
+      "stdin": "",
+      "exit_code": 0,
+      "stdout": "shallow object=1 children=0\ndeep after_source_mutation source=9 copy=1 distinct=1\nreference after_storage_mutation source=Borrowed copy=borrowed copy_is_reference=0\n",
+      "stderr": "",
+      "stdout_sha256": "03e98d683a2e7ac5fe083edd2f84cfe19776ca680ec3fc4eb2e2cb82e85db059",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "runner": {
+    "path": "examples/reproductions/knowledge-sources-v2/run.py",
+    "sha256": "7b5ff41efddaa1799d38728f9e61e385e14720e0bbc73bbafc1c3ecee87d9b26"
+  },
+  "dependencies": [
+    {
+      "path": "corpus/cJSON/cJSON.c",
+      "sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852"
+    },
+    {
+      "path": "corpus/cJSON/cJSON.h",
+      "sha256": "25b0145150d500498e4d209cec69c18c42cf818bffcc54690be3b895a2a16dee"
+    }
+  ],
+  "material_utf8_bytes": 4870,
+  "material_estimated_tokens": 1624
+}

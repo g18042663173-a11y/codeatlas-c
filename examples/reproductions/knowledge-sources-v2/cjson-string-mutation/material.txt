@@ -1,0 +1,111 @@
+Repository: cjson
+Revision: fb16e5cf358798aabb049655975cde8427101056
+
+
+Input model: compiled C literals; empty argv and stdin.
+
+
+Fixture:
+/* CC0-1.0: owned and reference string mutation. */
+#include <assert.h>
+#include <stdio.h>
+#include <string.h>
+#include "cJSON.h"
+int main(void) {
+    cJSON *owned=cJSON_CreateString("abcdef");
+    cJSON *reference=cJSON_CreateStringReference("external");
+    cJSON *number=cJSON_CreateNumber(4);
+    assert(owned && reference && number);
+    char *original=owned->valuestring;
+    char *result=cJSON_SetValuestring(owned,"xy");
+    assert(result==original && strcmp(result,"xy")==0);
+    printf("owned shorten=xy reused_storage=%d\n",result==original);
+    result=cJSON_SetValuestring(owned,"a much longer replacement");
+    assert(result && strcmp(result,"a much longer replacement")==0);
+    printf("owned grow=%s\n",result);
+    assert(cJSON_SetValuestring(reference,"changed")==NULL);
+    assert(strcmp(reference->valuestring,"external")==0);
+    printf("reference rejected=1 preserved=%s\n",reference->valuestring);
+    assert(cJSON_SetValuestring(number,"string")==NULL);
+    printf("number rejected=1 value=%.0f\n",number->valuedouble);
+    cJSON_Delete(owned);cJSON_Delete(reference);cJSON_Delete(number);
+    return 0;
+}
+
+
+Source: corpus/cJSON/cJSON.c:435-476
+CJSON_PUBLIC(char*) cJSON_SetValuestring(cJSON *object, const char *valuestring)
+{
+    char *copy = NULL;
+    size_t v1_len;
+    size_t v2_len;
+    /* if object's type is not cJSON_String or is cJSON_IsReference, it should not set valuestring */
+    if ((object == NULL) || !(object->type & cJSON_String) || (object->type & cJSON_IsReference))
+    {
+        return NULL;
+    }
+    /* return NULL if the object is corrupted or valuestring is NULL */
+    if (object->valuestring == NULL || valuestring == NULL)
+    {
+        return NULL;
+    }
+
+    v1_len = strlen(valuestring);
+    v2_len = strlen(object->valuestring);
+
+    if (v1_len <= v2_len)
+    {
+        /* strcpy does not handle overlapping string: [X1, X2] [Y1, Y2] => X2 < Y1 or Y2 < X1 */
+        if (!( valuestring + v1_len < object->valuestring || object->valuestring + v2_len < valuestring ))
+        {
+            return NULL;
+        }
+        strcpy(object->valuestring, valuestring);
+        return object->valuestring;
+    }
+    copy = (char*) cJSON_strdup((const unsigned char*)valuestring, &global_hooks);
+    if (copy == NULL)
+    {
+        return NULL;
+    }
+    if (object->valuestring != NULL)
+    {
+        cJSON_free(object->valuestring);
+    }
+    object->valuestring = copy;
+
+    return copy;
+}
+
+
+Command: cc -std=c99 -Wall -Wextra -ffunction-sections -fdata-sections -Icorpus/cJSON -MMD -MF BUILD/part-0.d -c corpus/cJSON/cJSON.c -o BUILD/part-0.o
+stdin: <empty>
+exit: 0
+stdout:
+stderr:
+
+
+Command: cc -std=c99 -Wall -Wextra -ffunction-sections -fdata-sections -Icorpus/cJSON -MMD -MF BUILD/part-1.d -c examples/reproductions/knowledge-sources-v2/cjson-string-mutation/reproduce.c -o BUILD/part-1.o
+stdin: <empty>
+exit: 0
+stdout:
+stderr:
+
+
+Command: cc -Wl,-dead_strip BUILD/part-0.o BUILD/part-1.o -lm -o BUILD/reproduce
+stdin: <empty>
+exit: 0
+stdout:
+stderr:
+
+
+Command: BUILD/reproduce
+stdin: <empty>
+exit: 0
+stdout:
+owned shorten=xy reused_storage=1
+owned grow=a much longer replacement
+reference rejected=1 preserved=external
+number rejected=1 value=4
+stderr:
+

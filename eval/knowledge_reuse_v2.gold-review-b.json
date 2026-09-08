@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "knowledge_reuse_gold_review",
+  "reviewed_answer_key_sha256": "5b889d72f5fee1b197075489e7f91768e2eec33ac2a68e616ca1e4aeb7d69821",
+  "manifest_sha256": "58b1e4f662c0dbbaad8a2deaca2395d16493bf68a9cead9a415d331bb5e5ae00",
+  "source_manifest_sha256": "3870534cc47af568ed09e6efe512de309ac75253b556972d45b901ce79e561c1",
+  "verified_counts": {
+    "questions": 36,
+    "expected_points": 72,
+    "forbidden_claims": 72,
+    "evidence_payloads": 341,
+    "executable_assertions": 153,
+    "required_fact_spans": 98,
+    "fixture_reruns": 12
+  },
+  "review_record": {
+    "reviewer_kind": "agent",
+    "reviewer": "CodeAtlas gold source reviewer B",
+    "reviewed_at": "2026-09-08",
+    "note": "All three question types for every case match the frozen fixture, source and recorded output; ownership and scope limits are retained.",
+    "provider": "codex_app",
+    "model": "gpt-5",
+    "agent": "/root/detach_source_b",
+    "prompt_hash": "227814326d2d80d03090fe413259c10a69d08ef4e51718b739aa7780afd1669c",
+    "input_hash": "f3576d8aabffda03b34a0ac103fb487bd6eab543b5e51edb3ba33b2bc8f26a29",
+    "input_tokens": null,
+    "output_tokens": null,
+    "cost_usd": null,
+    "latency_ms": null,
+    "independent": true,
+    "peer_reviews_visible": false,
+    "verdict": "approved"
+  },
+  "human_reviewed": false,
+  "boundary": "AI source review only. This reviewer authored the task-free fixtures but did not author the questions or answer key."
+}

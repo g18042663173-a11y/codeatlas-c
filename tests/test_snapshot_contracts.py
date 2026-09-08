@@ -426,3 +426,49 @@ def test_evaluation_api_pins_current_set_and_hides_stale_reports(snapshot_repo, 
     report["codeatlas"]["implementation_hash"] = "old-implementation"
     path.write_text(json.dumps(report))
     assert "acceptance:implementation_changed" in client.get("/api/evaluation/latest").json()["stale_reports"]
+
+
+def test_evaluation_api_exposes_only_hash_valid_value_proof_coverage(
+        snapshot_repo, tmp_path, monkeypatch):
+    from fastapi.testclient import TestClient
+    import codeatlas.server.app as srv
+    from codeatlas.contracts import digest
+    source, control = snapshot_repo
+    snapshots.build(control, str(source), str(source / "compile_commands.json"),
+                    strict=False, activate_after=True)
+    monkeypatch.setattr(srv, "DB", str(snapshots.database_path(control)))
+    monkeypatch.setattr(srv, "DATA_DIR", str(tmp_path))
+    monkeypatch.setattr(srv, "PROJECT_ROOT", tmp_path)
+    (tmp_path / "docs").mkdir()
+    with snapshots.pin(control) as context:
+        repository = db.get_meta(context.conn, "repository_id")
+        revision = db.get_meta(context.conn, "revision")
+    report = {
+        "schema_version": 1, "kind": "value_proof_coverage_inventory",
+        "target_mechanisms_per_repository": 40,
+        "corpora": [{"id": "cjson", "repository": repository,
+                      "revision": revision, "automatic_candidate_count": 38,
+                      "target_count": 40, "selected_count": 38,
+                      "status": "coverage_blocked"}],
+        "boundary": "frozen coverage only",
+    }
+    report["inventory_hash"] = digest(report)
+    report.update(status="coverage_blocked", coverage_ready=False)
+    path = tmp_path / "docs/VALUE-PROOF-COVERAGE.json"
+    path.write_text(json.dumps(report))
+    client = TestClient(srv.app)
+    payload = client.get("/api/evaluation/latest").json()
+    assert payload["available"] is True
+    assert payload["coverage"]["corpora"][0]["automatic_candidate_count"] == 38
+    green = dict(report)
+    green.update(status="approved", coverage_ready=True)
+    path.write_text(json.dumps(green))
+    stale = client.get("/api/evaluation/latest").json()
+    assert stale["available"] is False
+    assert "value-proof-coverage:hash_mismatch" in stale["stale_reports"]
+    changed = dict(report)
+    changed["corpora"] = [{**report["corpora"][0], "automatic_candidate_count": 39}]
+    path.write_text(json.dumps(changed))
+    stale = client.get("/api/evaluation/latest").json()
+    assert stale["available"] is False
+    assert "value-proof-coverage:hash_mismatch" in stale["stale_reports"]

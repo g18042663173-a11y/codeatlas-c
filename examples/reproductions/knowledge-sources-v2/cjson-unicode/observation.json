@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "BUILD/reproduce"
+  ],
+  "cwd": "PROJECT_ROOT",
+  "stdin": "",
+  "exit_code": 0,
+  "stdout": "accepted input=\"\\u0041\" utf8_hex=41\naccepted input=\"\\u20ac\" utf8_hex=e282ac\naccepted input=\"\\uD834\\uDD1E\" utf8_hex=f09d849e\naccepted input=\"prefix \\uD83D\\uDE00 suffix\" utf8_hex=70726566697820f09f988020737566666978\nrejected input=\"\\uDD1E\" error_offset=1\nrejected input=\"\\uD834\" error_offset=1\nrejected input=\"\\uD834\\u0041\" error_offset=1\nrejected input=\"\\uD834\\uD834\" error_offset=1\nrejected input=\"\\u12\" error_offset=1\nmalformed_hex input=\"\\uZZZZ\" accepted=1 decoded_strlen=0 first_byte=00\n",
+  "stderr": "",
+  "stdout_sha256": "6a86a18bb06c99b5291e06ac85a7cc40890c0e0fb216febdf606c7bbf359c1c2",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}
+

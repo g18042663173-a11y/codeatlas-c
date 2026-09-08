@@ -1,0 +1,137 @@
+Repository: cjson
+Revision: fb16e5cf358798aabb049655975cde8427101056
+
+
+Input model: compiled C literals; empty argv and stdin.
+
+
+Fixture:
+/* CC0-1.0: key replacement and failed replacement ownership. */
+#include <assert.h>
+#include <stdio.h>
+#include <string.h>
+#include "cJSON.h"
+int main(void) {
+    cJSON *object=cJSON_Parse("{\"Key\":1,\"tail\":2}"), *replacement=cJSON_CreateNumber(8);
+    assert(object && replacement);
+    assert(cJSON_ReplaceItemInObjectCaseSensitive(object,"key",replacement)==0);
+    assert(cJSON_GetObjectItemCaseSensitive(object,"Key")->valuedouble==1);
+    printf("case_sensitive_missing replaced=0 original=%.0f replacement_detached=%d\n",object->child->valuedouble,replacement->next==NULL && replacement->prev==NULL);
+    assert(cJSON_ReplaceItemInObject(object,"key",replacement)==1);
+    assert(object->child==replacement && strcmp(replacement->string,"key")==0);
+    assert(replacement->next->prev==replacement && object->child->prev==replacement->next);
+    printf("case_insensitive replaced=1 key=%s value=%.0f next_key=%s list_links=valid\n",replacement->string,replacement->valuedouble,replacement->next->string);
+    cJSON *unattached=cJSON_CreateNumber(3);assert(unattached);
+    assert(cJSON_ReplaceItemInObject(object,"absent",unattached)==0);
+    printf("missing_key replaced=0 caller_still_owns_value=%.0f\n",unattached->valuedouble);
+    cJSON_Delete(unattached);cJSON_Delete(object);
+    return 0;
+}
+
+
+Source: corpus/cJSON/cJSON.c:2427-2448
+static cJSON_bool replace_item_in_object(cJSON *object, const char *string, cJSON *replacement, cJSON_bool case_sensitive)
+{
+    if ((replacement == NULL) || (string == NULL))
+    {
+        return false;
+    }
+
+    /* replace the name in the replacement */
+    if (!(replacement->type & cJSON_StringIsConst) && (replacement->string != NULL))
+    {
+        cJSON_free(replacement->string);
+    }
+    replacement->string = (char*)cJSON_strdup((const unsigned char*)string, &global_hooks);
+    if (replacement->string == NULL)
+    {
+        return false;
+    }
+
+    replacement->type &= ~cJSON_StringIsConst;
+
+    return cJSON_ReplaceItemViaPointer(object, get_object_item(object, string, case_sensitive), replacement);
+}
+
+
+Source: corpus/cJSON/cJSON.c:2368-2415
+CJSON_PUBLIC(cJSON_bool) cJSON_ReplaceItemViaPointer(cJSON * const parent, cJSON * const item, cJSON * replacement)
+{
+    if ((parent == NULL) || (parent->child == NULL) || (replacement == NULL) || (item == NULL))
+    {
+        return false;
+    }
+
+    if (replacement == item)
+    {
+        return true;
+    }
+
+    replacement->next = item->next;
+    replacement->prev = item->prev;
+
+    if (replacement->next != NULL)
+    {
+        replacement->next->prev = replacement;
+    }
+    if (parent->child == item)
+    {
+        if (parent->child->prev == parent->child)
+        {
+            replacement->prev = replacement;
+        }
+        parent->child = replacement;
+    }
+    else
+    {   /*
+         * To find the last item in array quickly, we use prev in array.
+         * We can't modify the last item's next pointer where this item was the parent's child
+         */
+        if (replacement->prev != NULL)
+        {
+            replacement->prev->next = replacement;
+        }
+        if (replacement->next == NULL)
+        {
+            parent->child->prev = replacement;
+        }
+    }
+
+    item->next = NULL;
+    item->prev = NULL;
+    cJSON_Delete(item);
+
+    return true;
+}
+
+
+Command: cc -std=c99 -Wall -Wextra -ffunction-sections -fdata-sections -Icorpus/cJSON -MMD -MF BUILD/part-0.d -c corpus/cJSON/cJSON.c -o BUILD/part-0.o
+stdin: <empty>
+exit: 0
+stdout:
+stderr:
+
+
+Command: cc -std=c99 -Wall -Wextra -ffunction-sections -fdata-sections -Icorpus/cJSON -MMD -MF BUILD/part-1.d -c examples/reproductions/knowledge-sources-v2/cjson-replace-object/reproduce.c -o BUILD/part-1.o
+stdin: <empty>
+exit: 0
+stdout:
+stderr:
+
+
+Command: cc -Wl,-dead_strip BUILD/part-0.o BUILD/part-1.o -lm -o BUILD/reproduce
+stdin: <empty>
+exit: 0
+stdout:
+stderr:
+
+
+Command: BUILD/reproduce
+stdin: <empty>
+exit: 0
+stdout:
+case_sensitive_missing replaced=0 original=1 replacement_detached=1
+case_insensitive replaced=1 key=key value=8 next_key=tail list_links=valid
+missing_key replaced=0 caller_still_owns_value=3
+stderr:
+

@@ -1,0 +1,270 @@
+Repository: lwip
+Revision: 3d896ba0a37ff3ce73270ca5e230707fe47f60e3
+
+
+Input model: compiled C literals; empty argv and stdin.
+
+
+Fixture:
+/* CC0-1.0: byte-order independent checksums; no network traffic. */
+#include <assert.h>
+#include <stdio.h>
+#include <string.h>
+#include "lwip/inet_chksum.h"
+#include "lwip/pbuf.h"
+static unsigned display(u16_t value) {const unsigned char *p=(const unsigned char *)&value;return ((unsigned)p[0]<<8)|p[1];}
+int main(void) {
+    unsigned char bytes[]={0x00,0x01,0xf2,0x03,0xf4,0xf5,0xf6,0xf7,0x11};
+    const unsigned splits[][3]={{1,2,6},{3,3,3},{4,4,1},{2,2,5}};
+    const u16_t contiguous=inet_chksum(bytes,sizeof(bytes));
+    printf("input_hex=0001f203f4f5f6f711 contiguous_checksum=%04x\n",display(contiguous));
+    for(unsigned i=0;i<sizeof(splits)/sizeof(splits[0]);++i) {
+        struct pbuf p[3];memset(p,0,sizeof(p));unsigned offset=0;
+        for(unsigned j=0;j<3;++j) {
+            p[j].payload=bytes+offset;p[j].len=(u16_t)splits[i][j];p[j].tot_len=(u16_t)(sizeof(bytes)-offset);
+            p[j].next=j<2?&p[j+1]:NULL;offset+=splits[i][j];
+        }
+        u16_t chained=inet_chksum_pbuf(p);assert(chained==contiguous);
+        printf("split=%u+%u+%u checksum=%04x equal_contiguous=1\n",splits[i][0],splits[i][1],splits[i][2],display(chained));
+    }
+    unsigned char unaligned[sizeof(bytes)+1];memcpy(unaligned+1,bytes,sizeof(bytes));
+    u16_t check=inet_chksum(unaligned+1,sizeof(bytes));assert(check==contiguous);
+    printf("unaligned_same_bytes checksum=%04x equal_contiguous=1\n",display(check));
+    const u16_t even=inet_chksum(bytes,8);assert(display(even)==0x220d && display(contiguous)==0x110d);
+    printf("prefix_len=8 checksum=%04x full_len=9 checksum=%04x\n",display(even),display(contiguous));
+    return 0;
+}
+
+
+Fixed configuration: corpus/lwip/test/unit/lwipopts.h
+/*
+ * Copyright (c) 2001-2003 Swedish Institute of Computer Science.
+ * All rights reserved. 
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, 
+ * are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ * 3. The name of the author may not be used to endorse or promote products
+ *    derived from this software without specific prior written permission. 
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED 
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF 
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT 
+ * SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
+ * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING 
+ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY 
+ * OF SUCH DAMAGE.
+ *
+ * This file is part of the lwIP TCP/IP stack.
+ * 
+ * Author: Simon Goldschmidt
+ *
+ */
+#ifndef LWIP_HDR_LWIPOPTS_H
+#define LWIP_HDR_LWIPOPTS_H
+
+#define LWIP_TESTMODE                   1
+
+#define LWIP_IPV6                       1
+
+#define LWIP_CHECKSUM_ON_COPY           1
+#define TCP_CHECKSUM_ON_COPY_SANITY_CHECK 1
+#define TCP_CHECKSUM_ON_COPY_SANITY_CHECK_FAIL(printfmsg) LWIP_ASSERT("TCP_CHECKSUM_ON_COPY_SANITY_CHECK_FAIL", 0)
+
+/* We link to special sys_arch.c (for basic non-waiting API layers unit tests) */
+#define NO_SYS                          0
+#define SYS_LIGHTWEIGHT_PROT            0
+#define LWIP_NETCONN                    !NO_SYS
+#define LWIP_SOCKET                     !NO_SYS
+#define LWIP_NETCONN_FULLDUPLEX         LWIP_SOCKET
+#define LWIP_NETCONN_SEM_PER_THREAD     1
+#define LWIP_NETBUF_RECVINFO            1
+#define LWIP_HAVE_LOOPIF                1
+#define TCPIP_THREAD_TEST
+
+/* Enable DHCP to test it */
+#define LWIP_DHCP                       1
+
+/* Enable DNS, with random source port to avoid alloc in dns_init */
+#define LWIP_DNS                        1
+#define LWIP_DNS_SECURE (LWIP_DNS_SECURE_RAND_XID | LWIP_DNS_SECURE_RAND_SRC_PORT)
+
+/* Minimal changes to opt.h required for tcp unit tests: */
+#define MEM_SIZE                        17000
+#define TCP_SND_QUEUELEN                40
+#define MEMP_NUM_TCP_SEG                TCP_SND_QUEUELEN
+#define TCP_SND_BUF                     (12 * TCP_MSS)
+#define TCP_WND                         (10 * TCP_MSS)
+#define LWIP_WND_SCALE                  1
+#define TCP_RCV_SCALE                   0
+#define PBUF_POOL_SIZE                  400 /* pbuf tests need ~200KByte */
+
+/* Enable IGMP and MDNS for MDNS tests */
+#define LWIP_IGMP                       1
+#define LWIP_MDNS_RESPONDER             1
+#define LWIP_NUM_NETIF_CLIENT_DATA      (LWIP_MDNS_RESPONDER)
+
+/* Enable PPP and PPPOS support for PPPOS test suites */
+#define PPP_SUPPORT                     1
+#define PPPOS_SUPPORT                   1
+
+/* Minimal changes to opt.h required for etharp unit tests: */
+#define ETHARP_SUPPORT_STATIC_ENTRIES   1
+
+#define MEMP_NUM_SYS_TIMEOUT            (LWIP_NUM_SYS_TIMEOUT_INTERNAL + 8)
+
+/* MIB2 stats are required to check IPv4 reassembly results */
+#define MIB2_STATS                      1
+
+/* netif tests want to test this, so enable: */
+#define LWIP_NETIF_EXT_STATUS_CALLBACK  1
+
+/* Check lwip_stats.mem.illegal instead of asserting */
+#define LWIP_MEM_ILLEGAL_FREE(msg)      /* to nothing */
+
+/* autodetect if we are running the tests on 32-bit or 64-bit */
+#if defined(_WIN32) || defined(_WIN64)
+#if defined(_WIN64)
+#define PTR64
+#else
+#define PTR32
+#endif
+#elif defined(__GNUC__)
+#if defined(__x86_64__) || defined(__ppc64__)
+#define PTR64
+#else
+#define PTR32
+#endif
+#elif UINTPTR_MAX > UINT_MAX
+#define PTR64
+#else
+#define PTR32
+#endif
+
+#ifdef PTR64
+#define IPV6_FRAG_COPYHEADER            1
+#endif
+
+#endif /* LWIP_HDR_LWIPOPTS_H */
+
+
+Source: corpus/lwip/src/core/inet_chksum.c:554-558
+u16_t
+inet_chksum(const void *dataptr, u16_t len)
+{
+  return (u16_t)~(unsigned int)LWIP_CHKSUM(dataptr, len);
+}
+
+
+Source: corpus/lwip/src/core/inet_chksum.c:567-588
+u16_t
+inet_chksum_pbuf(struct pbuf *p)
+{
+  u32_t acc;
+  struct pbuf *q;
+  int swapped = 0;
+
+  acc = 0;
+  for (q = p; q != NULL; q = q->next) {
+    acc += LWIP_CHKSUM(q->payload, q->len);
+    acc = FOLD_U32T(acc);
+    if (q->len % 2 != 0) {
+      swapped = !swapped;
+      acc = SWAP_BYTES_IN_WORD(acc);
+    }
+  }
+
+  if (swapped) {
+    acc = SWAP_BYTES_IN_WORD(acc);
+  }
+  return (u16_t)~(acc & 0xffffUL);
+}
+
+
+Source: corpus/lwip/src/core/inet_chksum.c:132-173
+u16_t
+lwip_standard_chksum(const void *dataptr, int len)
+{
+  const u8_t *pb = (const u8_t *)dataptr;
+  const u16_t *ps;
+  u16_t t = 0;
+  u32_t sum = 0;
+  int odd = ((mem_ptr_t)pb & 1);
+
+  /* Get aligned to u16_t */
+  if (odd && len > 0) {
+    ((u8_t *)&t)[1] = *pb++;
+    len--;
+  }
+
+  /* Add the bulk of the data */
+  ps = (const u16_t *)(const void *)pb;
+  while (len > 1) {
+    sum += *ps++;
+    len -= 2;
+  }
+
+  /* Consume left-over byte, if any */
+  if (len > 0) {
+    ((u8_t *)&t)[0] = *(const u8_t *)ps;
+  }
+
+  /* Add end bytes */
+  sum += t;
+
+  /* Fold 32-bit sum to 16 bits
+     calling this twice is probably faster than if statements... */
+  sum = FOLD_U32T(sum);
+  sum = FOLD_U32T(sum);
+
+  /* Swap if alignment was odd */
+  if (odd) {
+    sum = SWAP_BYTES_IN_WORD(sum);
+  }
+
+  return (u16_t)sum;
+}
+
+
+Command: cc -std=c99 -Wall -Wextra -ffunction-sections -fdata-sections -DLWIP_DEBUG -Icorpus/lwip/src/include -Icorpus/lwip/contrib/ports/unix/port/include -Icorpus/lwip/test/unit -MMD -MF BUILD/part-0.d -c corpus/lwip/src/core/inet_chksum.c -o BUILD/part-0.o
+stdin: <empty>
+exit: 0
+stdout:
+stderr:
+
+
+Command: cc -std=c99 -Wall -Wextra -ffunction-sections -fdata-sections -DLWIP_DEBUG -Icorpus/lwip/src/include -Icorpus/lwip/contrib/ports/unix/port/include -Icorpus/lwip/test/unit -MMD -MF BUILD/part-1.d -c examples/reproductions/knowledge-sources-v2/lwip-checksum-fragments/reproduce.c -o BUILD/part-1.o
+stdin: <empty>
+exit: 0
+stdout:
+stderr:
+
+
+Command: cc -Wl,-dead_strip BUILD/part-0.o BUILD/part-1.o -lm -o BUILD/reproduce
+stdin: <empty>
+exit: 0
+stdout:
+stderr:
+
+
+Command: BUILD/reproduce
+stdin: <empty>
+exit: 0
+stdout:
+input_hex=0001f203f4f5f6f711 contiguous_checksum=110d
+split=1+2+6 checksum=110d equal_contiguous=1
+split=3+3+3 checksum=110d equal_contiguous=1
+split=4+4+1 checksum=110d equal_contiguous=1
+split=2+2+5 checksum=110d equal_contiguous=1
+unaligned_same_bytes checksum=110d equal_contiguous=1
+prefix_len=8 checksum=220d full_len=9 checksum=110d
+stderr:
+

@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "cjson-duplicate",
+  "source_type": "public_synthetic",
+  "session_kind": "captured_public_fixture_trace",
+  "not_a_human_transcript": true,
+  "license": "CC0-1.0 (fixture and trace); upstream code retains its original license",
+  "source_ref": "examples/reproductions/knowledge-sources-v2/cjson-duplicate",
+  "repository": "https://github.com/DaveGamble/cJSON",
+  "revision": "fb16e5cf358798aabb049655975cde8427101056",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Public fixture input; operations and input bytes are C literals, not a production incident:\n/* CC0-1.0: shallow/deep copies and reference conversion. */\n#include <assert.h>\n#include <stdio.h>\n#include <string.h>\n#include \"cJSON.h\"\nint main(void) {\n    cJSON *source=cJSON_Parse(\"{\\\"nested\\\":{\\\"value\\\":1},\\\"label\\\":\\\"before\\\"}\");\n    cJSON *shallow=cJSON_Duplicate(source,0), *deep=cJSON_Duplicate(source,1);\n    assert(source && shallow && deep);\n    assert(shallow->child==NULL && cJSON_IsObject(shallow));\n    printf(\"shallow object=1 children=%d\\n\",cJSON_GetArraySize(shallow));\n    cJSON *original_n=cJSON_GetObjectItemCaseSensitive(cJSON_GetObjectItemCaseSensitive(source,\"nested\"),\"value\");\n    cJSON *copied_n=cJSON_GetObjectItemCaseSensitive(cJSON_GetObjectItemCaseSensitive(deep,\"nested\"),\"value\");\n    assert(original_n!=copied_n && copied_n->valuedouble==1);\n    cJSON_SetNumberValue(original_n,9);\n    printf(\"deep after_source_mutation source=%.0f copy=%.0f distinct=%d\\n\",original_n->valuedouble,copied_n->valuedouble,original_n!=copied_n);\n    assert(copied_n->valuedouble==1);\n    char storage[]=\"borrowed\";\n    cJSON *reference=cJSON_CreateStringReference(storage);\n    cJSON *owned_copy=cJSON_Duplicate(reference,1);\n    assert(reference && owned_copy && !(owned_copy->type & cJSON_IsReference));\n    storage[0]='B';assert(strcmp(owned_copy->valuestring,\"borrowed\")==0);\n    printf(\"reference after_storage_mutation source=%s copy=%s copy_is_reference=%d\\n\",reference->valuestring,owned_copy->valuestring,!!(owned_copy->type & cJSON_IsReference));\n    cJSON_Delete(source);cJSON_Delete(shallow);cJSON_Delete(deep);cJSON_Delete(reference);cJSON_Delete(owned_copy);\n    return 0;\n}\n"
+    },
+    {
+      "role": "tool",
+      "content": "Actual build commands and captured results:\n[\n  {\n    \"argv\": [\n      \"cc\",\n      \"-std=c99\",\n      \"-Wall\",\n      \"-Wextra\",\n      \"-ffunction-sections\",\n      \"-fdata-sections\",\n      \"-Icorpus/cJSON\",\n      \"-MMD\",\n      \"-MF\",\n      \"BUILD/part-0.d\",\n      \"-c\",\n      \"corpus/cJSON/cJSON.c\",\n      \"-o\",\n      \"BUILD/part-0.o\"\n    ],\n    \"cwd\": \"PROJECT_ROOT\",\n    \"stdin\": \"\",\n    \"exit_code\": 0,\n    \"stdout\": \"\",\n    \"stderr\": \"\",\n    \"stdout_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n    \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n  },\n  {\n    \"argv\": [\n      \"cc\",\n      \"-std=c99\",\n      \"-Wall\",\n      \"-Wextra\",\n      \"-ffunction-sections\",\n      \"-fdata-sections\",\n      \"-Icorpus/cJSON\",\n      \"-MMD\",\n      \"-MF\",\n      \"BUILD/part-1.d\",\n      \"-c\",\n      \"examples/reproductions/knowledge-sources-v2/cjson-duplicate/reproduce.c\",\n      \"-o\",\n      \"BUILD/part-1.o\"\n    ],\n    \"cwd\": \"PROJECT_ROOT\",\n    \"stdin\": \"\",\n    \"exit_code\": 0,\n    \"stdout\": \"\",\n    \"stderr\": \"\",\n    \"stdout_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n    \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n  },\n  {\n    \"argv\": [\n      \"cc\",\n      \"-Wl,-dead_strip\",\n      \"BUILD/part-0.o\",\n      \"BUILD/part-1.o\",\n      \"-lm\",\n      \"-o\",\n      \"BUILD/reproduce\"\n    ],\n    \"cwd\": \"PROJECT_ROOT\",\n    \"stdin\": \"\",\n    \"exit_code\": 0,\n    \"stdout\": \"\",\n    \"stderr\": \"\",\n    \"stdout_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n    \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n  }\n]\n"
+    },
+    {
+      "role": "tool",
+      "content": "Actual executable command and captured result:\n{\n  \"argv\": [\n    \"BUILD/reproduce\"\n  ],\n  \"cwd\": \"PROJECT_ROOT\",\n  \"stdin\": \"\",\n  \"exit_code\": 0,\n  \"stdout\": \"shallow object=1 children=0\\ndeep after_source_mutation source=9 copy=1 distinct=1\\nreference after_storage_mutation source=Borrowed copy=borrowed copy_is_reference=0\\n\",\n  \"stderr\": \"\",\n  \"stdout_sha256\": \"03e98d683a2e7ac5fe083edd2f84cfe19776ca680ec3fc4eb2e2cb82e85db059\",\n  \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n}\n"
+    }
+  ]
+}
+

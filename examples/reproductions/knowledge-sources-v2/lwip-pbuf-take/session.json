@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "lwip-pbuf-take",
+  "source_type": "public_synthetic",
+  "session_kind": "captured_public_fixture_trace",
+  "not_a_human_transcript": true,
+  "license": "CC0-1.0 (fixture and trace); upstream code retains its original license",
+  "source_ref": "examples/reproductions/knowledge-sources-v2/lwip-pbuf-take",
+  "repository": "https://github.com/lwip-tcpip/lwip",
+  "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Public fixture input; operations and input bytes are C literals, not a production incident:\n/* CC0-1.0: bounded writes across packet fragments. */\n#include <assert.h>\n#include <stdio.h>\n#include <string.h>\n#include \"lwip/pbuf.h\"\nstatic void show(struct pbuf *p,const char *label,err_t result) {\n    char out[10];u16_t n=pbuf_copy_partial(p,out,9,0);out[n]='\\0';\n    printf(\"%s result=%d packet=%s total=%u\\n\",label,result,out,p->tot_len);\n}\nint main(void) {\n    char a[]=\"abc\",b[]=\"de\",c[]=\"fghi\";struct pbuf p[3];memset(p,0,sizeof(p));\n    p[0].payload=a;p[0].len=3;p[0].tot_len=9;p[0].next=&p[1];\n    p[1].payload=b;p[1].len=2;p[1].tot_len=6;p[1].next=&p[2];\n    p[2].payload=c;p[2].len=p[2].tot_len=4;\n    err_t result=pbuf_take_at(p,\"WXYZ\",4,2);\n    assert(result==ERR_OK && memcmp(a,\"abW\",3)==0 && memcmp(b,\"XY\",2)==0 && memcmp(c,\"Zghi\",4)==0);\n    show(p,\"write offset=2 len=4 bytes=WXYZ\",result);\n    result=pbuf_take_at(p,\"NO\",2,8);assert(result==ERR_MEM && memcmp(c,\"Zghi\",4)==0);\n    show(p,\"oversize offset=8 len=2 unchanged\",result);\n    result=pbuf_take_at(p,\"END\",3,6);assert(result==ERR_OK && memcmp(c,\"ZEND\",4)==0);\n    show(p,\"exact_end offset=6 len=3 bytes=END\",result);\n    result=pbuf_take_at(p,\"!\",1,9);assert(result==ERR_MEM);show(p,\"offset_at_end len=1 unchanged\",result);\n    return 0;\n}\n"
+    },
+    {
+      "role": "tool",
+      "content": "Actual build commands and captured results:\n[\n  {\n    \"argv\": [\n      \"cc\",\n      \"-std=c99\",\n      \"-Wall\",\n      \"-Wextra\",\n      \"-ffunction-sections\",\n      \"-fdata-sections\",\n      \"-DLWIP_DEBUG\",\n      \"-Icorpus/lwip/src/include\",\n      \"-Icorpus/lwip/contrib/ports/unix/port/include\",\n      \"-Icorpus/lwip/test/unit\",\n      \"-MMD\",\n      \"-MF\",\n      \"BUILD/part-0.d\",\n      \"-c\",\n      \"corpus/lwip/src/core/pbuf.c\",\n      \"-o\",\n      \"BUILD/part-0.o\"\n    ],\n    \"cwd\": \"PROJECT_ROOT\",\n    \"stdin\": \"\",\n    \"exit_code\": 0,\n    \"stdout\": \"\",\n    \"stderr\": \"\",\n    \"stdout_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n    \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n  },\n  {\n    \"argv\": [\n      \"cc\",\n      \"-std=c99\",\n      \"-Wall\",\n      \"-Wextra\",\n      \"-ffunction-sections\",\n      \"-fdata-sections\",\n      \"-DLWIP_DEBUG\",\n      \"-Icorpus/lwip/src/include\",\n      \"-Icorpus/lwip/contrib/ports/unix/port/include\",\n      \"-Icorpus/lwip/test/unit\",\n      \"-MMD\",\n      \"-MF\",\n      \"BUILD/part-1.d\",\n      \"-c\",\n      \"examples/reproductions/knowledge-sources-v2/lwip-pbuf-take/reproduce.c\",\n      \"-o\",\n      \"BUILD/part-1.o\"\n    ],\n    \"cwd\": \"PROJECT_ROOT\",\n    \"stdin\": \"\",\n    \"exit_code\": 0,\n    \"stdout\": \"\",\n    \"stderr\": \"\",\n    \"stdout_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n    \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n  },\n  {\n    \"argv\": [\n      \"cc\",\n      \"-Wl,-dead_strip\",\n      \"BUILD/part-0.o\",\n      \"BUILD/part-1.o\",\n      \"-lm\",\n      \"-o\",\n      \"BUILD/reproduce\"\n    ],\n    \"cwd\": \"PROJECT_ROOT\",\n    \"stdin\": \"\",\n    \"exit_code\": 0,\n    \"stdout\": \"\",\n    \"stderr\": \"\",\n    \"stdout_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n    \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n  }\n]\n"
+    },
+    {
+      "role": "tool",
+      "content": "Actual executable command and captured result:\n{\n  \"argv\": [\n    \"BUILD/reproduce\"\n  ],\n  \"cwd\": \"PROJECT_ROOT\",\n  \"stdin\": \"\",\n  \"exit_code\": 0,\n  \"stdout\": \"write offset=2 len=4 bytes=WXYZ result=0 packet=abWXYZghi total=9\\noversize offset=8 len=2 unchanged result=-1 packet=abWXYZghi total=9\\nexact_end offset=6 len=3 bytes=END result=0 packet=abWXYZEND total=9\\noffset_at_end len=1 unchanged result=-1 packet=abWXYZEND total=9\\n\",\n  \"stderr\": \"\",\n  \"stdout_sha256\": \"484064bd437088f236bebb3a8bb82f81c0502c79beb6712f9d441280988b5237\",\n  \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n}\n"
+    }
+  ]
+}
+

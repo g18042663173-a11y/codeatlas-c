@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "cjson-compare",
+  "source_type": "public_synthetic",
+  "session_kind": "captured_public_fixture_trace",
+  "not_a_human_transcript": true,
+  "license": "CC0-1.0 (fixture and trace); upstream code retains its original license",
+  "source_ref": "examples/reproductions/knowledge-sources-v2/cjson-compare",
+  "repository": "https://github.com/DaveGamble/cJSON",
+  "revision": "fb16e5cf358798aabb049655975cde8427101056",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Public fixture input; operations and input bytes are C literals, not a production incident:\n/* CC0-1.0: object/array/type comparison matrix. */\n#include <assert.h>\n#include <stdio.h>\n#include \"cJSON.h\"\nstruct vector { const char *left,*right; int sensitive,equal; };\nint main(void) {\n    const struct vector cases[]={\n        {\"{\\\"a\\\":1,\\\"b\\\":2}\",\"{\\\"b\\\":2,\\\"a\\\":1}\",1,1},\n        {\"[1,2]\",\"[2,1]\",1,0},\n        {\"{\\\"Name\\\":\\\"x\\\"}\",\"{\\\"name\\\":\\\"x\\\"}\",0,1},\n        {\"{\\\"Name\\\":\\\"x\\\"}\",\"{\\\"name\\\":\\\"x\\\"}\",1,0},\n        {\"{\\\"k\\\":\\\"X\\\"}\",\"{\\\"k\\\":\\\"x\\\"}\",0,0},\n        {\"{\\\"a\\\":1}\",\"{\\\"a\\\":1,\\\"b\\\":2}\",1,0},\n        {\"{\\\"a\\\":1,\\\"b\\\":2}\",\"{\\\"a\\\":1}\",1,0},\n        {\"1\",\"\\\"1\\\"\",0,0},\n        {\"{\\\"items\\\":[true,null,{\\\"x\\\":3}]}\",\"{\\\"items\\\":[true,null,{\\\"x\\\":3}]}\",1,1},\n        {\"{\\\"items\\\":[true,null,{\\\"x\\\":3}]}\",\"{\\\"items\\\":[true,null,{\\\"x\\\":4}]}\",1,0}\n    };\n    for(unsigned i=0;i<sizeof(cases)/sizeof(cases[0]);++i) {\n        cJSON *a=cJSON_Parse(cases[i].left), *b=cJSON_Parse(cases[i].right);assert(a && b);\n        int equal=cJSON_Compare(a,b,cases[i].sensitive);\n        printf(\"vector=%u sensitive=%d left=%s right=%s equal=%d\\n\",i+1,cases[i].sensitive,cases[i].left,cases[i].right,equal);\n        assert(equal==cases[i].equal);cJSON_Delete(a);cJSON_Delete(b);\n    }\n    return 0;\n}\n"
+    },
+    {
+      "role": "tool",
+      "content": "Actual build commands and captured results:\n[\n  {\n    \"argv\": [\n      \"cc\",\n      \"-std=c99\",\n      \"-Wall\",\n      \"-Wextra\",\n      \"-ffunction-sections\",\n      \"-fdata-sections\",\n      \"-Icorpus/cJSON\",\n      \"-MMD\",\n      \"-MF\",\n      \"BUILD/part-0.d\",\n      \"-c\",\n      \"corpus/cJSON/cJSON.c\",\n      \"-o\",\n      \"BUILD/part-0.o\"\n    ],\n    \"cwd\": \"PROJECT_ROOT\",\n    \"stdin\": \"\",\n    \"exit_code\": 0,\n    \"stdout\": \"\",\n    \"stderr\": \"\",\n    \"stdout_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n    \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n  },\n  {\n    \"argv\": [\n      \"cc\",\n      \"-std=c99\",\n      \"-Wall\",\n      \"-Wextra\",\n      \"-ffunction-sections\",\n      \"-fdata-sections\",\n      \"-Icorpus/cJSON\",\n      \"-MMD\",\n      \"-MF\",\n      \"BUILD/part-1.d\",\n      \"-c\",\n      \"examples/reproductions/knowledge-sources-v2/cjson-compare/reproduce.c\",\n      \"-o\",\n      \"BUILD/part-1.o\"\n    ],\n    \"cwd\": \"PROJECT_ROOT\",\n    \"stdin\": \"\",\n    \"exit_code\": 0,\n    \"stdout\": \"\",\n    \"stderr\": \"\",\n    \"stdout_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n    \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n  },\n  {\n    \"argv\": [\n      \"cc\",\n      \"-Wl,-dead_strip\",\n      \"BUILD/part-0.o\",\n      \"BUILD/part-1.o\",\n      \"-lm\",\n      \"-o\",\n      \"BUILD/reproduce\"\n    ],\n    \"cwd\": \"PROJECT_ROOT\",\n    \"stdin\": \"\",\n    \"exit_code\": 0,\n    \"stdout\": \"\",\n    \"stderr\": \"\",\n    \"stdout_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n    \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n  }\n]\n"
+    },
+    {
+      "role": "tool",
+      "content": "Actual executable command and captured result:\n{\n  \"argv\": [\n    \"BUILD/reproduce\"\n  ],\n  \"cwd\": \"PROJECT_ROOT\",\n  \"stdin\": \"\",\n  \"exit_code\": 0,\n  \"stdout\": \"vector=1 sensitive=1 left={\\\"a\\\":1,\\\"b\\\":2} right={\\\"b\\\":2,\\\"a\\\":1} equal=1\\nvector=2 sensitive=1 left=[1,2] right=[2,1] equal=0\\nvector=3 sensitive=0 left={\\\"Name\\\":\\\"x\\\"} right={\\\"name\\\":\\\"x\\\"} equal=1\\nvector=4 sensitive=1 left={\\\"Name\\\":\\\"x\\\"} right={\\\"name\\\":\\\"x\\\"} equal=0\\nvector=5 sensitive=0 left={\\\"k\\\":\\\"X\\\"} right={\\\"k\\\":\\\"x\\\"} equal=0\\nvector=6 sensitive=1 left={\\\"a\\\":1} right={\\\"a\\\":1,\\\"b\\\":2} equal=0\\nvector=7 sensitive=1 left={\\\"a\\\":1,\\\"b\\\":2} right={\\\"a\\\":1} equal=0\\nvector=8 sensitive=0 left=1 right=\\\"1\\\" equal=0\\nvector=9 sensitive=1 left={\\\"items\\\":[true,null,{\\\"x\\\":3}]} right={\\\"items\\\":[true,null,{\\\"x\\\":3}]} equal=1\\nvector=10 sensitive=1 left={\\\"items\\\":[true,null,{\\\"x\\\":3}]} right={\\\"items\\\":[true,null,{\\\"x\\\":4}]} equal=0\\n\",\n  \"stderr\": \"\",\n  \"stdout_sha256\": \"d4e327c3cc5fdcee4b656c0fea04c4da523993d9ec7a1cefc4021f2a707783be\",\n  \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n}\n"
+    }
+  ]
+}
+

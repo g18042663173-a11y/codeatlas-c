@@ -1,0 +1,368 @@
+Repository: lwip
+Revision: 3d896ba0a37ff3ce73270ca5e230707fe47f60e3
+
+
+Input model: compiled C literals; empty argv and stdin.
+
+
+Fixture:
+/* CC0-1.0: real parser with the pinned unit-test configuration. */
+#include <assert.h>
+#include <stdio.h>
+#include <string.h>
+#include "lwip/ip4_addr.h"
+int main(void) {
+    const char *inputs[]={"127.1","0x7f.1","0177.0.0.1","127.0.0.1","1.2.65535","256.1.1.1","1.2.3.256","08.0.0.1","1.2.3.4x"};
+    const char *expected[]={"127.0.0.1","127.0.0.1","127.0.0.1","127.0.0.1","1.2.255.255",NULL,NULL,NULL,NULL};
+    for(unsigned i=0;i<sizeof(inputs)/sizeof(inputs[0]);++i) {
+        ip4_addr_t address;char text[IP4ADDR_STRLEN_MAX];
+        int ok=ip4addr_aton(inputs[i],&address);assert(ok==(expected[i]!=NULL));
+        if(ok) {assert(ip4addr_ntoa_r(&address,text,sizeof(text)));assert(strcmp(text,expected[i])==0);}
+        printf("input=%s accepted=%d normalized=%s\n",inputs[i],ok,ok?text:"not_available");
+    }
+    return 0;
+}
+
+
+Fixed configuration: corpus/lwip/test/unit/lwipopts.h
+/*
+ * Copyright (c) 2001-2003 Swedish Institute of Computer Science.
+ * All rights reserved. 
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, 
+ * are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ * 3. The name of the author may not be used to endorse or promote products
+ *    derived from this software without specific prior written permission. 
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED 
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF 
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT 
+ * SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
+ * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING 
+ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY 
+ * OF SUCH DAMAGE.
+ *
+ * This file is part of the lwIP TCP/IP stack.
+ * 
+ * Author: Simon Goldschmidt
+ *
+ */
+#ifndef LWIP_HDR_LWIPOPTS_H
+#define LWIP_HDR_LWIPOPTS_H
+
+#define LWIP_TESTMODE                   1
+
+#define LWIP_IPV6                       1
+
+#define LWIP_CHECKSUM_ON_COPY           1
+#define TCP_CHECKSUM_ON_COPY_SANITY_CHECK 1
+#define TCP_CHECKSUM_ON_COPY_SANITY_CHECK_FAIL(printfmsg) LWIP_ASSERT("TCP_CHECKSUM_ON_COPY_SANITY_CHECK_FAIL", 0)
+
+/* We link to special sys_arch.c (for basic non-waiting API layers unit tests) */
+#define NO_SYS                          0
+#define SYS_LIGHTWEIGHT_PROT            0
+#define LWIP_NETCONN                    !NO_SYS
+#define LWIP_SOCKET                     !NO_SYS
+#define LWIP_NETCONN_FULLDUPLEX         LWIP_SOCKET
+#define LWIP_NETCONN_SEM_PER_THREAD     1
+#define LWIP_NETBUF_RECVINFO            1
+#define LWIP_HAVE_LOOPIF                1
+#define TCPIP_THREAD_TEST
+
+/* Enable DHCP to test it */
+#define LWIP_DHCP                       1
+
+/* Enable DNS, with random source port to avoid alloc in dns_init */
+#define LWIP_DNS                        1
+#define LWIP_DNS_SECURE (LWIP_DNS_SECURE_RAND_XID | LWIP_DNS_SECURE_RAND_SRC_PORT)
+
+/* Minimal changes to opt.h required for tcp unit tests: */
+#define MEM_SIZE                        17000
+#define TCP_SND_QUEUELEN                40
+#define MEMP_NUM_TCP_SEG                TCP_SND_QUEUELEN
+#define TCP_SND_BUF                     (12 * TCP_MSS)
+#define TCP_WND                         (10 * TCP_MSS)
+#define LWIP_WND_SCALE                  1
+#define TCP_RCV_SCALE                   0
+#define PBUF_POOL_SIZE                  400 /* pbuf tests need ~200KByte */
+
+/* Enable IGMP and MDNS for MDNS tests */
+#define LWIP_IGMP                       1
+#define LWIP_MDNS_RESPONDER             1
+#define LWIP_NUM_NETIF_CLIENT_DATA      (LWIP_MDNS_RESPONDER)
+
+/* Enable PPP and PPPOS support for PPPOS test suites */
+#define PPP_SUPPORT                     1
+#define PPPOS_SUPPORT                   1
+
+/* Minimal changes to opt.h required for etharp unit tests: */
+#define ETHARP_SUPPORT_STATIC_ENTRIES   1
+
+#define MEMP_NUM_SYS_TIMEOUT            (LWIP_NUM_SYS_TIMEOUT_INTERNAL + 8)
+
+/* MIB2 stats are required to check IPv4 reassembly results */
+#define MIB2_STATS                      1
+
+/* netif tests want to test this, so enable: */
+#define LWIP_NETIF_EXT_STATUS_CALLBACK  1
+
+/* Check lwip_stats.mem.illegal instead of asserting */
+#define LWIP_MEM_ILLEGAL_FREE(msg)      /* to nothing */
+
+/* autodetect if we are running the tests on 32-bit or 64-bit */
+#if defined(_WIN32) || defined(_WIN64)
+#if defined(_WIN64)
+#define PTR64
+#else
+#define PTR32
+#endif
+#elif defined(__GNUC__)
+#if defined(__x86_64__) || defined(__ppc64__)
+#define PTR64
+#else
+#define PTR32
+#endif
+#elif UINTPTR_MAX > UINT_MAX
+#define PTR64
+#else
+#define PTR32
+#endif
+
+#ifdef PTR64
+#define IPV6_FRAG_COPYHEADER            1
+#endif
+
+#endif /* LWIP_HDR_LWIPOPTS_H */
+
+
+Source: corpus/lwip/src/core/ipv4/ip4_addr.c:144-258
+int
+ip4addr_aton(const char *cp, ip4_addr_t *addr)
+{
+  u32_t val;
+  u8_t base;
+  char c;
+  u32_t parts[4];
+  u32_t *pp = parts;
+
+  c = *cp;
+  for (;;) {
+    /*
+     * Collect number up to ``.''.
+     * Values are specified as for C:
+     * 0x=hex, 0=octal, 1-9=decimal.
+     */
+    if (!lwip_isdigit(c)) {
+      return 0;
+    }
+    val = 0;
+    base = 10;
+    if (c == '0') {
+      c = *++cp;
+      if (c == 'x' || c == 'X') {
+        base = 16;
+        c = *++cp;
+      } else {
+        base = 8;
+      }
+    }
+    for (;;) {
+      if (lwip_isdigit(c)) {
+        if((base == 8) && ((u32_t)(c - '0') >= 8))
+          break;
+        val = (val * base) + (u32_t)(c - '0');
+        c = *++cp;
+      } else if (base == 16 && lwip_isxdigit(c)) {
+        val = (val << 4) | (u32_t)(c + 10 - (lwip_islower(c) ? 'a' : 'A'));
+        c = *++cp;
+      } else {
+        break;
+      }
+    }
+    if (c == '.') {
+      /*
+       * Internet format:
+       *  a.b.c.d
+       *  a.b.c   (with c treated as 16 bits)
+       *  a.b (with b treated as 24 bits)
+       */
+      if (pp >= parts + 3) {
+        return 0;
+      }
+      *pp++ = val;
+      c = *++cp;
+    } else {
+      break;
+    }
+  }
+  /*
+   * Check for trailing characters.
+   */
+  if (c != '\0' && !lwip_isspace(c)) {
+    return 0;
+  }
+  /*
+   * Concoct the address according to
+   * the number of parts specified.
+   */
+  switch (pp - parts + 1) {
+
+    case 0:
+      return 0;       /* initial nondigit */
+
+    case 1:             /* a -- 32 bits */
+      break;
+
+    case 2:             /* a.b -- 8.24 bits */
+      if (val > 0xffffffUL) {
+        return 0;
+      }
+      if (parts[0] > 0xff) {
+        return 0;
+      }
+      val |= parts[0] << 24;
+      break;
+
+    case 3:             /* a.b.c -- 8.8.16 bits */
+      if (val > 0xffff) {
+        return 0;
+      }
+      if ((parts[0] > 0xff) || (parts[1] > 0xff)) {
+        return 0;
+      }
+      val |= (parts[0] << 24) | (parts[1] << 16);
+      break;
+
+    case 4:             /* a.b.c.d -- 8.8.8.8 bits */
+      if (val > 0xff) {
+        return 0;
+      }
+      if ((parts[0] > 0xff) || (parts[1] > 0xff) || (parts[2] > 0xff)) {
+        return 0;
+      }
+      val |= (parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8);
+      break;
+    default:
+      LWIP_ASSERT("unhandled", 0);
+      break;
+  }
+  if (addr) {
+    ip4_addr_set_u32(addr, lwip_htonl(val));
+  }
+  return 1;
+}
+
+
+Source: corpus/lwip/src/core/ipv4/ip4_addr.c:284-321
+char *
+ip4addr_ntoa_r(const ip4_addr_t *addr, char *buf, int buflen)
+{
+  u32_t s_addr;
+  char inv[3];
+  char *rp;
+  u8_t *ap;
+  u8_t rem;
+  u8_t n;
+  u8_t i;
+  int len = 0;
+
+  s_addr = ip4_addr_get_u32(addr);
+
+  rp = buf;
+  ap = (u8_t *)&s_addr;
+  for (n = 0; n < 4; n++) {
+    i = 0;
+    do {
+      rem = *ap % (u8_t)10;
+      *ap /= (u8_t)10;
+      inv[i++] = (char)('0' + rem);
+    } while (*ap);
+    while (i--) {
+      if (len++ >= buflen) {
+        return NULL;
+      }
+      *rp++ = inv[i];
+    }
+    if (len++ >= buflen) {
+      return NULL;
+    }
+    *rp++ = '.';
+    ap++;
+  }
+  *--rp = 0;
+  return buf;
+}
+
+
+Source: corpus/lwip/src/core/def.c:89-93
+u32_t
+lwip_htonl(u32_t n)
+{
+  return PP_HTONL(n);
+}
+
+
+Command: cc -std=c99 -Wall -Wextra -ffunction-sections -fdata-sections -DLWIP_DEBUG -Icorpus/lwip/src/include -Icorpus/lwip/contrib/ports/unix/port/include -Icorpus/lwip/test/unit -MMD -MF BUILD/part-0.d -c corpus/lwip/src/core/ipv4/ip4_addr.c -o BUILD/part-0.o
+stdin: <empty>
+exit: 0
+stdout:
+stderr:
+
+
+Command: cc -std=c99 -Wall -Wextra -ffunction-sections -fdata-sections -DLWIP_DEBUG -Icorpus/lwip/src/include -Icorpus/lwip/contrib/ports/unix/port/include -Icorpus/lwip/test/unit -MMD -MF BUILD/part-1.d -c corpus/lwip/src/core/def.c -o BUILD/part-1.o
+stdin: <empty>
+exit: 0
+stdout:
+stderr:
+
+
+Command: cc -std=c99 -Wall -Wextra -ffunction-sections -fdata-sections -DLWIP_DEBUG -Icorpus/lwip/src/include -Icorpus/lwip/contrib/ports/unix/port/include -Icorpus/lwip/test/unit -MMD -MF BUILD/part-2.d -c examples/reproductions/knowledge-sources-v2/lwip-address-forms/reproduce.c -o BUILD/part-2.o
+stdin: <empty>
+exit: 0
+stdout:
+stderr:
+
+
+Command: cc -Wl,-dead_strip BUILD/part-0.o BUILD/part-1.o BUILD/part-2.o -lm -o BUILD/reproduce
+stdin: <empty>
+exit: 0
+stdout:
+stderr:
+
+
+Command: BUILD/reproduce
+stdin: <empty>
+exit: 0
+stdout:
+input=127.1 accepted=1 normalized=127.0.0.1
+input=0x7f.1 accepted=1 normalized=127.0.0.1
+input=0177.0.0.1 accepted=1 normalized=127.0.0.1
+input=127.0.0.1 accepted=1 normalized=127.0.0.1
+input=1.2.65535 accepted=1 normalized=1.2.255.255
+input=256.1.1.1 accepted=0 normalized=not_available
+input=1.2.3.256 accepted=0 normalized=not_available
+input=08.0.0.1 accepted=0 normalized=not_available
+input=1.2.3.4x accepted=0 normalized=not_available
+stderr:
+
+
+Preserved initial failure (not the final result):
+Command: cc -Wl,-dead_strip BUILD/part-0.o BUILD/part-1.o -lm -o BUILD/reproduce
+exit: 1
+stdout:
+stderr:
+Undefined symbols for architecture arm64:
+  "_lwip_htonl", referenced from:
+      _ip4addr_aton in part-0.o
+ld: symbol(s) not found for architecture arm64
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+

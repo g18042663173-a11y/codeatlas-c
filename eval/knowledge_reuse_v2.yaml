@@ -1,0 +1,1686 @@
+schema_version: 2
+artifact_scope: isolated_experiment
+strip_knowledge_role: true
+status: ai_reviewed
+review_status: pending_independent_review
+reviewer_kind: agent
+source_manifest:
+  path: examples/reproductions/knowledge-sources-v2/source-manifest.json
+  sha256: 3870534cc47af568ed09e6efe512de309ac75253b556972d45b901ce79e561c1
+authoring_boundary: AI-authored source-only questions, pending independent review; not human reviewed.
+  Only the frozen public source, synthetic C fixtures and actual local execution records were used. No
+  CodeAtlas Wiki, generated summary/card, older reuse gold, arm score or model gateway was consulted.
+  Hashes bind artifacts but cannot prove lack of prior exposure. Local fixture results do not establish
+  production reliability or universal correctness.
+case_count: 12
+question_count: 36
+cases:
+- id: cjson-parse-end
+  repository: https://github.com/DaveGamble/cJSON
+  revision: fb16e5cf358798aabb049655975cde8427101056
+  corpus: cjson
+  mechanism_id: cjson-parse-end
+  length_bucket: short
+  session:
+    path: examples/reproductions/knowledge-sources-v2/cjson-parse-end/session.json
+    sha256: c93bd3bce2a68f332d5c969b04946ccbbf39e13067849fac07ab59307f254917
+  template:
+    path: eval/knowledge_reuse_v2/layout-3.yaml
+    sha256: f5d3c4f7b31f0fb3820f0e758e4ff8da58f374c37b7e6b473b388a17a49555a7
+  attachments:
+  - path: corpus/cJSON/cJSON.c
+    sha256: 607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+    line_start: 1147
+    line_end: 1224
+    kind: source
+  - path: examples/reproductions/knowledge-sources-v2/cjson-parse-end/reproduce.c
+    sha256: 88c46b228d0d485bfcfe18967e21d7b5b66a061ed7d407d2ee34d1a64526a5a8
+    kind: harness
+  - path: examples/reproductions/knowledge-sources-v2/cjson-parse-end/commands.json
+    sha256: 604da71cd08408982761b6d7bd8df6f017bfd12d700e3f5073ba642afb67f746
+    kind: command
+  - path: examples/reproductions/knowledge-sources-v2/cjson-parse-end/observation.json
+    sha256: eba6a5ba54772b0341a6a5265383509bc082c85192e358befc9e1293ddc60e31
+    kind: observation
+  required_facts:
+    symptom:
+    - text: '"prefix input={\"n\":7} trailing accepted=1 end_offset=7 suffix= trailing\nrequire_terminator
+        accepted=0 end_offset=8\nthree_bytes_no_NUL accepted=1 end_offset=3\nthree_bytes_require_NUL accepted=0
+        end_offset=2\n"'
+      evidence_tags:
+      - T3
+      source_spans:
+      - tag: T3
+        start: 158
+        end: 371
+    hypotheses:
+    - text: assert(value && end==text+7);
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 388
+        end: 417
+    conditions:
+    - text: "/* if we require null-terminated JSON without appended garbage, skip and then check for a\
+        \ null terminator */\n    if (require_null_terminated)\n    {\n        buffer_skip_whitespace(&buffer);\n\
+        \        if ((buffer.offset >= buffer.length) || buffer_at_offset(&buffer)[0] != '\\0')\n    \
+        \    {\n            goto fail;\n        }\n    }"
+      evidence_tags:
+      - E1
+      source_spans:
+      - tag: E1
+        start: 816
+        end: 1139
+    wrong_explanations:
+    - text: assert(value==NULL);
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 597
+        end: 617
+    root_cause:
+    - text: "if (buffer.offset < buffer.length)\n        {\n            local_error.position = buffer.offset;\n\
+        \        }\n        else if (buffer.length > 0)\n        {\n            local_error.position =\
+        \ buffer.length - 1;\n        }\n\n        if (return_parse_end != NULL)\n        {\n        \
+        \    *return_parse_end = (const char*)local_error.json + local_error.position;\n        }"
+      evidence_tags:
+      - E1
+      source_spans:
+      - tag: E1
+        start: 1489
+        end: 1848
+    handling:
+    - text: assert(value && end==bounded+3);
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 762
+        end: 794
+    verification:
+    - text: '"exit_code": 0'
+      evidence_tags:
+      - T2
+      source_spans:
+      - tag: T2
+        start: 387
+        end: 401
+    - text: '"exit_code": 0'
+      evidence_tags:
+      - T3
+      source_spans:
+      - tag: T3
+        start: 130
+        end: 144
+  execution:
+    path: examples/reproductions/knowledge-sources-v2/cjson-parse-end/execution.json
+    sha256: 7d7e2c1e68682819be31f5d8783e164d6841d0d26a164e02d3f92584a395ee9e
+  initial_failure_records: []
+- id: cjson-string-mutation
+  repository: https://github.com/DaveGamble/cJSON
+  revision: fb16e5cf358798aabb049655975cde8427101056
+  corpus: cjson
+  mechanism_id: cjson-string-mutation
+  length_bucket: short
+  session:
+    path: examples/reproductions/knowledge-sources-v2/cjson-string-mutation/session.json
+    sha256: 1d2fe740c68400212c50ca9b68b1c2ddc41677e0847cd74026664c5d456a39aa
+  template:
+    path: eval/knowledge_reuse_v2/layout-3.yaml
+    sha256: f5d3c4f7b31f0fb3820f0e758e4ff8da58f374c37b7e6b473b388a17a49555a7
+  attachments:
+  - path: corpus/cJSON/cJSON.c
+    sha256: 607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+    line_start: 435
+    line_end: 476
+    kind: source
+  - path: examples/reproductions/knowledge-sources-v2/cjson-string-mutation/reproduce.c
+    sha256: 0f9e0c8f96edc5c778d6d6b83eda3555805ce446dedd90d3936ac28c700a8ab7
+    kind: harness
+  - path: examples/reproductions/knowledge-sources-v2/cjson-string-mutation/commands.json
+    sha256: 9b438d4d6ad18bfcbc6e820bb7d8938633674edf19f48a940bb30953727d0ca2
+    kind: command
+  - path: examples/reproductions/knowledge-sources-v2/cjson-string-mutation/observation.json
+    sha256: 7ef82834e23149d7540b068aefce41ef73a721905d972d01e947242b3fcf851a
+    kind: observation
+  required_facts:
+    symptom:
+    - text: '"owned shorten=xy reused_storage=1\nowned grow=a much longer replacement\nreference rejected=1
+        preserved=external\nnumber rejected=1 value=4\n"'
+      evidence_tags:
+      - T3
+      source_spans:
+      - tag: T3
+        start: 158
+        end: 301
+    hypotheses:
+    - text: assert(owned && reference && number);
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 393
+        end: 430
+    conditions:
+    - text: "/* if object's type is not cJSON_String or is cJSON_IsReference, it should not set valuestring\
+        \ */\n    if ((object == NULL) || !(object->type & cJSON_String) || (object->type & cJSON_IsReference))\n\
+        \    {\n        return NULL;\n    }\n    /* return NULL if the object is corrupted or valuestring\
+        \ is NULL */\n    if (object->valuestring == NULL || valuestring == NULL)\n    {\n        return\
+        \ NULL;\n    }"
+      evidence_tags:
+      - E1
+      source_spans:
+      - tag: E1
+        start: 148
+        end: 541
+    wrong_explanations:
+    - text: assert(cJSON_SetValuestring(number,"string")==NULL);
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 1018
+        end: 1070
+    root_cause:
+    - text: "v1_len = strlen(valuestring);\n    v2_len = strlen(object->valuestring);\n\n    if (v1_len\
+        \ <= v2_len)\n    {\n        /* strcpy does not handle overlapping string: [X1, X2] [Y1, Y2] =>\
+        \ X2 < Y1 or Y2 < X1 */\n        if (!( valuestring + v1_len < object->valuestring || object->valuestring\
+        \ + v2_len < valuestring ))\n        {\n            return NULL;\n        }\n        strcpy(object->valuestring,\
+        \ valuestring);\n        return object->valuestring;\n    }"
+      evidence_tags:
+      - E1
+      source_spans:
+      - tag: E1
+        start: 547
+        end: 992
+    handling:
+    - text: assert(cJSON_SetValuestring(reference,"changed")==NULL);
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 825
+        end: 881
+    verification:
+    - text: '"exit_code": 0'
+      evidence_tags:
+      - T2
+      source_spans:
+      - tag: T2
+        start: 387
+        end: 401
+    - text: '"exit_code": 0'
+      evidence_tags:
+      - T3
+      source_spans:
+      - tag: T3
+        start: 130
+        end: 144
+  execution:
+    path: examples/reproductions/knowledge-sources-v2/cjson-string-mutation/execution.json
+    sha256: 20c8c1a14c4a70683fb0b079450f7cfb34ac27ced772b4b686ab1a4a960bdbb9
+  initial_failure_records: []
+- id: cjson-duplicate
+  repository: https://github.com/DaveGamble/cJSON
+  revision: fb16e5cf358798aabb049655975cde8427101056
+  corpus: cjson
+  mechanism_id: cjson-duplicate
+  length_bucket: medium
+  session:
+    path: examples/reproductions/knowledge-sources-v2/cjson-duplicate/session.json
+    sha256: 1825a0d6fad496804cbd267e595c5ff04722dd99b8f527f5ea13b27f91202471
+  template:
+    path: eval/knowledge_reuse_v2/layout-3.yaml
+    sha256: f5d3c4f7b31f0fb3820f0e758e4ff8da58f374c37b7e6b473b388a17a49555a7
+  attachments:
+  - path: corpus/cJSON/cJSON.c
+    sha256: 607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+    line_start: 2784
+    line_end: 2787
+    kind: source
+  - path: corpus/cJSON/cJSON.c
+    sha256: 607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+    line_start: 2789
+    line_end: 2873
+    kind: source
+  - path: examples/reproductions/knowledge-sources-v2/cjson-duplicate/reproduce.c
+    sha256: e560f9d01038f220c71913328e89c99ed6c1ace4508a8fe54e4640ea79993775
+    kind: harness
+  - path: examples/reproductions/knowledge-sources-v2/cjson-duplicate/commands.json
+    sha256: 1d80ecc2e6b454c43fd1eb8a06b90ce4129505e0f95d858a367f65057d493d69
+    kind: command
+  - path: examples/reproductions/knowledge-sources-v2/cjson-duplicate/observation.json
+    sha256: 825dd8d0c36c273d7b586692f8b1fd51abae9c066914a739734b8eccb50966b2
+    kind: observation
+  required_facts:
+    symptom:
+    - text: '"shallow object=1 children=0\ndeep after_source_mutation source=9 copy=1 distinct=1\nreference
+        after_storage_mutation source=Borrowed copy=borrowed copy_is_reference=0\n"'
+      evidence_tags:
+      - T3
+      source_spans:
+      - tag: T3
+        start: 158
+        end: 328
+    hypotheses:
+    - text: assert(source && shallow && deep);
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 413
+        end: 447
+    conditions:
+    - text: "/* If non-recursive, then we're done! */\n    if (!recurse)\n    {\n        return newitem;\n\
+        \    }"
+      evidence_tags:
+      - E2
+      source_spans:
+      - tag: E2
+        start: 1022
+        end: 1116
+    wrong_explanations:
+    - text: storage[0]='B';assert(strcmp(owned_copy->valuestring,"borrowed")==0);
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 1320
+        end: 1389
+    root_cause:
+    - text: "newitem->type = item->type & (~cJSON_IsReference);\n    newitem->valueint = item->valueint;\n\
+        \    newitem->valuedouble = item->valuedouble;\n    if (item->valuestring)\n    {\n        newitem->valuestring\
+        \ = (char*)cJSON_strdup((unsigned char*)item->valuestring, &global_hooks);\n        if (!newitem->valuestring)\n\
+        \        {\n            goto fail;\n        }\n    }"
+      evidence_tags:
+      - E2
+      source_spans:
+      - tag: E2
+        start: 413
+        end: 768
+    handling:
+    - text: assert(copied_n->valuedouble==1);
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 1060
+        end: 1093
+    verification:
+    - text: '"exit_code": 0'
+      evidence_tags:
+      - T2
+      source_spans:
+      - tag: T2
+        start: 387
+        end: 401
+    - text: '"exit_code": 0'
+      evidence_tags:
+      - T3
+      source_spans:
+      - tag: T3
+        start: 130
+        end: 144
+  execution:
+    path: examples/reproductions/knowledge-sources-v2/cjson-duplicate/execution.json
+    sha256: 74be4a1f49c630369fb52b5d81794069ec587100e33adf1d4b711a9d6c292edf
+  initial_failure_records: []
+- id: cjson-replace-object
+  repository: https://github.com/DaveGamble/cJSON
+  revision: fb16e5cf358798aabb049655975cde8427101056
+  corpus: cjson
+  mechanism_id: cjson-replace-object
+  length_bucket: medium
+  session:
+    path: examples/reproductions/knowledge-sources-v2/cjson-replace-object/session.json
+    sha256: 409277eec680b68b531e087893b1e269e8c8f7d72f3715e3d9772c9436be22b3
+  template:
+    path: eval/knowledge_reuse_v2/layout-3.yaml
+    sha256: f5d3c4f7b31f0fb3820f0e758e4ff8da58f374c37b7e6b473b388a17a49555a7
+  attachments:
+  - path: corpus/cJSON/cJSON.c
+    sha256: 607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+    line_start: 2427
+    line_end: 2448
+    kind: source
+  - path: corpus/cJSON/cJSON.c
+    sha256: 607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+    line_start: 2368
+    line_end: 2415
+    kind: source
+  - path: examples/reproductions/knowledge-sources-v2/cjson-replace-object/reproduce.c
+    sha256: c5834420b8007f9880e213015023793a9f63d548215cfd05faa09171ff11e587
+    kind: harness
+  - path: examples/reproductions/knowledge-sources-v2/cjson-replace-object/commands.json
+    sha256: 5474978b03276900b27225b0f6e2f09e83b6e21c8a2e8523818334eaf2e3ee91
+    kind: command
+  - path: examples/reproductions/knowledge-sources-v2/cjson-replace-object/observation.json
+    sha256: 7b3946f9b9bee1718ba9f3b80d3a922891e17acf335367222b786a05f332a62e
+    kind: observation
+  required_facts:
+    symptom:
+    - text: '"case_sensitive_missing replaced=0 original=1 replacement_detached=1\ncase_insensitive replaced=1
+        key=key value=8 next_key=tail list_links=valid\nmissing_key replaced=0 caller_still_owns_value=3\n"'
+      evidence_tags:
+      - T3
+      source_spans:
+      - tag: T3
+        start: 158
+        end: 355
+    hypotheses:
+    - text: assert(object && replacement);
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 349
+        end: 379
+    conditions:
+    - text: "/* replace the name in the replacement */\n    if (!(replacement->type & cJSON_StringIsConst)\
+        \ && (replacement->string != NULL))\n    {\n        cJSON_free(replacement->string);\n    }\n\
+        \    replacement->string = (char*)cJSON_strdup((const unsigned char*)string, &global_hooks);\n\
+        \    if (replacement->string == NULL)\n    {\n        return false;\n    }\n\n    replacement->type\
+        \ &= ~cJSON_StringIsConst;\n\n    return cJSON_ReplaceItemViaPointer(object, get_object_item(object,\
+        \ string, case_sensitive), replacement);"
+      evidence_tags:
+      - E1
+      source_spans:
+      - tag: E1
+        start: 215
+        end: 716
+    wrong_explanations:
+    - text: assert(cJSON_ReplaceItemInObject(object,"absent",unattached)==0);
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 1175
+        end: 1240
+    root_cause:
+    - text: "if ((parent == NULL) || (parent->child == NULL) || (replacement == NULL) || (item == NULL))\n\
+        \    {\n        return false;\n    }"
+      evidence_tags:
+      - E2
+      source_spans:
+      - tag: E2
+        start: 122
+        end: 247
+    handling:
+    - text: assert(object->child==replacement && strcmp(replacement->string,"key")==0);
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 776
+        end: 851
+    verification:
+    - text: '"exit_code": 0'
+      evidence_tags:
+      - T2
+      source_spans:
+      - tag: T2
+        start: 387
+        end: 401
+    - text: '"exit_code": 0'
+      evidence_tags:
+      - T3
+      source_spans:
+      - tag: T3
+        start: 130
+        end: 144
+  execution:
+    path: examples/reproductions/knowledge-sources-v2/cjson-replace-object/execution.json
+    sha256: b879cb95fca45c1d6ea4f3b2c52af4d1473bb8d130863105775e0f4cf983f387
+  initial_failure_records: []
+- id: cjson-compare
+  repository: https://github.com/DaveGamble/cJSON
+  revision: fb16e5cf358798aabb049655975cde8427101056
+  corpus: cjson
+  mechanism_id: cjson-compare
+  length_bucket: long
+  session:
+    path: examples/reproductions/knowledge-sources-v2/cjson-compare/session.json
+    sha256: 07b57473667678d5c53286a9e450874a7daca623e9e585df62038e640305cded
+  template:
+    path: eval/knowledge_reuse_v2/layout-3.yaml
+    sha256: f5d3c4f7b31f0fb3820f0e758e4ff8da58f374c37b7e6b473b388a17a49555a7
+  attachments:
+  - path: corpus/cJSON/cJSON.c
+    sha256: 607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+    line_start: 3072
+    line_end: 3195
+    kind: source
+  - path: examples/reproductions/knowledge-sources-v2/cjson-compare/reproduce.c
+    sha256: e6c025d49278f7d9b00ede5c025bd68a9319d960ca8e59d151f80a7385df158e
+    kind: harness
+  - path: examples/reproductions/knowledge-sources-v2/cjson-compare/commands.json
+    sha256: 57a67a1334808de35a8a6bf11a5ee99a3f02124a2c651515adea28c11133aca8
+    kind: command
+  - path: examples/reproductions/knowledge-sources-v2/cjson-compare/observation.json
+    sha256: 965399f6effda5a9007a63830f34be9ec97e18cf8208f4ae18d3f0383d3b5fd8
+    kind: observation
+  required_facts:
+    symptom:
+    - text: '"vector=1 sensitive=1 left={\"a\":1,\"b\":2} right={\"b\":2,\"a\":1} equal=1\nvector=2 sensitive=1
+        left=[1,2] right=[2,1] equal=0\nvector=3 sensitive=0 left={\"Name\":\"x\"} right={\"name\":\"x\"}
+        equal=1\nvector=4 sensitive=1 left={\"Name\":\"x\"} right={\"name\":\"x\"} equal=0\nvector=5 sensitive=0
+        left={\"k\":\"X\"} right={\"k\":\"x\"} equal=0\nvector=6 sensitive=1 left={\"a\":1} right={\"a\":1,\"b\":2}
+        equal=0\nvector=7 sensitive=1 left={\"a\":1,\"b\":2} right={\"a\":1} equal=0\nvector=8 sensitive=0
+        left=1 right=\"1\" equal=0\nvector=9 sensitive=1 left={\"items\":[true,null,{\"x\":3}]} right={\"items\":[true,null,{\"x\":3}]}
+        equal=1\nvector=10 sensitive=1 left={\"items\":[true,null,{\"x\":3}]} right={\"items\":[true,null,{\"x\":4}]}
+        equal=0\n"'
+      evidence_tags:
+      - T3
+      source_spans:
+      - tag: T3
+        start: 158
+        end: 915
+    hypotheses:
+    - text: cJSON *a=cJSON_Parse(cases[i].left), *b=cJSON_Parse(cases[i].right);assert(a && b);
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 927
+        end: 1010
+    conditions:
+    - text: "case cJSON_String:\n        case cJSON_Raw:\n            if ((a->valuestring == NULL) ||\
+        \ (b->valuestring == NULL))\n            {\n                return false;\n            }\n   \
+        \         if (strcmp(a->valuestring, b->valuestring) == 0)\n            {\n                return\
+        \ true;\n            }\n\n            return false;"
+      evidence_tags:
+      - E1
+      source_spans:
+      - tag: E1
+        start: 1038
+        end: 1353
+    wrong_explanations:
+    - text: assert(equal==cases[i].equal);cJSON_Delete(a);cJSON_Delete(b);
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 1204
+        end: 1266
+    root_cause:
+    - text: "case cJSON_Object:\n        {\n            cJSON *a_element = NULL;\n            cJSON *b_element\
+        \ = NULL;\n            cJSON_ArrayForEach(a_element, a)\n            {\n                /* TODO\
+        \ This has O(n^2) runtime, which is horrible! */\n                b_element = get_object_item(b,\
+        \ a_element->string, case_sensitive);\n                if (b_element == NULL)\n              \
+        \  {\n                    return false;\n                }\n\n                if (!cJSON_Compare(a_element,\
+        \ b_element, case_sensitive))\n                {\n                    return false;\n        \
+        \        }\n            }\n\n            /* doing this twice, once on a and b to prevent true\
+        \ comparison if a subset of b\n             * TODO: Do this the proper way, this is just a fix\
+        \ for now */\n            cJSON_ArrayForEach(b_element, b)\n            {\n                a_element\
+        \ = get_object_item(a, b_element->string, case_sensitive);\n                if (a_element == NULL)\n\
+        \                {\n                    return false;\n                }\n\n                if\
+        \ (!cJSON_Compare(b_element, a_element, case_sensitive))\n                {\n                \
+        \    return false;\n                }\n            }\n\n            return true;\n        }"
+      evidence_tags:
+      - E1
+      source_spans:
+      - tag: E1
+        start: 1994
+        end: 3192
+    handling:
+    - text: assert(equal==cases[i].equal);cJSON_Delete(a);cJSON_Delete(b);
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 1204
+        end: 1266
+    verification:
+    - text: '"exit_code": 0'
+      evidence_tags:
+      - T2
+      source_spans:
+      - tag: T2
+        start: 387
+        end: 401
+    - text: '"exit_code": 0'
+      evidence_tags:
+      - T3
+      source_spans:
+      - tag: T3
+        start: 130
+        end: 144
+  execution:
+    path: examples/reproductions/knowledge-sources-v2/cjson-compare/execution.json
+    sha256: 600d1e9032b085c1858bf0e925eb7af1d38db0f4d5b2ade5c80ed9a71a2f6aa9
+  initial_failure_records: []
+- id: cjson-unicode
+  repository: https://github.com/DaveGamble/cJSON
+  revision: fb16e5cf358798aabb049655975cde8427101056
+  corpus: cjson
+  mechanism_id: cjson-unicode
+  length_bucket: long
+  session:
+    path: examples/reproductions/knowledge-sources-v2/cjson-unicode/session.json
+    sha256: 0122ec5bcb8674ab6a9ab9e5a0a274e633e509a137d3f6482282cfa08881fb02
+  template:
+    path: eval/knowledge_reuse_v2/layout-4.yaml
+    sha256: 14a77f3e82d08d1f9aa35e3d1880624a3e16c45511cf8657c5f0d2fc057091e5
+  attachments:
+  - path: corpus/cJSON/cJSON.c
+    sha256: 607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+    line_start: 666
+    line_end: 699
+    kind: source
+  - path: corpus/cJSON/cJSON.c
+    sha256: 607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+    line_start: 703
+    line_end: 821
+    kind: source
+  - path: corpus/cJSON/cJSON.c
+    sha256: 607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852
+    line_start: 824
+    line_end: 951
+    kind: source
+  - path: examples/reproductions/knowledge-sources-v2/cjson-unicode/reproduce.c
+    sha256: 12c8df109c6f0515172d2c74486af53436233a0978123fea975c6cc84d946bfc
+    kind: harness
+  - path: examples/reproductions/knowledge-sources-v2/cjson-unicode/commands.json
+    sha256: ca8dba3c45a28f0a7cbefcfa6860fb2ac8bad45bb352a29ab3f12a349da86ea7
+    kind: command
+  - path: examples/reproductions/knowledge-sources-v2/cjson-unicode/observation.json
+    sha256: 80350c48195d874adfa381d3cdea5c72f3405c355c25283b03fc6c233d98ac39
+    kind: observation
+  required_facts:
+    symptom:
+    - text: '"accepted input=\"\\u0041\" utf8_hex=41\naccepted input=\"\\u20ac\" utf8_hex=e282ac\naccepted
+        input=\"\\uD834\\uDD1E\" utf8_hex=f09d849e\naccepted input=\"prefix \\uD83D\\uDE00 suffix\" utf8_hex=70726566697820f09f988020737566666978\nrejected
+        input=\"\\uDD1E\" error_offset=1\nrejected input=\"\\uD834\" error_offset=1\nrejected input=\"\\uD834\\u0041\"
+        error_offset=1\nrejected input=\"\\uD834\\uD834\" error_offset=1\nrejected input=\"\\u12\" error_offset=1\nmalformed_hex
+        input=\"\\uZZZZ\" accepted=1 decoded_strlen=0 first_byte=00\n"'
+      evidence_tags:
+      - T3
+      source_spans:
+      - tag: T3
+        start: 158
+        end: 694
+    hypotheses:
+    - text: assert(value && cJSON_IsString(value) && strcmp(value->valuestring,valid[i].utf8)==0);
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 637
+        end: 723
+    conditions:
+    - text: "if (((first_code >= 0xDC00) && (first_code <= 0xDFFF)))\n    {\n        goto fail;\n    }\n\
+        \n    /* UTF16 surrogate pair */\n    if ((first_code >= 0xD800) && (first_code <= 0xDBFF))\n\
+        \    {\n        const unsigned char *second_sequence = first_sequence + 6;\n        unsigned int\
+        \ second_code = 0;\n        sequence_length = 12; /* \\uXXXX\\uXXXX */\n\n        if ((input_end\
+        \ - second_sequence) < 6)\n        {\n            /* input ends unexpectedly */\n            goto\
+        \ fail;\n        }\n\n        if ((second_sequence[0] != '\\\\') || (second_sequence[1] != 'u'))\n\
+        \        {\n            /* missing second half of the surrogate pair */\n            goto fail;\n\
+        \        }\n\n        /* get the second utf16 sequence */\n        second_code = parse_hex4(second_sequence\
+        \ + 2);\n        /* check that the code is valid */\n        if ((second_code < 0xDC00) || (second_code\
+        \ > 0xDFFF))\n        {\n            /* invalid second half of the surrogate pair */\n       \
+        \     goto fail;\n        }\n\n\n        /* calculate the unicode codepoint from the surrogate\
+        \ pair */\n        codepoint = 0x10000 + (((first_code & 0x3FF) << 10) | (second_code & 0x3FF));\n\
+        \    }\n    else\n    {\n        sequence_length = 6; /* \\uXXXX */\n        codepoint = first_code;\n\
+        \    }"
+      evidence_tags:
+      - E2
+      source_spans:
+      - tag: E2
+        start: 681
+        end: 1894
+    wrong_explanations:
+    - text: assert(malformed && cJSON_IsString(malformed) && malformed->valuestring[0]=='\0');
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 1482
+        end: 1564
+    root_cause:
+    - text: "else /* invalid */\n        {\n            return 0;\n        }"
+      evidence_tags:
+      - E1
+      source_spans:
+      - tag: E1
+        start: 555
+        end: 615
+    handling:
+    - text: assert(value==NULL);
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 1239
+        end: 1259
+    verification:
+    - text: '"exit_code": 0'
+      evidence_tags:
+      - T2
+      source_spans:
+      - tag: T2
+        start: 387
+        end: 401
+    - text: '"exit_code": 0'
+      evidence_tags:
+      - T3
+      source_spans:
+      - tag: T3
+        start: 130
+        end: 144
+    - text: 'Preserved initial failure (not the final result):
+
+        Command: BUILD/reproduce
+
+        exit: -6
+
+        stdout:
+
+        accepted input="\u0041" utf8_hex=41
+
+        accepted input="\u20ac" utf8_hex=e282ac
+
+        accepted input="\uD834\uDD1E" utf8_hex=f09d849e
+
+        accepted input="prefix \uD83D\uDE00 suffix" utf8_hex=70726566697820f09f988020737566666978
+
+        rejected input="\uDD1E" error_offset=1
+
+        rejected input="\uD834" error_offset=1
+
+        rejected input="\uD834\u0041" error_offset=1
+
+        rejected input="\uD834\uD834" error_offset=1
+
+        rejected input="\u12" error_offset=1
+
+        stderr:
+
+        Assertion failed: (value==NULL), function main, file reproduce.c, line 24.'
+      evidence_tags:
+      - T4
+      source_spans:
+      - tag: T4
+        start: 0
+        end: 593
+  execution:
+    path: examples/reproductions/knowledge-sources-v2/cjson-unicode/execution.json
+    sha256: 96308b3b7a9b96e4d3f1079f1817bf040440bc9d3f3fc01cee07bc7a544ed0c5
+  initial_failure_records:
+  - path: examples/reproductions/knowledge-sources-v2/cjson-unicode/initial-failure.json
+    sha256: fc02d1dc1ad452035d469761b30c5fa431233867640c3e5617c4ed45a39e76db
+  - path: examples/reproductions/knowledge-sources-v2/cjson-unicode/initial-failure.c
+    sha256: fedf9f68478a70cc2681159db052d6cbea060d0cce5fa1d6b1dd3e2db608f64f
+- id: lwip-address-forms
+  repository: https://github.com/lwip-tcpip/lwip
+  revision: 3d896ba0a37ff3ce73270ca5e230707fe47f60e3
+  corpus: lwip
+  mechanism_id: lwip-address-forms
+  length_bucket: long
+  session:
+    path: examples/reproductions/knowledge-sources-v2/lwip-address-forms/session.json
+    sha256: 505dc7f9d3990ed8491e0d859cdb76136a809011beb60fc4d78e4e11242e92d1
+  template:
+    path: eval/knowledge_reuse_v2/layout-4.yaml
+    sha256: 14a77f3e82d08d1f9aa35e3d1880624a3e16c45511cf8657c5f0d2fc057091e5
+  attachments:
+  - path: corpus/lwip/src/core/ipv4/ip4_addr.c
+    sha256: b440b85c9e49e60510cfa61d40e24b0e2ad480e23a821a94017e42df09dcf8be
+    line_start: 144
+    line_end: 258
+    kind: source
+  - path: corpus/lwip/src/core/ipv4/ip4_addr.c
+    sha256: b440b85c9e49e60510cfa61d40e24b0e2ad480e23a821a94017e42df09dcf8be
+    line_start: 284
+    line_end: 321
+    kind: source
+  - path: corpus/lwip/src/core/def.c
+    sha256: a12f3ef6c087efb6d4ec524cf332ff438d2504c17d60c263d0bb1b82b79eb2cd
+    line_start: 89
+    line_end: 93
+    kind: source
+  - path: examples/reproductions/knowledge-sources-v2/lwip-address-forms/reproduce.c
+    sha256: a49628b50507c03cb56683840779aba88ad3361eff08f954d6c935e7f4e6dc14
+    kind: harness
+  - path: examples/reproductions/knowledge-sources-v2/lwip-address-forms/commands.json
+    sha256: d7e5ea4975c1c0009bd9049e8dba19e76794040716d0c79a8715ceab9bd76805
+    kind: command
+  - path: examples/reproductions/knowledge-sources-v2/lwip-address-forms/observation.json
+    sha256: 0d3969e43d6f55a0ad11509307a4dca98d216c1c41f19b9199d896c4edfc118e
+    kind: observation
+  - path: corpus/lwip/test/unit/lwipopts.h
+    sha256: 250dfc64740e6ffdc27957427cfb2baa2d190dae0bef88bf7dca6bb1e987f0d3
+    kind: build_configuration
+  required_facts:
+    symptom:
+    - text: '"input=127.1 accepted=1 normalized=127.0.0.1\ninput=0x7f.1 accepted=1 normalized=127.0.0.1\ninput=0177.0.0.1
+        accepted=1 normalized=127.0.0.1\ninput=127.0.0.1 accepted=1 normalized=127.0.0.1\ninput=1.2.65535
+        accepted=1 normalized=1.2.255.255\ninput=256.1.1.1 accepted=0 normalized=not_available\ninput=1.2.3.256
+        accepted=0 normalized=not_available\ninput=08.0.0.1 accepted=0 normalized=not_available\ninput=1.2.3.4x
+        accepted=0 normalized=not_available\n"'
+      evidence_tags:
+      - T3
+      source_spans:
+      - tag: T3
+        start: 158
+        end: 611
+    hypotheses:
+    - text: int ok=ip4addr_aton(inputs[i],&address);assert(ok==(expected[i]!=NULL));
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 632
+        end: 704
+    conditions:
+    - text: "val = 0;\n    base = 10;\n    if (c == '0') {\n      c = *++cp;\n      if (c == 'x' || c\
+        \ == 'X') {\n        base = 16;\n        c = *++cp;\n      } else {\n        base = 8;\n     \
+        \ }\n    }"
+      evidence_tags:
+      - E1
+      source_spans:
+      - tag: E1
+        start: 332
+        end: 511
+    wrong_explanations:
+    - text: if(ok) {assert(ip4addr_ntoa_r(&address,text,sizeof(text)));assert(strcmp(text,expected[i])==0);}
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 713
+        end: 809
+    root_cause:
+    - text: "case 3:             /* a.b.c -- 8.8.16 bits */\n      if (val > 0xffff) {\n        return\
+        \ 0;\n      }\n      if ((parts[0] > 0xff) || (parts[1] > 0xff)) {\n        return 0;\n      }\n\
+        \      val |= (parts[0] << 24) | (parts[1] << 16);\n      break;\n\n    case 4:             /*\
+        \ a.b.c.d -- 8.8.8.8 bits */\n      if (val > 0xff) {\n        return 0;\n      }\n      if ((parts[0]\
+        \ > 0xff) || (parts[1] > 0xff) || (parts[2] > 0xff)) {\n        return 0;\n      }\n      val\
+        \ |= (parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8);\n      break;"
+      evidence_tags:
+      - E1
+      source_spans:
+      - tag: E1
+        start: 1716
+        end: 2240
+    handling:
+    - text: if(ok) {assert(ip4addr_ntoa_r(&address,text,sizeof(text)));assert(strcmp(text,expected[i])==0);}
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 713
+        end: 809
+    verification:
+    - text: '"exit_code": 0'
+      evidence_tags:
+      - T2
+      source_spans:
+      - tag: T2
+        start: 524
+        end: 538
+    - text: '"exit_code": 0'
+      evidence_tags:
+      - T3
+      source_spans:
+      - tag: T3
+        start: 130
+        end: 144
+    - text: "Preserved initial failure (not the final result):\nCommand: cc -Wl,-dead_strip BUILD/part-0.o\
+        \ BUILD/part-1.o -lm -o BUILD/reproduce\nexit: 1\nstdout:\nstderr:\nUndefined symbols for architecture\
+        \ arm64:\n  \"_lwip_htonl\", referenced from:\n      _ip4addr_aton in part-0.o\nld: symbol(s)\
+        \ not found for architecture arm64\nclang: error: linker command failed with exit code 1 (use\
+        \ -v to see invocation)"
+      evidence_tags:
+      - T4
+      source_spans:
+      - tag: T4
+        start: 0
+        end: 389
+  execution:
+    path: examples/reproductions/knowledge-sources-v2/lwip-address-forms/execution.json
+    sha256: 71fdb24c1db9d50ce824653ebe3a41d421213535d5633bc3f5bbdaf0c6b3cfc4
+  initial_failure_records:
+  - path: examples/reproductions/knowledge-sources-v2/lwip-address-forms/initial-failure.json
+    sha256: e4a9622d869c214181d542444a70292749a47cdd09677b479b5017727e7abca7
+- id: lwip-pbuf-header
+  repository: https://github.com/lwip-tcpip/lwip
+  revision: 3d896ba0a37ff3ce73270ca5e230707fe47f60e3
+  corpus: lwip
+  mechanism_id: lwip-pbuf-header
+  length_bucket: long
+  session:
+    path: examples/reproductions/knowledge-sources-v2/lwip-pbuf-header/session.json
+    sha256: 744592a5c369a6256fd1ad9ccb97076e2035d3b67bcb506ca04123f3d49e883e
+  template:
+    path: eval/knowledge_reuse_v2/layout-3.yaml
+    sha256: f5d3c4f7b31f0fb3820f0e758e4ff8da58f374c37b7e6b473b388a17a49555a7
+  attachments:
+  - path: corpus/lwip/src/core/pbuf.c
+    sha256: 2f953eb2bc5b696b2eea156386cc4f99c793859bbf65cee967653bdf3374db61
+    line_start: 477
+    line_end: 533
+    kind: source
+  - path: corpus/lwip/src/core/pbuf.c
+    sha256: 2f953eb2bc5b696b2eea156386cc4f99c793859bbf65cee967653bdf3374db61
+    line_start: 586
+    line_end: 618
+    kind: source
+  - path: corpus/lwip/src/core/pbuf.c
+    sha256: 2f953eb2bc5b696b2eea156386cc4f99c793859bbf65cee967653bdf3374db61
+    line_start: 620
+    line_end: 628
+    kind: source
+  - path: corpus/lwip/src/core/pbuf.c
+    sha256: 2f953eb2bc5b696b2eea156386cc4f99c793859bbf65cee967653bdf3374db61
+    line_start: 650
+    line_end: 654
+    kind: source
+  - path: corpus/lwip/src/core/pbuf.c
+    sha256: 2f953eb2bc5b696b2eea156386cc4f99c793859bbf65cee967653bdf3374db61
+    line_start: 660
+    line_end: 664
+    kind: source
+  - path: examples/reproductions/knowledge-sources-v2/lwip-pbuf-header/reproduce.c
+    sha256: be5fbf7a1c6cede8148046ac8ae3319242b8e79400bab7cb785036ff8b963f2e
+    kind: harness
+  - path: examples/reproductions/knowledge-sources-v2/lwip-pbuf-header/commands.json
+    sha256: 886c2b1e6fbc43d9b8f48140476e1878b9ff4473df9632cd87646652ca31eda5
+    kind: command
+  - path: examples/reproductions/knowledge-sources-v2/lwip-pbuf-header/observation.json
+    sha256: 4c8f82ca3cbf523740339eda7aa6623178e4203f2503f3a071b80e4669fe77b2
+    kind: observation
+  - path: corpus/lwip/test/unit/lwipopts.h
+    sha256: 250dfc64740e6ffdc27957427cfb2baa2d190dae0bef88bf7dca6bb1e987f0d3
+    kind: build_configuration
+  required_facts:
+    symptom:
+    - text: '"REF add4 result=1 offset=4 len=7 total=7\nREF remove2 result=0 offset=6 len=5 total=5\nincrement_magnitude
+        <= p->lenREF remove6 result=1 offset=6 len=5 total=5\nREF force_add6 valid_reserved_storage result=0
+        offset=0 len=11 total=11\n"'
+      evidence_tags:
+      - T3
+      source_spans:
+      - tag: T3
+        start: 158
+        end: 394
+    hypotheses:
+    - text: assert(result!=0 && p.payload==storage+4 && p.len==7);
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 430
+        end: 484
+    conditions:
+    - text: "if (type_internal & PBUF_TYPE_FLAG_STRUCT_DATA_CONTIGUOUS) {\n    /* set new payload pointer\
+        \ */\n    payload = (u8_t *)p->payload - header_size_increment;\n    /* boundary check fails?\
+        \ */\n    if ((u8_t *)payload < (u8_t *)p + SIZEOF_STRUCT_PBUF) {\n      LWIP_DEBUGF( PBUF_DEBUG\
+        \ | LWIP_DBG_TRACE,\n                   (\"pbuf_add_header: failed as %p < %p (not enough space\
+        \ for new header size)\\n\",\n                    (void *)payload, (void *)((u8_t *)p + SIZEOF_STRUCT_PBUF)));\n\
+        \      /* bail out unsuccessfully */\n      return 1;\n    }\n    /* pbuf types referring to external\
+        \ payloads? */\n  } else {\n    /* hide a header in the payload? */\n    if (force) {\n      payload\
+        \ = (u8_t *)p->payload - header_size_increment;\n    } else {\n      /* cannot expand payload\
+        \ to front (yet!)\n       * bail out unsuccessfully */\n      return 1;\n    }\n  }"
+      evidence_tags:
+      - E1
+      source_spans:
+      - tag: E1
+        start: 607
+        end: 1440
+    wrong_explanations:
+    - text: result=pbuf_header_force(&p,6);assert(result==0 && p.payload==storage && p.len==11);
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 1001
+        end: 1085
+    root_cause:
+    - text: "increment_magnitude = (u16_t)header_size_decrement;\n  /* Check that we aren't going to move\
+        \ off the end of the pbuf */\n  LWIP_ERROR(\"increment_magnitude <= p->len\", (increment_magnitude\
+        \ <= p->len), return 1;);\n\n  /* remember current payload pointer */\n  payload = p->payload;\n\
+        \  LWIP_UNUSED_ARG(payload); /* only used in LWIP_DEBUGF below */\n\n  /* increase payload pointer\
+        \ (guarded by length check above) */\n  p->payload = (u8_t *)p->payload + header_size_decrement;\n\
+        \  /* modify pbuf length fields */\n  p->len = (u16_t)(p->len - increment_magnitude);\n  p->tot_len\
+        \ = (u16_t)(p->tot_len - increment_magnitude);"
+      evidence_tags:
+      - E2
+      source_spans:
+      - tag: E2
+        start: 290
+        end: 897
+    handling:
+    - text: result=pbuf_header(&p,-6);assert(result!=0 && p.payload==storage+6 && p.len==5);
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 801
+        end: 881
+    verification:
+    - text: '"exit_code": 0'
+      evidence_tags:
+      - T2
+      source_spans:
+      - tag: T2
+        start: 515
+        end: 529
+    - text: '"exit_code": 0'
+      evidence_tags:
+      - T3
+      source_spans:
+      - tag: T3
+        start: 130
+        end: 144
+  execution:
+    path: examples/reproductions/knowledge-sources-v2/lwip-pbuf-header/execution.json
+    sha256: 10984acdce6937c5d14ce445176d78c86d457b5f4d4a5176d66ee3697356afc2
+  initial_failure_records: []
+- id: lwip-pbuf-chain-ref
+  repository: https://github.com/lwip-tcpip/lwip
+  revision: 3d896ba0a37ff3ce73270ca5e230707fe47f60e3
+  corpus: lwip
+  mechanism_id: lwip-pbuf-chain-ref
+  length_bucket: short
+  session:
+    path: examples/reproductions/knowledge-sources-v2/lwip-pbuf-chain-ref/session.json
+    sha256: 4004481d6ce4a82aa5471280883cf3f66d832cbe8419778a95c947b77c254bdc
+  template:
+    path: eval/knowledge_reuse_v2/layout-3.yaml
+    sha256: f5d3c4f7b31f0fb3820f0e758e4ff8da58f374c37b7e6b473b388a17a49555a7
+  attachments:
+  - path: corpus/lwip/src/core/pbuf.c
+    sha256: 2f953eb2bc5b696b2eea156386cc4f99c793859bbf65cee967653bdf3374db61
+    line_start: 856
+    line_end: 880
+    kind: source
+  - path: corpus/lwip/src/core/pbuf.c
+    sha256: 2f953eb2bc5b696b2eea156386cc4f99c793859bbf65cee967653bdf3374db61
+    line_start: 899
+    line_end: 906
+    kind: source
+  - path: corpus/lwip/src/core/pbuf.c
+    sha256: 2f953eb2bc5b696b2eea156386cc4f99c793859bbf65cee967653bdf3374db61
+    line_start: 832
+    line_end: 840
+    kind: source
+  - path: examples/reproductions/knowledge-sources-v2/lwip-pbuf-chain-ref/reproduce.c
+    sha256: 9a0ab2cee8b6feb38e301487c098bd1e8a12f8903bc9cc1a8808f0aef4ca96fa
+    kind: harness
+  - path: examples/reproductions/knowledge-sources-v2/lwip-pbuf-chain-ref/commands.json
+    sha256: 57a4672ff65a2fc585d513c16119e25199fe91e786ee0f4ffdc657d000b53171
+    kind: command
+  - path: examples/reproductions/knowledge-sources-v2/lwip-pbuf-chain-ref/observation.json
+    sha256: 47b7e944c4e314cda24926e0579420474a0d2e04705a96ecfaba76cda1b6f851
+    kind: observation
+  - path: corpus/lwip/test/unit/lwipopts.h
+    sha256: 250dfc64740e6ffdc27957427cfb2baa2d190dae0bef88bf7dca6bb1e987f0d3
+    kind: build_configuration
+  required_facts:
+    symptom:
+    - text: '"cat first_total=5 tail_ref=1 tail_total=3\nchain first_total=9 middle_total=7 tail_ref=2
+        tail_total=4\nexplicit_ref tail_ref=3 first_ref=1 middle_ref=1\nlifetime=caller_owned_stack no_pbuf_free_called\n"'
+      evidence_tags:
+      - T3
+      source_spans:
+      - tag: T3
+        start: 158
+        end: 362
+    hypotheses:
+    - text: pbuf_cat(&first,&middle);assert(first.next==&middle && first.tot_len==5 && middle.ref==1);
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 579
+        end: 669
+    conditions:
+    - text: "void\npbuf_chain(struct pbuf *h, struct pbuf *t)\n{\n  pbuf_cat(h, t);\n  /* t is now referenced\
+        \ by h */\n  pbuf_ref(t);\n  LWIP_DEBUGF(PBUF_DEBUG | LWIP_DBG_TRACE, (\"pbuf_chain: %p references\
+        \ %p\\n\", (void *)h, (void *)t));\n}"
+      evidence_tags:
+      - E2
+      source_spans:
+      - tag: E2
+        start: 0
+        end: 219
+    wrong_explanations:
+    - text: pbuf_ref(&last);assert(last.ref==3 && first.ref==1 && middle.ref==1);
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 1020
+        end: 1089
+    root_cause:
+    - text: "LWIP_ASSERT(\"p->tot_len == p->len (of last pbuf in chain)\", p->tot_len == p->len);\n  LWIP_ASSERT(\"\
+        p->next == NULL\", p->next == NULL);\n  /* add total length of second chain to last pbuf total\
+        \ of first chain */\n  p->tot_len = (u16_t)(p->tot_len + t->tot_len);\n  /* chain last pbuf of\
+        \ head (p) with first of tail (t) */\n  p->next = t;\n  /* p->next now references t, but the caller\
+        \ will drop its reference to t,\n   * so netto there is no change to the reference count of t.\n\
+        \   */"
+      evidence_tags:
+      - E1
+      source_spans:
+      - tag: E1
+        start: 516
+        end: 991
+    handling:
+    - text: pbuf_chain(&first,&last);assert(middle.next==&last && first.tot_len==9 && middle.tot_len==7
+        && last.ref==2);
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 776
+        end: 884
+    verification:
+    - text: '"exit_code": 0'
+      evidence_tags:
+      - T2
+      source_spans:
+      - tag: T2
+        start: 515
+        end: 529
+    - text: '"exit_code": 0'
+      evidence_tags:
+      - T3
+      source_spans:
+      - tag: T3
+        start: 130
+        end: 144
+  execution:
+    path: examples/reproductions/knowledge-sources-v2/lwip-pbuf-chain-ref/execution.json
+    sha256: dbd1233554a59824566f6ac11bd39c11b8ba60f5b016b03804fb77925af8be63
+  initial_failure_records: []
+- id: lwip-pbuf-copy
+  repository: https://github.com/lwip-tcpip/lwip
+  revision: 3d896ba0a37ff3ce73270ca5e230707fe47f60e3
+  corpus: lwip
+  mechanism_id: lwip-pbuf-copy
+  length_bucket: medium
+  session:
+    path: examples/reproductions/knowledge-sources-v2/lwip-pbuf-copy/session.json
+    sha256: 225768dba1af58b97e8ff4c0c636038f3f295f4eaf80593cee32ed514f62b1ce
+  template:
+    path: eval/knowledge_reuse_v2/layout-3.yaml
+    sha256: f5d3c4f7b31f0fb3820f0e758e4ff8da58f374c37b7e6b473b388a17a49555a7
+  attachments:
+  - path: corpus/lwip/src/core/pbuf.c
+    sha256: 2f953eb2bc5b696b2eea156386cc4f99c793859bbf65cee967653bdf3374db61
+    line_start: 1060
+    line_end: 1091
+    kind: source
+  - path: corpus/lwip/src/core/pbuf.c
+    sha256: 2f953eb2bc5b696b2eea156386cc4f99c793859bbf65cee967653bdf3374db61
+    line_start: 1110
+    line_end: 1138
+    kind: source
+  - path: corpus/lwip/src/core/pbuf.c
+    sha256: 2f953eb2bc5b696b2eea156386cc4f99c793859bbf65cee967653bdf3374db61
+    line_start: 1191
+    line_end: 1206
+    kind: source
+  - path: examples/reproductions/knowledge-sources-v2/lwip-pbuf-copy/reproduce.c
+    sha256: e95244cc97b8493818c364389963d08c8bc2b311890f97e0a26e615e50ff9941
+    kind: harness
+  - path: examples/reproductions/knowledge-sources-v2/lwip-pbuf-copy/commands.json
+    sha256: 328bf0ec4be97575c1ea85e8782e742d2bb629031a33fbb7d0d3f09aa57ed60e
+    kind: command
+  - path: examples/reproductions/knowledge-sources-v2/lwip-pbuf-copy/observation.json
+    sha256: 92cae944b31b4838a2eceb3737493e2a87fc61eb69b75a8bdc3ab801968b2283
+    kind: observation
+  - path: corpus/lwip/test/unit/lwipopts.h
+    sha256: 250dfc64740e6ffdc27957427cfb2baa2d190dae0bef88bf7dca6bb1e987f0d3
+    kind: build_configuration
+  required_facts:
+    symptom:
+    - text: '"copy offset=2 requested=5 copied=5 text=cdefg\ncopy offset=7 requested=9 copied=2 text=hi\ncontiguous
+        offset=3 len=2 zero_copy=1\ncross_fragment without_scratch=null\ncross_fragment with_scratch copied=1
+        text=cdef\nbeyond_packet offset=8 len=4 result=null\n"'
+      evidence_tags:
+      - T3
+      source_spans:
+      - tag: T3
+        start: 158
+        end: 417
+    hypotheses:
+    - text: u16_t copied=pbuf_copy_partial(p,out,5,2);out[copied]='\0';assert(copied==5 && strcmp(out,"cdefg")==0);
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 521
+        end: 624
+    conditions:
+    - text: "void *\npbuf_get_contiguous(const struct pbuf *p, void *buffer, size_t bufsize, u16_t len,\
+        \ u16_t offset)\n{\n  const struct pbuf *q;\n  u16_t out_offset;\n\n  LWIP_ERROR(\"pbuf_get_contiguous:\
+        \ invalid buf\", (p != NULL), return NULL;);\n  LWIP_ERROR(\"pbuf_get_contiguous: invalid bufsize\"\
+        , (buffer == NULL) || (bufsize >= len), return NULL;);\n\n  q = pbuf_skip_const(p, offset, &out_offset);\n\
+        \  if (q != NULL) {\n    if (q->len >= (out_offset + len)) {\n      /* all data in this pbuf,\
+        \ return zero-copy */\n      return (u8_t *)q->payload + out_offset;\n    }\n    if (buffer ==\
+        \ NULL) {\n      /* the caller does not want to copy */\n      return NULL;\n    }\n    /* need\
+        \ to copy */\n    if (pbuf_copy_partial(q, buffer, len, out_offset) != len) {\n      /* copying\
+        \ failed: pbuf is too short */\n      return NULL;\n    }\n    return buffer;\n  }\n  /* pbuf\
+        \ is too short (offset does not fit in) */\n  return NULL;\n}"
+      evidence_tags:
+      - E2
+      source_spans:
+      - tag: E2
+        start: 0
+        end: 889
+    wrong_explanations:
+    - text: assert(pbuf_get_contiguous(p,out,sizeof(out),4,8)==NULL);printf("beyond_packet offset=8 len=4
+        result=null\n");
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 1282
+        end: 1392
+    root_cause:
+    - text: "for (p = buf; len != 0 && p != NULL; p = p->next) {\n    if ((offset != 0) && (offset >=\
+        \ p->len)) {\n      /* don't copy from this buffer -> on to the next */\n      offset = (u16_t)(offset\
+        \ - p->len);\n    } else {\n      /* copy from this buffer. maybe only partially. */\n      buf_copy_len\
+        \ = (u16_t)(p->len - offset);\n      if (buf_copy_len > len) {\n        buf_copy_len = len;\n\
+        \      }\n      /* copy the necessary parts of the buffer */\n      MEMCPY(&((char *)dataptr)[left],\
+        \ &((char *)p->payload)[offset], buf_copy_len);\n      copied_total = (u16_t)(copied_total + buf_copy_len);\n\
+        \      left = (u16_t)(left + buf_copy_len);\n      len = (u16_t)(len - buf_copy_len);\n      offset\
+        \ = 0;\n    }\n  }\n  return copied_total;"
+      evidence_tags:
+      - E1
+      source_spans:
+      - tag: E1
+        start: 442
+        end: 1154
+    handling:
+    - text: assert(pbuf_get_contiguous(p,NULL,0,4,2)==NULL);printf("cross_fragment without_scratch=null\n");
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 1002
+        end: 1098
+    verification:
+    - text: '"exit_code": 0'
+      evidence_tags:
+      - T2
+      source_spans:
+      - tag: T2
+        start: 515
+        end: 529
+    - text: '"exit_code": 0'
+      evidence_tags:
+      - T3
+      source_spans:
+      - tag: T3
+        start: 130
+        end: 144
+  execution:
+    path: examples/reproductions/knowledge-sources-v2/lwip-pbuf-copy/execution.json
+    sha256: 728e9345f9ef0a76b1a908bf0f0af7885b404c1f235959844bd86f311da6ec48
+  initial_failure_records: []
+- id: lwip-pbuf-take
+  repository: https://github.com/lwip-tcpip/lwip
+  revision: 3d896ba0a37ff3ce73270ca5e230707fe47f60e3
+  corpus: lwip
+  mechanism_id: lwip-pbuf-take
+  length_bucket: medium
+  session:
+    path: examples/reproductions/knowledge-sources-v2/lwip-pbuf-take/session.json
+    sha256: b2ec4ae1d5dc0bd4843563d50db7720b13a4220d2726ca1062ecc6c0e4892a13
+  template:
+    path: eval/knowledge_reuse_v2/layout-3.yaml
+    sha256: f5d3c4f7b31f0fb3820f0e758e4ff8da58f374c37b7e6b473b388a17a49555a7
+  attachments:
+  - path: corpus/lwip/src/core/pbuf.c
+    sha256: 2f953eb2bc5b696b2eea156386cc4f99c793859bbf65cee967653bdf3374db61
+    line_start: 1279
+    line_end: 1302
+    kind: source
+  - path: corpus/lwip/src/core/pbuf.c
+    sha256: 2f953eb2bc5b696b2eea156386cc4f99c793859bbf65cee967653bdf3374db61
+    line_start: 1235
+    line_end: 1266
+    kind: source
+  - path: corpus/lwip/src/core/pbuf.c
+    sha256: 2f953eb2bc5b696b2eea156386cc4f99c793859bbf65cee967653bdf3374db61
+    line_start: 1217
+    line_end: 1222
+    kind: source
+  - path: examples/reproductions/knowledge-sources-v2/lwip-pbuf-take/reproduce.c
+    sha256: 439b14b103c09e4641161c0c4fd1c2ea8ecc3fcc16dc65783a2513a5a3e01512
+    kind: harness
+  - path: examples/reproductions/knowledge-sources-v2/lwip-pbuf-take/commands.json
+    sha256: 3e543243f9b7d4f9819f84a339509d093171feeab0bbd6a0d881bc33a9868a54
+    kind: command
+  - path: examples/reproductions/knowledge-sources-v2/lwip-pbuf-take/observation.json
+    sha256: 1a4143d7447396893b2b170d217ce68f33b5f92492690018a633b7fb5ef8f44a
+    kind: observation
+  - path: corpus/lwip/test/unit/lwipopts.h
+    sha256: 250dfc64740e6ffdc27957427cfb2baa2d190dae0bef88bf7dca6bb1e987f0d3
+    kind: build_configuration
+  required_facts:
+    symptom:
+    - text: '"write offset=2 len=4 bytes=WXYZ result=0 packet=abWXYZghi total=9\noversize offset=8 len=2
+        unchanged result=-1 packet=abWXYZghi total=9\nexact_end offset=6 len=3 bytes=END result=0 packet=abWXYZEND
+        total=9\noffset_at_end len=1 unchanged result=-1 packet=abWXYZEND total=9\n"'
+      evidence_tags:
+      - T3
+      source_spans:
+      - tag: T3
+        start: 158
+        end: 433
+    hypotheses:
+    - text: assert(result==ERR_OK && memcmp(a,"abW",3)==0 && memcmp(b,"XY",2)==0 && memcmp(c,"Zghi",4)==0);
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 754
+        end: 849
+    conditions:
+    - text: "err_t\npbuf_take_at(struct pbuf *buf, const void *dataptr, u16_t len, u16_t offset)\n{\n\
+        \  u16_t target_offset;\n  struct pbuf *q = pbuf_skip(buf, offset, &target_offset);\n\n  /* return\
+        \ requested data if pbuf is OK */\n  if ((q != NULL) && (q->tot_len >= target_offset + len)) {\n\
+        \    u16_t remaining_len = len;\n    const u8_t *src_ptr = (const u8_t *)dataptr;\n    /* copy\
+        \ the part that goes into the first pbuf */\n    u16_t first_copy_len;\n    LWIP_ASSERT(\"check\
+        \ pbuf_skip result\", target_offset < q->len);\n    first_copy_len = (u16_t)LWIP_MIN(q->len -\
+        \ target_offset, len);\n    MEMCPY(((u8_t *)q->payload) + target_offset, dataptr, first_copy_len);\n\
+        \    remaining_len = (u16_t)(remaining_len - first_copy_len);\n    src_ptr += first_copy_len;\n\
+        \    if (remaining_len > 0) {\n      return pbuf_take(q->next, src_ptr, remaining_len);\n    }\n\
+        \    return ERR_OK;\n  }\n  return ERR_MEM;\n}"
+      evidence_tags:
+      - E1
+      source_spans:
+      - tag: E1
+        start: 0
+        end: 867
+    wrong_explanations:
+    - text: result=pbuf_take_at(p,"!",1,9);assert(result==ERR_MEM);show(p,"offset_at_end len=1 unchanged",result);
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 1193
+        end: 1295
+    root_cause:
+    - text: "err_t\npbuf_take_at(struct pbuf *buf, const void *dataptr, u16_t len, u16_t offset)\n{\n\
+        \  u16_t target_offset;\n  struct pbuf *q = pbuf_skip(buf, offset, &target_offset);\n\n  /* return\
+        \ requested data if pbuf is OK */\n  if ((q != NULL) && (q->tot_len >= target_offset + len)) {\n\
+        \    u16_t remaining_len = len;\n    const u8_t *src_ptr = (const u8_t *)dataptr;\n    /* copy\
+        \ the part that goes into the first pbuf */\n    u16_t first_copy_len;\n    LWIP_ASSERT(\"check\
+        \ pbuf_skip result\", target_offset < q->len);\n    first_copy_len = (u16_t)LWIP_MIN(q->len -\
+        \ target_offset, len);\n    MEMCPY(((u8_t *)q->payload) + target_offset, dataptr, first_copy_len);\n\
+        \    remaining_len = (u16_t)(remaining_len - first_copy_len);\n    src_ptr += first_copy_len;\n\
+        \    if (remaining_len > 0) {\n      return pbuf_take(q->next, src_ptr, remaining_len);\n    }\n\
+        \    return ERR_OK;\n  }\n  return ERR_MEM;\n}"
+      evidence_tags:
+      - E1
+      source_spans:
+      - tag: E1
+        start: 0
+        end: 867
+    handling:
+    - text: result=pbuf_take_at(p,"END",3,6);assert(result==ERR_OK && memcmp(c,"ZEND",4)==0);
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 1050
+        end: 1131
+    verification:
+    - text: '"exit_code": 0'
+      evidence_tags:
+      - T2
+      source_spans:
+      - tag: T2
+        start: 515
+        end: 529
+    - text: '"exit_code": 0'
+      evidence_tags:
+      - T3
+      source_spans:
+      - tag: T3
+        start: 130
+        end: 144
+  execution:
+    path: examples/reproductions/knowledge-sources-v2/lwip-pbuf-take/execution.json
+    sha256: 8711aaac9f6baa2db51d4b039077ef4b12adc2d7d74950ff1f0ad6870d0dc45d
+  initial_failure_records: []
+- id: lwip-checksum-fragments
+  repository: https://github.com/lwip-tcpip/lwip
+  revision: 3d896ba0a37ff3ce73270ca5e230707fe47f60e3
+  corpus: lwip
+  mechanism_id: lwip-checksum-fragments
+  length_bucket: short
+  session:
+    path: examples/reproductions/knowledge-sources-v2/lwip-checksum-fragments/session.json
+    sha256: e46f82e6f6303f332c4b1b74a785d119450610a80d621522edf4c8c262c9adfa
+  template:
+    path: eval/knowledge_reuse_v2/layout-3.yaml
+    sha256: f5d3c4f7b31f0fb3820f0e758e4ff8da58f374c37b7e6b473b388a17a49555a7
+  attachments:
+  - path: corpus/lwip/src/core/inet_chksum.c
+    sha256: fc82b44fc866704a51c0aacd6037b10802b88e8576e1b691917cd2b863878b1b
+    line_start: 554
+    line_end: 558
+    kind: source
+  - path: corpus/lwip/src/core/inet_chksum.c
+    sha256: fc82b44fc866704a51c0aacd6037b10802b88e8576e1b691917cd2b863878b1b
+    line_start: 567
+    line_end: 588
+    kind: source
+  - path: corpus/lwip/src/core/inet_chksum.c
+    sha256: fc82b44fc866704a51c0aacd6037b10802b88e8576e1b691917cd2b863878b1b
+    line_start: 132
+    line_end: 173
+    kind: source
+  - path: examples/reproductions/knowledge-sources-v2/lwip-checksum-fragments/reproduce.c
+    sha256: 9b6503a5381ef36a07b0f5f5f0186ee021e607086eb63471d1820ebce00fd13a
+    kind: harness
+  - path: examples/reproductions/knowledge-sources-v2/lwip-checksum-fragments/commands.json
+    sha256: 0b3b1eb66bea19ddef1201d6c2d62a1824bbc088953c5f47b6a5b78770bd6f2c
+    kind: command
+  - path: examples/reproductions/knowledge-sources-v2/lwip-checksum-fragments/observation.json
+    sha256: 4a447298e71c6f530142be46bec295fba167eee31990432f60fcda2c8bddf1bf
+    kind: observation
+  - path: corpus/lwip/test/unit/lwipopts.h
+    sha256: 250dfc64740e6ffdc27957427cfb2baa2d190dae0bef88bf7dca6bb1e987f0d3
+    kind: build_configuration
+  required_facts:
+    symptom:
+    - text: '"input_hex=0001f203f4f5f6f711 contiguous_checksum=110d\nsplit=1+2+6 checksum=110d equal_contiguous=1\nsplit=3+3+3
+        checksum=110d equal_contiguous=1\nsplit=4+4+1 checksum=110d equal_contiguous=1\nsplit=2+2+5 checksum=110d
+        equal_contiguous=1\nunaligned_same_bytes checksum=110d equal_contiguous=1\nprefix_len=8 checksum=220d
+        full_len=9 checksum=110d\n"'
+      evidence_tags:
+      - T3
+      source_spans:
+      - tag: T3
+        start: 158
+        end: 507
+    hypotheses:
+    - text: u16_t chained=inet_chksum_pbuf(p);assert(chained==contiguous);
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 1062
+        end: 1124
+    conditions:
+    - text: "for (q = p; q != NULL; q = q->next) {\n    acc += LWIP_CHKSUM(q->payload, q->len);\n    acc\
+        \ = FOLD_U32T(acc);\n    if (q->len % 2 != 0) {\n      swapped = !swapped;\n      acc = SWAP_BYTES_IN_WORD(acc);\n\
+        \    }\n  }\n\n  if (swapped) {\n    acc = SWAP_BYTES_IN_WORD(acc);\n  }\n  return (u16_t)~(acc\
+        \ & 0xffffUL);"
+      evidence_tags:
+      - E2
+      source_spans:
+      - tag: E2
+        start: 105
+        end: 404
+    wrong_explanations:
+    - text: const u16_t even=inet_chksum(bytes,8);assert(display(even)==0x220d && display(contiguous)==0x110d);
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 1514
+        end: 1613
+    root_cause:
+    - text: "if (len > 0) {\n    ((u8_t *)&t)[0] = *(const u8_t *)ps;\n  }\n\n  /* Add end bytes */\n\
+        \  sum += t;\n\n  /* Fold 32-bit sum to 16 bits\n     calling this twice is probably faster than\
+        \ if statements... */\n  sum = FOLD_U32T(sum);\n  sum = FOLD_U32T(sum);\n\n  /* Swap if alignment\
+        \ was odd */\n  if (odd) {\n    sum = SWAP_BYTES_IN_WORD(sum);\n  }"
+      evidence_tags:
+      - E3
+      source_spans:
+      - tag: E3
+        start: 455
+        end: 785
+    handling:
+    - text: u16_t check=inet_chksum(unaligned+1,sizeof(bytes));assert(check==contiguous);
+      evidence_tags:
+      - T1
+      source_spans:
+      - tag: T1
+        start: 1346
+        end: 1423
+    verification:
+    - text: '"exit_code": 0'
+      evidence_tags:
+      - T2
+      source_spans:
+      - tag: T2
+        start: 522
+        end: 536
+    - text: '"exit_code": 0'
+      evidence_tags:
+      - T3
+      source_spans:
+      - tag: T3
+        start: 130
+        end: 144
+  execution:
+    path: examples/reproductions/knowledge-sources-v2/lwip-checksum-fragments/execution.json
+    sha256: cbfe31d0f37106c57da3113ee04e9325b97f33e2a65431f014e4ea27d9d47c80
+  initial_failure_records: []
+tasks:
+- id: cjson-parse-end.condition_change
+  case_id: cjson-parse-end
+  mechanism_id: cjson-parse-end
+  question_kind: condition_change
+  question: 同一缓冲区先允许前缀解析，再把 require_null_terminated 改为 1；对含 trailing 的对象和恰好三字节的 [1]，接受结果与 end 指针含义分别怎样变化？
+  type: 经验同源对照
+- id: cjson-parse-end.wrong_explanation
+  case_id: cjson-parse-end
+  mechanism_id: cjson-parse-end
+  question_kind: wrong_explanation
+  question: 有人把首个成功解释为“整个缓冲区均为合法 JSON，尾部已被验证”，又把严格模式失败定位解释为“end 永远是成功消费字节数”。哪些解释被本实验和源码排除？
+  type: 经验同源对照
+- id: cjson-parse-end.next_verification
+  case_id: cjson-parse-end
+  mechanism_id: cjson-parse-end
+  question_kind: next_verification
+  question: 下一步如何在不越界读取 end 的前提下，用已冻结的可执行夹具复核严格与非严格解析边界？列出输入/标志矩阵、需要比较的返回值和偏移，并区分已观测结果与尚未执行的变体。
+  type: 经验同源对照
+- id: cjson-string-mutation.condition_change
+  case_id: cjson-string-mutation
+  mechanism_id: cjson-string-mutation
+  question_kind: condition_change
+  question: 把 owned 字符串的替换内容从较短的 xy 改成长字符串，再把对象换成 CreateStringReference 或 number，返回值、存储复用和原值分别应如何判断？
+  type: 经验同源对照
+- id: cjson-string-mutation.wrong_explanation
+  case_id: cjson-string-mutation
+  mechanism_id: cjson-string-mutation
+  question_kind: wrong_explanation
+  question: “返回 NULL 一定表示内存耗尽”以及“短串和长串都只是原地 strcpy”是否能解释本例？给出源码上的不同分支和可观察反例。
+  type: 经验同源对照
+- id: cjson-string-mutation.next_verification
+  case_id: cjson-string-mutation
+  mechanism_id: cjson-string-mutation
+  question_kind: next_verification
+  question: 下一步应运行哪些现成断言，才能分别复核存储复用、增长后的内容和被拒绝节点未改值，而不把尚未注入的分配故障写成已验证？
+  type: 经验同源对照
+- id: cjson-duplicate.condition_change
+  case_id: cjson-duplicate
+  mechanism_id: cjson-duplicate
+  question_kind: condition_change
+  question: 把 Duplicate 的 recurse 从 0 改成 1，再把源节点换成借用外部字符数组的 string reference；后续分别修改源子节点和外部字符数组，会观察到什么？
+  type: 经验同源对照
+- id: cjson-duplicate.wrong_explanation
+  case_id: cjson-duplicate
+  mechanism_id: cjson-duplicate
+  question_kind: wrong_explanation
+  question: “浅复制与深复制只差一个标志，都会共享孩子”和“深复制必然重新分配所有字符指针”这两种解释各有什么问题？
+  type: 经验同源对照
+- id: cjson-duplicate.next_verification
+  case_id: cjson-duplicate
+  mechanism_id: cjson-duplicate
+  question_kind: next_verification
+  question: 下一步如何用本夹具中的身份、值和引用标志断言区分三种复制行为？哪些分配失败/深度限制情形仍需另建验证？
+  type: 经验同源对照
+- id: cjson-replace-object.condition_change
+  case_id: cjson-replace-object
+  mechanism_id: cjson-replace-object
+  question_kind: condition_change
+  question: 对已有 Key 的对象用 key 替换时，从 CaseSensitive API 换到普通 API 会怎样？若改为不存在的 absent，谁负责替换节点，以及失败是否保证替换节点所有字段原封不动？
+  type: 经验同源对照
+- id: cjson-replace-object.wrong_explanation
+  case_id: cjson-replace-object
+  mechanism_id: cjson-replace-object
+  question_kind: wrong_explanation
+  question: 有人依据 replaced=0 声称“replacement 已自动释放”，另有人声称“失败没有任何副作用”。对缺失键路径这两种结论能否成立？
+  type: 经验同源对照
+- id: cjson-replace-object.next_verification
+  case_id: cjson-replace-object
+  mechanism_id: cjson-replace-object
+  question_kind: next_verification
+  question: 下一步如何同时验证返回值、原对象内容、替换后首尾连接与失败节点的调用者清理？哪些更广泛的链表位置测试不能由本例冒充？
+  type: 经验同源对照
+- id: cjson-compare.condition_change
+  case_id: cjson-compare
+  mechanism_id: cjson-compare
+  question_kind: condition_change
+  question: 把 case_sensitive 从 1 改为 0，Name/name 键、X/x 字符串值和 [1,2]/[2,1] 三组比较都会变相等吗？结合固定向量给出区别。
+  type: 经验同源对照
+- id: cjson-compare.wrong_explanation
+  case_id: cjson-compare
+  mechanism_id: cjson-compare
+  question_kind: wrong_explanation
+  question: “对象比较取决于成员顺序”和“只要左边字段在右边出现，子集也算相等”是否符合本实验？数字1与字符串1又应怎样处理？
+  type: 经验同源对照
+- id: cjson-compare.next_verification
+  case_id: cjson-compare
+  mechanism_id: cjson-compare
+  question_kind: next_verification
+  question: 下一步应如何运行和读取现有十组比较矩阵，以分别验证键大小写、值大小写、顺序、双向额外字段和嵌套值，而不把某一个相等结果当完整证明？
+  type: 经验同源对照
+- id: cjson-unicode.condition_change
+  case_id: cjson-unicode
+  mechanism_id: cjson-unicode
+  question_kind: condition_change
+  question: 把有效的 D834/DD1E 代理对改成孤立低代理、孤立高代理或高代理后跟0041，与改成非十六进制 ZZZZ 相比，固定版本会一律拒绝吗？
+  type: 经验同源对照
+- id: cjson-unicode.wrong_explanation
+  case_id: cjson-unicode
+  mechanism_id: cjson-unicode
+  question_kind: wrong_explanation
+  question: 最初夹具对 ZZZZ 的 NULL 断言失败，是否说明编译器坏了，或可将这个失败从记录中删除并宣称所有非法转义已拒绝？如何用源码解释并保留反例？
+  type: 经验同源对照
+- id: cjson-unicode.next_verification
+  case_id: cjson-unicode
+  mechanism_id: cjson-unicode
+  question_kind: next_verification
+  question: 下一步如何重跑有效/无效代理对矩阵，并避免仅用可见字符串打印漏掉 ZZZZ 解码出的 NUL？报告应如何区分最初失败与最终观测？
+  type: 经验同源对照
+- id: lwip-address-forms.condition_change
+  case_id: lwip-address-forms
+  mechanism_id: lwip-address-forms
+  question_kind: condition_change
+  question: 把127.0.0.1依次改成127.1、0x7f.1和0177.0.0.1，再把三段形式改成1.2.65535；固定解析器的接受与标准化结果怎样变化？
+  type: 经验同源对照
+- id: lwip-address-forms.wrong_explanation
+  case_id: lwip-address-forms
+  mechanism_id: lwip-address-forms
+  question_kind: wrong_explanation
+  question: “前导0总是十进制”和“首次链接失败说明ip4addr_aton不能解析缩写”能否解释记录？如何分别排除，并给出实际拒绝的输入？
+  type: 经验同源对照
+- id: lwip-address-forms.next_verification
+  case_id: lwip-address-forms
+  mechanism_id: lwip-address-forms
+  question_kind: next_verification
+  question: 下一步如何用同一固定配置重现接受/拒绝与ntoa标准化矩阵，同时防止把构建失败当运行结果或把解析成功当联网验证？
+  type: 经验同源对照
+- id: lwip-pbuf-header.condition_change
+  case_id: lwip-pbuf-header
+  mechanism_id: lwip-pbuf-header
+  question_kind: condition_change
+  question: 对本例借用 storage 的 PBUF_REF，普通加4、减2、再减6与强制加6的结果如何变化？为什么 force 成功必须连同实际预留存储条件说明？
+  type: 经验同源对照
+- id: lwip-pbuf-header.wrong_explanation
+  case_id: lwip-pbuf-header
+  mechanism_id: lwip-pbuf-header
+  question_kind: wrong_explanation
+  question: “普通加头失败一定是堆内存不足，改用force总能安全修好”能否从当前源码与实验成立？请解释失败门禁和force的证据边界。
+  type: 经验同源对照
+- id: lwip-pbuf-header.next_verification
+  case_id: lwip-pbuf-header
+  mechanism_id: lwip-pbuf-header
+  question_kind: next_verification
+  question: 下一步怎样验证四次操作的返回值、payload偏移、len和tot_len，且不为验证force而构造越界指针？
+  type: 经验同源对照
+- id: lwip-pbuf-chain-ref.condition_change
+  case_id: lwip-pbuf-chain-ref
+  mechanism_id: lwip-pbuf-chain-ref
+  question_kind: condition_change
+  question: 三段栈上pbuf初始ref均1：先cat前两段，再chain第三段，最后仅ref第三段。各段tot_len/ref如何变化，cat与chain的差别是什么？
+  type: 经验同源对照
+- id: lwip-pbuf-chain-ref.wrong_explanation
+  case_id: lwip-pbuf-chain-ref
+  mechanism_id: lwip-pbuf-chain-ref
+  question_kind: wrong_explanation
+  question: 有人把tail_ref增加解释成“cat也隐式加引用”，又据此声称夹具已证明释放无泄漏。记录是否支持这两个结论？
+  type: 经验同源对照
+- id: lwip-pbuf-chain-ref.next_verification
+  case_id: lwip-pbuf-chain-ref
+  mechanism_id: lwip-pbuf-chain-ref
+  question_kind: next_verification
+  question: 下一步如何重跑链连接/引用计数断言，又避免误把栈节点交给pbuf_free？若要验证真正释放生命周期，还缺什么独立实验？
+  type: 经验同源对照
+- id: lwip-pbuf-copy.condition_change
+  case_id: lwip-pbuf-copy
+  mechanism_id: lwip-pbuf-copy
+  question_kind: condition_change
+  question: 同一三段包中，get_contiguous从单段内offset3/len2改为跨段offset2/len4，scratch为NULL或足够大时返回什么？如果请求超出包尾，和copy_partial的返回语义有何不同？
+  type: 经验同源对照
+- id: lwip-pbuf-copy.wrong_explanation
+  case_id: lwip-pbuf-copy
+  mechanism_id: lwip-pbuf-copy
+  question_kind: wrong_explanation
+  question: “get_contiguous返回NULL就表示内存分配失败，且scratch一定未被修改”是否成立？结合跨段和越界请求解释。
+  type: 经验同源对照
+- id: lwip-pbuf-copy.next_verification
+  case_id: lwip-pbuf-copy
+  mechanism_id: lwip-pbuf-copy
+  question_kind: next_verification
+  question: 下一步如何用返回长度、指针身份与字节比较区分部分拷贝、零拷贝和scratch拷贝，避免用字符串终止符掩盖真实长度？
+  type: 经验同源对照
+- id: lwip-pbuf-take.condition_change
+  case_id: lwip-pbuf-take
+  mechanism_id: lwip-pbuf-take
+  question_kind: condition_change
+  question: 对总长9的有效三段链，写入条件从offset2/len4变为offset8/len2、offset6/len3和offset9/len1时，返回值和包内容各如何变化？
+  type: 经验同源对照
+- id: lwip-pbuf-take.wrong_explanation
+  case_id: lwip-pbuf-take
+  mechanism_id: lwip-pbuf-take
+  question_kind: wrong_explanation
+  question: “ERR_MEM只能说明分配内存失败”以及“失败总先写一部分再返回”能否解释这个有效链上的越界写？可以推广为所有畸形链的事务保证吗？
+  type: 经验同源对照
+- id: lwip-pbuf-take.next_verification
+  case_id: lwip-pbuf-take
+  mechanism_id: lwip-pbuf-take
+  question_kind: next_verification
+  question: 下一步如何验证跨段写入和两个拒绝操作的字节级结果，既检查完整包又不依赖一个返回码？请区分现成断言与可追加验证。
+  type: 经验同源对照
+- id: lwip-checksum-fragments.condition_change
+  case_id: lwip-checksum-fragments
+  mechanism_id: lwip-checksum-fragments
+  question_kind: condition_change
+  question: 保持九字节内容和顺序不变，把分段改成1+2+6、3+3+3、4+4+1或2+2+5，并把连续缓冲区起点改为非对齐地址，校验和应如何比较？若改成只取前八字节呢？
+  type: 经验同源对照
+- id: lwip-checksum-fragments.wrong_explanation
+  case_id: lwip-checksum-fragments
+  mechanism_id: lwip-checksum-fragments
+  question_kind: wrong_explanation
+  question: “每段独立求和直接相加就够了，不需要处理奇偶边界”和“日志110d就是所有主机上的原生u16数值”有哪些证据限制？
+  type: 经验同源对照
+- id: lwip-checksum-fragments.next_verification
+  case_id: lwip-checksum-fragments
+  mechanism_id: lwip-checksum-fragments
+  question_kind: next_verification
+  question: 下一步如何运行分片矩阵、非对齐对照和八字节负对照，验证的是相同逻辑字节而非偶然相同打印文本？这能否当作网络包端到端验证？
+  type: 经验同源对照

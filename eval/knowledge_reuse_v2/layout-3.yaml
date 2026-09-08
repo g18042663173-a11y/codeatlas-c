@@ -1,0 +1,13 @@
+generic_summary:
+  turn_ids:
+  - 1
+  - 2
+  - 3
+structured_card:
+- heading: 现象
+  turn_ids:
+  - 1
+- heading: 验证记录
+  turn_ids:
+  - 2
+  - 3

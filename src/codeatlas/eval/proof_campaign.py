@@ -82,12 +82,14 @@ def _job(spec, root, runs, seed, model):
         with _snapshot(spec) as (conn, directory):
             manifest = task_eval.load_task_set(conn, spec["manifest"], require_approved=True)
             if spec["kind"] == "wiki_knowledge":
+                requested_arms = spec.get("arms")
+                arms = reading_eval._selected_arms(requested_arms)
                 template = reading_eval.evaluate(conn, spec["manifest"], runs=runs, seed=seed,
-                    data_dir=directory, answer_key_path=spec.get("answer_key"))
+                    data_dir=directory, answer_key_path=spec.get("answer_key"),
+                    arms=list(arms))
                 if template.get("reason") != "model_not_configured":
                     raise CampaignError("reading preparation requires an available Wiki")
                 tasks = [t for t in manifest["tasks"] if t["type"] != task_eval.EXPERIENCE_TYPE]
-                arms = reading_eval.ARMS
                 template["variants"] = {arm: {"name": label[0]} for arm, label in arms.items()}
                 template["protocol"].update(embedding="local-hash-384", wiki_in_search_results=False,
                     experience_in_any_arm=False, wiki_flat_meaning="free tool reading, not automatic full-page injection")

@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "lwip-pbuf-copy",
+  "source_type": "public_synthetic",
+  "session_kind": "captured_public_fixture_trace",
+  "not_a_human_transcript": true,
+  "license": "CC0-1.0 (fixture and trace); upstream code retains its original license",
+  "source_ref": "examples/reproductions/knowledge-sources-v2/lwip-pbuf-copy",
+  "repository": "https://github.com/lwip-tcpip/lwip",
+  "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Public fixture input; operations and input bytes are C literals, not a production incident:\n/* CC0-1.0: copy/zero-copy boundaries over a three-fragment packet. */\n#include <assert.h>\n#include <stdio.h>\n#include <string.h>\n#include \"lwip/pbuf.h\"\nint main(void) {\n    char a[]=\"abc\",b[]=\"de\",c[]=\"fghi\",out[16];struct pbuf p[3];memset(p,0,sizeof(p));\n    p[0].payload=a;p[0].len=3;p[0].tot_len=9;p[0].next=&p[1];\n    p[1].payload=b;p[1].len=2;p[1].tot_len=6;p[1].next=&p[2];\n    p[2].payload=c;p[2].len=p[2].tot_len=4;\n    u16_t copied=pbuf_copy_partial(p,out,5,2);out[copied]='\\0';assert(copied==5 && strcmp(out,\"cdefg\")==0);\n    printf(\"copy offset=2 requested=5 copied=%u text=%s\\n\",copied,out);\n    copied=pbuf_copy_partial(p,out,9,7);out[copied]='\\0';assert(copied==2 && strcmp(out,\"hi\")==0);\n    printf(\"copy offset=7 requested=9 copied=%u text=%s\\n\",copied,out);\n    void *view=pbuf_get_contiguous(p,NULL,0,2,3);assert(view==b);\n    printf(\"contiguous offset=3 len=2 zero_copy=%d\\n\",view==b);\n    assert(pbuf_get_contiguous(p,NULL,0,4,2)==NULL);printf(\"cross_fragment without_scratch=null\\n\");\n    view=pbuf_get_contiguous(p,out,sizeof(out),4,2);assert(view==out && memcmp(out,\"cdef\",4)==0);\n    printf(\"cross_fragment with_scratch copied=%d text=%.*s\\n\",view==out,4,out);\n    assert(pbuf_get_contiguous(p,out,sizeof(out),4,8)==NULL);printf(\"beyond_packet offset=8 len=4 result=null\\n\");\n    return 0;\n}\n"
+    },
+    {
+      "role": "tool",
+      "content": "Actual build commands and captured results:\n[\n  {\n    \"argv\": [\n      \"cc\",\n      \"-std=c99\",\n      \"-Wall\",\n      \"-Wextra\",\n      \"-ffunction-sections\",\n      \"-fdata-sections\",\n      \"-DLWIP_DEBUG\",\n      \"-Icorpus/lwip/src/include\",\n      \"-Icorpus/lwip/contrib/ports/unix/port/include\",\n      \"-Icorpus/lwip/test/unit\",\n      \"-MMD\",\n      \"-MF\",\n      \"BUILD/part-0.d\",\n      \"-c\",\n      \"corpus/lwip/src/core/pbuf.c\",\n      \"-o\",\n      \"BUILD/part-0.o\"\n    ],\n    \"cwd\": \"PROJECT_ROOT\",\n    \"stdin\": \"\",\n    \"exit_code\": 0,\n    \"stdout\": \"\",\n    \"stderr\": \"\",\n    \"stdout_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n    \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n  },\n  {\n    \"argv\": [\n      \"cc\",\n      \"-std=c99\",\n      \"-Wall\",\n      \"-Wextra\",\n      \"-ffunction-sections\",\n      \"-fdata-sections\",\n      \"-DLWIP_DEBUG\",\n      \"-Icorpus/lwip/src/include\",\n      \"-Icorpus/lwip/contrib/ports/unix/port/include\",\n      \"-Icorpus/lwip/test/unit\",\n      \"-MMD\",\n      \"-MF\",\n      \"BUILD/part-1.d\",\n      \"-c\",\n      \"examples/reproductions/knowledge-sources-v2/lwip-pbuf-copy/reproduce.c\",\n      \"-o\",\n      \"BUILD/part-1.o\"\n    ],\n    \"cwd\": \"PROJECT_ROOT\",\n    \"stdin\": \"\",\n    \"exit_code\": 0,\n    \"stdout\": \"\",\n    \"stderr\": \"\",\n    \"stdout_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n    \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n  },\n  {\n    \"argv\": [\n      \"cc\",\n      \"-Wl,-dead_strip\",\n      \"BUILD/part-0.o\",\n      \"BUILD/part-1.o\",\n      \"-lm\",\n      \"-o\",\n      \"BUILD/reproduce\"\n    ],\n    \"cwd\": \"PROJECT_ROOT\",\n    \"stdin\": \"\",\n    \"exit_code\": 0,\n    \"stdout\": \"\",\n    \"stderr\": \"\",\n    \"stdout_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n    \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n  }\n]\n"
+    },
+    {
+      "role": "tool",
+      "content": "Actual executable command and captured result:\n{\n  \"argv\": [\n    \"BUILD/reproduce\"\n  ],\n  \"cwd\": \"PROJECT_ROOT\",\n  \"stdin\": \"\",\n  \"exit_code\": 0,\n  \"stdout\": \"copy offset=2 requested=5 copied=5 text=cdefg\\ncopy offset=7 requested=9 copied=2 text=hi\\ncontiguous offset=3 len=2 zero_copy=1\\ncross_fragment without_scratch=null\\ncross_fragment with_scratch copied=1 text=cdef\\nbeyond_packet offset=8 len=4 result=null\\n\",\n  \"stderr\": \"\",\n  \"stdout_sha256\": \"b55878711d00b5d5ee9183aa8c58d57b18bea98c274dc9abf5530ef12a33dffd\",\n  \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n}\n"
+    }
+  ]
+}
+

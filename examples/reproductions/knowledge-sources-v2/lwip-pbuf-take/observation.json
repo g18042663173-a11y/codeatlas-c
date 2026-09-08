@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "BUILD/reproduce"
+  ],
+  "cwd": "PROJECT_ROOT",
+  "stdin": "",
+  "exit_code": 0,
+  "stdout": "write offset=2 len=4 bytes=WXYZ result=0 packet=abWXYZghi total=9\noversize offset=8 len=2 unchanged result=-1 packet=abWXYZghi total=9\nexact_end offset=6 len=3 bytes=END result=0 packet=abWXYZEND total=9\noffset_at_end len=1 unchanged result=-1 packet=abWXYZEND total=9\n",
+  "stderr": "",
+  "stdout_sha256": "484064bd437088f236bebb3a8bb82f81c0502c79beb6712f9d441280988b5237",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}
+

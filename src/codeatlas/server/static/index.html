@@ -81,7 +81,10 @@ async function loadReview(){try{const r=await request('/api/cards');if(!r.items.
 function reviewHtml(x){
   const anchors=x.anchors||[],active=anchors.find(a=>a.active),open=['pending','stale'].includes(x.status),experiments=array(x.experiment_manifest),defaultExperiment=String(x.source_ref||x.session_id||'').toLowerCase().includes('lwip')?'examples/reproductions/lwip-netif/result.txt':'examples/reproductions/cjson-nesting/result.txt';
   let h='<div id="review-'+esc(x.id)+'" data-bundle="'+esc(x.current_review_bundle_hash||'')+'" class="card"><h3>'+label(x.status)+esc(x.title)+'</h3>';
+  const view=x.status==='approved'?x.answer_view:null;
+  if(view){h+='<label>正式卡呈现方式 <select aria-label="正式卡呈现方式" onchange="toggleCardView(this)"><option value="compact">回答用精简视图</option><option value="full">完整内容视图</option></select></label><div class="ref">只改变显示，不修改批准卡或材料版本。估算 '+esc(view.estimated_tokens)+' token / 预算 '+esc(view.budget_tokens)+'。</div>';if(view.status==='compression_infeasible')h+='<div class="callout warn">compression_infeasible：无法在预算内保留必要材料，当前保留完整内容，不计压缩收益。</div>';h+='<pre data-card-view="compact">'+esc(view.text)+'</pre><div data-card-view="full" hidden>';}
   h+='<p><strong>现象：</strong>'+esc(x.symptom)+'</p><p><strong>结论：</strong>'+esc(x.root_cause||'待补充')+'</p><p><strong>解决步骤：</strong>'+esc(x.fix_steps||'待补充')+'</p><p><strong>验证：</strong>'+esc(x.verification||'待补充')+'</p>';
+  if(view)h+='<p><strong>假设：</strong>'+array(x.hypotheses).map(esc).join('；')+'</p><p><strong>错误解释 / 无效尝试：</strong>'+array(x.dead_ends).map(esc).join('；')+'</p><div class="ref">引用 '+array(x.evidence_tags).map(esc).join(', ')+' · 会话轮次 '+array(x.evidence_turns).map(esc).join(', ')+'</div></div>';
   h+='<div class="ref">当前材料版本 '+esc((x.current_review_bundle_hash||'').slice(0,16))+' · 已消费依赖 '+array(x.dependency_manifest).length+' 项 · 复现实验 '+experiments.length+' 项</div>';
   if(x.stale_reason)h+='<div class="callout warn">'+esc(x.stale_reason)+'</div>';
   h+='<div class="ref">'+(active?esc(active.usr)+' · '+esc(active.path)+':'+active.line_start+'-'+active.line_end+' · '+esc(active.definition_hash):'尚未绑定源码锚点')+'</div>';
@@ -95,6 +98,7 @@ function reviewHtml(x){
   h+='<details><summary>审核与失效历史</summary>'+esc(JSON.stringify(x.reviews||[],null,2))+'</details></div>';
   return h;
 }
+function toggleCardView(select){const card=select.closest('.card');card.querySelectorAll('[data-card-view]').forEach(panel=>{panel.hidden=panel.dataset.cardView!==select.value;});}
 async function approveCard(id){
   const usr=$('#usr-'+id).value.trim();if(!usr){alert('请填写唯一 USR。');return;}
   try{await request('/api/card/'+encodeURIComponent(id)+'/bind',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usr})});await loadReview();await loadDashboard();}catch(e){alert(e.message);}
@@ -138,6 +142,7 @@ function renderEvaluation(e){
   let h='<div class="status-line">'+esc(e.repository)+'@'+esc(e.revision)+'</div>';
   if((e.stale_reports||[]).length)h+='<div class="callout warn">部分旧报告已过期，不参与当前结果：'+esc(e.stale_reports.join('；'))+'</div>';
   const facts=(pairs)=>{let out='<div class="fact-grid">';pairs.forEach(x=>out+='<div><span class="subtle">'+esc(x[0])+'</span><strong>'+esc(x[1])+'</strong></div>');return out+'</div>';};
+  if(e.coverage){const c=e.coverage;h+='<h4>新一轮 Wiki 收益实验准入</h4>'+facts([['覆盖状态',c.coverage_ready?'已通过':'coverage_blocked'],...c.corpora.map(x=>[x.id+' 未曝光机制',(x.automatic_candidate_count??0)+' / 目标 '+(x.target_count??0)])])+'<div class="callout '+(c.coverage_ready?'good':'warn')+'">'+(c.coverage_ready?'已具备双份源码复核条件。':'覆盖不足时不会拆分函数、复用旧题或增加语料凑数；正式付费批次未启动。')+'</div>';}
   if(e.acceptance){const a=e.acceptance,p=a.publication||{},rows=(a.corpora||[]).map(x=>{const s=(x.tasks||{}).summary||{},b=(x.tasks||{}).failure_breakdown||{},card=(x.formal_card||{}),current=(x.current_tasks||{}).summary||{};return[x.id+' · 基础 '+(x.foundation_passed?'通过':'失败'),esc((s.passed_tasks??0)+' / '+(s.total_tasks??20))+' · 真实失败 '+esc(b.unexpected_count??0)+' · 冻结旧题阻塞 '+esc(b.blocked_count??0)+' · 当前卡验收 '+esc((current.passed_tasks??0)+' / '+(current.total_tasks??5))+' · 正式卡 '+(card.ok?'已发布':'未完成')];});h+='<h4>cJSON / lwIP 双语料验收</h4>'+facts([['基础能力',a.foundation_passed?'通过':'失败'],['正式知识卡',a.human_release?'两张均已人工发布':'尚未全部发布'],['40 道旧回归',a.legacy_task_complete?'40 / 40':'30 / 40（保留历史结果）'],['当前卡验收',a.current_release_complete?'10 / 10':'未完成'],['作品集',a.portfolio_ready?'就绪':'未就绪'],['公开状态',p.status||'unverifiable'],...rows]);const conflicts=(a.claims||[]).filter(x=>x.status==='contradicted'||x.status==='stale'||x.status==='unverifiable');if(conflicts.length){h+='<ul class="detail-list">';conflicts.forEach(x=>h+='<li>'+(x.status==='contradicted'?'↯':'✕')+' '+esc(x.id)+' · '+esc(x.status)+(x.actual!==undefined?' · 实际 '+esc(typeof x.actual==='object'?JSON.stringify(x.actual):x.actual):'')+'</li>');h+='</ul>';}}
   if(e.acceptance&&e.acceptance.proof){
     const pr=e.acceptance.proof,q=pr.judge_qualification||e.acceptance.judge_qualification||{},selected=q.selected==='primary'?'Terra':q.selected==='fallback'?'Sol':'未选定',review=q.review||{},scored=(pr.items||[]).filter(x=>x.kind!=='maintenance'&&Number.isInteger(x.executed_trial_count)),scoredTotal=scored.reduce((n,x)=>n+x.executed_trial_count,0),terminal=scoredTotal-scored.reduce((n,x)=>n+(x.review_validity?x.executed_trial_count:(x.unresolved_trial_count||0)),0);

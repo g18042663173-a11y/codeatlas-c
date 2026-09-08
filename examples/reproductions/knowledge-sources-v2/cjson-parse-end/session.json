@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "cjson-parse-end",
+  "source_type": "public_synthetic",
+  "session_kind": "captured_public_fixture_trace",
+  "not_a_human_transcript": true,
+  "license": "CC0-1.0 (fixture and trace); upstream code retains its original license",
+  "source_ref": "examples/reproductions/knowledge-sources-v2/cjson-parse-end",
+  "repository": "https://github.com/DaveGamble/cJSON",
+  "revision": "fb16e5cf358798aabb049655975cde8427101056",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Public fixture input; operations and input bytes are C literals, not a production incident:\n/* CC0-1.0: bounded-buffer parsing observations. */\n#include <assert.h>\n#include <stdio.h>\n#include \"cJSON.h\"\nint main(void) {\n    const char text[]=\"{\\\"n\\\":7} trailing\", bounded[]={'[','1',']'};\n    const char *end=NULL;\n    cJSON *value=cJSON_ParseWithLengthOpts(text,sizeof(text),&end,0);\n    assert(value && end==text+7);\n    printf(\"prefix input=%s accepted=1 end_offset=%td suffix=%s\\n\",text,end-text,end);\n    cJSON_Delete(value);\n    value=cJSON_ParseWithLengthOpts(text,sizeof(text),&end,1);\n    assert(value==NULL);\n    printf(\"require_terminator accepted=0 end_offset=%td\\n\",end-text);\n    value=cJSON_ParseWithLengthOpts(bounded,sizeof(bounded),&end,0);\n    assert(value && end==bounded+3);\n    printf(\"three_bytes_no_NUL accepted=1 end_offset=%td\\n\",end-bounded);\n    cJSON_Delete(value);\n    value=cJSON_ParseWithLengthOpts(bounded,sizeof(bounded),&end,1);\n    assert(value==NULL);\n    printf(\"three_bytes_require_NUL accepted=0 end_offset=%td\\n\",end-bounded);\n    return 0;\n}\n"
+    },
+    {
+      "role": "tool",
+      "content": "Actual build commands and captured results:\n[\n  {\n    \"argv\": [\n      \"cc\",\n      \"-std=c99\",\n      \"-Wall\",\n      \"-Wextra\",\n      \"-ffunction-sections\",\n      \"-fdata-sections\",\n      \"-Icorpus/cJSON\",\n      \"-MMD\",\n      \"-MF\",\n      \"BUILD/part-0.d\",\n      \"-c\",\n      \"corpus/cJSON/cJSON.c\",\n      \"-o\",\n      \"BUILD/part-0.o\"\n    ],\n    \"cwd\": \"PROJECT_ROOT\",\n    \"stdin\": \"\",\n    \"exit_code\": 0,\n    \"stdout\": \"\",\n    \"stderr\": \"\",\n    \"stdout_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n    \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n  },\n  {\n    \"argv\": [\n      \"cc\",\n      \"-std=c99\",\n      \"-Wall\",\n      \"-Wextra\",\n      \"-ffunction-sections\",\n      \"-fdata-sections\",\n      \"-Icorpus/cJSON\",\n      \"-MMD\",\n      \"-MF\",\n      \"BUILD/part-1.d\",\n      \"-c\",\n      \"examples/reproductions/knowledge-sources-v2/cjson-parse-end/reproduce.c\",\n      \"-o\",\n      \"BUILD/part-1.o\"\n    ],\n    \"cwd\": \"PROJECT_ROOT\",\n    \"stdin\": \"\",\n    \"exit_code\": 0,\n    \"stdout\": \"\",\n    \"stderr\": \"\",\n    \"stdout_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n    \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n  },\n  {\n    \"argv\": [\n      \"cc\",\n      \"-Wl,-dead_strip\",\n      \"BUILD/part-0.o\",\n      \"BUILD/part-1.o\",\n      \"-lm\",\n      \"-o\",\n      \"BUILD/reproduce\"\n    ],\n    \"cwd\": \"PROJECT_ROOT\",\n    \"stdin\": \"\",\n    \"exit_code\": 0,\n    \"stdout\": \"\",\n    \"stderr\": \"\",\n    \"stdout_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n    \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n  }\n]\n"
+    },
+    {
+      "role": "tool",
+      "content": "Actual executable command and captured result:\n{\n  \"argv\": [\n    \"BUILD/reproduce\"\n  ],\n  \"cwd\": \"PROJECT_ROOT\",\n  \"stdin\": \"\",\n  \"exit_code\": 0,\n  \"stdout\": \"prefix input={\\\"n\\\":7} trailing accepted=1 end_offset=7 suffix= trailing\\nrequire_terminator accepted=0 end_offset=8\\nthree_bytes_no_NUL accepted=1 end_offset=3\\nthree_bytes_require_NUL accepted=0 end_offset=2\\n\",\n  \"stderr\": \"\",\n  \"stdout_sha256\": \"e93178956bd06283a764787260879e2f7a06af8dbbbe7cf704d1f0a176267aa4\",\n  \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n}\n"
+    }
+  ]
+}
+

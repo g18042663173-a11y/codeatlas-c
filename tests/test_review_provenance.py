@@ -5,7 +5,7 @@ import pytest
 import yaml
 
 from codeatlas.contracts import digest
-from codeatlas.eval import protocol, rubric
+from codeatlas.eval import protocol, rubric, value_proof
 from tests.test_snapshot_contracts import _review_report
 
 
@@ -133,6 +133,10 @@ def test_two_agents_are_ai_reviewed_without_human_approval():
     assert report["acceptance"]["gates"]["review_packet_complete"]
     assert not report["human_release_eligible"]
     assert not report["acceptance"]["passed"]  # Synthetic, no approved holdout.
+    # Public-claim validation must read the scorer's real selected_score shape,
+    # not require a convenience projection that exists only in compact reports.
+    assert value_proof._complete_scored_trials(
+        report["raw_trials"], require_false_claim=True)
 
 
 def test_observed_effect_cannot_bypass_incomplete_experiment_gates():

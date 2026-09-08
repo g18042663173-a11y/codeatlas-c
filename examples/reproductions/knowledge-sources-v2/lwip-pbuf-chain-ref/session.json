@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "lwip-pbuf-chain-ref",
+  "source_type": "public_synthetic",
+  "session_kind": "captured_public_fixture_trace",
+  "not_a_human_transcript": true,
+  "license": "CC0-1.0 (fixture and trace); upstream code retains its original license",
+  "source_ref": "examples/reproductions/knowledge-sources-v2/lwip-pbuf-chain-ref",
+  "repository": "https://github.com/lwip-tcpip/lwip",
+  "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Public fixture input; operations and input bytes are C literals, not a production incident:\n/* CC0-1.0: stack-backed pbufs; inspect links/refcounts, never free stack storage. */\n#include <assert.h>\n#include <stdio.h>\n#include <string.h>\n#include \"lwip/pbuf.h\"\nstatic void init(struct pbuf *p,void *bytes,u16_t length) {\n    memset(p,0,sizeof(*p));p->payload=bytes;p->len=p->tot_len=length;\n    p->ref=1;p->type_internal=PBUF_REF;\n}\nint main(void) {\n    char a[]=\"ab\",b[]=\"cde\",c[]=\"fghi\";struct pbuf first,middle,last;\n    init(&first,a,2);init(&middle,b,3);init(&last,c,4);\n    pbuf_cat(&first,&middle);assert(first.next==&middle && first.tot_len==5 && middle.ref==1);\n    printf(\"cat first_total=%u tail_ref=%u tail_total=%u\\n\",first.tot_len,middle.ref,middle.tot_len);\n    pbuf_chain(&first,&last);assert(middle.next==&last && first.tot_len==9 && middle.tot_len==7 && last.ref==2);\n    printf(\"chain first_total=%u middle_total=%u tail_ref=%u tail_total=%u\\n\",first.tot_len,middle.tot_len,last.ref,last.tot_len);\n    pbuf_ref(&last);assert(last.ref==3 && first.ref==1 && middle.ref==1);\n    printf(\"explicit_ref tail_ref=%u first_ref=%u middle_ref=%u\\n\",last.ref,first.ref,middle.ref);\n    printf(\"lifetime=caller_owned_stack no_pbuf_free_called\\n\");\n    return 0;\n}\n"
+    },
+    {
+      "role": "tool",
+      "content": "Actual build commands and captured results:\n[\n  {\n    \"argv\": [\n      \"cc\",\n      \"-std=c99\",\n      \"-Wall\",\n      \"-Wextra\",\n      \"-ffunction-sections\",\n      \"-fdata-sections\",\n      \"-DLWIP_DEBUG\",\n      \"-Icorpus/lwip/src/include\",\n      \"-Icorpus/lwip/contrib/ports/unix/port/include\",\n      \"-Icorpus/lwip/test/unit\",\n      \"-MMD\",\n      \"-MF\",\n      \"BUILD/part-0.d\",\n      \"-c\",\n      \"corpus/lwip/src/core/pbuf.c\",\n      \"-o\",\n      \"BUILD/part-0.o\"\n    ],\n    \"cwd\": \"PROJECT_ROOT\",\n    \"stdin\": \"\",\n    \"exit_code\": 0,\n    \"stdout\": \"\",\n    \"stderr\": \"\",\n    \"stdout_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n    \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n  },\n  {\n    \"argv\": [\n      \"cc\",\n      \"-std=c99\",\n      \"-Wall\",\n      \"-Wextra\",\n      \"-ffunction-sections\",\n      \"-fdata-sections\",\n      \"-DLWIP_DEBUG\",\n      \"-Icorpus/lwip/src/include\",\n      \"-Icorpus/lwip/contrib/ports/unix/port/include\",\n      \"-Icorpus/lwip/test/unit\",\n      \"-MMD\",\n      \"-MF\",\n      \"BUILD/part-1.d\",\n      \"-c\",\n      \"examples/reproductions/knowledge-sources-v2/lwip-pbuf-chain-ref/reproduce.c\",\n      \"-o\",\n      \"BUILD/part-1.o\"\n    ],\n    \"cwd\": \"PROJECT_ROOT\",\n    \"stdin\": \"\",\n    \"exit_code\": 0,\n    \"stdout\": \"\",\n    \"stderr\": \"\",\n    \"stdout_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n    \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n  },\n  {\n    \"argv\": [\n      \"cc\",\n      \"-Wl,-dead_strip\",\n      \"BUILD/part-0.o\",\n      \"BUILD/part-1.o\",\n      \"-lm\",\n      \"-o\",\n      \"BUILD/reproduce\"\n    ],\n    \"cwd\": \"PROJECT_ROOT\",\n    \"stdin\": \"\",\n    \"exit_code\": 0,\n    \"stdout\": \"\",\n    \"stderr\": \"\",\n    \"stdout_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n    \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n  }\n]\n"
+    },
+    {
+      "role": "tool",
+      "content": "Actual executable command and captured result:\n{\n  \"argv\": [\n    \"BUILD/reproduce\"\n  ],\n  \"cwd\": \"PROJECT_ROOT\",\n  \"stdin\": \"\",\n  \"exit_code\": 0,\n  \"stdout\": \"cat first_total=5 tail_ref=1 tail_total=3\\nchain first_total=9 middle_total=7 tail_ref=2 tail_total=4\\nexplicit_ref tail_ref=3 first_ref=1 middle_ref=1\\nlifetime=caller_owned_stack no_pbuf_free_called\\n\",\n  \"stderr\": \"\",\n  \"stdout_sha256\": \"2a07cd9b6b2c4a6562a8e2b9a2432e79e35525f9d208a0542d0221426da1f85c\",\n  \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n}\n"
+    }
+  ]
+}
+

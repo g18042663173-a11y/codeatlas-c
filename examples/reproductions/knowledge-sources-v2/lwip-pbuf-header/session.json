@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "lwip-pbuf-header",
+  "source_type": "public_synthetic",
+  "session_kind": "captured_public_fixture_trace",
+  "not_a_human_transcript": true,
+  "license": "CC0-1.0 (fixture and trace); upstream code retains its original license",
+  "source_ref": "examples/reproductions/knowledge-sources-v2/lwip-pbuf-header",
+  "repository": "https://github.com/lwip-tcpip/lwip",
+  "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Public fixture input; operations and input bytes are C literals, not a production incident:\n/* CC0-1.0: borrowed storage remains caller-owned. */\n#include <assert.h>\n#include <stdio.h>\n#include <string.h>\n#include \"lwip/pbuf.h\"\nint main(void) {\n    char storage[]=\"HEADpayload\";struct pbuf p;memset(&p,0,sizeof(p));\n    p.payload=storage+4;p.len=p.tot_len=7;p.ref=1;p.type_internal=PBUF_REF;\n    int result=pbuf_header(&p,4);\n    assert(result!=0 && p.payload==storage+4 && p.len==7);\n    printf(\"REF add4 result=%d offset=%td len=%u total=%u\\n\",result,(char *)p.payload-storage,p.len,p.tot_len);\n    result=pbuf_header(&p,-2);assert(result==0 && p.payload==storage+6 && p.len==5);\n    printf(\"REF remove2 result=%d offset=%td len=%u total=%u\\n\",result,(char *)p.payload-storage,p.len,p.tot_len);\n    result=pbuf_header(&p,-6);assert(result!=0 && p.payload==storage+6 && p.len==5);\n    printf(\"REF remove6 result=%d offset=%td len=%u total=%u\\n\",result,(char *)p.payload-storage,p.len,p.tot_len);\n    result=pbuf_header_force(&p,6);assert(result==0 && p.payload==storage && p.len==11);\n    printf(\"REF force_add6 valid_reserved_storage result=%d offset=%td len=%u total=%u\\n\",result,(char *)p.payload-storage,p.len,p.tot_len);\n    return 0;\n}\n"
+    },
+    {
+      "role": "tool",
+      "content": "Actual build commands and captured results:\n[\n  {\n    \"argv\": [\n      \"cc\",\n      \"-std=c99\",\n      \"-Wall\",\n      \"-Wextra\",\n      \"-ffunction-sections\",\n      \"-fdata-sections\",\n      \"-DLWIP_DEBUG\",\n      \"-Icorpus/lwip/src/include\",\n      \"-Icorpus/lwip/contrib/ports/unix/port/include\",\n      \"-Icorpus/lwip/test/unit\",\n      \"-MMD\",\n      \"-MF\",\n      \"BUILD/part-0.d\",\n      \"-c\",\n      \"corpus/lwip/src/core/pbuf.c\",\n      \"-o\",\n      \"BUILD/part-0.o\"\n    ],\n    \"cwd\": \"PROJECT_ROOT\",\n    \"stdin\": \"\",\n    \"exit_code\": 0,\n    \"stdout\": \"\",\n    \"stderr\": \"\",\n    \"stdout_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n    \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n  },\n  {\n    \"argv\": [\n      \"cc\",\n      \"-std=c99\",\n      \"-Wall\",\n      \"-Wextra\",\n      \"-ffunction-sections\",\n      \"-fdata-sections\",\n      \"-DLWIP_DEBUG\",\n      \"-Icorpus/lwip/src/include\",\n      \"-Icorpus/lwip/contrib/ports/unix/port/include\",\n      \"-Icorpus/lwip/test/unit\",\n      \"-MMD\",\n      \"-MF\",\n      \"BUILD/part-1.d\",\n      \"-c\",\n      \"examples/reproductions/knowledge-sources-v2/lwip-pbuf-header/reproduce.c\",\n      \"-o\",\n      \"BUILD/part-1.o\"\n    ],\n    \"cwd\": \"PROJECT_ROOT\",\n    \"stdin\": \"\",\n    \"exit_code\": 0,\n    \"stdout\": \"\",\n    \"stderr\": \"\",\n    \"stdout_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n    \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n  },\n  {\n    \"argv\": [\n      \"cc\",\n      \"-Wl,-dead_strip\",\n      \"BUILD/part-0.o\",\n      \"BUILD/part-1.o\",\n      \"-lm\",\n      \"-o\",\n      \"BUILD/reproduce\"\n    ],\n    \"cwd\": \"PROJECT_ROOT\",\n    \"stdin\": \"\",\n    \"exit_code\": 0,\n    \"stdout\": \"\",\n    \"stderr\": \"\",\n    \"stdout_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n    \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n  }\n]\n"
+    },
+    {
+      "role": "tool",
+      "content": "Actual executable command and captured result:\n{\n  \"argv\": [\n    \"BUILD/reproduce\"\n  ],\n  \"cwd\": \"PROJECT_ROOT\",\n  \"stdin\": \"\",\n  \"exit_code\": 0,\n  \"stdout\": \"REF add4 result=1 offset=4 len=7 total=7\\nREF remove2 result=0 offset=6 len=5 total=5\\nincrement_magnitude <= p->lenREF remove6 result=1 offset=6 len=5 total=5\\nREF force_add6 valid_reserved_storage result=0 offset=0 len=11 total=11\\n\",\n  \"stderr\": \"\",\n  \"stdout_sha256\": \"19a5ed2ec95893203dbd37cc921781974513ffe4fce546d23cec65d5729ddd5d\",\n  \"stderr_sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n}\n"
+    }
+  ]
+}
+

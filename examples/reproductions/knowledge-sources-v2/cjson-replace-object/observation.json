@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "BUILD/reproduce"
+  ],
+  "cwd": "PROJECT_ROOT",
+  "stdin": "",
+  "exit_code": 0,
+  "stdout": "case_sensitive_missing replaced=0 original=1 replacement_detached=1\ncase_insensitive replaced=1 key=key value=8 next_key=tail list_links=valid\nmissing_key replaced=0 caller_still_owns_value=3\n",
+  "stderr": "",
+  "stdout_sha256": "b6f29fcd8ee6e7c76dbf1e878110709f3685af114c855700324222680415c56f",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}
+

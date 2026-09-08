@@ -1,0 +1,170 @@
+{
+  "schema_version": 2,
+  "artifact_kind": "public_source_reproduction",
+  "id": "cjson-string-mutation",
+  "repository": "cjson",
+  "revision": "fb16e5cf358798aabb049655975cde8427101056",
+  "status": "reproduced",
+  "environment": {
+    "system": "Darwin",
+    "machine": "arm64",
+    "compiler": {
+      "argv": [
+        "cc",
+        "--version"
+      ],
+      "cwd": "PROJECT_ROOT",
+      "stdin": "",
+      "exit_code": 0,
+      "stdout": "Apple clang version 21.0.0 (clang-2100.3.33.1)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n",
+      "stderr": "",
+      "stdout_sha256": "0d586d46a939eadd69bd458ed9dfb10874d948af7dda03c363a58d19eac2d570",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "input": {
+    "kind": "compiled_fixture",
+    "fixture": {
+      "path": "examples/reproductions/knowledge-sources-v2/cjson-string-mutation/reproduce.c",
+      "sha256": "0f9e0c8f96edc5c778d6d6b83eda3555805ce446dedd90d3936ac28c700a8ab7"
+    },
+    "argv": [],
+    "stdin": "",
+    "description": "Exact input bytes and operation sequences are C literals in the hash-bound fixture; no generated input or network."
+  },
+  "build_config": {
+    "flags": [
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-ffunction-sections",
+      "-fdata-sections",
+      "-Icorpus/cJSON"
+    ],
+    "files": [
+      {
+        "path": "corpus/cJSON/cJSON.h",
+        "sha256": "25b0145150d500498e4d209cec69c18c42cf818bffcc54690be3b895a2a16dee"
+      }
+    ],
+    "compile_commands": {
+      "path": "corpus/cJSON/compile_commands.json",
+      "sha256": "15a6c321e05e783176e573b2852778348de69d6ac8e61ececb46fe83d3d7dbbf"
+    }
+  },
+  "sources": [
+    {
+      "path": "corpus/cJSON/cJSON.c",
+      "sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852"
+    }
+  ],
+  "anchors": [
+    {
+      "path": "corpus/cJSON/cJSON.c",
+      "sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+      "symbol": "cJSON_SetValuestring",
+      "line_start": 435,
+      "line_end": 476,
+      "text": "CJSON_PUBLIC(char*) cJSON_SetValuestring(cJSON *object, const char *valuestring)\n{\n    char *copy = NULL;\n    size_t v1_len;\n    size_t v2_len;\n    /* if object's type is not cJSON_String or is cJSON_IsReference, it should not set valuestring */\n    if ((object == NULL) || !(object->type & cJSON_String) || (object->type & cJSON_IsReference))\n    {\n        return NULL;\n    }\n    /* return NULL if the object is corrupted or valuestring is NULL */\n    if (object->valuestring == NULL || valuestring == NULL)\n    {\n        return NULL;\n    }\n\n    v1_len = strlen(valuestring);\n    v2_len = strlen(object->valuestring);\n\n    if (v1_len <= v2_len)\n    {\n        /* strcpy does not handle overlapping string: [X1, X2] [Y1, Y2] => X2 < Y1 or Y2 < X1 */\n        if (!( valuestring + v1_len < object->valuestring || object->valuestring + v2_len < valuestring ))\n        {\n            return NULL;\n        }\n        strcpy(object->valuestring, valuestring);\n        return object->valuestring;\n    }\n    copy = (char*) cJSON_strdup((const unsigned char*)valuestring, &global_hooks);\n    if (copy == NULL)\n    {\n        return NULL;\n    }\n    if (object->valuestring != NULL)\n    {\n        cJSON_free(object->valuestring);\n    }\n    object->valuestring = copy;\n\n    return copy;\n}\n",
+      "content_hash": "af5ffb67d26ecd76df97c4f9ce001d38205b7d118b091460d2430993d131ede7"
+    }
+  ],
+  "steps": [
+    {
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-Wall",
+        "-Wextra",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-Icorpus/cJSON",
+        "-MMD",
+        "-MF",
+        "BUILD/part-0.d",
+        "-c",
+        "corpus/cJSON/cJSON.c",
+        "-o",
+        "BUILD/part-0.o"
+      ],
+      "cwd": "PROJECT_ROOT",
+      "stdin": "",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "cc",
+        "-std=c99",
+        "-Wall",
+        "-Wextra",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-Icorpus/cJSON",
+        "-MMD",
+        "-MF",
+        "BUILD/part-1.d",
+        "-c",
+        "examples/reproductions/knowledge-sources-v2/cjson-string-mutation/reproduce.c",
+        "-o",
+        "BUILD/part-1.o"
+      ],
+      "cwd": "PROJECT_ROOT",
+      "stdin": "",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "cc",
+        "-Wl,-dead_strip",
+        "BUILD/part-0.o",
+        "BUILD/part-1.o",
+        "-lm",
+        "-o",
+        "BUILD/reproduce"
+      ],
+      "cwd": "PROJECT_ROOT",
+      "stdin": "",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "BUILD/reproduce"
+      ],
+      "cwd": "PROJECT_ROOT",
+      "stdin": "",
+      "exit_code": 0,
+      "stdout": "owned shorten=xy reused_storage=1\nowned grow=a much longer replacement\nreference rejected=1 preserved=external\nnumber rejected=1 value=4\n",
+      "stderr": "",
+      "stdout_sha256": "f1355030cad09b52f265d1bf74f2ae4d51fa4814ba5539a3aa0d5377f666ed83",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "runner": {
+    "path": "examples/reproductions/knowledge-sources-v2/run.py",
+    "sha256": "7b5ff41efddaa1799d38728f9e61e385e14720e0bbc73bbafc1c3ecee87d9b26"
+  },
+  "dependencies": [
+    {
+      "path": "corpus/cJSON/cJSON.c",
+      "sha256": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852"
+    },
+    {
+      "path": "corpus/cJSON/cJSON.h",
+      "sha256": "25b0145150d500498e4d209cec69c18c42cf818bffcc54690be3b895a2a16dee"
+    }
+  ],
+  "material_utf8_bytes": 3350,
+  "material_estimated_tokens": 1117
+}

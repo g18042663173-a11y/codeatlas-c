@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "BUILD/reproduce"
+  ],
+  "cwd": "PROJECT_ROOT",
+  "stdin": "",
+  "exit_code": 0,
+  "stdout": "input_hex=0001f203f4f5f6f711 contiguous_checksum=110d\nsplit=1+2+6 checksum=110d equal_contiguous=1\nsplit=3+3+3 checksum=110d equal_contiguous=1\nsplit=4+4+1 checksum=110d equal_contiguous=1\nsplit=2+2+5 checksum=110d equal_contiguous=1\nunaligned_same_bytes checksum=110d equal_contiguous=1\nprefix_len=8 checksum=220d full_len=9 checksum=110d\n",
+  "stderr": "",
+  "stdout_sha256": "eb068ccfd634b879e30074d15136e1bd26010aa1194600107bde2aa604797c42",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}
+

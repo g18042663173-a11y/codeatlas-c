@@ -41,24 +41,38 @@ def code_projection(conn, directory):
     return embedder, digest([tuple(r) for r in rows])
 
 
+def _selected_arms(arms=None) -> dict:
+    names = list(ARMS if arms is None else arms)
+    if len(names) < 2 or len(names) != len(set(names)):
+        raise ValueError("reading ablation requires at least two distinct arms")
+    unknown = [name for name in names if name not in ARMS]
+    if unknown:
+        raise ValueError(f"unknown reading arm: {', '.join(unknown)}")
+    if "source_only" not in names or "wiki_flat" not in names:
+        raise ValueError("reading effect contrast requires source_only and wiki_flat")
+    return {name: ARMS[name] for name in names}
+
+
 def evaluate(conn, tasks_path, *, client=None, data_dir="data", embedder=None, runs=3,
-             seed=17, answer_key_path=None):
+             seed=17, answer_key_path=None, arms=None):
     from .model_eval import _abc_grade
-    protocol.schedule([], ARMS, runs, seed)  # Validate even in no-key mode.
+    selected_arms = _selected_arms(arms)
+    protocol.schedule([], selected_arms, runs, seed)  # Validate even in no-key mode.
     # Preserve the no-key short circuit for callers probing capability without
     # supplying a task bundle.  Real proof runs with existing paths still bind
     # the frozen task and answer-key hashes below before reporting ``not_run``.
     if client is None and not Path(tasks_path).is_file():
-        return {"report_kind": "reading", "status": "not_run", "arms": ARMS,
+        return {"report_kind": "reading", "status": "not_run", "arms": selected_arms,
                 "reason": "model_not_configured", "passed": False}
     if db.get_meta(conn, "snapshot_enabled") == "1":
         from ..snapshots import pin
         with pin(conn) as context:
             return evaluate(context.conn, tasks_path, client=client, data_dir=str(context.directory),
-                            runs=runs, seed=seed, answer_key_path=answer_key_path)
+                            runs=runs, seed=seed, answer_key_path=answer_key_path,
+                            arms=list(selected_arms))
     manifest = task_eval.load_task_set(conn, tasks_path, require_approved=True)
     if not conn.execute("SELECT 1 FROM wiki_page WHERE status='ok' LIMIT 1").fetchone():
-        return {"report_kind": "reading", "status": "not_run", "arms": ARMS,
+        return {"report_kind": "reading", "status": "not_run", "arms": selected_arms,
                 "reason": "wiki_unavailable", "passed": False}
     tasks = [t for t in manifest["tasks"] if t["type"] != task_eval.EXPERIENCE_TYPE]
     if not tasks:
@@ -67,9 +81,9 @@ def evaluate(conn, tasks_path, *, client=None, data_dir="data", embedder=None, r
     task_set_hash = digest(Path(tasks_path).read_bytes())
     answer_key_hash = gold.get("content_hash")
     if client is None:
-        order = protocol.schedule(tasks, ARMS, runs, seed)
+        order = protocol.schedule(tasks, selected_arms, runs, seed)
         return {
-            "report_kind": "reading", "status": "not_run", "arms": ARMS,
+            "report_kind": "reading", "status": "not_run", "arms": selected_arms,
             "reason": "model_not_configured", "passed": False,
             "task_count": len(tasks), "repository": manifest["repository"],
             "revision": manifest["revision"], "task_set": str(tasks_path),
@@ -82,7 +96,7 @@ def evaluate(conn, tasks_path, *, client=None, data_dir="data", embedder=None, r
             "identity": rubric.identity(conn, tasks_path),
             "protocol": {
                 "version": protocol.VERSION, "seed": seed,
-                "schedule_hash": digest(order), "variant_count": len(ARMS),
+                "schedule_hash": digest(order), "variant_count": len(selected_arms),
                 "max_tool_calls": 6, "max_code_read_lines": 300,
                 "estimated_input_token_limit": 8000, "output_token_limit": 1200,
             },
@@ -93,11 +107,11 @@ def evaluate(conn, tasks_path, *, client=None, data_dir="data", embedder=None, r
                            "execution_complete": False},
             "boundary": "冻结题集、答案键和数据库身份已校验；未配置模型，没有效果数字。",
         }
-    order = protocol.schedule(tasks, ARMS, runs, seed)
+    order = protocol.schedule(tasks, selected_arms, runs, seed)
     raw = {arm: [{"id": t["id"], "type": t["type"], "question": t["question"],
                   "mechanism_id": t.get("mechanism_id", t["id"]),
                   "category": t.get("category"), "repetitions": []}
-                 for t in tasks] for arm in ARMS}
+                 for t in tasks] for arm in selected_arms}
     task_map = {t["id"]: t for t in tasks}
     rows = {(arm, row["id"]): row for arm in raw for row in raw[arm]}
     projection = _copy(conn)
@@ -118,7 +132,7 @@ def evaluate(conn, tasks_path, *, client=None, data_dir="data", embedder=None, r
                 try:
                     task = task_map[event["task_id"]]
                     result = agent.run(isolated, task["question"], llm_client=client, mode="model",
-                                       read_mode=ARMS[arm][1], embedder=common_embedder, data_dir=directory)
+                                       read_mode=selected_arms[arm][1], embedder=common_embedder, data_dir=directory)
                     from .model_eval import agent_trial
                     once = agent_trial(result)
                 except Exception as exc:
@@ -137,6 +151,7 @@ def evaluate(conn, tasks_path, *, client=None, data_dir="data", embedder=None, r
         projection.close()
     config = {"version": protocol.VERSION, "seed": seed, "schedule": order, "max_tool_calls": 6,
               "max_code_read_lines": 300, "estimated_input_token_limit": 8000, "output_token_limit": 1200,
+              "variants": list(selected_arms),
               "retrieval_projection_hash": projection_hash, "embedding": "local-hash-384",
               "wiki_in_search_results": False, "experience_in_any_arm": False,
               "wiki_flat_meaning": "free tool reading, not automatic full-page injection"}
@@ -150,7 +165,7 @@ def evaluate(conn, tasks_path, *, client=None, data_dir="data", embedder=None, r
               "runs_per_task": runs, "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
               "identity": rubric.identity(conn, tasks_path), "protocol": config, "answer_key": gold,
               "preparation_ms": preparation_ms, "raw_trials": raw,
-              "variants": {arm: {"name": ARMS[arm][0]} for arm in ARMS}, "acceptance": {"gates": {}},
+              "variants": {arm: {"name": selected_arms[arm][0]} for arm in selected_arms}, "acceptance": {"gates": {}},
               "boundary": "只比较 Wiki 可用性和阅读策略；三组代码检索完全相同、均无知识卡。自由阅读不等于 Wiki 全文平铺。"}
     result["evaluation_hash"] = digest([config, gold, result["model"], result["temperature"], runs])
     result["blind_review"] = rubric.blind_packet(result)

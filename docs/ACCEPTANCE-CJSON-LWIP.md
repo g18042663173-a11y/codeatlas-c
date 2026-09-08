@@ -4,9 +4,9 @@
 
 ## 可复现身份
 
-- CodeAtlas：`31075c5271b94bc702b65ff53456e77dc2a3ea94`；branch `feat/portfolio-core-evidence`；dirty=True
-- 实现内容哈希：`e7d5d9f0d853b238dd8024f6c7fe230481b49edfbbf766dd07d1046e0ca69b0c`
-- 生成时间：`2026-09-08T06:04:26+00:00`
+- CodeAtlas：`936cdc02d26fd8c6cd907c862977ad873e1af027`；branch `feat/portfolio-core-evidence`；dirty=True
+- 实现内容哈希：`786084f447793d1784d49887275a30d3c95064a419487dc0fe8fbae4869fb252`
+- 生成时间：`2026-09-08T10:44:04+00:00`
 
 ## 双语料矩阵
 

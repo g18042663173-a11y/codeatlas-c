@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "BUILD/reproduce"
+  ],
+  "cwd": "PROJECT_ROOT",
+  "stdin": "",
+  "exit_code": 0,
+  "stdout": "owned shorten=xy reused_storage=1\nowned grow=a much longer replacement\nreference rejected=1 preserved=external\nnumber rejected=1 value=4\n",
+  "stderr": "",
+  "stdout_sha256": "f1355030cad09b52f265d1bf74f2ae4d51fa4814ba5539a3aa0d5377f666ed83",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}
+

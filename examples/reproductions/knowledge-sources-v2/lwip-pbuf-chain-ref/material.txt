@@ -1,0 +1,233 @@
+Repository: lwip
+Revision: 3d896ba0a37ff3ce73270ca5e230707fe47f60e3
+
+
+Input model: compiled C literals; empty argv and stdin.
+
+
+Fixture:
+/* CC0-1.0: stack-backed pbufs; inspect links/refcounts, never free stack storage. */
+#include <assert.h>
+#include <stdio.h>
+#include <string.h>
+#include "lwip/pbuf.h"
+static void init(struct pbuf *p,void *bytes,u16_t length) {
+    memset(p,0,sizeof(*p));p->payload=bytes;p->len=p->tot_len=length;
+    p->ref=1;p->type_internal=PBUF_REF;
+}
+int main(void) {
+    char a[]="ab",b[]="cde",c[]="fghi";struct pbuf first,middle,last;
+    init(&first,a,2);init(&middle,b,3);init(&last,c,4);
+    pbuf_cat(&first,&middle);assert(first.next==&middle && first.tot_len==5 && middle.ref==1);
+    printf("cat first_total=%u tail_ref=%u tail_total=%u\n",first.tot_len,middle.ref,middle.tot_len);
+    pbuf_chain(&first,&last);assert(middle.next==&last && first.tot_len==9 && middle.tot_len==7 && last.ref==2);
+    printf("chain first_total=%u middle_total=%u tail_ref=%u tail_total=%u\n",first.tot_len,middle.tot_len,last.ref,last.tot_len);
+    pbuf_ref(&last);assert(last.ref==3 && first.ref==1 && middle.ref==1);
+    printf("explicit_ref tail_ref=%u first_ref=%u middle_ref=%u\n",last.ref,first.ref,middle.ref);
+    printf("lifetime=caller_owned_stack no_pbuf_free_called\n");
+    return 0;
+}
+
+
+Fixed configuration: corpus/lwip/test/unit/lwipopts.h
+/*
+ * Copyright (c) 2001-2003 Swedish Institute of Computer Science.
+ * All rights reserved. 
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, 
+ * are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ * 3. The name of the author may not be used to endorse or promote products
+ *    derived from this software without specific prior written permission. 
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED 
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF 
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT 
+ * SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
+ * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING 
+ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY 
+ * OF SUCH DAMAGE.
+ *
+ * This file is part of the lwIP TCP/IP stack.
+ * 
+ * Author: Simon Goldschmidt
+ *
+ */
+#ifndef LWIP_HDR_LWIPOPTS_H
+#define LWIP_HDR_LWIPOPTS_H
+
+#define LWIP_TESTMODE                   1
+
+#define LWIP_IPV6                       1
+
+#define LWIP_CHECKSUM_ON_COPY           1
+#define TCP_CHECKSUM_ON_COPY_SANITY_CHECK 1
+#define TCP_CHECKSUM_ON_COPY_SANITY_CHECK_FAIL(printfmsg) LWIP_ASSERT("TCP_CHECKSUM_ON_COPY_SANITY_CHECK_FAIL", 0)
+
+/* We link to special sys_arch.c (for basic non-waiting API layers unit tests) */
+#define NO_SYS                          0
+#define SYS_LIGHTWEIGHT_PROT            0
+#define LWIP_NETCONN                    !NO_SYS
+#define LWIP_SOCKET                     !NO_SYS
+#define LWIP_NETCONN_FULLDUPLEX         LWIP_SOCKET
+#define LWIP_NETCONN_SEM_PER_THREAD     1
+#define LWIP_NETBUF_RECVINFO            1
+#define LWIP_HAVE_LOOPIF                1
+#define TCPIP_THREAD_TEST
+
+/* Enable DHCP to test it */
+#define LWIP_DHCP                       1
+
+/* Enable DNS, with random source port to avoid alloc in dns_init */
+#define LWIP_DNS                        1
+#define LWIP_DNS_SECURE (LWIP_DNS_SECURE_RAND_XID | LWIP_DNS_SECURE_RAND_SRC_PORT)
+
+/* Minimal changes to opt.h required for tcp unit tests: */
+#define MEM_SIZE                        17000
+#define TCP_SND_QUEUELEN                40
+#define MEMP_NUM_TCP_SEG                TCP_SND_QUEUELEN
+#define TCP_SND_BUF                     (12 * TCP_MSS)
+#define TCP_WND                         (10 * TCP_MSS)
+#define LWIP_WND_SCALE                  1
+#define TCP_RCV_SCALE                   0
+#define PBUF_POOL_SIZE                  400 /* pbuf tests need ~200KByte */
+
+/* Enable IGMP and MDNS for MDNS tests */
+#define LWIP_IGMP                       1
+#define LWIP_MDNS_RESPONDER             1
+#define LWIP_NUM_NETIF_CLIENT_DATA      (LWIP_MDNS_RESPONDER)
+
+/* Enable PPP and PPPOS support for PPPOS test suites */
+#define PPP_SUPPORT                     1
+#define PPPOS_SUPPORT                   1
+
+/* Minimal changes to opt.h required for etharp unit tests: */
+#define ETHARP_SUPPORT_STATIC_ENTRIES   1
+
+#define MEMP_NUM_SYS_TIMEOUT            (LWIP_NUM_SYS_TIMEOUT_INTERNAL + 8)
+
+/* MIB2 stats are required to check IPv4 reassembly results */
+#define MIB2_STATS                      1
+
+/* netif tests want to test this, so enable: */
+#define LWIP_NETIF_EXT_STATUS_CALLBACK  1
+
+/* Check lwip_stats.mem.illegal instead of asserting */
+#define LWIP_MEM_ILLEGAL_FREE(msg)      /* to nothing */
+
+/* autodetect if we are running the tests on 32-bit or 64-bit */
+#if defined(_WIN32) || defined(_WIN64)
+#if defined(_WIN64)
+#define PTR64
+#else
+#define PTR32
+#endif
+#elif defined(__GNUC__)
+#if defined(__x86_64__) || defined(__ppc64__)
+#define PTR64
+#else
+#define PTR32
+#endif
+#elif UINTPTR_MAX > UINT_MAX
+#define PTR64
+#else
+#define PTR32
+#endif
+
+#ifdef PTR64
+#define IPV6_FRAG_COPYHEADER            1
+#endif
+
+#endif /* LWIP_HDR_LWIPOPTS_H */
+
+
+Source: corpus/lwip/src/core/pbuf.c:856-880
+void
+pbuf_cat(struct pbuf *h, struct pbuf *t)
+{
+  struct pbuf *p;
+
+  LWIP_ERROR("(h != NULL) && (t != NULL) (programmer violates API)",
+             ((h != NULL) && (t != NULL)), return;);
+  LWIP_ASSERT("Creating an infinite loop", h != t);
+
+  /* proceed to last pbuf of chain */
+  for (p = h; p->next != NULL; p = p->next) {
+    /* add total length of second chain to all totals of first chain */
+    p->tot_len = (u16_t)(p->tot_len + t->tot_len);
+  }
+  /* { p is last pbuf of first h chain, p->next == NULL } */
+  LWIP_ASSERT("p->tot_len == p->len (of last pbuf in chain)", p->tot_len == p->len);
+  LWIP_ASSERT("p->next == NULL", p->next == NULL);
+  /* add total length of second chain to last pbuf total of first chain */
+  p->tot_len = (u16_t)(p->tot_len + t->tot_len);
+  /* chain last pbuf of head (p) with first of tail (t) */
+  p->next = t;
+  /* p->next now references t, but the caller will drop its reference to t,
+   * so netto there is no change to the reference count of t.
+   */
+}
+
+
+Source: corpus/lwip/src/core/pbuf.c:899-906
+void
+pbuf_chain(struct pbuf *h, struct pbuf *t)
+{
+  pbuf_cat(h, t);
+  /* t is now referenced by h */
+  pbuf_ref(t);
+  LWIP_DEBUGF(PBUF_DEBUG | LWIP_DBG_TRACE, ("pbuf_chain: %p references %p\n", (void *)h, (void *)t));
+}
+
+
+Source: corpus/lwip/src/core/pbuf.c:832-840
+void
+pbuf_ref(struct pbuf *p)
+{
+  /* pbuf given? */
+  if (p != NULL) {
+    SYS_ARCH_SET(p->ref, (LWIP_PBUF_REF_T)(p->ref + 1));
+    LWIP_ASSERT("pbuf ref overflow", p->ref > 0);
+  }
+}
+
+
+Command: cc -std=c99 -Wall -Wextra -ffunction-sections -fdata-sections -DLWIP_DEBUG -Icorpus/lwip/src/include -Icorpus/lwip/contrib/ports/unix/port/include -Icorpus/lwip/test/unit -MMD -MF BUILD/part-0.d -c corpus/lwip/src/core/pbuf.c -o BUILD/part-0.o
+stdin: <empty>
+exit: 0
+stdout:
+stderr:
+
+
+Command: cc -std=c99 -Wall -Wextra -ffunction-sections -fdata-sections -DLWIP_DEBUG -Icorpus/lwip/src/include -Icorpus/lwip/contrib/ports/unix/port/include -Icorpus/lwip/test/unit -MMD -MF BUILD/part-1.d -c examples/reproductions/knowledge-sources-v2/lwip-pbuf-chain-ref/reproduce.c -o BUILD/part-1.o
+stdin: <empty>
+exit: 0
+stdout:
+stderr:
+
+
+Command: cc -Wl,-dead_strip BUILD/part-0.o BUILD/part-1.o -lm -o BUILD/reproduce
+stdin: <empty>
+exit: 0
+stdout:
+stderr:
+
+
+Command: BUILD/reproduce
+stdin: <empty>
+exit: 0
+stdout:
+cat first_total=5 tail_ref=1 tail_total=3
+chain first_total=9 middle_total=7 tail_ref=2 tail_total=4
+explicit_ref tail_ref=3 first_ref=1 middle_ref=1
+lifetime=caller_owned_stack no_pbuf_free_called
+stderr:
+

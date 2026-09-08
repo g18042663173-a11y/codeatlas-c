@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "BUILD/reproduce"
+  ],
+  "cwd": "PROJECT_ROOT",
+  "stdin": "",
+  "exit_code": 0,
+  "stdout": "prefix input={\"n\":7} trailing accepted=1 end_offset=7 suffix= trailing\nrequire_terminator accepted=0 end_offset=8\nthree_bytes_no_NUL accepted=1 end_offset=3\nthree_bytes_require_NUL accepted=0 end_offset=2\n",
+  "stderr": "",
+  "stdout_sha256": "e93178956bd06283a764787260879e2f7a06af8dbbbe7cf704d1f0a176267aa4",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}
+

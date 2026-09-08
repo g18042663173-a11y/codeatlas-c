@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "BUILD/reproduce"
+  ],
+  "cwd": "PROJECT_ROOT",
+  "stdin": "",
+  "exit_code": 0,
+  "stdout": "input=127.1 accepted=1 normalized=127.0.0.1\ninput=0x7f.1 accepted=1 normalized=127.0.0.1\ninput=0177.0.0.1 accepted=1 normalized=127.0.0.1\ninput=127.0.0.1 accepted=1 normalized=127.0.0.1\ninput=1.2.65535 accepted=1 normalized=1.2.255.255\ninput=256.1.1.1 accepted=0 normalized=not_available\ninput=1.2.3.256 accepted=0 normalized=not_available\ninput=08.0.0.1 accepted=0 normalized=not_available\ninput=1.2.3.4x accepted=0 normalized=not_available\n",
+  "stderr": "",
+  "stdout_sha256": "07ce436f150f4fa533d0d11673ca6431dc1b6f943f8e2783feafb38c2ffd82e3",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}
+

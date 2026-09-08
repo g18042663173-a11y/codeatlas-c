@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "knowledge_reuse_source_review",
+  "reviewer_id": "/root",
+  "reviewer_type": "ai",
+  "review_status": "ai_reviewed",
+  "source_manifest_sha256": "3870534cc47af568ed09e6efe512de309ac75253b556972d45b901ce79e561c1",
+  "independence": {
+    "read_new_wiki": false,
+    "read_generated_summary_or_card": false,
+    "read_follow_up_questions_or_gold": false,
+    "model_gateway_calls": 0
+  },
+  "checks": {
+    "frozen_revision_and_dependency_hashes": true,
+    "source_ranges_match_files": true,
+    "commands_and_observations_match_sessions": true,
+    "rerun_matches_recorded_execution": true,
+    "two_short_two_medium_two_long_per_repository": true,
+    "padding_added": false
+  },
+  "rerun": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python examples/reproductions/knowledge-sources-v2/verify.py --rerun",
+    "case_count": 12,
+    "rerun_count": 12,
+    "all_passed": true
+  },
+  "cases": {
+    "cjson-parse-end": "passed_local_api_observation",
+    "cjson-string-mutation": "passed_local_api_observation",
+    "cjson-duplicate": "passed_local_api_observation",
+    "cjson-replace-object": "passed_local_api_observation",
+    "cjson-compare": "passed_local_api_observation",
+    "cjson-unicode": "passed_local_api_observation",
+    "lwip-address-forms": "passed_local_api_observation",
+    "lwip-pbuf-header": "passed_local_api_observation",
+    "lwip-pbuf-chain-ref": "passed_local_api_observation",
+    "lwip-pbuf-copy": "passed_local_api_observation",
+    "lwip-pbuf-take": "passed_local_api_observation",
+    "lwip-checksum-fragments": "passed_local_api_observation"
+  },
+  "boundary": "AI source review of fixed local C fixtures and observed outputs. It is not human review, a production incident, a model answer review, or evidence of compression benefit."
+}

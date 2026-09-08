@@ -1,0 +1,77 @@
+[
+  {
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-ffunction-sections",
+      "-fdata-sections",
+      "-DLWIP_DEBUG",
+      "-Icorpus/lwip/src/include",
+      "-Icorpus/lwip/contrib/ports/unix/port/include",
+      "-Icorpus/lwip/test/unit",
+      "-MMD",
+      "-MF",
+      "BUILD/part-0.d",
+      "-c",
+      "corpus/lwip/src/core/pbuf.c",
+      "-o",
+      "BUILD/part-0.o"
+    ],
+    "cwd": "PROJECT_ROOT",
+    "stdin": "",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "argv": [
+      "cc",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-ffunction-sections",
+      "-fdata-sections",
+      "-DLWIP_DEBUG",
+      "-Icorpus/lwip/src/include",
+      "-Icorpus/lwip/contrib/ports/unix/port/include",
+      "-Icorpus/lwip/test/unit",
+      "-MMD",
+      "-MF",
+      "BUILD/part-1.d",
+      "-c",
+      "examples/reproductions/knowledge-sources-v2/lwip-pbuf-chain-ref/reproduce.c",
+      "-o",
+      "BUILD/part-1.o"
+    ],
+    "cwd": "PROJECT_ROOT",
+    "stdin": "",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "argv": [
+      "cc",
+      "-Wl,-dead_strip",
+      "BUILD/part-0.o",
+      "BUILD/part-1.o",
+      "-lm",
+      "-o",
+      "BUILD/reproduce"
+    ],
+    "cwd": "PROJECT_ROOT",
+    "stdin": "",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]
+

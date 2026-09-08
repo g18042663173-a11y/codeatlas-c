@@ -5,6 +5,8 @@ import json, os, logging, time, math, uuid
 import http.client
 import urllib.error
 from urllib.parse import urlsplit
+from ..contracts import (ContextBudgetExceeded, agent_action_contract, budget_json_messages, digest,
+                         planner_diagnostics, validate_agent_action)
 log = logging.getLogger(__name__)
 GO_BASE_URL = "https://opencode.ai/zen/go/v1"
 GO_MODEL = "deepseek-v4-flash"
@@ -87,6 +89,8 @@ class OpenAICompatClient:
         self.trial_id = None
         self.last_usage: dict = {}
         self.last_response_meta: dict = {}
+        self.last_planner_diagnostics = planner_diagnostics()
+        self.last_context_budget: dict = {}
         self.last_latency_ms: float = 0.0
         self.usage_totals: dict[str, int] = {}
         self.usage_observations: dict[str, int] = {}
@@ -102,6 +106,8 @@ class OpenAICompatClient:
         """Reset process-local measurements; credentials are never part of them."""
         self.last_usage = {}
         self.last_response_meta = {}
+        self.last_planner_diagnostics = planner_diagnostics()
+        self.last_context_budget = {}
         self.last_latency_ms = 0.0
         self.usage_totals = {}
         self.usage_observations = {}
@@ -119,8 +125,8 @@ class OpenAICompatClient:
                 system, user, protected_prefix=protected_user_prefix,
             )
         else:
-            # Evaluation-only transport: never shorten bound reviewer evidence.
-            # Ordinary Agent callers do not set this parameter and retain 8k.
+            # Complete-block Agent inputs stay at 8k; only frozen reviewer
+            # requests may explicitly select the separately approved 16k cap.
             if type(complete_input_budget) is not int or complete_input_budget not in (8000, 16000):
                 raise ValueError("complete reviewer input budget must be 8000 or 16000")
             size = estimated_tokens(system + user) + 32
@@ -190,13 +196,14 @@ class OpenAICompatClient:
                 self.last_usage = payload.get("usage") if isinstance(payload.get("usage"), dict) else {}
                 choice = payload["choices"][0]
                 answer = choice["message"]["content"]
-                if not isinstance(answer, str):
-                    raise ValueError("model response content must be text")
                 self.last_response_meta = {
                     "model": payload.get("model"),
                     "finish_reason": choice.get("finish_reason"),
                     "transport_attempts": attempt + 1,
+                    "content_hash": digest(answer.encode("utf-8")) if isinstance(answer, str) else None,
                 }
+                if not isinstance(answer, str):
+                    raise ValueError("model response content must be text")
                 if choice.get("finish_reason") == "length":
                     raise OutputTruncated("model response reached the completion-token limit")
             except BaseException as raw_exc:
@@ -270,6 +277,44 @@ class OpenAICompatClient:
             system, prefix + context, protected_user_prefix=prefix,
         )
 
+    def answer_structured(self, system: str, query: str, events: list[dict], evidence: list[dict]) -> str:
+        """Agent answer API with intact required source/evidence blocks."""
+        self.last_context_budget = {}
+        contract = agent_action_contract(events, read_mode="flat")
+        try:
+            system, user, self.last_context_budget = budget_json_messages(
+                system, {"query": query, **contract, "evidence": evidence, "prior_events": events})
+        except ContextBudgetExceeded as exc:
+            self.last_context_budget = exc.details
+            raise
+        return self._chat(system, user, complete_input_budget=8000)
+
+    def _plan_json(self, system: str, payload: dict) -> dict:
+        # Reset before preflight, so a local oversize failure cannot inherit
+        # content/usage from the preceding successful request.
+        self.last_planner_diagnostics = planner_diagnostics()
+        self.last_response_meta = {}
+        self.last_usage = {}
+        self.last_context_budget = {}
+        raw = None
+        error_class = None
+        try:
+            system, user, self.last_context_budget = budget_json_messages(system, payload)
+            raw = self._chat(system, user, max_tokens=800, json_object=True,
+                             complete_input_budget=8000)
+            return self._json(raw)
+        except Exception as exc:
+            error_class = type(exc).__name__
+            if isinstance(exc, ContextBudgetExceeded):
+                self.last_context_budget = exc.details
+            raise
+        finally:
+            self.last_planner_diagnostics = planner_diagnostics(
+                content_hash=digest(raw.encode("utf-8")) if isinstance(raw, str)
+                else self.last_response_meta.get("content_hash"),
+                finish_reason=self.last_response_meta.get("finish_reason"),
+                error_class=error_class, usage=self.last_usage)
+
     def one_liner(self, ctx: dict) -> str:
         return self._chat(
             "用不超过30个中文字概括这个C函数的职责。只输出这一句话，不要任何前后缀。",
@@ -285,41 +330,40 @@ class OpenAICompatClient:
 
     def next_action(self, query: str, events: list[dict], *, read_mode: str = "progressive") -> dict:
         """Plan one step; local code validates and executes every returned action."""
-        wiki_available = not any(event.get("wiki_available") is False for event in events)
-        wiki_required = any(event.get("wiki_required") is True for event in events)
-        used = [event.get("tool") for event in events]
-        if read_mode == "progressive" and wiki_available and wiki_required:
-            if "search_evidence" not in used:
-                allowed_next = ["search_evidence"]
-            elif "wiki_outline" not in used:
-                allowed_next = ["wiki_outline"]
-            elif "wiki_section" not in used:
-                allowed_next = ["wiki_section"]
-            else:
-                allowed_next = ["resolve_symbol", "code_read", "analyze_impact", "finish"]
-        else:
-            allowed_next = ["resolve_symbol", "code_read", "analyze_impact", "finish"]
-        raw = self._chat(
+        # Evidence descriptors are mandatory even when an old body is omitted;
+        # its hash-addressed local_event pointer remains in prior_events.
+        evidence = []
+        known = set()
+        for event in events:
+            for citation in event.get("result", {}).get("citations", []):
+                key = digest(citation)
+                if key not in known:
+                    evidence.append(citation)
+                    known.add(key)
+        contract = agent_action_contract(events, read_mode=read_mode)
+        system = (
             "你是受限代码诊断助手。只输出一个 JSON 对象，不要解释。"
             "必须从输入的 allowed_next 中选择下一动作。调用工具严格返回"
             "{\"action\":\"tool\",\"tool\":\"工具名\",\"arguments\":{...}}；"
             "结束严格返回 {\"action\":\"finish\"}，不得增加 reason 等字段。"
-            "工具白名单只有 search_evidence(query)、resolve_symbol(symbol)、"
-            "code_read(usr 或 path+line_start+line_end)、analyze_impact(symbol,depth)。" +
-            ("另有 wiki_outline(module?)、wiki_section(page_id,section)。" if wiki_available
-             else "当前没有可读 Wiki，请直接检索和核验源码，不要尝试 Wiki 工具。") +
-            ("本题属于概念、功能或排障问题，必须先 search_evidence，再 wiki_outline、wiki_section，"
-             "之后才允许 code_read/resolve_symbol/analyze_impact；定位、调用链和影响问题可直接走结构工具。"
-             if read_mode == "progressive" and wiki_available and wiki_required
-             else "本题可直接使用结构工具，按证据需要选择工具，不要求 Wiki-first。") +
+            "工具及参数以输入 tool_contract 为唯一契约；只有 completed 工具满足阶段前置条件。"
+            "flat 不限制读取顺序，仍可按需使用 Wiki。"
+            + ("当前没有可读 Wiki，请直接检索和核验源码，不要尝试 Wiki 工具。"
+               if "wiki_outline" not in contract["tool_contract"] else "") +
             "code_read 的两种参数形式互斥：只能给 usr，或者只能给 path、line_start、line_end，绝不能两者都给。"
+            "分页结果的 continuation 给出下一页参数；omitted_for_budget 是历史整块省略，"
+            "其 local_event 指向完整本地轨迹，不代表已提供正文。"
             "不要重复 prior_events 中已有的同一工具与参数；证据足够后立即 finish。"
-            "禁止 shell、网络、写入、修改代码和审核知识卡。",
-            json.dumps({"query": query, "allowed_next": allowed_next,
-                        "prior_events": events}, ensure_ascii=False),
-            max_tokens=800, json_object=True,
+            "禁止 shell、网络、写入、修改代码和审核知识卡。"
         )
-        return self._json(raw)
+        action = self._plan_json(system, {"query": query, **contract,
+                                          "evidence": evidence, "prior_events": events})
+        try:
+            return validate_agent_action(action, allowed_next=contract["allowed_next"])
+        except ValueError as exc:
+            self.last_planner_diagnostics = planner_diagnostics(
+                **{**self.last_planner_diagnostics, "error_class": type(exc).__name__})
+            raise
 
     def next_baseline_action(self, query: str, events: list[dict], *,
                              fixed_skill: bool = False) -> dict:
@@ -330,7 +374,7 @@ class OpenAICompatClient:
                 "固定工作法：先判断任务类型和入口，再核对定义、调用关系、分支与错误路径；"
                 "区分源码事实与推测，最后给出验证步骤。"
             )
-        raw = self._chat(
+        return self._plan_json(
             "你是受限代码诊断助手。只输出一个 JSON 对象，不要解释。"
             "调用工具严格返回 {\"action\":\"tool\",\"tool\":\"工具名\",\"arguments\":{...}}；"
             "结束严格返回 {\"action\":\"finish\"}，不得增加其他字段。"
@@ -338,12 +382,9 @@ class OpenAICompatClient:
             "code_read(path,line_start,line_end)，每次 code_read 最多 300 行。"
             "禁止 shell、网络、写入、修改代码和使用未提供的知识库。"
             "不得重复 prior_events 中已有的同一工具与参数；已有足够源码时立即 finish。" + skill,
-            json.dumps({"query": query,
-                        "allowed_next": ["repo_search", "code_read", "finish"],
-                        "prior_events": events}, ensure_ascii=False),
-            max_tokens=800, json_object=True,
+            {"query": query, "allowed_next": ["repo_search", "code_read", "finish"],
+             "prior_events": events},
         )
-        return self._json(raw)
 
     def plan_tool(self, query: str, events: list[dict]) -> dict:
         """Compatibility alias for pre-v2 callers."""

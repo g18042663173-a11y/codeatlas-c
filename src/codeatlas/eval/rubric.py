@@ -1107,7 +1107,8 @@ def finalize(report):
                                       .get("qualification_attestation_hash")))),
         "full_three_repeat_run": (report.get("runs_per_task") == 3 and
                                    (report.get("task_scope") == "full" or
-                                    reuse and report.get("task_scope") == "short_synthetic_pilot"))}
+                                    reuse and report.get("task_scope") in {
+                                        "short_synthetic_pilot", "fixed_public_cases"}))}
     gates["protocol_identity_bound"] = (bool(report.get("evaluation_hash"))
                                         and report["evaluation_hash"] == protocol.evaluation_hash(report))
     gates["raw_trials_bound"] = bool(report.get("run_hash")) and report["run_hash"] == protocol.run_hash(report)
@@ -1150,15 +1151,18 @@ def finalize(report):
     report["acceptance"]["human_release_eligible"] = report["human_release_eligible"]
     if reading:
         secondary = {}
-        for baseline in ("wiki_flat", "source_only"):
-            secondary[baseline] = {
-                "treatment": "wiki_progressive",
-                "accuracy": protocol.grouped_paired_effect(raw, "wiki_progressive", baseline, "correct",
-                    kinds={"定位", "调用链", "语义检索", "影响分析"}) if reviews_complete and paired else None,
-                "answer_completeness": protocol.grouped_paired_effect(raw, "wiki_progressive", baseline, "complete",
-                    kinds={"定位", "调用链", "语义检索", "影响分析"}) if reviews_complete and paired else None,
-                "code_input_token_reduction_pct": (100 * (1 - input_tokens["wiki_progressive"] / input_tokens[baseline])
-                    if input_tokens[baseline] and input_tokens["wiki_progressive"] is not None else None),
-            }
+        if "wiki_progressive" in raw:
+            for baseline in ("wiki_flat", "source_only"):
+                if baseline not in raw:
+                    continue
+                secondary[baseline] = {
+                    "treatment": "wiki_progressive",
+                    "accuracy": protocol.grouped_paired_effect(raw, "wiki_progressive", baseline, "correct",
+                        kinds={"定位", "调用链", "语义检索", "影响分析"}) if reviews_complete and paired else None,
+                    "answer_completeness": protocol.grouped_paired_effect(raw, "wiki_progressive", baseline, "complete",
+                        kinds={"定位", "调用链", "语义检索", "影响分析"}) if reviews_complete and paired else None,
+                    "code_input_token_reduction_pct": (100 * (1 - input_tokens["wiki_progressive"] / input_tokens[baseline])
+                        if input_tokens[baseline] and input_tokens["wiki_progressive"] is not None else None),
+                }
         report["acceptance"]["secondary_reading_contrasts"] = secondary
     report["acceptance"]["passed"] = qualification_gates_passed

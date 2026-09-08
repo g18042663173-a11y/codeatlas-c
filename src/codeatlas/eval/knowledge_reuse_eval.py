@@ -18,6 +18,7 @@ from ..contracts import INPUT_BUDGET, OUTPUT_BUDGET, digest, estimated_tokens
 from . import protocol, rubric
 
 VERSION = "same-source-reuse-pilot-v1"
+VERSION_V2 = "same-source-reuse-v2"
 SCOPE = "isolated_experiment"
 ARMS = {
     "raw_session": "原顺序会话",
@@ -115,25 +116,32 @@ def prepare(manifest_path=None, *, project_root=None, generated_artifact=None):
     root = Path(project_root or ROOT).resolve()
     path = Path(manifest_path or root / "eval/knowledge_reuse.yaml").resolve()
     manifest = _yaml(path)
-    if manifest.get("schema_version") != 1 or manifest.get("artifact_scope") != SCOPE:
-        raise ValueError("knowledge reuse manifest must declare isolated_experiment schema 1")
+    schema = manifest.get("schema_version")
+    if type(schema) is not int or schema not in (1, 2) or manifest.get("artifact_scope") != SCOPE:
+        raise ValueError("knowledge reuse manifest must declare isolated_experiment schema 1 or 2")
     if manifest.get("strip_knowledge_role") is not True:
         raise ValueError("the same-source pilot requires removal of knowledge-role metadata")
     specs = manifest.get("cases")
     tasks = manifest.get("tasks")
-    if not isinstance(specs, list) or len(specs) != 2 or not isinstance(tasks, list) or len(tasks) != 6:
+    if not isinstance(specs, list) or not specs or not isinstance(tasks, list) or not tasks:
+        raise ValueError("nonempty cases and questions required")
+    if any(not isinstance(s, dict) for s in specs + tasks):
+        raise ValueError("cases and questions must be objects")
+    if schema == 1 and (len(specs) != 2 or len(tasks) != 6):
         raise ValueError("the frozen pilot requires two cases and six questions")
     case_ids = [s.get("id") for s in specs]
-    if len(set(case_ids)) != 2 or not all(isinstance(i, str) and i for i in case_ids):
+    if not all(isinstance(i, str) and i for i in case_ids) or len(set(case_ids)) != len(specs):
         raise ValueError("unique case ids required")
     task_ids = [t.get("id") for t in tasks]
-    if len(set(task_ids)) != 6 or not all(isinstance(i, str) and i for i in task_ids):
+    if not all(isinstance(i, str) and i for i in task_ids) or len(set(task_ids)) != len(tasks):
         raise ValueError("unique question ids required")
     if any(t.get("case_id") not in case_ids or not isinstance(t.get("question"), str)
            or not t["question"].strip() for t in tasks):
         raise ValueError("each question needs a known case and question text")
-    if any(sum(t["case_id"] == cid for t in tasks) != 3 for cid in case_ids):
+    if schema == 1 and any(sum(t["case_id"] == cid for t in tasks) != 3 for cid in case_ids):
         raise ValueError("each case must have exactly three follow-up questions")
+    if any(not any(t["case_id"] == cid for t in tasks) for cid in case_ids):
+        raise ValueError("each case needs at least one question")
     cases = []
     for spec in specs:
         raw_session = _checked_bytes(root, spec["session"])
@@ -166,6 +174,9 @@ def prepare(manifest_path=None, *, project_root=None, generated_artifact=None):
         source = {"case_id": spec["id"], "repository": session["repository"],
                   "revision": session["revision"], "source_type": session["source_type"],
                   "license": session.get("license"), "messages": messages, "attachments": attachments}
+        if schema == 2:
+            from .knowledge_production import validate_required_facts
+            source["required_facts"] = validate_required_facts(spec.get("required_facts"), source)
         source_digest = digest(source)
         attachments_digest = digest(attachments)
         materials = {arm: {"text": body, "source_digest": source_digest,
@@ -177,8 +188,9 @@ def prepare(manifest_path=None, *, project_root=None, generated_artifact=None):
         cases.append({**source, "source_digest": source_digest, "attachments_digest": attachments_digest,
                       "source_file_hash": digest(raw_session), "template_hash": digest(raw_template),
                       "materials": materials})
-    prepared = {"schema_version": 1, "artifact_scope": SCOPE, "protocol_version": VERSION,
-                "case_count": 2, "question_count": 6, "manifest_hash": digest(path.read_bytes()),
+    prepared = {"schema_version": schema, "artifact_scope": SCOPE,
+                "protocol_version": VERSION if schema == 1 else VERSION_V2,
+                "case_count": len(cases), "question_count": len(tasks), "manifest_hash": digest(path.read_bytes()),
                 "cases": cases, "tasks": [{"id": t["id"], "case_id": t["case_id"],
                                            "question": t["question"], "type": "经验同源对照"} for t in tasks],
                 "source_digests": {c["case_id"]: c["source_digest"] for c in cases},
@@ -210,6 +222,8 @@ def prepare(manifest_path=None, *, project_root=None, generated_artifact=None):
                         "render_version": "visible-material-citations-v2",
                     },
                 )
+                if schema == 2:
+                    case["materials"][arm]["compression"] = product["compression"]
         prepared.update(
             presentation_mode="model_generated_dual_reviewed",
             generated_artifact_hash=digest(Path(generated_artifact).read_bytes()),
@@ -225,6 +239,15 @@ def prepare(manifest_path=None, *, project_root=None, generated_artifact=None):
                              "input_tokens": 0, "output_tokens": 0, "cost_usd": 0,
                              "human_edit_seconds": None},
         )
+        if schema == 2:
+            from .knowledge_production import extractive_product
+            for case in cases:
+                for arm in ("generic_summary", "structured_card"):
+                    product = extractive_product(case, arm)
+                    rendered = re.sub(r"\[T\d+\]", "[M1]", product["text"])
+                    case["materials"][arm].update(text=rendered, content_hash=digest(rendered),
+                                                   compression=product["compression"])
+            prepared["presentation_mode"] = "source_span_extractive_v2"
     prepared["materials_hash"] = digest(prepared)
     # Refuse oversized packets before any charge. Independent truncation would
     # give different evidence to the arms and destroy the controlled comparison.
@@ -247,11 +270,12 @@ def messages_for(case, task, arm):
     return SYSTEM, user
 
 
-def _answer(client, system, user):
+def _answer(client, system, user, *, complete_input=False):
     if hasattr(client, "answer_from_material"):
         answer = client.answer_from_material(system, user)
     else:
-        answer = client._chat(system, user, max_tokens=OUTPUT_BUDGET)
+        options = {"complete_input_budget": INPUT_BUDGET} if complete_input else {}
+        answer = client._chat(system, user, max_tokens=OUTPUT_BUDGET, **options)
     if not isinstance(answer, str) or not answer.strip():
         raise ValueError("model returned an empty or non-text answer")
     return answer
@@ -262,6 +286,14 @@ def _references(answer, case):
              **{a["tag"]: {k: v for k, v in a.items() if k != "text"} for a in case["attachments"]}}
     used = set(re.findall(r"\[([A-Za-z]+\d+)\]", answer))
     return [{**known[tag], "artifact_scope": SCOPE} for tag in sorted(used & known.keys())], bool(used and used <= known.keys())
+
+
+def _usage(client, before, schema):
+    result = protocol.usage_delta(client, before)
+    if schema == 2 and hasattr(client, "input_usd_per_million") and (
+            client.input_usd_per_million is None or client.output_usd_per_million is None):
+        result["cost_usd"] = None
+    return result
 
 
 def evaluate(manifest_path=None, *, client=None, project_root=None, runs=3, seed=17,
@@ -278,10 +310,14 @@ def evaluate(manifest_path=None, *, client=None, project_root=None, runs=3, seed
     gold = protocol.answer_key(answer_key_path, manifest_file, tasks)
     schedule = protocol.schedule(tasks, ARMS, runs, seed)
     raw = {arm: [{**t, "repetitions": []} for t in tasks] for arm in ARMS}
-    result = {"schema_version": 1, "report_kind": "knowledge_reuse", "artifact_scope": SCOPE,
-              "status": "not_run" if client is None else "completed", "case_count": 2,
-              "question_count": 6, "task_count": 6, "planned_trial_count": len(schedule),
-              "runs_per_task": runs, "task_scope": "short_synthetic_pilot",
+    schema = prepared["schema_version"]
+    if schema == 2 and client is not None and getattr(client, "transport_retries", 0) != 0:
+        raise ValueError("schema 2 answer trials require zero transport retries")
+    result = {"schema_version": schema, "report_kind": "knowledge_reuse", "artifact_scope": SCOPE,
+              "status": "not_run" if client is None else "completed", "case_count": prepared["case_count"],
+              "question_count": len(tasks), "task_count": len(tasks), "planned_trial_count": len(schedule),
+              "runs_per_task": runs,
+              "task_scope": "short_synthetic_pilot" if schema == 1 else "fixed_public_cases",
               "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
               "model": getattr(client, "model", None), "temperature": .1,
               "materials": prepared, "raw_trials": raw, "variants": {a: {"name": n} for a, n in ARMS.items()},
@@ -293,13 +329,13 @@ def evaluate(manifest_path=None, *, client=None, project_root=None, runs=3, seed
                            "prompt_hash": digest(SYSTEM),
                            "source_digests": prepared["source_digests"], "artifact_scope": SCOPE,
                            "generated_artifact_hash": prepared.get("generated_artifact_hash")},
-              "protocol": {"version": VERSION, "seed": seed, "schedule": schedule,
-                           "independent_unit": "case", "case_count": 2, "question_count": 6,
+              "protocol": {"version": prepared["protocol_version"], "seed": seed, "schedule": schedule,
+                           "independent_unit": "case", "case_count": prepared["case_count"], "question_count": len(tasks),
                            "estimated_input_token_limit": INPUT_BUDGET, "output_token_limit": OUTPUT_BUDGET,
                            "knowledge_role_removed": True, "neutral_citation_tags": True,
                            "shared_code_and_observation_attachments": True,
                            "generation_model_calls": prepared["production_cost"].get("model_requests", 0),
-                           "source_turn_coverage": "all_turns_once_per_arm",
+                           "source_turn_coverage": "all_turns_once_per_arm" if schema == 1 else "frozen_required_facts_or_full_fallback",
                            "summary_method": prepared["presentation_mode"],
                            "generated_artifact_hash": prepared.get("generated_artifact_hash")},
               "manifest_hash": prepared["manifest_hash"],
@@ -310,6 +346,12 @@ def evaluate(manifest_path=None, *, client=None, project_root=None, runs=3, seed
                           "模型产物若启用，必须先双审冻结；不证明真实长会话收益，不创建正式人工 B 卡。",
               "preparation_ms": round((time.perf_counter() - start) * 1000, 1),
               "production_cost": prepared["production_cost"]}
+    if schema == 2:
+        result["boundary"] = (f"{prepared['case_count']} 个固定公开案例的同源呈现观察；"
+                              "问题和重复试次不扩充独立案例数，不推断总体非劣或普遍压缩收益。"
+                              "模型材料须双审；压缩不可行使用完整材料并保留成本，不创建正式人工 B 卡。")
+        result["protocol"].update(same_answer_model=True, arm_exclusive_tools=False,
+                                  material_token_cap=600, raw_session_ratio_cap=.6)
     result["evaluation_hash"] = protocol.evaluation_hash(result)
     if client is None:
         result.update(reason="model_not_configured", executed_trial_count=0,
@@ -329,13 +371,13 @@ def evaluate(manifest_path=None, *, client=None, project_root=None, runs=3, seed
         before = protocol.usage_start(client)
         trial_start = time.perf_counter()
         try:
-            answer = _answer(client, system, user)
+            answer = _answer(client, system, user, complete_input=schema == 2)
             citations, valid = _references(answer, case)
             trial = {"answer": answer, "citations": citations, "citation_valid": valid,
                      "error_type": None, "fallback_reason": None}
         except Exception as exc:
             trial = protocol.error_trial(exc)
-        trial.update(protocol.usage_delta(client, before))
+        trial.update(_usage(client, before, schema))
         trial.update(case_id=case["case_id"], source_digest=case["source_digest"],
                      attachments_digest=case["attachments_digest"], material_hash=material["content_hash"],
                      sequence=sequence, repetition=event["repetition"],
@@ -350,7 +392,7 @@ def evaluate(manifest_path=None, *, client=None, project_root=None, runs=3, seed
             budget_exhausted = True
             break
     result["executed_trial_count"] = len(schedule)
-    result["query_cost"] = protocol.usage_delta(client, overall_usage)
+    result["query_cost"] = _usage(client, overall_usage, schema)
     result["paired_trials_complete"] = protocol.validate_pairs(result)
     if budget_exhausted:
         result.update(status="partial_budget", answer_review_status="unresolved")

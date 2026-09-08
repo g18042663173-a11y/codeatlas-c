@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
   "mode": "full",
-  "generated_at": "2026-09-08T06:04:26+00:00",
+  "generated_at": "2026-09-08T10:44:04+00:00",
   "codeatlas": {
-    "revision": "31075c5271b94bc702b65ff53456e77dc2a3ea94",
+    "revision": "936cdc02d26fd8c6cd907c862977ad873e1af027",
     "branch": "feat/portfolio-core-evidence",
     "dirty": true,
-    "dirty_entries": 20,
+    "dirty_entries": 130,
     "origin": "https://github.com/g18042663173-a11y/codeatlas-c.git",
-    "implementation_hash": "e7d5d9f0d853b238dd8024f6c7fe230481b49edfbbf766dd07d1046e0ca69b0c"
+    "implementation_hash": "786084f447793d1784d49887275a30d3c95064a419487dc0fe8fbae4869fb252"
   },
   "corpora_manifest_sha256": "b29d5655648b5b4125f43cd1a0f71e19b628439a0b42ca992ba848fe4b820b03",
   "claims_manifest_sha256": "853e7d5ab534da77df6cb2608f4dff07c896c068d0c7a4b6f3a54e80dfd34843",
@@ -59,7 +59,7 @@
         "repository": "https://github.com/DaveGamble/cJSON",
         "revision": "fb16e5cf358798aabb049655975cde8427101056",
         "build_config_hash": "4003a287a2796fa9c7f1a6cde60f1e7d2766f73e86961abe170c2ecf73122a7a",
-        "knowledge_set_id": "ks-e3a6b2ee9ef34324",
+        "knowledge_set_id": "ks-326a55bc3478403e",
         "source_content_hash": "c0768c6d97c74ac4ead077841a6488b180e7d323be84db3c5fc0881c5ee01fe8",
         "parse_stats": {
           "diag_error": 0,
@@ -83,6 +83,9 @@
           "pages": 38,
           "module_scope_checked": 3,
           "module_scope_ok": true,
+          "mechanism_count": 122,
+          "mechanism_expected": 122,
+          "mechanism_integrity_ok": true,
           "file_coverage": 34
         }
       },
@@ -321,9 +324,9 @@
             "recall": 100.0,
             "mrr": 0.642,
             "evidence": 100.0,
-            "context": 5296,
-            "p50": 4.6,
-            "p95": 5.9
+            "context": 5335,
+            "p50": 15.7,
+            "p95": 17.5
           },
           "passed_tasks": 5,
           "total_tasks": 5,
@@ -347,16 +350,16 @@
             "tu_ok": 28
           },
           "codeatlas": {
-            "revision": "57c9db65e87f093fd9bf5ade5aa5d49c60ae3e24",
+            "revision": "936cdc02d26fd8c6cd907c862977ad873e1af027",
             "branch": "feat/portfolio-core-evidence",
             "dirty": true,
-            "dirty_entries": 23,
+            "dirty_entries": 130,
             "origin": "https://github.com/g18042663173-a11y/codeatlas-c.git",
-            "implementation_hash": "b7fa4ffa22a5d4038a0f2ba7b8420c8e1b51c4eac202a6bc26120d0b27e10927"
+            "implementation_hash": "786084f447793d1784d49887275a30d3c95064a419487dc0fe8fbae4869fb252"
           }
         },
-        "sha256": "90b493a3a7bce2aa1390a1f8ea39e30030e2fe8ff696668a7c28865e3a8f0192",
-        "generated_at": "2026-09-07T13:35:29+00:00"
+        "sha256": "03cd451007650c5b96f86189d335c802bd640d2d3e40aaea893cffb212017e99",
+        "generated_at": "2026-09-08T10:39:25+00:00"
       },
       "workflow": {
         "ok": true,
@@ -459,7 +462,7 @@
         "repository": "https://github.com/lwip-tcpip/lwip",
         "revision": "3d896ba0a37ff3ce73270ca5e230707fe47f60e3",
         "build_config_hash": "80071ae3b0549c3e3b740247f881261a67173142bf3c7d9aba7c7fa73f0cd2dd",
-        "knowledge_set_id": "ks-306de5a3bd68499c",
+        "knowledge_set_id": "ks-35148920150d4000",
         "source_content_hash": "d8673af54b0f984dbc2ea23264f1c85df6b2d9830b2ebd5fa3d56624fc1e46d9",
         "parse_stats": {
           "diag_error": 0,
@@ -483,6 +486,9 @@
           "pages": 285,
           "module_scope_checked": 18,
           "module_scope_ok": true,
+          "mechanism_count": 616,
+          "mechanism_expected": 616,
+          "mechanism_integrity_ok": true,
           "file_coverage": 266
         }
       },
@@ -719,11 +725,11 @@
           "experience": {
             "n": 5,
             "recall": 100.0,
-            "mrr": 0.134,
+            "mrr": 0.118,
             "evidence": 100.0,
-            "context": 5848,
-            "p50": 11.9,
-            "p95": 18.6
+            "context": 5854,
+            "p50": 34.3,
+            "p95": 73.0
           },
           "passed_tasks": 5,
           "total_tasks": 5,
@@ -747,16 +753,16 @@
             "tu_ok": 124
           },
           "codeatlas": {
-            "revision": "57c9db65e87f093fd9bf5ade5aa5d49c60ae3e24",
+            "revision": "936cdc02d26fd8c6cd907c862977ad873e1af027",
             "branch": "feat/portfolio-core-evidence",
             "dirty": true,
-            "dirty_entries": 23,
+            "dirty_entries": 130,
             "origin": "https://github.com/g18042663173-a11y/codeatlas-c.git",
-            "implementation_hash": "b7fa4ffa22a5d4038a0f2ba7b8420c8e1b51c4eac202a6bc26120d0b27e10927"
+            "implementation_hash": "786084f447793d1784d49887275a30d3c95064a419487dc0fe8fbae4869fb252"
           }
         },
-        "sha256": "c2ce0e5455909d2c46e58352f880a57d1743a8a93e8e584f0ea7165f342c5ba6",
-        "generated_at": "2026-09-07T13:35:29+00:00"
+        "sha256": "adc5446a3bae5b585c2c45a14f39788423d4899a93228700f2d888ac6b8b0d5b",
+        "generated_at": "2026-09-08T10:39:26+00:00"
       },
       "workflow": {
         "ok": true,
@@ -883,12 +889,12 @@
       "tracked_reports": 4,
       "total_reports": 4,
       "codeatlas": {
-        "revision": "31075c5271b94bc702b65ff53456e77dc2a3ea94",
+        "revision": "936cdc02d26fd8c6cd907c862977ad873e1af027",
         "branch": "feat/portfolio-core-evidence",
         "dirty": true,
-        "dirty_entries": 20,
+        "dirty_entries": 130,
         "origin": "https://github.com/g18042663173-a11y/codeatlas-c.git",
-        "implementation_hash": "e7d5d9f0d853b238dd8024f6c7fe230481b49edfbbf766dd07d1046e0ca69b0c"
+        "implementation_hash": "786084f447793d1784d49887275a30d3c95064a419487dc0fe8fbae4869fb252"
       }
     }
   ],
@@ -903,12 +909,12 @@
     "tracked_reports": 4,
     "total_reports": 4,
     "codeatlas": {
-      "revision": "31075c5271b94bc702b65ff53456e77dc2a3ea94",
+      "revision": "936cdc02d26fd8c6cd907c862977ad873e1af027",
       "branch": "feat/portfolio-core-evidence",
       "dirty": true,
-      "dirty_entries": 20,
+      "dirty_entries": 130,
       "origin": "https://github.com/g18042663173-a11y/codeatlas-c.git",
-      "implementation_hash": "e7d5d9f0d853b238dd8024f6c7fe230481b49edfbbf766dd07d1046e0ca69b0c"
+      "implementation_hash": "786084f447793d1784d49887275a30d3c95064a419487dc0fe8fbae4869fb252"
     }
   },
   "model_abc": {
@@ -1535,6 +1541,11 @@
           -2.275219298245614,
           14.172149122807017
         ],
+        "confidence_level": 0.95,
+        "confidence_interval_pt": [
+          -2.275219298245614,
+          14.172149122807017
+        ],
         "unit": "equal_repository_of_paired_mechanism_means",
         "bootstrap_seed": 17,
         "repositories": [
@@ -1593,6 +1604,11 @@
         "mechanism_count": 35,
         "delta_pt": 12.502284356725147,
         "ci95_pt": [
+          4.815423976608186,
+          19.556834795321638
+        ],
+        "confidence_level": 0.95,
+        "confidence_interval_pt": [
           4.815423976608186,
           19.556834795321638
         ],
