@@ -407,9 +407,13 @@ def _call(ledger, batch_id, role, call_id, client, payload, validator):
     try:
         # Never let the generic head-preserving ceiling silently remove source
         # evidence or a requested point from a supposedly bound judge input.
-        if estimated_tokens(SYSTEM + user) + 32 > INPUT_BUDGET:
+        input_budget = getattr(client, "review_input_budget", INPUT_BUDGET)
+        if type(input_budget) is not int or input_budget not in (INPUT_BUDGET, 16000):
+            raise ValueError("invalid complete reviewer budget")
+        if estimated_tokens(SYSTEM + user) + 32 > input_budget:
             raise ReviewInputTooLarge("complete reviewer input exceeds shared token budget")
-        raw = client._chat(SYSTEM, user, max_tokens=OUTPUT_BUDGET, json_object=True)
+        raw = client._chat(SYSTEM, user, max_tokens=OUTPUT_BUDGET, json_object=True,
+                           complete_input_budget=input_budget)
         parsed = validator(_strict_json(raw))
     except Exception as exc:
         error = type(exc).__name__
@@ -545,10 +549,28 @@ def review(directory, *, resume=False, calibration_path=None, client_factory=Non
            attempt_id=None, workers=1, judge_model=None, calibration_only=False,
            transport_retries=None, global_max_requests=None, projection_version=None,
            qualification_attestation=None, qualification_batch_id=None,
-           job_ids=None, base_attempt_id=None, selection_manifest=None, budget_scope=None):
+           job_ids=None, base_attempt_id=None, selection_manifest=None, budget_scope=None,
+           judge_input_budget=INPUT_BUDGET, budget_authorization=None,
+           request_timeout_seconds=None):
     """Calibrate two judges, score independently, calibrate/use a third on disputes."""
     if type(workers) is not int or not 1 <= workers <= 16:
         raise campaign.CampaignError("review workers must be an integer from 1 to 16")
+    if type(judge_input_budget) is not int or judge_input_budget not in (INPUT_BUDGET, 16000):
+        raise campaign.CampaignError("judge budget must be 8000 or 16000")
+    if request_timeout_seconds is not None and (type(request_timeout_seconds) is not int
+                                              or not 1 <= request_timeout_seconds <= 180):
+        raise campaign.CampaignError("frozen review timeout must be 1..180 seconds")
+    if judge_input_budget != INPUT_BUDGET:
+        auth = budget_authorization or {}
+        if (not attempt_id or not budget_scope or auth.get("authorized_by") != "user"
+                or auth.get("judge_input_budget") != judge_input_budget
+                or auth.get("agent_input_budget") != INPUT_BUDGET
+                or request_timeout_seconds is None
+                or auth.get("request_timeout_seconds") != request_timeout_seconds
+                or auth.get("scope") != budget_scope or transport_retries != 0
+                or auth.get("authorization_hash") != digest({
+                    k: v for k, v in auth.items() if k != "authorization_hash"})):
+            raise campaign.CampaignError("16k review requires frozen user authorization and zero retries")
     if transport_retries is not None and (type(transport_retries) is not int
                                           or not 0 <= transport_retries <= 2):
         raise campaign.CampaignError("review transport retries must be 0..2")
@@ -622,6 +644,8 @@ def review(directory, *, resume=False, calibration_path=None, client_factory=Non
                 raise campaign.CampaignError("invalid frozen review selection")
             if selection.get("projection_version") not in (None, projection_version):
                 raise campaign.CampaignError("selection projection changed")
+            if selection.get("input_budget", judge_input_budget) != judge_input_budget:
+                raise campaign.CampaignError("selection input budget changed")
             if selection.get("source_repair_runtime_hash"):
                 from . import evidence_repair
                 if selection["source_repair_runtime_hash"] != digest(Path(evidence_repair.__file__).read_bytes()):
@@ -702,18 +726,24 @@ def review(directory, *, resume=False, calibration_path=None, client_factory=Non
                                 "response_schema": ANSWER_SCHEMA}}
                     encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True)
                     sizes.append(estimated_tokens(SYSTEM + encoded) + 32)
-            oversize = sum(size > INPUT_BUDGET for size in sizes)
+            oversize = sum(size > judge_input_budget for size in sizes)
             if oversize:
                 raise campaign.CampaignError(
-                    f"review projection exceeds the 8k input budget for {oversize} items")
+                    f"review projection exceeds the {judge_input_budget} input budget for {oversize} items")
             protocol_binding.update(
                 projection_version=projection_version,
                 projection_audit={"item_count": len(sizes), "oversize_count": 0,
                                   "max_estimated_input_tokens": max(sizes, default=0),
-                                  "input_budget": INPUT_BUDGET},
+                                  "input_budget": judge_input_budget},
                 qualified_by_batch_id=qualification_batch_id,
                 qualification_attestation_hash=digest(qualification_attestation),
             )
+        if judge_input_budget != INPUT_BUDGET or request_timeout_seconds is not None:
+            from ..llm import client as client_module
+            protocol_binding.update(judge_input_budget=judge_input_budget,
+                agent_input_budget=INPUT_BUDGET, request_timeout_seconds=request_timeout_seconds,
+                budget_authorization_hash=digest(budget_authorization),
+                review_client_runtime_hash=digest(Path(client_module.__file__).read_bytes()))
         if attempt_id is not None:
             protocol_binding.update(attempt_id=attempt_id, review_workers=workers,
                 review_transport_retries=(plan.get("transport_retries", 0)
@@ -767,6 +797,8 @@ def review(directory, *, resume=False, calibration_path=None, client_factory=Non
             if obj.model != selected_judge_model or obj.base_url != plan["base_url"]:
                 raise campaign.CampaignError("judge client differs from the frozen campaign endpoint/model")
             obj.ledger, obj.session_id = ledger, binding["sessions"][role]
+            obj.review_input_budget = judge_input_budget
+            obj.request_timeout_seconds = request_timeout_seconds
             obj.max_requests = obj.max_cost_usd = None
             obj.input_usd_per_million = plan["budget"]["input_usd_per_million"]
             obj.output_usd_per_million = plan["budget"]["output_usd_per_million"]

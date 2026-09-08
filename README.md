@@ -58,7 +58,7 @@ cJSON 直接使用 Dave Gamble 的官方 GitHub 仓库；lwIP 的官方开发源
 | cJSON `fb16e5c` | 28 | 34 / 3 / 1 | 15/20 | Recall@10 100.0% vs 90.0%，+10pt；MRR +0.271 | 影响 F1 1.0；拒答 100% |
 | lwIP `3d896ba` | 124 | 266 / 18 / 1 | 15/20 | Recall@10 100.0% vs 80.0%，+20pt；MRR +0.397 | 影响 F1 1.0；拒答 100% |
 
-每套 20 题含 10 道代码检索、2 道影响分析、3 道拒答和 5 道经验复用。两套代码检索均为 10/10，影响与拒答通过。旧 10 道经验题绑定早期示例卡，继续保留 `blocked_by_review` 和 30/40，不事后改 gold；这不代表当前没有正式 B 卡。用户已确认的两张卡完成 QA、精确锚定和发布，与它们对应的新版验收为 10/10，`current_release_complete=true`。模型语义评分仍需修正证据后复核，`portfolio_ready=false`。
+每套 20 题含 10 道代码检索、2 道影响分析、3 道拒答和 5 道经验复用。两套代码检索均为 10/10，影响与拒答通过。旧 10 道经验题绑定早期示例卡，继续保留 `blocked_by_review` 和 30/40，不事后改 gold；这不代表当前没有正式 B 卡。用户已确认的两张卡完成 QA、精确锚定和发布，与它们对应的新版验收为 10/10，`current_release_complete=true`。486 个正式模型答案已完成修订后的复核，未决为 0；统一报告得到本地 `portfolio_ready=true`，表示材料和复核完整，不代表模型效果门禁通过或已经公开复现。
 
 仓库已加入两条可复现实验：cJSON 用固定的 999/1000/1001 层输入核对解析边界（输入不会跟随宏一起移动），lwIP 覆盖首个/第二个接口加入时 `netif_list`、`netif_default` 与返回值。实验脚本会校验固定 revision，并将输出与受控结果逐行比对。两张知识卡已按固定 `review_bundle_hash` 由用户集中确认，QA 记录为 `Guoshuaiqi / human / formal / passed`，并分别发布到已验证的 active 快照。审核正文、依赖、锚点、实验或 QA 任一变化都会使这次确认失效。完整材料见 [正式知识卡审核包](docs/review/CARD-REVIEW-20260906.md)。
 
@@ -71,9 +71,9 @@ cJSON 直接使用 Dave Gamble 的官方 GitHub 仓库；lwIP 的官方开发源
 - [双语料统一验收](docs/ACCEPTANCE-CJSON-LWIP.md)
 - [三类价值证明协议](docs/design/VALUE-PROOF-PROTOCOL.md)
 - [Luna 答案与 V4 评分收口状态](docs/runs/PROOF-LUNA-20260907-STATUS.md)
-- [cJSON Wiki 效果对照](docs/runs/curated/PROOF-WIKI-CJSON-V4.md)
-- [lwIP Wiki 效果对照](docs/runs/curated/PROOF-WIKI-LWIP-V4.md)
-- [知识复用效果对照](docs/runs/curated/PROOF-KNOWLEDGE-REUSE-V4.md)
+- [cJSON Wiki 效果对照](docs/runs/curated/PROOF-WIKI-CJSON-V5.md)
+- [lwIP Wiki 效果对照](docs/runs/curated/PROOF-WIKI-LWIP-V5.md)
+- [知识复用效果对照](docs/runs/curated/PROOF-KNOWLEDGE-REUSE-V5.md)
 - [真实上游维护变异结果](docs/PROOF-MAINTENANCE-UPSTREAM-V5.md)
 - [维护变异补充单元契约（CC0 合成）](docs/PROOF-MAINTENANCE.md)
 - [cJSON 自动回归消融](docs/EVAL-CJSON.md)
@@ -83,7 +83,7 @@ cJSON 直接使用 Dave Gamble 的官方 GitHub 仓库；lwIP 的官方开发源
 
 旧检索回归集共 117 题（107 道自动结构题、10 道人工语义题），和新的 40 道正式人工任务分开报告。自动结构题的 gold 来自同一张 `certain` 图，因此不能拿来证明自然语言泛化能力。
 
-40 道开发回归不能证明模型理解提升。510 个 Luna 答案保持冻结，Terra/V4A 失败后 Sol/V4B 通过。修正证据后，cJSON 的 216 个答案已完成评分；主对照正确率 +4.39pt，但区间跨零，不能确认稳定提升。知识复用有 1 个超时未决，lwIP 仍被完整输入预算拦住。独立于语义评分，432 个 Wiki 试次有 115 个降级为证据包，其中 95 个为规划 JSON 解析失败；这些原始执行记录仍保留。[修订结果与边界](docs/REVIEW-REPAIR-STATUS.md)。
+40 道开发回归不能证明模型理解提升。510 个 Luna 答案保持冻结，Terra/V4A 失败后 Sol/V4B 通过。修正证据后，486 个正式答案全部完成复核。两仓库等权的 Wiki 主对照正确率差值为 +5.84pt，95% 区间 [-2.28,+14.17]pt，不能确认稳定提升；必要要点完整度差值为 +12.50pt，区间 [+4.82,+19.56]pt，是本批固定任务的次指标观察。知识卡对照严格正确为 7/18，原会话为 5/18，但只有两个案例，区间跨零，卡片输入 token 还增加 5.70%。独立于语义评分，432 个 Wiki 试次有 115 个降级为证据包，其中 95 个为规划 JSON 解析失败；这些原始执行记录仍保留，模型效果门禁没有通过。[修订结果与边界](docs/REVIEW-REPAIR-STATUS.md)。
 
 真实上游维护实验已在固定 cJSON/lwIP 副本上运行 24/24 个预登记场景，执行和报告完整性通过。首轮全仓指纹策略暴露了无关变化全部触发复审的问题；改为审核时声明“结论实际消费的函数、宏和配置”后，8 个有效变化全部重验证，8 个无关变化全部保留，语义决策为 16/16（漏放 0、误失效 0）。对照中，仅主锚点哈希为 13/16，漏放 2 个且误失效 1 个；全部失效为 8/16，误失效 8 个。本机本次 16 个场景的依赖指纹计算约 0.83 秒。发布中断和治理回滚场景实际调用了项目的持久化发布日志并完成恢复；该实验仍未测完整解析/索引重建和真人复核成本，因此证明的是这组冻结变更上的失效决策与恢复正确性，不是普遍的维护收益。
 

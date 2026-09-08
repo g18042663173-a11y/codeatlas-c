@@ -1,12 +1,12 @@
 # CodeAtlas cJSON / lwIP 双语料验收
 
-> 模式：`full`；基础能力：**通过**；旧 40 题：**30/40 保留**；当前卡 10 题：**完成**；作品集：**未就绪**；公开状态：`locally_verified_not_published`。
+> 模式：`full`；基础能力：**通过**；旧 40 题：**30/40 保留**；当前卡 10 题：**完成**；作品集：**就绪**；公开状态：`locally_verified_not_published`。
 
 ## 可复现身份
 
-- CodeAtlas：`e31071601c26d4f4d3ec2491e20c79b4c26a5e82`；branch `feat/portfolio-core-evidence`；dirty=True
-- 实现内容哈希：`9043b96c551291ed0a4c05d5c5bac99e8145fed641a6bebee109b987f2beb1d3`
-- 生成时间：`2026-09-08T04:36:02+00:00`
+- CodeAtlas：`31075c5271b94bc702b65ff53456e77dc2a3ea94`；branch `feat/portfolio-core-evidence`；dirty=True
+- 实现内容哈希：`e7d5d9f0d853b238dd8024f6c7fe230481b49edfbbf766dd07d1046e0ca69b0c`
+- 生成时间：`2026-09-08T06:04:26+00:00`
 
 ## 双语料矩阵
 
@@ -50,21 +50,19 @@
 
 - 工程底座：`passed`
 - 预登记实验执行：`completed`
-- 可用于效果汇总的复核终局：`216/486`（待证据审计不等于判错）
+- 可用于效果汇总的复核终局：`486/486`（待证据审计不等于判错）
 - 正式知识卡人工发布：`completed`
 - 可选人工答案复核：`not_run`（不冒充 AI 双审）
-- 所有主张均有终态：`false`
+- 所有主张均有终态：`true`
 - 所有预登记收益均得到支持：`false`（不作为作品集就绪的硬门槛）
 - 公开复现：`not_completed`
 
 - `wiki-cjson`：`completed`；复核 `ai_reviewed`。
-- `wiki-lwip`：`pending_evidence_audit`；复核 `unresolved`。
-  评分输入存在引用映射或正文完整性问题，原语义数字暂不用于效果判断；见 `docs/WIKI-LWIP-EVIDENCE-AUDIT.json`。
-- `knowledge-reuse`：`invalid_review`；复核 `unresolved`。
-  评分输入存在引用映射或正文完整性问题，原语义数字暂不用于效果判断；见 `docs/REUSE-EVIDENCE-AUDIT.json`。
+- `wiki-lwip`：`completed`；复核 `ai_reviewed`。
+- `knowledge-reuse`：`completed`；复核 `ai_reviewed`。
 - `maintenance`：`completed`；复核 `deterministic_oracle`。
 - 主张 `wiki-cjson`：`insufficient_evidence`。
-- 主张 `wiki-lwip`：`unresolved`。
-- 主张 `knowledge-reuse`：`unresolved`。
+- 主张 `wiki-lwip`：`insufficient_evidence`。
+- 主张 `knowledge-reuse`：`insufficient_evidence`。
 - 主张 `maintenance`：`insufficient_evidence`。
-- Wiki 主对照（两仓库等权）：`not_measured`；模型答案与复核未完整时不显示差值。
+- Wiki 主对照（两仓库等权）：正确率差值 5.838815789473684pt；95% 区间 [-2.275219298245614, 14.172149122807017]。

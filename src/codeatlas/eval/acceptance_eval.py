@@ -600,6 +600,50 @@ def _verify_curated_effect_report(report: dict[str, Any]) -> dict[str, Any]:
             "review_complete": pending_total == 0}
 
 
+def _curated_repository_effect_view(report: dict[str, Any]) -> dict[str, Any]:
+    """Adapt verified compact outcomes to the unchanged paired-statistics API.
+
+    This is a detached statistics view, not regenerated answers or a newly
+    scored report. Preserve every repetition and its task/mechanism identity.
+    """
+    from copy import deepcopy
+    import math
+    from . import protocol
+
+    payload = {k: v for k, v in report.items() if k != "curated_report_hash"}
+    verified = _verify_curated_effect_report(report)
+    if (report.get("curated_report_hash") != digest(payload)
+            or not verified.get("ok") or not verified.get("review_complete")
+            or report.get("answer_review_status") != "completed"):
+        raise AcceptanceEvalError("repository statistics require a verified, fully reviewed compact report")
+    by_variant: dict[str, dict[str, dict[str, Any]]] = {}
+    task_identity = {}
+    for trial in report["trial_results"]:
+        task_id, task_type = trial.get("task_id"), trial.get("task_type")
+        mechanism, case_id = trial.get("mechanism_id"), trial.get("case_id")
+        complete = trial.get("complete")
+        if (not isinstance(task_id, str) or not task_id or not isinstance(task_type, str) or not task_type
+                or (mechanism is not None and (not isinstance(mechanism, str) or not mechanism))
+                or (case_id is not None and (not isinstance(case_id, str) or not case_id))
+                or type(trial.get("repetition")) is not int or trial["repetition"] < 0
+                or type(trial.get("correct")) is not bool
+                or type(complete) not in (int, float) or not math.isfinite(complete) or not 0 <= complete <= 1
+                or trial.get("review_status") not in {"ai_reviewed", "human_reviewed"}):
+            raise AcceptanceEvalError("invalid compact trial identity or terminal outcome")
+        identity = (task_type, mechanism, case_id)
+        if task_identity.setdefault(task_id, identity) != identity:
+            raise AcceptanceEvalError("compact task/mechanism identity differs across trials")
+        rows = by_variant.setdefault(trial["variant"], {})
+        row = rows.setdefault(task_id, {"id": task_id, "type": task_type,
+            "mechanism_id": mechanism, "case_id": case_id, "repetitions": []})
+        row["repetitions"].append(deepcopy(trial))
+    view = deepcopy(report)
+    view["raw_trials"] = {variant: list(rows.values()) for variant, rows in by_variant.items()}
+    if not protocol.validate_pairs(view):
+        raise AcceptanceEvalError("compact statistics view has incomplete or duplicate paired repetitions")
+    return view
+
+
 def proof_status(manifest_path: str | Path, *, project_root: str | Path) -> dict[str, Any]:
     """Validate three proof families without turning AI review into human release."""
     root = Path(project_root).resolve()
@@ -855,6 +899,11 @@ def proof_status(manifest_path: str | Path, *, project_root: str | Path) -> dict
                 (acceptance.get("paired_code_comparisons") or {}).get(baselines[0], {})
                 if baselines else {}
             )
+            wiki_statistics_view = None
+            if (spec["kind"] == "wiki_knowledge" and identity_ok and state == "completed"
+                    and proof_integrity_ok and report.get("answer_review_status") == "completed"):
+                wiki_statistics_view = (_curated_repository_effect_view(report)
+                                        if compact_verification is not None else report)
             items.append({
                 **base, "status": state, "identity_ok": identity_ok,
                 "review_status": review_status,
@@ -899,8 +948,8 @@ def proof_status(manifest_path: str | Path, *, project_root: str | Path) -> dict
                 "detached_review_identity_ok": detached_review_identity_ok,
                 "manifest_sha256": expected_manifest, "report_sha256": _sha256(report_path),
             })
-            if spec["kind"] == "wiki_knowledge" and identity_ok and state == "completed":
-                wiki_reports.append(report)
+            if wiki_statistics_view is not None:
+                wiki_reports.append(wiki_statistics_view)
         except (OSError, ValueError, TypeError, KeyError, AcceptanceEvalError):
             items.append({**base, "status": "invalid", "identity_ok": False})
     required = [item for item in items if item["required_for_effect"]]

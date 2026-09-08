@@ -22,7 +22,7 @@
 
 24 个真实上游维护场景已执行完整。首轮全仓指纹会让无关变化全部触发复审；改为审核材料声明结论实际消费的函数、宏和配置后，8 个有效变化全部重验证，8 个无关变化全部保留，语义决策正确 16/16，漏放和误失效均为 0，本轮依赖指纹计算约 0.83 秒。仅主锚点哈希正确 13/16，全部失效正确 8/16。统一验收仍把普遍维护收益标为 `insufficient_evidence`：该实验验证了冻结场景上的决策和故障恢复，但未测完整解析、索引重建、真人复审和摊销成本。
 
-48 道 Wiki 题、6 道经验题及 V4A/V4B 资格集均冻结，510 个 Luna 答案不变。引用编号和正文修订后，cJSON 新评分完成 216/216；知识复用完成 53/54，1 个因评分请求超时未决；lwIP 的 5 个完整输入超 8k，尚未派发。旧报告保留，不用漏传证据的旧分数推断效果。见 [本轮结果](REVIEW-REPAIR-STATUS.md)、[Wiki 审计](WIKI-EVIDENCE-AUDIT.md) 与 [知识卡审计](REUSE-EVIDENCE-AUDIT.md)。
+48 道 Wiki 题、6 道经验题及 V4A/V4B 资格集均冻结，510 个 Luna 答案不变。引用编号和正文修订后，cJSON 216/216、lwIP 216/216、知识复用 54/54 均完成复核，未决为 0。用户授权 lwIP 评分端 16k 后完成完整输入复评，被测 Agent 仍为 8k；旧超时记录保留，仅在新授权批次补齐两个评分槽。旧报告保留，不用漏传证据的旧分数推断效果。两仓库主对照正确率差值 +5.84pt，区间跨零；完整度 +12.50pt 是次指标观察，不能替代主结果。见 [本轮结果](REVIEW-REPAIR-STATUS.md)、[Wiki 审计](WIKI-EVIDENCE-AUDIT.md) 与 [知识卡审计](REUSE-EVIDENCE-AUDIT.md)。
 无 Key 的工程通过、人工审核、模型效果是三个独立状态，不能互相替代。
 
 ## 运行
@@ -66,10 +66,10 @@ codeatlas eval reading --db data/kb.db --tasks eval/tasks_cjson.yaml \
 - [cJSON 开发任务](TASK-EVAL-CJSON.md) / [lwIP 开发任务](TASK-EVAL-LWIP.md)
 - [cJSON 自动回归](EVAL-CJSON.md) / [lwIP 自动回归](EVAL-LWIP.md)
 - [cJSON 六场景](WORKFLOW-EVAL-CJSON.md) / [lwIP 六场景](WORKFLOW-EVAL-LWIP.md)
-- [cJSON Wiki 效果对照](runs/curated/PROOF-WIKI-CJSON-V4.md)
-- [lwIP Wiki 效果对照](runs/curated/PROOF-WIKI-LWIP-V4.md)
-- [会话同源对照](runs/curated/PROOF-KNOWLEDGE-REUSE-V4.md)
+- [cJSON Wiki 效果对照](runs/curated/PROOF-WIKI-CJSON-V5.md)
+- [lwIP Wiki 效果对照](runs/curated/PROOF-WIKI-LWIP-V5.md)
+- [会话同源对照](runs/curated/PROOF-KNOWLEDGE-REUSE-V5.md)
 - [真实上游维护变异](PROOF-MAINTENANCE-UPSTREAM-V5.md)
 - [合成维护单元契约](PROOF-MAINTENANCE.md)
 
-两张正式卡已发布，当前验收 10/10；旧开发集保留 30/40。真实效果评审存在知识复用引用映射缺陷和一项 Wiki 未决，`reviews_complete=false`、`claims_complete=false`。统一报告明确区分已采集答案、有效评分和因缺陷停用的评分。
+两张正式卡已发布，当前验收 10/10；旧开发集保留 30/40。当前 V5 入口的 486 个答案全部完成有效复核；历史存在缺陷或超时的批次原样保留，不再作为当前效果入口。统一报告区分实验及复核完成、模型收益证据不足、正式卡批准和未公开复现，负面结果不会因为“已完成”而隐藏。

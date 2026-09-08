@@ -17,8 +17,8 @@ experiments:
     corpus: lwip
     manifest: eval/holdout_lwip.yaml
     answer_key: eval/holdout_lwip.answers.yaml
-    report: docs/runs/curated/PROOF-WIKI-LWIP-V4.json
-    review_validity: docs/WIKI-LWIP-EVIDENCE-AUDIT.json
+    report: docs/runs/curated/PROOF-WIKI-LWIP-V5.json
+    historical_review_validity: docs/WIKI-LWIP-EVIDENCE-AUDIT.json
     required_for_effect: true
   - id: knowledge-reuse
     kind: knowledge_reuse
@@ -27,8 +27,8 @@ experiments:
     answer_key: eval/knowledge_reuse.answers.yaml
     production_mode: model_generated_dual_reviewed
     generated_artifact: eval/frozen/knowledge_reuse-v4.json
-    report: docs/runs/curated/PROOF-KNOWLEDGE-REUSE-V4.json
-    review_validity: docs/REUSE-EVIDENCE-AUDIT.json
+    report: docs/runs/curated/PROOF-KNOWLEDGE-REUSE-V5.json
+    historical_review_validity: docs/REUSE-EVIDENCE-AUDIT.json
     required_for_effect: true
   - id: maintenance
     kind: maintenance

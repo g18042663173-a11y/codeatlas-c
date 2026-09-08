@@ -110,12 +110,25 @@ class OpenAICompatClient:
         self.measured_cost_usd = 0.0
 
     def _chat(self, system: str, user: str, max_tokens: int = 1200, *,
-              protected_user_prefix: str = "", json_object: bool = False) -> str:
+              protected_user_prefix: str = "", json_object: bool = False,
+              complete_input_budget: int | None = None) -> str:
         import urllib.request
         from ..contracts import budget_messages, OUTPUT_BUDGET, estimated_tokens, digest
-        system, user, self.last_budget = budget_messages(
-            system, user, protected_prefix=protected_user_prefix,
-        )
+        if complete_input_budget is None:
+            system, user, self.last_budget = budget_messages(
+                system, user, protected_prefix=protected_user_prefix,
+            )
+        else:
+            # Evaluation-only transport: never shorten bound reviewer evidence.
+            # Ordinary Agent callers do not set this parameter and retain 8k.
+            if type(complete_input_budget) is not int or complete_input_budget not in (8000, 16000):
+                raise ValueError("complete reviewer input budget must be 8000 or 16000")
+            size = estimated_tokens(system + user) + 32
+            if size > complete_input_budget:
+                raise ValueError("complete reviewer input exceeds its frozen budget")
+            self.last_budget = {"estimated_input_tokens": size,
+                "untrimmed_input_tokens": size, "truncated": False,
+                "complete_input_budget": complete_input_budget}
         output_limit = min(max_tokens, OUTPUT_BUDGET)
         reservation = None
         if self.max_cost_usd is not None:
@@ -137,7 +150,12 @@ class OpenAICompatClient:
             request_body["response_format"] = {"type": "json_object"}
         body = json.dumps(request_body).encode()
         started = time.perf_counter()
-        timeout = float(os.environ.get("LLM_TIMEOUT_SECONDS", "60"))
+        fixed_timeout = getattr(self, "request_timeout_seconds", None)
+        timeout = (float(os.environ.get("LLM_TIMEOUT_SECONDS", "60"))
+                   if fixed_timeout is None else fixed_timeout)
+        if (not isinstance(timeout, (int, float)) or isinstance(timeout, bool)
+                or not math.isfinite(timeout) or timeout <= 0):
+            raise ValueError("request timeout must be finite and positive")
         answer = None
         for attempt in range(self.transport_retries + 1):
             if self.max_requests is not None and self.request_count >= self.max_requests:

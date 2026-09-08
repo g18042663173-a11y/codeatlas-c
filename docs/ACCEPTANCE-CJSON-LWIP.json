@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
   "mode": "full",
-  "generated_at": "2026-09-08T04:36:02+00:00",
+  "generated_at": "2026-09-08T06:04:26+00:00",
   "codeatlas": {
-    "revision": "e31071601c26d4f4d3ec2491e20c79b4c26a5e82",
+    "revision": "31075c5271b94bc702b65ff53456e77dc2a3ea94",
     "branch": "feat/portfolio-core-evidence",
     "dirty": true,
-    "dirty_entries": 44,
+    "dirty_entries": 20,
     "origin": "https://github.com/g18042663173-a11y/codeatlas-c.git",
-    "implementation_hash": "9043b96c551291ed0a4c05d5c5bac99e8145fed641a6bebee109b987f2beb1d3"
+    "implementation_hash": "e7d5d9f0d853b238dd8024f6c7fe230481b49edfbbf766dd07d1046e0ca69b0c"
   },
   "corpora_manifest_sha256": "b29d5655648b5b4125f43cd1a0f71e19b628439a0b42ca992ba848fe4b820b03",
   "claims_manifest_sha256": "853e7d5ab534da77df6cb2608f4dff07c896c068d0c7a4b6f3a54e80dfd34843",
@@ -883,12 +883,12 @@
       "tracked_reports": 4,
       "total_reports": 4,
       "codeatlas": {
-        "revision": "e31071601c26d4f4d3ec2491e20c79b4c26a5e82",
+        "revision": "31075c5271b94bc702b65ff53456e77dc2a3ea94",
         "branch": "feat/portfolio-core-evidence",
         "dirty": true,
-        "dirty_entries": 44,
+        "dirty_entries": 20,
         "origin": "https://github.com/g18042663173-a11y/codeatlas-c.git",
-        "implementation_hash": "9043b96c551291ed0a4c05d5c5bac99e8145fed641a6bebee109b987f2beb1d3"
+        "implementation_hash": "e7d5d9f0d853b238dd8024f6c7fe230481b49edfbbf766dd07d1046e0ca69b0c"
       }
     }
   ],
@@ -903,12 +903,12 @@
     "tracked_reports": 4,
     "total_reports": 4,
     "codeatlas": {
-      "revision": "e31071601c26d4f4d3ec2491e20c79b4c26a5e82",
+      "revision": "31075c5271b94bc702b65ff53456e77dc2a3ea94",
       "branch": "feat/portfolio-core-evidence",
       "dirty": true,
-      "dirty_entries": 44,
+      "dirty_entries": 20,
       "origin": "https://github.com/g18042663173-a11y/codeatlas-c.git",
-      "implementation_hash": "9043b96c551291ed0a4c05d5c5bac99e8145fed641a6bebee109b987f2beb1d3"
+      "implementation_hash": "e7d5d9f0d853b238dd8024f6c7fe230481b49edfbbf766dd07d1046e0ca69b0c"
     }
   },
   "model_abc": {
@@ -929,7 +929,7 @@
   },
   "proof": {
     "status": "completed",
-    "manifest_sha256": "5cffa68f2626848a30eef041a50e6209485116d39eafb5d9f66d697d582248ee",
+    "manifest_sha256": "686419fc758747b1120a368af1328dbf5c8b7cf42eaf6d64281216be3af79db0",
     "items": [
       {
         "id": "wiki-cjson",
@@ -1045,28 +1045,96 @@
         "id": "wiki-lwip",
         "kind": "wiki_knowledge",
         "manifest": "eval/holdout_lwip.yaml",
-        "report": "docs/runs/curated/PROOF-WIKI-LWIP-V4.json",
+        "report": "docs/runs/curated/PROOF-WIKI-LWIP-V5.json",
         "required_for_effect": true,
         "generated_artifact": null,
-        "status": "pending_evidence_audit",
+        "status": "completed",
         "identity_ok": true,
-        "review_status": "unresolved",
-        "review_validity": {
-          "report": "docs/WIKI-LWIP-EVIDENCE-AUDIT.json",
-          "status": "pending_evidence_audit",
-          "reason": "cited_body_omitted_from_review_input",
-          "audit_hash": "15444dc36272985091e691e4c470deaa5abdd9b5b98a72bc95f412905060dbfd",
-          "mapping_broken_trials": 0,
-          "trial_count": 216
-        },
+        "review_status": "ai_reviewed",
+        "review_validity": null,
         "invalidated_review_count": 0,
-        "withheld_review_count": 216,
+        "withheld_review_count": 0,
         "effect_observed": false,
         "claim_supported": false,
-        "proof_integrity_ok": false,
+        "proof_integrity_ok": true,
         "execution_complete": true,
         "execution_integrity_ok": true,
-        "claim_evidence": {},
+        "claim_evidence": {
+          "primary_contrast": {
+            "treatment": "wiki_flat",
+            "baselines": [
+              "source_only"
+            ]
+          },
+          "accuracy": {
+            "task_count": 20,
+            "mechanism_count": 16,
+            "group_count": 16,
+            "group_unit": "mechanism",
+            "delta_pt": 7.291666666666666,
+            "ci95_pt": [
+              1.0416666666666665,
+              14.583333333333332
+            ],
+            "unit": "paired_mechanism_mean",
+            "bootstrap_seed": 17,
+            "mechanisms": [
+              "lwip-dhcp-start-discover",
+              "lwip-dns-enqueue-capacity",
+              "lwip-dns-resolution-state-machine",
+              "lwip-ethernet-demux",
+              "lwip-ip4-reassembly-limits",
+              "lwip-ip4-route-selection",
+              "lwip-mem-heap-state",
+              "lwip-netbuf-reallocation",
+              "lwip-pbuf-header-adjust",
+              "lwip-tcp-bind-conflicts",
+              "lwip-tcp-pcb-allocation-reclaim",
+              "lwip-timeout-dispatch",
+              "lwip-udp-bind-conflicts",
+              "lwip-udp-connection-state",
+              "lwip-udp-pcb-lifecycle",
+              "lwip-udp-send-pipeline"
+            ]
+          },
+          "answer_completeness": {
+            "task_count": 20,
+            "mechanism_count": 16,
+            "group_count": 16,
+            "group_unit": "mechanism",
+            "delta_pt": 10.677083333333334,
+            "ci95_pt": [
+              -1.5624999999999996,
+              21.354166666666668
+            ],
+            "unit": "paired_mechanism_mean",
+            "bootstrap_seed": 17,
+            "mechanisms": [
+              "lwip-dhcp-start-discover",
+              "lwip-dns-enqueue-capacity",
+              "lwip-dns-resolution-state-machine",
+              "lwip-ethernet-demux",
+              "lwip-ip4-reassembly-limits",
+              "lwip-ip4-route-selection",
+              "lwip-mem-heap-state",
+              "lwip-netbuf-reallocation",
+              "lwip-pbuf-header-adjust",
+              "lwip-tcp-bind-conflicts",
+              "lwip-tcp-pcb-allocation-reclaim",
+              "lwip-timeout-dispatch",
+              "lwip-udp-bind-conflicts",
+              "lwip-udp-connection-state",
+              "lwip-udp-pcb-lifecycle",
+              "lwip-udp-send-pipeline"
+            ]
+          },
+          "input_token_reduction_pct": null,
+          "current_decisions_passed": null,
+          "oracle_independently_validated": null,
+          "unsafe_missed_invalidation": null,
+          "current_false_invalidation": null,
+          "maintenance_value_measured": null
+        },
         "human_release_eligible": false,
         "terminal_semantic_unresolved": false,
         "executed_trial_count": 216,
@@ -1075,34 +1143,75 @@
         "runtime_identity_ok": false,
         "detached_review_identity_ok": true,
         "manifest_sha256": "25d775beb57c113a544b624d00d5e910ea797ec6eae719b09993b73fe8a1a8fa",
-        "report_sha256": "ccf9ac5712b01647c2ae13ac2de4cc7bd0e470b83b94853e17604ec1ee93ee2e"
+        "report_sha256": "ca3d82c81ad3a6d472c0243dbb02b14b65662cec745e79b03be803da608b6ec0"
       },
       {
         "id": "knowledge-reuse",
         "kind": "knowledge_reuse",
         "manifest": "eval/knowledge_reuse.yaml",
-        "report": "docs/runs/curated/PROOF-KNOWLEDGE-REUSE-V4.json",
+        "report": "docs/runs/curated/PROOF-KNOWLEDGE-REUSE-V5.json",
         "required_for_effect": true,
         "generated_artifact": "eval/frozen/knowledge_reuse-v4.json",
-        "status": "invalid_review",
+        "status": "completed",
         "identity_ok": true,
-        "review_status": "unresolved",
-        "review_validity": {
-          "report": "docs/REUSE-EVIDENCE-AUDIT.json",
-          "status": "invalid_review",
-          "reason": "citation_remap_and_missing_source_bodies",
-          "audit_hash": "2744ffc39af5db7a733df7f79f03629de9ed4c895968c77517c8d0576ca53179",
-          "mapping_broken_trials": 52,
-          "trial_count": 54
-        },
-        "invalidated_review_count": 54,
-        "withheld_review_count": 54,
+        "review_status": "ai_reviewed",
+        "review_validity": null,
+        "invalidated_review_count": 0,
+        "withheld_review_count": 0,
         "effect_observed": false,
         "claim_supported": false,
-        "proof_integrity_ok": false,
+        "proof_integrity_ok": true,
         "execution_complete": true,
         "execution_integrity_ok": true,
-        "claim_evidence": {},
+        "claim_evidence": {
+          "primary_contrast": {
+            "treatment": "structured_card",
+            "baselines": [
+              "raw_session",
+              "generic_summary"
+            ]
+          },
+          "accuracy": {
+            "task_count": 6,
+            "mechanism_count": 2,
+            "group_count": 2,
+            "group_unit": "case",
+            "delta_pt": 11.111111111111114,
+            "ci95_pt": [
+              -11.111111111111109,
+              33.333333333333336
+            ],
+            "unit": "paired_case_mean",
+            "bootstrap_seed": 17,
+            "mechanisms": [
+              "cjson-nesting",
+              "lwip-netif"
+            ]
+          },
+          "answer_completeness": {
+            "task_count": 6,
+            "mechanism_count": 2,
+            "group_count": 2,
+            "group_unit": "case",
+            "delta_pt": 0.9523809523809526,
+            "ci95_pt": [
+              -4.76190476190476,
+              6.666666666666665
+            ],
+            "unit": "paired_case_mean",
+            "bootstrap_seed": 17,
+            "mechanisms": [
+              "cjson-nesting",
+              "lwip-netif"
+            ]
+          },
+          "input_token_reduction_pct": -5.702927358149612,
+          "current_decisions_passed": null,
+          "oracle_independently_validated": null,
+          "unsafe_missed_invalidation": null,
+          "current_false_invalidation": null,
+          "maintenance_value_measured": null
+        },
         "human_release_eligible": false,
         "terminal_semantic_unresolved": false,
         "executed_trial_count": 54,
@@ -1111,7 +1220,7 @@
         "runtime_identity_ok": false,
         "detached_review_identity_ok": true,
         "manifest_sha256": "c8c2504f8429ca7a235e0f9b858ac294fbe86de2bad5afedc3c781e2031a82a1",
-        "report_sha256": "f5be2ecc98290942ebb753ac424c23dcc7d8217c07b21bbf9d7b73607c1f462f"
+        "report_sha256": "1d1f3355caa227ddf769e2d2f81da511dd2c73593fbf54ea1a242153fffdc48c"
       },
       {
         "id": "maintenance",
@@ -1154,8 +1263,8 @@
       }
     ],
     "experiments_complete": true,
-    "reviews_complete": false,
-    "claims_complete": false,
+    "reviews_complete": true,
+    "claims_complete": true,
     "claims": [
       {
         "id": "wiki-cjson",
@@ -1250,19 +1359,142 @@
       {
         "id": "wiki-lwip",
         "kind": "wiki_knowledge",
-        "state": "unresolved",
-        "report": "docs/runs/curated/PROOF-WIKI-LWIP-V4.json",
+        "state": "insufficient_evidence",
+        "report": "docs/runs/curated/PROOF-WIKI-LWIP-V5.json",
         "claim_supported": false,
-        "evidence": {},
+        "evidence": {
+          "primary_contrast": {
+            "treatment": "wiki_flat",
+            "baselines": [
+              "source_only"
+            ]
+          },
+          "accuracy": {
+            "task_count": 20,
+            "mechanism_count": 16,
+            "group_count": 16,
+            "group_unit": "mechanism",
+            "delta_pt": 7.291666666666666,
+            "ci95_pt": [
+              1.0416666666666665,
+              14.583333333333332
+            ],
+            "unit": "paired_mechanism_mean",
+            "bootstrap_seed": 17,
+            "mechanisms": [
+              "lwip-dhcp-start-discover",
+              "lwip-dns-enqueue-capacity",
+              "lwip-dns-resolution-state-machine",
+              "lwip-ethernet-demux",
+              "lwip-ip4-reassembly-limits",
+              "lwip-ip4-route-selection",
+              "lwip-mem-heap-state",
+              "lwip-netbuf-reallocation",
+              "lwip-pbuf-header-adjust",
+              "lwip-tcp-bind-conflicts",
+              "lwip-tcp-pcb-allocation-reclaim",
+              "lwip-timeout-dispatch",
+              "lwip-udp-bind-conflicts",
+              "lwip-udp-connection-state",
+              "lwip-udp-pcb-lifecycle",
+              "lwip-udp-send-pipeline"
+            ]
+          },
+          "answer_completeness": {
+            "task_count": 20,
+            "mechanism_count": 16,
+            "group_count": 16,
+            "group_unit": "mechanism",
+            "delta_pt": 10.677083333333334,
+            "ci95_pt": [
+              -1.5624999999999996,
+              21.354166666666668
+            ],
+            "unit": "paired_mechanism_mean",
+            "bootstrap_seed": 17,
+            "mechanisms": [
+              "lwip-dhcp-start-discover",
+              "lwip-dns-enqueue-capacity",
+              "lwip-dns-resolution-state-machine",
+              "lwip-ethernet-demux",
+              "lwip-ip4-reassembly-limits",
+              "lwip-ip4-route-selection",
+              "lwip-mem-heap-state",
+              "lwip-netbuf-reallocation",
+              "lwip-pbuf-header-adjust",
+              "lwip-tcp-bind-conflicts",
+              "lwip-tcp-pcb-allocation-reclaim",
+              "lwip-timeout-dispatch",
+              "lwip-udp-bind-conflicts",
+              "lwip-udp-connection-state",
+              "lwip-udp-pcb-lifecycle",
+              "lwip-udp-send-pipeline"
+            ]
+          },
+          "input_token_reduction_pct": null,
+          "current_decisions_passed": null,
+          "oracle_independently_validated": null,
+          "unsafe_missed_invalidation": null,
+          "current_false_invalidation": null,
+          "maintenance_value_measured": null
+        },
         "unresolved_trial_count": 0
       },
       {
         "id": "knowledge-reuse",
         "kind": "knowledge_reuse",
-        "state": "unresolved",
-        "report": "docs/runs/curated/PROOF-KNOWLEDGE-REUSE-V4.json",
+        "state": "insufficient_evidence",
+        "report": "docs/runs/curated/PROOF-KNOWLEDGE-REUSE-V5.json",
         "claim_supported": false,
-        "evidence": {},
+        "evidence": {
+          "primary_contrast": {
+            "treatment": "structured_card",
+            "baselines": [
+              "raw_session",
+              "generic_summary"
+            ]
+          },
+          "accuracy": {
+            "task_count": 6,
+            "mechanism_count": 2,
+            "group_count": 2,
+            "group_unit": "case",
+            "delta_pt": 11.111111111111114,
+            "ci95_pt": [
+              -11.111111111111109,
+              33.333333333333336
+            ],
+            "unit": "paired_case_mean",
+            "bootstrap_seed": 17,
+            "mechanisms": [
+              "cjson-nesting",
+              "lwip-netif"
+            ]
+          },
+          "answer_completeness": {
+            "task_count": 6,
+            "mechanism_count": 2,
+            "group_count": 2,
+            "group_unit": "case",
+            "delta_pt": 0.9523809523809526,
+            "ci95_pt": [
+              -4.76190476190476,
+              6.666666666666665
+            ],
+            "unit": "paired_case_mean",
+            "bootstrap_seed": 17,
+            "mechanisms": [
+              "cjson-nesting",
+              "lwip-netif"
+            ]
+          },
+          "input_token_reduction_pct": -5.702927358149612,
+          "current_decisions_passed": null,
+          "oracle_independently_validated": null,
+          "unsafe_missed_invalidation": null,
+          "current_false_invalidation": null,
+          "maintenance_value_measured": null
+        },
         "unresolved_trial_count": 0
       },
       {
@@ -1285,18 +1517,138 @@
         "unresolved_trial_count": 0
       }
     ],
-    "ai_review_done": false,
+    "ai_review_done": true,
     "human_review_done": false,
     "effect_observed": false,
     "wiki_combined_effect": {
-      "status": "not_measured",
-      "reason": "both_reviewed_wiki_reports_required",
+      "status": "measured",
       "primary_contrast": {
         "treatment": "wiki_flat",
         "baseline": "source_only"
       },
-      "accuracy": null,
-      "answer_completeness": null
+      "accuracy": {
+        "repository_count": 2,
+        "task_count": 40,
+        "mechanism_count": 35,
+        "delta_pt": 5.838815789473684,
+        "ci95_pt": [
+          -2.275219298245614,
+          14.172149122807017
+        ],
+        "unit": "equal_repository_of_paired_mechanism_means",
+        "bootstrap_seed": 17,
+        "repositories": [
+          {
+            "repository": "https://github.com/DaveGamble/cJSON",
+            "mechanism_count": 19,
+            "mechanisms": [
+              "cjson-allocator-hook-state",
+              "cjson-array-insert-boundaries",
+              "cjson-array-size-child-chain",
+              "cjson-array-tail-invariant",
+              "cjson-convenience-add-cleanup",
+              "cjson-deep-duplicate-failure",
+              "cjson-detach-list-rewire",
+              "cjson-find-pointer-ownership",
+              "cjson-generate-merge-patch-null-result",
+              "cjson-json-pointer-walk",
+              "cjson-minify-inplace",
+              "cjson-number-dual-representation",
+              "cjson-reference-alias-insertion",
+              "cjson-replace-object-item",
+              "cjson-rfc7396-merge",
+              "cjson-set-valuestring-guards",
+              "cjson-string-array-cleanup",
+              "cjson-string-reference-ownership",
+              "cjson-utils-sort-mutation"
+            ]
+          },
+          {
+            "repository": "https://github.com/lwip-tcpip/lwip",
+            "mechanism_count": 16,
+            "mechanisms": [
+              "lwip-dhcp-start-discover",
+              "lwip-dns-enqueue-capacity",
+              "lwip-dns-resolution-state-machine",
+              "lwip-ethernet-demux",
+              "lwip-ip4-reassembly-limits",
+              "lwip-ip4-route-selection",
+              "lwip-mem-heap-state",
+              "lwip-netbuf-reallocation",
+              "lwip-pbuf-header-adjust",
+              "lwip-tcp-bind-conflicts",
+              "lwip-tcp-pcb-allocation-reclaim",
+              "lwip-timeout-dispatch",
+              "lwip-udp-bind-conflicts",
+              "lwip-udp-connection-state",
+              "lwip-udp-pcb-lifecycle",
+              "lwip-udp-send-pipeline"
+            ]
+          }
+        ]
+      },
+      "answer_completeness": {
+        "repository_count": 2,
+        "task_count": 40,
+        "mechanism_count": 35,
+        "delta_pt": 12.502284356725147,
+        "ci95_pt": [
+          4.815423976608186,
+          19.556834795321638
+        ],
+        "unit": "equal_repository_of_paired_mechanism_means",
+        "bootstrap_seed": 17,
+        "repositories": [
+          {
+            "repository": "https://github.com/DaveGamble/cJSON",
+            "mechanism_count": 19,
+            "mechanisms": [
+              "cjson-allocator-hook-state",
+              "cjson-array-insert-boundaries",
+              "cjson-array-size-child-chain",
+              "cjson-array-tail-invariant",
+              "cjson-convenience-add-cleanup",
+              "cjson-deep-duplicate-failure",
+              "cjson-detach-list-rewire",
+              "cjson-find-pointer-ownership",
+              "cjson-generate-merge-patch-null-result",
+              "cjson-json-pointer-walk",
+              "cjson-minify-inplace",
+              "cjson-number-dual-representation",
+              "cjson-reference-alias-insertion",
+              "cjson-replace-object-item",
+              "cjson-rfc7396-merge",
+              "cjson-set-valuestring-guards",
+              "cjson-string-array-cleanup",
+              "cjson-string-reference-ownership",
+              "cjson-utils-sort-mutation"
+            ]
+          },
+          {
+            "repository": "https://github.com/lwip-tcpip/lwip",
+            "mechanism_count": 16,
+            "mechanisms": [
+              "lwip-dhcp-start-discover",
+              "lwip-dns-enqueue-capacity",
+              "lwip-dns-resolution-state-machine",
+              "lwip-ethernet-demux",
+              "lwip-ip4-reassembly-limits",
+              "lwip-ip4-route-selection",
+              "lwip-mem-heap-state",
+              "lwip-netbuf-reallocation",
+              "lwip-pbuf-header-adjust",
+              "lwip-tcp-bind-conflicts",
+              "lwip-tcp-pcb-allocation-reclaim",
+              "lwip-timeout-dispatch",
+              "lwip-udp-bind-conflicts",
+              "lwip-udp-connection-state",
+              "lwip-udp-pcb-lifecycle",
+              "lwip-udp-send-pipeline"
+            ]
+          }
+        ]
+      },
+      "boundary": "题内重复均值 → 仓库内机制等权 → 两仓库等权；重复试次不增加独立样本数。"
     },
     "judge_qualification": {
       "schema_version": 1,
@@ -1555,11 +1907,11 @@
   "passed": false,
   "engineer_pass": true,
   "human_release": true,
-  "ai_effect_review": false,
+  "ai_effect_review": true,
   "effect_observed": false,
   "experiments_complete": true,
-  "reviews_complete": false,
-  "claims_complete": false,
+  "reviews_complete": true,
+  "claims_complete": true,
   "judge_qualification": {
     "schema_version": 1,
     "status": "unresolved",
@@ -1810,5 +2162,5 @@
     "report": "docs/JUDGE-QUALIFICATION-V4.json"
   },
   "public_repro": false,
-  "portfolio_ready": false
+  "portfolio_ready": true
 }
