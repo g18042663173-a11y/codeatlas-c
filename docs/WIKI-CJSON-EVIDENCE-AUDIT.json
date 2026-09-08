@@ -1,0 +1,3519 @@
+{
+  "schema_version": 1,
+  "scope": "review_only",
+  "status": "pending_evidence_audit",
+  "reason": "cited_body_omitted_from_review_input",
+  "run_hash": "25a00c1dc5a4416b95d0c4a1336841d4c2e4ba3166bb1dd8843dfbc56566641e",
+  "historical_report_sha256": "5b66794a770b7bf3807cba37032cc7d6a62d2049767cad28fa4c75448c432f2d",
+  "trial_count": 216,
+  "mapping_broken_trials": 0,
+  "range_review_required_trials": 62,
+  "restorable_trace_body_trials": 33,
+  "restorable_trace_citations": 41,
+  "restored_packet_hash": "30e6faa524a6c1ab74018c6df860321d6baa50617ed242eef844af5507e9f294",
+  "range_audit": {
+    "run_hash": "25a00c1dc5a4416b95d0c4a1336841d4c2e4ba3166bb1dd8843dfbc56566641e",
+    "trials": [
+      {
+        "trial_id": "000a2753951005c421d8c47a702c6f37eebbfaa88bd64d42fc8d44617e472fe4",
+        "task_id": "ho-cjson-refuse-rust-borrow",
+        "input_hash": "ab5267d0308c3f9a94dfd725115ee1facb7129d0013489dba5780eba9d6508d0",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "000f289d8876ccd160fc810a1f4eaee0de575ab8d0182d7dcb36eebfc915adad",
+        "task_id": "ho-cjson-cond-array-insert-boundaries",
+        "input_hash": "7ac9601dc4c665af9f10caf6ba8dd223577c12c6386079655ead9825cc5ff310",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "005fe5138df34bac41c0cb36a3450143296077366c29643676331f8b4125b470",
+        "task_id": "ho-cjson-error-find-pointer-ownership",
+        "input_hash": "3fd20da0227358bd3b3b5e41df1ecda4d99b0c3fc57f7e13f46201dce2282bc3",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "02347fddab1d67d8fdc5d2c062350e5407b1c29452029da57ca67193c8ffdf34",
+        "task_id": "ho-cjson-state-sort-mutation",
+        "input_hash": "23d93c648d09cec0b83b655f4339d90fdbd113d49ca901d393c59525ab0ef180",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E32",
+            "source_ref": "cJSON_Utils.c",
+            "path": "cJSON_Utils.c",
+            "line_start": 480,
+            "line_end": 610,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E35",
+                "lines": "484-602,1311-1319",
+                "text_hash": "b4f0c3cac3445ba2d77c72ae55f592ab54843a28e4801cb9ef4aefcc25b44937"
+              }
+            ]
+          },
+          {
+            "tag": "E33",
+            "source_ref": "cJSON_Utils.c",
+            "path": "cJSON_Utils.c",
+            "line_start": 1290,
+            "line_end": 1320,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E35",
+                "lines": "484-602,1311-1319",
+                "text_hash": "b4f0c3cac3445ba2d77c72ae55f592ab54843a28e4801cb9ef4aefcc25b44937"
+              }
+            ]
+          },
+          {
+            "tag": "E34",
+            "source_ref": "cJSON_Utils.c",
+            "path": "cJSON_Utils.c",
+            "line_start": 584,
+            "line_end": 610,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E35",
+                "lines": "484-602,1311-1319",
+                "text_hash": "b4f0c3cac3445ba2d77c72ae55f592ab54843a28e4801cb9ef4aefcc25b44937"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "030595425cd314bbd31d94d01098d2b45758b31a6054e5ba5cdbfe2742c38b65",
+        "task_id": "ho-cjson-cond-array-size-structural",
+        "input_hash": "9c6690eb0d8e6d2ebfc34d2a96e24602f9db20d73820a6b5057239fba6b8569d",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E9",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 2119,
+            "line_end": 2122,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E34",
+                "lines": "1899-1920",
+                "text_hash": "6d70812d2fad07d10cc95bc0120e7371426ea4ce0dd4c193914cd5dbf1edd0a6"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "059a32cf253de00d53cb853308aa16db345c80f8d5f03dd7251ebd51eec1d492",
+        "task_id": "ho-cjson-error-convenience-add",
+        "input_hash": "3d7e479e596f56069788d29489b23ff3d7438cd421181af4fa0a33f27f147cdf",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E31",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 2082,
+            "line_end": 2122,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E33",
+                "lines": "2210-2220",
+                "text_hash": "e383ae63680f8aba2503c34e3f46ebc0f95eaa8851c86cdbad3e1db5e59609c4"
+              }
+            ]
+          },
+          {
+            "tag": "E32",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 2208,
+            "line_end": 2230,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E33",
+                "lines": "2210-2220",
+                "text_hash": "e383ae63680f8aba2503c34e3f46ebc0f95eaa8851c86cdbad3e1db5e59609c4"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "05eacf054608804b47e1d925ed44073a4e2735dea264397dbf87bc8c40b21909",
+        "task_id": "ho-cjson-error-generate-merge-null",
+        "input_hash": "9c11021dab092f65d928d0c69fb83604855d1a9e38f0c7aaa924246ca4ad73a8",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "06c76a19a04d2e7cffa3ea89e24b4dfc019e3a4f6fe80db0f13b7cd3d2497521",
+        "task_id": "ho-cjson-flow-minify-inplace",
+        "input_hash": "136a1efc4efafa9b520cba493523f9151422b4ce8f183e42d98d14e7fe8018ce",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "0718d99706207f8e691b2d02a8998002d15467d9273b609fe381f936f9bae3b5",
+        "task_id": "ho-cjson-flow-detach-list-rewire",
+        "input_hash": "f8be330131e3060bd87c0fe03a230b1251dd6473be257fe59fa5e1257aa91055",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "076b0b15c69d1211ec9a274fb4f04e84a2a70a4d92e1b2ae144763bae818c05b",
+        "task_id": "ho-cjson-refuse-sqlite-wal",
+        "input_hash": "b278d6f6301448cf3ff87c6ee34e2ee0b7e1439336ad51ca2c9bd3fc785100cd",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E1",
+            "source_ref": "tests/readme_examples.c#L169-L215",
+            "path": "tests/readme_examples.c",
+            "line_start": 169,
+            "line_end": 215,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "08a6d637270cfe33f1c6e22ba1e66ac4547eef9ff1e16d1adcfe3f7a64d4970b",
+        "task_id": "ho-cjson-error-duplicate-cleanup",
+        "input_hash": "7b4745e5d7dd69bb89667f03c7ec0d3cb1cb33ebe1e8a522d6529599647edda7",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "08f086d8c0af67d7a7d1746a6265d8ef158d2bd186f944968e48bd9a7c75c204",
+        "task_id": "ho-cjson-refuse-rust-borrow",
+        "input_hash": "c77c1def12e353c047a093188bfacdac1d5f11bf4fe0f5677ee5f4a0eb7544e8",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "08f89ab1a44e21514ab97dd2a3cf5543699d0e5500447e9c6195255b72f933d1",
+        "task_id": "ho-cjson-flow-minify-inplace",
+        "input_hash": "a96fbe9dababe5701d902344e7abde17efe5a4bedaad1abfb54824c0963e0e5b",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E7",
+            "source_ref": "tests/minify_tests.c#L32-L42",
+            "path": "tests/minify_tests.c",
+            "line_start": 32,
+            "line_end": 42,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E10",
+            "source_ref": "tests/minify_tests.c#L86-L98",
+            "path": "tests/minify_tests.c",
+            "line_start": 86,
+            "line_end": 98,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "096ebb17947740e1592c027fc0c536467500f4fe8467572ec888dd8515f3481e",
+        "task_id": "ho-cjson-error-find-pointer-ownership",
+        "input_hash": "87e7fedc418e3d07b4fd05251289cbd6ae6c968d79e017de70da598f1712be89",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E4",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 3197,
+            "line_end": 3200,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "0ae91df75c1c1d7c3cb5c95f5dd1d3541f43ddb96762d510430a6a62e01d004f",
+        "task_id": "ho-cjson-state-number-saturation",
+        "input_hash": "3d1308a1f1f3e4f2d50a2ca2bd826c33223556c92359e192138189cf851450cc",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "0b918a8a277bf4299e4cdb1acd37a5a6446b4f80beda887b7c6ef6f3c46a8486",
+        "task_id": "ho-cjson-flow-detach-list-rewire",
+        "input_hash": "143ee5ed2692929dc3b84fc4607bfa227fa1dc767ba13b87ede9c8ce17de3538",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "0d728aa4a44b29714445ace4128239d0115bcd5976dec5a9012ca15671881646",
+        "task_id": "ho-cjson-cond-array-insert-boundaries",
+        "input_hash": "ccf87e9e10849027b79cc2ba78ee03ac0284e96f99b90dd87ffb61b1527388ef",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "0de410d436f89f98bc9ab3c63b228c0bb1dd82c8e30e8af4096903ef1016c57c",
+        "task_id": "ho-cjson-state-sort-mutation",
+        "input_hash": "6c4840f0ee55974501e48e7c34d83240034ec57312425fc8eb92b45df038dcd8",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E25",
+            "source_ref": "cJSON_Utils.c",
+            "path": "cJSON_Utils.c",
+            "line_start": 83,
+            "line_end": 109,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E36",
+                "lines": "484-602,1311-1319",
+                "text_hash": "b4f0c3cac3445ba2d77c72ae55f592ab54843a28e4801cb9ef4aefcc25b44937"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "0de4f3d9fad70145fca5b560cc570533fd40abf4c6d5b4084e91eb450512e7ef",
+        "task_id": "ho-cjson-refuse-rust-borrow",
+        "input_hash": "71738d7bf619f1fe066d0059f91a48d07bdc8b58289b22a46af558395285cb9a",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "108b318a4ccb7771d1195da5e80e70db50d624c6567e4cd98ede04bc90b73f28",
+        "task_id": "ho-cjson-flow-json-pointer-walk",
+        "input_hash": "9db1ee0b6b1bd967bb27b61cbbb69a79b7b3aeacbbdac22c94c9dc742bd657b9",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "17714770ce0a54324bc497a61ad45491f48c22c413c9f964114b877523a04778",
+        "task_id": "ho-cjson-flow-replace-object-item",
+        "input_hash": "abd9d7c1b0bfaf95232c36c2f97cc53fa80a62dabc2b6088c53374f101c6aa18",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "177ce25288370bcdd5c37e65e63858304f00aff50603c592cb82ed983ed13639",
+        "task_id": "ho-cjson-refuse-react-concurrent",
+        "input_hash": "52d46dfd945cd6521401e140600d444a2a35f682d58668b22e20d9a5fbc74236",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "1a0a01eb6166393bfb632f1313c4534677292fef60e925bfa69509cc92601df6",
+        "task_id": "ho-cjson-state-number-saturation",
+        "input_hash": "b703076769900f5130d679a93905c02df0ad0a28f55d18cfc093b7a30b02eeb5",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "1a1e79f846365c69b33696fab2f3f4b21a087093364c295a2ae39d836ae1c390",
+        "task_id": "ho-cjson-error-duplicate-cleanup",
+        "input_hash": "248473d842a3d42b27f19b5180eaff272fd3739a3e396c7c5763ed2adcc2c104",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "1c67f4c96e8f47a5ae02ee4f06fbff6e87c3074b0faf8a0d635fd3dc708b6fbe",
+        "task_id": "ho-cjson-cond-pointer-array-index",
+        "input_hash": "ea56ee06b8d93959e4f4be134e65ee8de22c9ce10e72062951db1c3abde68eb3",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E2",
+            "source_ref": "cJSON_Utils.c#L301-L346",
+            "path": "cJSON_Utils.c",
+            "line_start": 301,
+            "line_end": 346,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E36",
+                "lines": "274-323",
+                "text_hash": "ea6ab5f9cc8374ffc6c0c7fa49ccf395661611784b47c72fc5dc43658d414acb"
+              }
+            ]
+          },
+          {
+            "tag": "E3",
+            "source_ref": "cJSON_Utils.c#L348-L351",
+            "path": "cJSON_Utils.c",
+            "line_start": 348,
+            "line_end": 351,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E36",
+                "lines": "274-323",
+                "text_hash": "ea6ab5f9cc8374ffc6c0c7fa49ccf395661611784b47c72fc5dc43658d414acb"
+              }
+            ]
+          },
+          {
+            "tag": "E20",
+            "source_ref": "cJSON_Utils.c#L262-L272",
+            "path": "cJSON_Utils.c",
+            "line_start": 262,
+            "line_end": 272,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E36",
+                "lines": "274-323",
+                "text_hash": "ea6ab5f9cc8374ffc6c0c7fa49ccf395661611784b47c72fc5dc43658d414acb"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "1c7e16a6f4c925f91648e234edea18adb15b7a6094213993356ed4297417c482",
+        "task_id": "ho-cjson-state-string-reference",
+        "input_hash": "706321f23c998784de8acf726cf3af4516c01ec55145ae8cb15f4785f25aacd1",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "1cf6949bbfda7f4046f23f6dc6a47877b37da023b17089fc295714d5109e47c9",
+        "task_id": "ho-cjson-error-duplicate-cleanup",
+        "input_hash": "ac46d783982dfc09c2763626dfcb8b8e081becf12334dcb3c1f9a0a3d3b374f8",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "1e9157d590f971c6216e9e45b88b925c92fcf573d5f3755364f89f45a246a819",
+        "task_id": "ho-cjson-error-find-pointer-ownership",
+        "input_hash": "694dafb654ca4b643ea942c10560d640a29a0a91abec32d59c1b78fb68b6cbc5",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "1f5a019ba0c79c7d2a723bb33969a9cc77269414f3c8db486584471b2ff40727",
+        "task_id": "ho-cjson-cond-array-insert-boundaries",
+        "input_hash": "52a98f11fd959548306b9a93e2a9bed254e14d544424fbee484f5fa1c2b87d27",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E30",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 1922,
+            "line_end": 2058,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E31",
+                "lines": "1922-1938,2027-2058,2334-2366",
+                "text_hash": "7fe4b9ccb526deba7c2180034ac77b50a2ba157ec5cbcac7dd6dd791e3a0e54d"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "1fc3c8474e048fd79e097897568c76e2c674237052b1b22d8876575dcae96df7",
+        "task_id": "ho-cjson-cond-reference-alias",
+        "input_hash": "2d889726d87ea0410ca29002987de4015720805aee96e9c6434de3416043f6c1",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "226a20853ab876ebe1ccb733fba01dfbab9b76ef638bc433caf34d163ab27b86",
+        "task_id": "ho-cjson-error-convenience-add",
+        "input_hash": "ba0145a1f6781f439496ba9487157681c9a570c85c9daa8c47ca39a5d9822b4e",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "26e2b1dd369637454672cbc6b44a050d7c37c158bd978e3e4daac12780c3db20",
+        "task_id": "ho-cjson-flow-detach-list-rewire",
+        "input_hash": "e9f6c758622adc8f2664a8ad0176b910ff644a481511421b52497147b5163a04",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "2702b926cd847f051ffeb6cea22ca4f65ccc31ac33b4c254fd7e560fa5f85d3a",
+        "task_id": "ho-cjson-flow-merge-patch",
+        "input_hash": "c72670bde31b23007b468ef56c79a2f4b4056f6f081900ff636dc6be88227a95",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "275430ce8e98ae8aabb7c3351b6fad0c33383afd178db7ebb0b1b5d633d33869",
+        "task_id": "ho-cjson-state-sort-mutation",
+        "input_hash": "aade572d858a7806d4ee98e142e99c5b7a701234f6de2ddbd8551e05efb20c70",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E25",
+            "source_ref": "cJSON_Utils.c",
+            "path": "cJSON_Utils.c",
+            "line_start": 83,
+            "line_end": 109,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E35",
+                "lines": "484-602,1311-1319",
+                "text_hash": "b4f0c3cac3445ba2d77c72ae55f592ab54843a28e4801cb9ef4aefcc25b44937"
+              }
+            ]
+          },
+          {
+            "tag": "E32",
+            "source_ref": "cJSON_Utils.c",
+            "path": "cJSON_Utils.c",
+            "line_start": 480,
+            "line_end": 620,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E35",
+                "lines": "484-602,1311-1319",
+                "text_hash": "b4f0c3cac3445ba2d77c72ae55f592ab54843a28e4801cb9ef4aefcc25b44937"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "285262911707433c841561d07388707e8dc15a7856d1321ae0294a4c44499f5d",
+        "task_id": "ho-cjson-state-hooks-realloc",
+        "input_hash": "fe11d0163a1a7e8e536c4287bde41c41e1821c9830630ca38eb656f2a7e80460",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "285319e04bdb7435e7a81782d7eda7f07e5115b91409d04a3cf3011c1d55d038",
+        "task_id": "ho-cjson-error-string-array-cleanup",
+        "input_hash": "a397bc6f92071224388e2dcac193a8d01695058a37b8c48b21fe02766fe8e726",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E3",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 253,
+            "line_end": 276,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E35",
+                "lines": "2741-2779",
+                "text_hash": "ae17af8e01b26f7d2e4164b0131abd9b25ab2fd186323f4e0db4a331376c4b3c"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "28cbc0ecaab27f03b18156fb2b813ea21ad6a1afd8f10fd3b3767606b59b787d",
+        "task_id": "ho-cjson-cond-array-size-structural",
+        "input_hash": "bee4c862aafbc7d314fbaad6bac37267e5cf695768f0e0ed530d477640b86261",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E8",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 2609,
+            "line_end": 2618,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E34",
+                "lines": "1899-1920",
+                "text_hash": "6d70812d2fad07d10cc95bc0120e7371426ea4ce0dd4c193914cd5dbf1edd0a6"
+              }
+            ]
+          },
+          {
+            "tag": "E9",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 2119,
+            "line_end": 2122,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E34",
+                "lines": "1899-1920",
+                "text_hash": "6d70812d2fad07d10cc95bc0120e7371426ea4ce0dd4c193914cd5dbf1edd0a6"
+              }
+            ]
+          },
+          {
+            "tag": "E12",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 2598,
+            "line_end": 2607,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E34",
+                "lines": "1899-1920",
+                "text_hash": "6d70812d2fad07d10cc95bc0120e7371426ea4ce0dd4c193914cd5dbf1edd0a6"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "2930c10d469ae06277829e23482796491ec55e2d278d2474f73fb15eb4b3932a",
+        "task_id": "ho-cjson-state-list-tail-invariant",
+        "input_hash": "71a90b5e6995a898626121236631d48230f5874f63bb861f5de68727bed1b8a3",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "2b3aca02927cd568e6b29007db23fe5d44379ce16d50c7eeb9b576ac8db78ac1",
+        "task_id": "ho-cjson-flow-json-pointer-walk",
+        "input_hash": "658eaa5e3039c6e946dfacc0cd99136e07f1d69f84ee487aee183f74a30e136c",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "2bf0670a1063a61a784cc397db64dfcb8b8d1e1a728749d8278b6e2abc0201b4",
+        "task_id": "ho-cjson-error-duplicate-cleanup",
+        "input_hash": "ad7a7424005a32db00fc6bb21c3ea10981e179b477c239cf57533916bb43e403",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E7",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 253,
+            "line_end": 276,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E31",
+                "lines": "2784-2873",
+                "text_hash": "60b988dadfe6529c6987120f6f88d435ea2fd64e62886e7cd40b9d79284756c6"
+              }
+            ]
+          },
+          {
+            "tag": "E30",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 2784,
+            "line_end": 2875,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E31",
+                "lines": "2784-2873",
+                "text_hash": "60b988dadfe6529c6987120f6f88d435ea2fd64e62886e7cd40b9d79284756c6"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "2c41a10c3a7d1af69e6cb7223371444a7e9ea5d0ffe9fc177341dc41961123a9",
+        "task_id": "ho-cjson-state-sort-mutation",
+        "input_hash": "5254b48959b537a2e7a8c459142c79faf7c5ba562547116e91518b7649705c45",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "2d31dc7cee090a068de58688dbbb8445c8c12c72c6f0ced583ad8cbf5b168790",
+        "task_id": "ho-cjson-flow-detach-list-rewire",
+        "input_hash": "f2ac58bc84a6c9d06c20f2ea8e18c3b3551bccea50037e6c6e33fa4305550f19",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "2d362069c8c42406307278e039f7b47b0d34737aa431626153e15cfc06d5a41c",
+        "task_id": "ho-cjson-cond-reference-alias",
+        "input_hash": "0907406e0a2433b2ac821b3e1fda7979f51d053d5cd227f312fc1ce868c8ce0f",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "2f09cdbfaa431fb806da54aa93ecde3be215a07c4e86cc88ee2b3b1b76747ad4",
+        "task_id": "ho-cjson-state-sort-mutation",
+        "input_hash": "67fb3c47a94acc11d9668b40e933858fd26ceb0a0d0eb90d76e1b393cabdb6ab",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "2f5171c068ffd79d1dfda356ec009afa8a01e614bdd7955ed194eeb126a70b30",
+        "task_id": "ho-cjson-cond-set-valuestring",
+        "input_hash": "7e9ed136610a94bfc8a9c17bf31697d569e7b62e96a624032a26f8640f071fb4",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "31ce668d4397f7269e74ffb67c4594020ee9a24c6484480b7ad18635e6adf2fd",
+        "task_id": "ho-cjson-state-list-tail-invariant",
+        "input_hash": "b6f1a0e1ad621382e5deeee8465982781e2c17bd0645e23f1d7a8e46949f761f",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "3234e8a88c525857131c7445661e48d5558af64505495ef6e4ebf7844f117736",
+        "task_id": "ho-cjson-refuse-sqlite-wal",
+        "input_hash": "224071c1a608fc05b28c7c85a64ac461578ce2586d6828e032cc00589797545d",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "36ecd47728f2a26d38490bd0ebcc89dc76d2b6ab9740a845295bb78ba6fa7d1c",
+        "task_id": "ho-cjson-error-find-pointer-ownership",
+        "input_hash": "965eb270d6354a131248f7ad15b196eb2406ae20ecab8a119591036c01255a5f",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E2",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 3042,
+            "line_end": 3050,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E3",
+            "source_ref": "cJSON_Utils.c",
+            "path": "cJSON_Utils.c",
+            "line_start": 173,
+            "line_end": 196,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E32",
+                "lines": "198-259",
+                "text_hash": "809d0c180fce2f45dc02d07864c7a44609fd97848559e275eb8daa56894f6c3b"
+              }
+            ]
+          },
+          {
+            "tag": "E4",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 3197,
+            "line_end": 3200,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E16",
+            "source_ref": "cJSON_Utils.c#L66-L80",
+            "path": "cJSON_Utils.c",
+            "line_start": 66,
+            "line_end": 80,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E32",
+                "lines": "198-259",
+                "text_hash": "809d0c180fce2f45dc02d07864c7a44609fd97848559e275eb8daa56894f6c3b"
+              }
+            ]
+          },
+          {
+            "tag": "E18",
+            "source_ref": "cJSON_Utils.c#L157-L170",
+            "path": "cJSON_Utils.c",
+            "line_start": 157,
+            "line_end": 170,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E32",
+                "lines": "198-259",
+                "text_hash": "809d0c180fce2f45dc02d07864c7a44609fd97848559e275eb8daa56894f6c3b"
+              }
+            ]
+          },
+          {
+            "tag": "E20",
+            "source_ref": "cJSON.c#L3202-L3206",
+            "path": "cJSON.c",
+            "line_start": 3202,
+            "line_end": 3206,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E23",
+            "source_ref": "cJSON.c#L3052-L3060",
+            "path": "cJSON.c",
+            "line_start": 3052,
+            "line_end": 3060,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "39281d379eb95f200fa5dad43befa08988481754a0877d28f6577a41526dc597",
+        "task_id": "ho-cjson-flow-replace-object-item",
+        "input_hash": "6922960eecbb8f013ab2ab6674270533a62b1cfaa62c29f9623cd9df0e1712fa",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "39b24710a09fe9a1878382443e0820ae8182923ca33a0d0f1347dd612a292ecb",
+        "task_id": "ho-cjson-refuse-react-concurrent",
+        "input_hash": "afb3807ff60f98357675a1917f8d11536cd6c0fa02a019b51aa4e6acfc31a53c",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "3c0bfdc4fe66f4ecdb4a32703f6996c14cdb47ef56c5e034fdab917f0c487991",
+        "task_id": "ho-cjson-state-hooks-realloc",
+        "input_hash": "67feca3bfa663b0976b713889106e304d898010ebb4ab4e829f4d8d171f8e4b1",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "3d32e3256cadb53f5774a597766bed2513a34908e18184d2365a657c9d2a646c",
+        "task_id": "ho-cjson-state-number-saturation",
+        "input_hash": "8e76f9f3d834c200f23a49f16194a038903246ad58db7dd7023aac104e8b8f03",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "3d6d6a59245bcca47fe7d7421baaf7c6ccbbe2ffa62d8eca099b926df325262a",
+        "task_id": "ho-cjson-state-list-tail-invariant",
+        "input_hash": "dcd83f42d760470b7c84fea32bb2610dd9a5b955a6a84ecca846be9b7f77e3e1",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "3de7bf98f982fb946f75c0bb9fe747489162de55df5c43d66ff4740de719613a",
+        "task_id": "ho-cjson-state-number-saturation",
+        "input_hash": "c273953a9563a6827ef55edd070e60c8e54b25bfbcf59e2248aa8e23079b0f0e",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "3f1e54cb5f6991a1d60d1792efe6e661197cf5dbc9c8612607a6cb70edcb2d1a",
+        "task_id": "ho-cjson-flow-replace-object-item",
+        "input_hash": "4ee529953f4453931da7d95f993a26442aaa4d524139723cde4351ec638be299",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "3fe26e428f2d78482feac751c285caf48a23947b65a5e726dc230c93e66b4df9",
+        "task_id": "ho-cjson-error-generate-merge-null",
+        "input_hash": "993283a3e2c4acc8cb0d69214fd6b609a35249755694c0960036e0455bc27909",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "4004454598f2f22a010c30115443040d4b194ab34a1db5acf90b7c0406fdea77",
+        "task_id": "ho-cjson-flow-detach-list-rewire",
+        "input_hash": "e0fd740fa34f0cb23230b509cfa9eb0a43b82860afc23c956de8dad779811813",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "42878cd07bb2f62ed78b96f4a197b5daff74a73c38293cb26c4d94a6f1e03325",
+        "task_id": "ho-cjson-cond-set-valuestring",
+        "input_hash": "a1072f127f92e05b49aed5c565efcee40004ec6ae272c616bcf00c45714bf585",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E3",
+            "source_ref": "tests/misc_tests.c#L492-L508",
+            "path": "tests/misc_tests.c",
+            "line_start": 492,
+            "line_end": 508,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "44a5afbf2543fc9783e4c52f09429b16163ba6c2a563aa76c2e110af50fc3c1e",
+        "task_id": "ho-cjson-state-string-reference",
+        "input_hash": "db4728e0b6e83cd0dbfe8b9b4425677725dbafced0f7b529d1e6ed2f9bd8d512",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "472a84ed2ef4b71fd3d9263ffdb72ce78e3c22a4c0a5c53e2bbc09c438fc3ba6",
+        "task_id": "ho-cjson-refuse-react-concurrent",
+        "input_hash": "a5edbc111eb4ed71bff01ea04869fa2637298e77b9d924cd2b9e01718b7b9e3a",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "4745811a05e63dbc7e236adc56c5a76c712b18fe7f27e39a381ebbf53c7646fc",
+        "task_id": "ho-cjson-state-number-saturation",
+        "input_hash": "58a6484acaeab34923675af789b747f0ae23313d673b0a7041fe85af9379120c",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "485996a5827cf2a4e2b271c8dbce76cd9b2588a3e2babbf762448916cd25da1d",
+        "task_id": "ho-cjson-refuse-react-concurrent",
+        "input_hash": "9b71938e41b86b3fe753ef1027295c37c0214f1a185165a250a9a10c51faaf2e",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "486c1a340daad095a72240387d618b6ca375d14b72c918837915ab3b153e8e02",
+        "task_id": "ho-cjson-flow-minify-inplace",
+        "input_hash": "4547139580f44b546b814fb508b44a4434bfb2e9517130b539bbdb6821f11664",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "4916641baa5ca4358ab98668880d51d375ef79e2261f4685f1016445c083c340",
+        "task_id": "ho-cjson-refuse-react-concurrent",
+        "input_hash": "d484411c0d56d42f5d3b2ee2eb7ee9d35e312c0678a892559cdb3962f791a47b",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "496a1af6a22a23db30227440c0ac2d321e0b3bcf4108f2f4218eb983527608e2",
+        "task_id": "ho-cjson-flow-minify-inplace",
+        "input_hash": "c67dbf0f1f0aa16f3baa3253094cbd9ada82399890357e81fb826be16a71fd65",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "4a16f14261ed6a6a258f7f92f97f1908f2461bcf5ce5500493aae82a3f0b07e3",
+        "task_id": "ho-cjson-flow-json-pointer-walk",
+        "input_hash": "fcfda97f0bac5f6279501d0e6ad671711efc9fcf62cb1063ae316e3f70beb0e0",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "4bbbfa59a80d5b1305be9fdbd95194284558162494c198dd6c278fc73145e05c",
+        "task_id": "ho-cjson-refuse-ebpf-verifier",
+        "input_hash": "b92a16039449fd8e5eb4abf577163bc12e436fb4f475fbc9714f7f26fbe9562d",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "4c2f9134147e6a4e2b174991f463031f1560aaa2daa5cd9d080f50cb3e3ff031",
+        "task_id": "ho-cjson-cond-array-insert-boundaries",
+        "input_hash": "fab979741bb41c46d1b348348e578e1cbe6b822be32b42fe5194e013cd3d0883",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "4d0fb17d23a47c7600fd23be54dfadd08e60cbb124c64c8c5ace92030997cec2",
+        "task_id": "ho-cjson-refuse-rust-borrow",
+        "input_hash": "c1efaf17bb71db2bcffa61938adee95cff29124df191948f1130198b1730236a",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "4ddcb830e62ab045fd9d57688f2b15eff9263de8b0322365f5611150f9869319",
+        "task_id": "ho-cjson-flow-merge-patch",
+        "input_hash": "fa09baa1d26c97680df268548da1fcbfc188393f6d969e16e12dd5201e13df53",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E2",
+            "source_ref": "cJSON_Utils.c#L1386-L1389",
+            "path": "cJSON_Utils.c",
+            "line_start": 1386,
+            "line_end": 1389,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E29",
+                "lines": "1321-1384",
+                "text_hash": "576ba6cc117bc0c501b0f0f1f1953e25c79ee75031d511d30ca0fb918960f396"
+              }
+            ]
+          },
+          {
+            "tag": "E28",
+            "source_ref": "cJSON_Utils.c",
+            "path": "cJSON_Utils.c",
+            "line_start": 1321,
+            "line_end": 1389,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E29",
+                "lines": "1321-1384",
+                "text_hash": "576ba6cc117bc0c501b0f0f1f1953e25c79ee75031d511d30ca0fb918960f396"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "5400d1caa24e3aeb2b569686f68b9476694694d27fa624a40a2b445366a3d784",
+        "task_id": "ho-cjson-cond-set-valuestring",
+        "input_hash": "4ef908d7de34ae0e946cd8ff6a1665cbd3ef55ee974944a4eea4d133c31ea063",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "5420279798457905e9852925c564b9d36cf43960d49ce9970d873b4113bdf8f1",
+        "task_id": "ho-cjson-flow-merge-patch",
+        "input_hash": "718df3aaba08e4cabfc9f50546e853ef9d98ad81406852f964b10ca26a871070",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E2",
+            "source_ref": "cJSON_Utils.c#L1386-L1389",
+            "path": "cJSON_Utils.c",
+            "line_start": 1386,
+            "line_end": 1389,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E28",
+                "lines": "1321-1384",
+                "text_hash": "576ba6cc117bc0c501b0f0f1f1953e25c79ee75031d511d30ca0fb918960f396"
+              }
+            ]
+          },
+          {
+            "tag": "E27",
+            "source_ref": "cJSON_Utils.c",
+            "path": "cJSON_Utils.c",
+            "line_start": 1321,
+            "line_end": 1389,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E28",
+                "lines": "1321-1384",
+                "text_hash": "576ba6cc117bc0c501b0f0f1f1953e25c79ee75031d511d30ca0fb918960f396"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "565309dc693b1df7de74b17f299b1ed7d1199bbe3b037fba5c9e9077fbcb7c9e",
+        "task_id": "ho-cjson-cond-array-insert-boundaries",
+        "input_hash": "dfe7a4edc2a3e6a839357578a2c91a3a6407715022d78f0ab841708d655cf653",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E30",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 1922,
+            "line_end": 1939,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E31",
+                "lines": "1922-1938,2027-2058,2334-2366",
+                "text_hash": "7fe4b9ccb526deba7c2180034ac77b50a2ba157ec5cbcac7dd6dd791e3a0e54d"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "582419009b8006dbdeb0b1375c596df8c386d0d6b31bd6e2e585133e71562fec",
+        "task_id": "ho-cjson-refuse-sqlite-wal",
+        "input_hash": "aac311c8f5d1a3e03cc46a9219c84bd8aa6de963dcbe30ba8a2efc20a7b4398d",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E1",
+            "source_ref": "tests/readme_examples.c#L169-L215",
+            "path": "tests/readme_examples.c",
+            "line_start": 169,
+            "line_end": 215,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E3",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 253,
+            "line_end": 276,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "58b4bc6d7a85ebb97e929ce78e52ce4a2df7399809f847f0f9fbf7c433987124",
+        "task_id": "ho-cjson-flow-detach-list-rewire",
+        "input_hash": "6451c678c4299c64cc172d58523e5d0fdfecea6484c768b67efae094d7ae803c",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "593835d6adbda90a17821573aff93893c5f876f11b18fab1eec61c580713b23a",
+        "task_id": "ho-cjson-error-convenience-add",
+        "input_hash": "c33936d49e483b83a7f9210c68121ab61a0acebc4c8db928f494e721e780459c",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "5b9f95f9c2a46050caf6e02e5dc1966b9cab3012dfe8afdc5ff01701018a8720",
+        "task_id": "ho-cjson-error-duplicate-cleanup",
+        "input_hash": "323263f0a876418da7879a018196cbd6f892f62e486e39fb995ae99aa5baec04",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E7",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 253,
+            "line_end": 276,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E30",
+                "lines": "2784-2873",
+                "text_hash": "60b988dadfe6529c6987120f6f88d435ea2fd64e62886e7cd40b9d79284756c6"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "5d612a8e66469bec6a1417d1a0a3662cfacd297bf264360e5dd05ae1f4432009",
+        "task_id": "ho-cjson-state-sort-mutation",
+        "input_hash": "efd5e30aab640beb888845dc35ee19d77a8f46e88f947147b567e9ce827575af",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E25",
+            "source_ref": "cJSON_Utils.c",
+            "path": "cJSON_Utils.c",
+            "line_start": 83,
+            "line_end": 109,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E35",
+                "lines": "484-602,1311-1319",
+                "text_hash": "b4f0c3cac3445ba2d77c72ae55f592ab54843a28e4801cb9ef4aefcc25b44937"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "6078a6ab71f7931a692d29eefe8e0ff920968a39a0db58053ca205b8bf713b1a",
+        "task_id": "ho-cjson-refuse-rust-borrow",
+        "input_hash": "36ef07c70afb019120fefbb0a1501c286eec4c83fc0f9c0cbcf5d3fa754af925",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "618aac07ecb2ae06c0d8180a160c957eb0a151ac17138e7531ec5b3e2e507fde",
+        "task_id": "ho-cjson-cond-pointer-array-index",
+        "input_hash": "224b27f83e32436c28079f01d7dabc81fdd490ff76c0d1c3332e9239caed3126",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E2",
+            "source_ref": "cJSON_Utils.c#L301-L346",
+            "path": "cJSON_Utils.c",
+            "line_start": 301,
+            "line_end": 346,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E37",
+                "lines": "274-323",
+                "text_hash": "ea6ab5f9cc8374ffc6c0c7fa49ccf395661611784b47c72fc5dc43658d414acb"
+              }
+            ]
+          },
+          {
+            "tag": "E3",
+            "source_ref": "cJSON_Utils.c#L348-L351",
+            "path": "cJSON_Utils.c",
+            "line_start": 348,
+            "line_end": 351,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E37",
+                "lines": "274-323",
+                "text_hash": "ea6ab5f9cc8374ffc6c0c7fa49ccf395661611784b47c72fc5dc43658d414acb"
+              }
+            ]
+          },
+          {
+            "tag": "E20",
+            "source_ref": "cJSON_Utils.c#L262-L272",
+            "path": "cJSON_Utils.c",
+            "line_start": 262,
+            "line_end": 272,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E37",
+                "lines": "274-323",
+                "text_hash": "ea6ab5f9cc8374ffc6c0c7fa49ccf395661611784b47c72fc5dc43658d414acb"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "630e443744fae1cb1d801aa1146696fd285de005df9295c915f3c3e4cf06dc9e",
+        "task_id": "ho-cjson-error-duplicate-cleanup",
+        "input_hash": "1e9404b8ded0039a08ee0e9a2722c36127e85e2f659affc19b175a3779b5dae5",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E7",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 253,
+            "line_end": 276,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E30",
+                "lines": "2784-2873",
+                "text_hash": "60b988dadfe6529c6987120f6f88d435ea2fd64e62886e7cd40b9d79284756c6"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "668ab27fe5706283fc5d2e328ba7e5d04577c8f2196ab6568da6daf7bd42a756",
+        "task_id": "ho-cjson-state-list-tail-invariant",
+        "input_hash": "c4ac8ade0f22368be4bb360f6f367e3b56c3ab2776e1cc32a6b7d8c4ee1b8177",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "67f02e2fe18eae4c166d185f4d3fffd308e0338e1bc763510573acba6a8e4994",
+        "task_id": "ho-cjson-error-generate-merge-null",
+        "input_hash": "b1cad0baa14e2e7cdc3751ecf594e365c1390b3b5eea3d7c388f7e4a08afce3a",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E8",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 253,
+            "line_end": 276,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E9",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 2609,
+            "line_end": 2618,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E13",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 2784,
+            "line_end": 2787,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E14",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 2461,
+            "line_end": 2470,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "683da8ce8395b83125e7d6d1b45847a39a5461baa838ce2a5dbd34e021da55df",
+        "task_id": "ho-cjson-cond-array-size-structural",
+        "input_hash": "bd15b6c62f4d33e03b0e8fdc41e1d4a10169148e0e2a4de3bc74461a34921e15",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E8",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 2609,
+            "line_end": 2618,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E35",
+                "lines": "1899-1920",
+                "text_hash": "6d70812d2fad07d10cc95bc0120e7371426ea4ce0dd4c193914cd5dbf1edd0a6"
+              }
+            ]
+          },
+          {
+            "tag": "E9",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 2119,
+            "line_end": 2122,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E35",
+                "lines": "1899-1920",
+                "text_hash": "6d70812d2fad07d10cc95bc0120e7371426ea4ce0dd4c193914cd5dbf1edd0a6"
+              }
+            ]
+          },
+          {
+            "tag": "E10",
+            "source_ref": "tests/cjson_add.c",
+            "path": "tests/cjson_add.c",
+            "line_start": 355,
+            "line_end": 365,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E12",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 2598,
+            "line_end": 2607,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E35",
+                "lines": "1899-1920",
+                "text_hash": "6d70812d2fad07d10cc95bc0120e7371426ea4ce0dd4c193914cd5dbf1edd0a6"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "6e047fa45a76f0799853c5fe30ffc6cddb4320484d37c8a1c25eef0431ea9718",
+        "task_id": "ho-cjson-state-string-reference",
+        "input_hash": "071b016c819c4ea6c4874e7a8528a352f75465604777769c32b8e97ae21c4072",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "6e4a292ce25207711c5c8f8b829b0a66b67881f052764b6446ad7919c6e1f630",
+        "task_id": "ho-cjson-refuse-ebpf-verifier",
+        "input_hash": "1262510cff999b56631c86218d0d8908301f80adf3b4d1370ce2bdb04efaa0ff",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "6f103f8be11c74279c36b06cc9883d69d69a2aa737fe340e7a83ffadc8ba850f",
+        "task_id": "ho-cjson-state-hooks-realloc",
+        "input_hash": "c3c4e686dd83531eba9000907253b9ec0d6fbd99029da4d3e514b748085ab5a0",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "70b9658d87fbd1f36dd0c27c475fea1837b8dddf08ccdcd935f4d342f7a8ccc3",
+        "task_id": "ho-cjson-state-list-tail-invariant",
+        "input_hash": "270232e34f75a97188f8eb2a8993df5bca29d46e60607710f39bb7da0c0cb965",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "7190f06d2417fa963b0a81f4ea1d1a0cd5afc847c515b5c4d1437783ec863d27",
+        "task_id": "ho-cjson-flow-replace-object-item",
+        "input_hash": "3effc7f869c8fd0970b03d83f394655fdac16570b39452805a27463848d83220",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "72eaf106d1e9c3be92e88be0a8450d2c1f10e95a309dff5e75cf77c8068d6d4e",
+        "task_id": "ho-cjson-error-string-array-cleanup",
+        "input_hash": "7bc5e6d5f5326652c6baa4bac0e9290bdb3f19b7639652ef6c1cb167aab222dd",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "74ab664cfe1feaebc2bcff3eaa96ae5b968e8014eec8900d401a72aa5f56784e",
+        "task_id": "ho-cjson-cond-array-size-structural",
+        "input_hash": "7a3484c692beeb3249a2d0948ab60e29453fe1baa6f29b3b58fa6082c9575446",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "77111958ac8e1196e9a8dc09d13f1eaa4fc54edd87041a5e6a9bb1a0780c799d",
+        "task_id": "ho-cjson-state-hooks-realloc",
+        "input_hash": "1d3cac647e3e4e4d41d178365d155c8c37d36c7b214489d288abe9d5530880be",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "776e5fbdf29c762431619f8b6c7ad08ca7ada7ce8280ae223885c8f06b928adb",
+        "task_id": "ho-cjson-state-sort-mutation",
+        "input_hash": "36d6a9d60a3c88bfeddb5fd71221f9d4477c54982602a146af203b28075c9866",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E33",
+            "source_ref": "cJSON_Utils.c",
+            "path": "cJSON_Utils.c",
+            "line_start": 590,
+            "line_end": 610,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E35",
+                "lines": "484-602,1311-1319",
+                "text_hash": "b4f0c3cac3445ba2d77c72ae55f592ab54843a28e4801cb9ef4aefcc25b44937"
+              }
+            ]
+          },
+          {
+            "tag": "E34",
+            "source_ref": "cJSON_Utils.c",
+            "path": "cJSON_Utils.c",
+            "line_start": 1300,
+            "line_end": 1320,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E35",
+                "lines": "484-602,1311-1319",
+                "text_hash": "b4f0c3cac3445ba2d77c72ae55f592ab54843a28e4801cb9ef4aefcc25b44937"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "786c6124bd5fab7375d69173618ff064ae7271210f4dbfd755c13234943643a8",
+        "task_id": "ho-cjson-error-duplicate-cleanup",
+        "input_hash": "f104aef636228f42d544555ddf0c2631e8888225038499063e827a4f071c6bb6",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "78c3badaafadad599e947d7e5fd1e89251c315e421ab12713adf4c02815b171a",
+        "task_id": "ho-cjson-cond-set-valuestring",
+        "input_hash": "30617429fe2b14c985c93504e13cef3a1354642510eb7ad8f0755564822fb92f",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E3",
+            "source_ref": "tests/misc_tests.c#L492-L508",
+            "path": "tests/misc_tests.c",
+            "line_start": 492,
+            "line_end": 508,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "7956da5c995802fea26a99f7039effdced8b63e8ffa772d018341214be916758",
+        "task_id": "ho-cjson-flow-json-pointer-walk",
+        "input_hash": "400f80942e6851c23eced14838a6bce47f6aab8fd3087cc88490c59b4fd889c5",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "79e7d12611f86d9a2fcee7d23f2d9fbdcd4a01def3daac53d3eecaa6495a1678",
+        "task_id": "ho-cjson-state-list-tail-invariant",
+        "input_hash": "c118e073fa723d66beeca51e29fcc5d032d3b2ebd97b11619aee78e3269d8687",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "7e52deca4d028e72579b4e6570b123b1c0d8619783f1755ca1fa704d7f922a81",
+        "task_id": "ho-cjson-error-string-array-cleanup",
+        "input_hash": "ed5f9a963c292c494f79521d1171af1a967c8e8c64e7dfa2523f7180d06ddc6b",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E2",
+            "source_ref": "tests/cjson_add.c#L153-L162",
+            "path": "tests/cjson_add.c",
+            "line_start": 153,
+            "line_end": 162,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "80ccc03fd56ebed2bc6dd30726089d065977f7808cd5ae3313ba3271bdd6ed14",
+        "task_id": "ho-cjson-flow-replace-object-item",
+        "input_hash": "d48bf0a319dec5ff0b66420c1a12fa63f8a7cc61eaa4405f19ffd363b87762c4",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E3",
+            "source_ref": "tests/misc_tests.c#L362-L382",
+            "path": "tests/misc_tests.c",
+            "line_start": 362,
+            "line_end": 382,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E4",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 253,
+            "line_end": 276,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E31",
+                "lines": "2368-2453",
+                "text_hash": "edbdf98f52e9fd6908b4bd6e21ec346cb27e32bfb96f02d374a9ed808712faf7"
+              }
+            ]
+          },
+          {
+            "tag": "E7",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 3202,
+            "line_end": 3206,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E31",
+                "lines": "2368-2453",
+                "text_hash": "edbdf98f52e9fd6908b4bd6e21ec346cb27e32bfb96f02d374a9ed808712faf7"
+              }
+            ]
+          },
+          {
+            "tag": "E8",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 188,
+            "line_end": 207,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E31",
+                "lines": "2368-2453",
+                "text_hash": "edbdf98f52e9fd6908b4bd6e21ec346cb27e32bfb96f02d374a9ed808712faf7"
+              }
+            ]
+          },
+          {
+            "tag": "E9",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 1951,
+            "line_end": 1981,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E31",
+                "lines": "2368-2453",
+                "text_hash": "edbdf98f52e9fd6908b4bd6e21ec346cb27e32bfb96f02d374a9ed808712faf7"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "8123fbf1b46624ae909f66413dee46425d85047aadd7699c16c4c1f8d5565b5e",
+        "task_id": "ho-cjson-state-number-saturation",
+        "input_hash": "049b9aa82a4adf8eabcff73c4120ffa5307ef3bf99df8f9219887990740038ac",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "84030780c69a9ac32391f194506147f872bcdefa97d6a1f0a1cdd3f337de7ae1",
+        "task_id": "ho-cjson-state-string-reference",
+        "input_hash": "0f8f97009de6ef669b968a04974d94c2276ab88ccce6f082e92396db5c80b7d8",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "8413375933175f5bf6c65e0afd7392bb6a32702c051e3fa67eff2781768610d9",
+        "task_id": "ho-cjson-cond-set-valuestring",
+        "input_hash": "f758b3ebd2b4e7ec80564cfcbad79e00e3f9e973b6cc56a30d30c38bbfc0d3cb",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "8621e022a4a42f1564e20a0b0766291f8ffefb4a85b3d39c47c823e7fd13cc7b",
+        "task_id": "ho-cjson-flow-replace-object-item",
+        "input_hash": "bdac46ae7b0994a942ad5d82a633e7eec507f68d167352af9d8b5853739464c3",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "87d226cba70efa58bbc3877123182dc543b94e226cd39a68ac33ea444d1aeb89",
+        "task_id": "ho-cjson-error-find-pointer-ownership",
+        "input_hash": "e798d3b41f008d8a78a169530b7ebd9e7f8821e25064a70e73cfd9c007c86029",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "87e3ad3e575e623e31a46bf38997d802fb0ff0fe1f16b23631514e70da47df74",
+        "task_id": "ho-cjson-refuse-react-concurrent",
+        "input_hash": "52c496eb2a050e270a21e86d7cd445336dab53e6ac883130ccc22d8e166d2cda",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "89675902d50124ec5fc240f42f5612cedb7f668a928e3a17ed8dfc32a564fda7",
+        "task_id": "ho-cjson-error-string-array-cleanup",
+        "input_hash": "335839439b7d15718ed4ba0772272aaa16f458cfb3f44041c8b1d1bf90f0c6c3",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E3",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 253,
+            "line_end": 276,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E35",
+                "lines": "2741-2779",
+                "text_hash": "ae17af8e01b26f7d2e4164b0131abd9b25ab2fd186323f4e0db4a331376c4b3c"
+              }
+            ]
+          },
+          {
+            "tag": "E14",
+            "source_ref": "cJSON.c#L1999-L2003",
+            "path": "cJSON.c",
+            "line_start": 1999,
+            "line_end": 2003,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E35",
+                "lines": "2741-2779",
+                "text_hash": "ae17af8e01b26f7d2e4164b0131abd9b25ab2fd186323f4e0db4a331376c4b3c"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "8a83f82bb7e215593fd881c404f2f2fc350a5f47e6e08c7f53cffa631a2240c8",
+        "task_id": "ho-cjson-error-generate-merge-null",
+        "input_hash": "cbde6e3bd8965d1e295f272801e0cb8f4d42b082852c75ffe4f25b40a1133847",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E32",
+            "source_ref": "cJSON_Utils.c",
+            "path": "cJSON_Utils.c",
+            "line_start": 1391,
+            "line_end": 1481,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E33",
+                "lines": "1391-1476",
+                "text_hash": "79898353fe025a7d2c054b196e0368eaf7b766bd102deea5668642aea22308a2"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "8c44d6986f0854ab5e9c92cca0edcab3566912dafd89d251c050dd38bbf7ebeb",
+        "task_id": "ho-cjson-refuse-sqlite-wal",
+        "input_hash": "804f8d5d39d289b50f1953be8827f486eb23b506f8f2dc09e2bf5e04fd39b5fe",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E1",
+            "source_ref": "tests/readme_examples.c#L169-L215",
+            "path": "tests/readme_examples.c",
+            "line_start": 169,
+            "line_end": 215,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E2",
+            "source_ref": "tests/readme_examples.c#L235-L247",
+            "path": "tests/readme_examples.c",
+            "line_start": 235,
+            "line_end": 247,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "8d1a46376c6618eb72e9d852ecabe2ad14fbcc9bf478f0abff8b05efdaa28238",
+        "task_id": "ho-cjson-flow-minify-inplace",
+        "input_hash": "7e85db23ed8aa8e518fbf176aabab523a0c7d7020d7e71cbd95dd695fd27e02f",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "8eee6a194bfa690682a79f2e8ddc31421a4f6266cfe754138a26ecd8acdaa76d",
+        "task_id": "ho-cjson-error-duplicate-cleanup",
+        "input_hash": "5e648d3610c43b15e91f96ff6aeb66bcdb92838238bd81964ff6da41b160fa80",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E7",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 253,
+            "line_end": 276,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E31",
+                "lines": "2784-2873",
+                "text_hash": "60b988dadfe6529c6987120f6f88d435ea2fd64e62886e7cd40b9d79284756c6"
+              }
+            ]
+          },
+          {
+            "tag": "E30",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 2784,
+            "line_end": 2875,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E31",
+                "lines": "2784-2873",
+                "text_hash": "60b988dadfe6529c6987120f6f88d435ea2fd64e62886e7cd40b9d79284756c6"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "8f29016706ba15d63238b2e21a8dc3e9cf891f6ee14d057e3c4e215ad2162d96",
+        "task_id": "ho-cjson-cond-array-size-structural",
+        "input_hash": "494b1b92f087ab8f27e0d20152ad579f60373f2029722170a57d7e5bea51e841",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E8",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 2609,
+            "line_end": 2618,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E34",
+                "lines": "1899-1920",
+                "text_hash": "6d70812d2fad07d10cc95bc0120e7371426ea4ce0dd4c193914cd5dbf1edd0a6"
+              }
+            ]
+          },
+          {
+            "tag": "E9",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 2119,
+            "line_end": 2122,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E34",
+                "lines": "1899-1920",
+                "text_hash": "6d70812d2fad07d10cc95bc0120e7371426ea4ce0dd4c193914cd5dbf1edd0a6"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "8f699c9151441e2e3c60948cfa722d50b6c93b41a8848d9db0077492e75f5c56",
+        "task_id": "ho-cjson-cond-reference-alias",
+        "input_hash": "e8104e5e3d635d0f9e66c299e4c7bf147d44f0009632ea324bce77f2b3c604e7",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "8f7cf5992bc4c5e8d336ac94a4d361f63cd07310f7b1b0c115b56eb1a5c7d659",
+        "task_id": "ho-cjson-state-string-reference",
+        "input_hash": "64ff6e85b7d59fe878d719b0d761a0c35a28c5ca9bc5ec0fccaa01aeed1b945a",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "90844de63113474b2ee80e3ecd200c56d9d9c18e39b23779a7172f68606368db",
+        "task_id": "ho-cjson-flow-json-pointer-walk",
+        "input_hash": "d58594013593f0f3987a2f10fc0286c2b5c5737653144e8278a44d346c602201",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E35",
+            "source_ref": "cJSON_Utils.c",
+            "path": "cJSON_Utils.c",
+            "line_start": 274,
+            "line_end": 356,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E36",
+                "lines": "120-154,274-351",
+                "text_hash": "5db0b5660f33334dd0108f5f77cd0f5dad87a9f0e30bbbe3886941bc6017126d"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "9156d92ce3119296b83bce652b69251a565018e8ae6507f881d4a5649a4e2af8",
+        "task_id": "ho-cjson-refuse-ebpf-verifier",
+        "input_hash": "105255f4024d4eef2255526ba88d58dfd6891df8b1de0641cb4c730c72b706f6",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "9315dfefc59ac65cd4cb8c833e71ae6fa41dbe3440846d7a2887a886c225d4ce",
+        "task_id": "ho-cjson-cond-pointer-array-index",
+        "input_hash": "f49dba8c94934c7c672e88d8f2eeef3540eae3849def138ce1f41dd293124ac7",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "93dca8c65ea4ea3d1a4376ed9c501db7c5cb44483e1695849bf284b316c9cb54",
+        "task_id": "ho-cjson-refuse-sqlite-wal",
+        "input_hash": "d03b0a75285d3ef662b922c1be61d2621aa1efe8e22ef6be2b3ad29e71c7a72a",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E1",
+            "source_ref": "tests/readme_examples.c#L169-L215",
+            "path": "tests/readme_examples.c",
+            "line_start": 169,
+            "line_end": 215,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E2",
+            "source_ref": "tests/readme_examples.c#L235-L247",
+            "path": "tests/readme_examples.c",
+            "line_start": 235,
+            "line_end": 247,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E3",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 253,
+            "line_end": 276,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "9573801da642166bb2e3b998b7451914ff21ada74a85999be3f064103248cfd2",
+        "task_id": "ho-cjson-flow-replace-object-item",
+        "input_hash": "c9091b68b2778450296482bef3df8713e97070393a69be43e9054c09161363fe",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E9",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 1951,
+            "line_end": 1981,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E32",
+                "lines": "2368-2453",
+                "text_hash": "edbdf98f52e9fd6908b4bd6e21ec346cb27e32bfb96f02d374a9ed808712faf7"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "961b4163a107f5f414e95c1c3ed82d1b6b8b2e1221ecd3098919862034de9ed7",
+        "task_id": "ho-cjson-flow-json-pointer-walk",
+        "input_hash": "f4abf2955e3dba388b1ce7dbf02d60fdda199641b45fb28e120bfcec7d37c6ce",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "97067ec7e7532c36615fe4d5f2d6b6d8126f3d2389c0234f701522c3a0e82453",
+        "task_id": "ho-cjson-error-duplicate-cleanup",
+        "input_hash": "a082c768e0de43e598e9d5015182c7277333b10abfa2b210e815a2343677d05d",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "97c2717eae882a733f015926a3a9b20eaad44e364c04e7654c47b806c927dbdc",
+        "task_id": "ho-cjson-error-convenience-add",
+        "input_hash": "3e69f73ee44c75073e945a582d291da356bfc146e5f0573cbecb650b8b8d9c35",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "998d6f9a8af66d4884612928a0ac28f9f2b1aa8d2c7ed83eb048fc4f79c04e96",
+        "task_id": "ho-cjson-state-hooks-realloc",
+        "input_hash": "82e57786b8f3d89f730eb555bc322057967de3f809e72ea19a97ba770a1a8623",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "99d550d19bfed0cb60d1f51d57ac86b2cafd9e34039775da3fd5f2c1a3e89c47",
+        "task_id": "ho-cjson-flow-minify-inplace",
+        "input_hash": "c6d4c45df4b7e25f25d34522554d10a4ef11030ecfc915ef3280f1b72e8a6334",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "99f70e6022547f2edf422306f6537a250834c07b6cbb356e6bb76810d443072c",
+        "task_id": "ho-cjson-cond-reference-alias",
+        "input_hash": "4c641eb2a144578f8eb2773d2f3dd2d72e96f63bd6560378b26c1d6776cf4a25",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "9b5948eb71c443b2c5e7bac14069c03b45a955ca532f021add735595ff662a14",
+        "task_id": "ho-cjson-cond-set-valuestring",
+        "input_hash": "06a9be3462dabe2a580611f58874825fb3a5820cd40acba39fd4643cd1846df8",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "a15902892242f1b935dba17d374d03e5d61b1acaf30a5abf85c362716a072d74",
+        "task_id": "ho-cjson-error-convenience-add",
+        "input_hash": "ba49a5b42e57e12cfe9c5fceb50383d5b7cb815c8dd740001a13cbd4ea9cda91",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E2",
+            "source_ref": "tests/misc_tests.c#L640-L657",
+            "path": "tests/misc_tests.c",
+            "line_start": 640,
+            "line_end": 657,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E4",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 253,
+            "line_end": 276,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E33",
+                "lines": "2210-2220",
+                "text_hash": "e383ae63680f8aba2503c34e3f46ebc0f95eaa8851c86cdbad3e1db5e59609c4"
+              }
+            ]
+          },
+          {
+            "tag": "E12",
+            "source_ref": "cJSON.c#L2082-L2117",
+            "path": "cJSON.c",
+            "line_start": 2082,
+            "line_end": 2117,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E33",
+                "lines": "2210-2220",
+                "text_hash": "e383ae63680f8aba2503c34e3f46ebc0f95eaa8851c86cdbad3e1db5e59609c4"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "a4775da732219aa92a3fda7779701905eb1414821fbee69b3250739809dfe5fc",
+        "task_id": "ho-cjson-cond-set-valuestring",
+        "input_hash": "6eb58bacf75f3a72f54d519d59b9e9deea291135e46a478f4d3eec1c3101dce4",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E3",
+            "source_ref": "tests/misc_tests.c#L492-L508",
+            "path": "tests/misc_tests.c",
+            "line_start": 492,
+            "line_end": 508,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "a5cf525708ae88520128eb5ed9fcbe1e6570f5b71d6854fa084f9eb54b47b31a",
+        "task_id": "ho-cjson-cond-pointer-array-index",
+        "input_hash": "bc89454c104e586ca62121fd7ebdee84698272b893cf34978e642c8630631562",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E2",
+            "source_ref": "cJSON_Utils.c#L301-L346",
+            "path": "cJSON_Utils.c",
+            "line_start": 301,
+            "line_end": 346,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E37",
+                "lines": "274-323",
+                "text_hash": "ea6ab5f9cc8374ffc6c0c7fa49ccf395661611784b47c72fc5dc43658d414acb"
+              }
+            ]
+          },
+          {
+            "tag": "E3",
+            "source_ref": "cJSON_Utils.c#L348-L351",
+            "path": "cJSON_Utils.c",
+            "line_start": 348,
+            "line_end": 351,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E37",
+                "lines": "274-323",
+                "text_hash": "ea6ab5f9cc8374ffc6c0c7fa49ccf395661611784b47c72fc5dc43658d414acb"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "a5ebbd2deb2c29d18100e8e102adab3506d9128f735bf2cdb4f874ce6bc0f8a7",
+        "task_id": "ho-cjson-state-number-saturation",
+        "input_hash": "ef2ccd27e93f8264d988ed0aabb9eb219181fb518e1c5cb4110d88bd3dd85604",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "a5f33e187855c92a28eb557e303986714a877e1f06f2fa4a17d815de850aea45",
+        "task_id": "ho-cjson-error-generate-merge-null",
+        "input_hash": "7543ca9002d16e4b19b0edef90528dd4472dd6dd971b699222f3071961e0d122",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "a60c5a2c861e57d054b398281bb60a5c3c2a24fb526af73ea0ad90b539457a82",
+        "task_id": "ho-cjson-refuse-ebpf-verifier",
+        "input_hash": "9ffd1a09b7acb6df35c21ce0267afda29e550dd1b096216f3200c86c1eb3c022",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "a61c4d1ef74ed51c2862283248bdf284f161287e3c1edb9f00b7caafc6a2f2d9",
+        "task_id": "ho-cjson-flow-minify-inplace",
+        "input_hash": "d2768c9c822d3096e7e5e04315a9accc234732a28ae1457c05d19d531359a770",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "a6732cf53c88746cc7659774c60e2cdbb368e494bd565430d1aaaa7a35bbced4",
+        "task_id": "ho-cjson-flow-minify-inplace",
+        "input_hash": "c4780efbf99b95ddcb801d065afe6fe2b93d302d973e5ace20bfbc179f6ec071",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "a7d4e01b9a38659bfa68e9de7c907f0e96217ec33122eb97b1c6481fb9713821",
+        "task_id": "ho-cjson-flow-replace-object-item",
+        "input_hash": "bc3e396624e7c919c13289c672337e3dc58bfb7d7cf4f23e6f5eaf6ffe85c282",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "a862d27a54f24f7e2afb048c4458cce2672d7a178469bc1c72d34c50ab6258bd",
+        "task_id": "ho-cjson-state-string-reference",
+        "input_hash": "4d0efcbf8c15e97fbf6b7aa74246acdcbbb2b821b3ca7de0fa4ac944f9db8bd7",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "a8a3fa251a35e959f9cd543f20f7da8e20dea955c2ff510dc3de6a113966a371",
+        "task_id": "ho-cjson-state-list-tail-invariant",
+        "input_hash": "21dd86ee08870a3a7bd9706e35e08b75c473d3d347455a70f3405e9444fe5de5",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "a9b7c69858b8deb0d0b6a1f5bb10a59ad2c13e3f8c534e4608fe5e754e8cfb0d",
+        "task_id": "ho-cjson-refuse-rust-borrow",
+        "input_hash": "d31a5f1e1238ac03dc261f88569695d5e4a92b41fb14a9e92a19cbd6aa76d697",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "aaaf4f12ddd3571df1c6738926d3fd2ca5e62f1f185d0e5318e137fef10685d1",
+        "task_id": "ho-cjson-cond-array-insert-boundaries",
+        "input_hash": "68be171f990d77fb48a5cb9327d35f1237a391c7f799977de2d2a675cf28da1e",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "ac61b42e2bf504d96ff21fec6fb8a7fb2f03e3531c5ae212e656dfa773766416",
+        "task_id": "ho-cjson-error-find-pointer-ownership",
+        "input_hash": "a71f8b66ac9ac36825e6db8fb9a6423bafa7ec5ecaac5db95dbb807545e27184",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E3",
+            "source_ref": "cJSON_Utils.c",
+            "path": "cJSON_Utils.c",
+            "line_start": 173,
+            "line_end": 196,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E32",
+                "lines": "198-259",
+                "text_hash": "809d0c180fce2f45dc02d07864c7a44609fd97848559e275eb8daa56894f6c3b"
+              }
+            ]
+          },
+          {
+            "tag": "E4",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 3197,
+            "line_end": 3200,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "ac736c532e5e56e178a5ba2f1973a9d452e09914e3bad107bc57278cb5ca0b7f",
+        "task_id": "ho-cjson-state-string-reference",
+        "input_hash": "a195f94462205eef02fb91072e0e33df68c032984f2a873887181fa61342552a",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "ac8cd0aa02676d4e8ab76af85f7fa6ef31c1c0162ef495e50658c5afada526bc",
+        "task_id": "ho-cjson-cond-array-size-structural",
+        "input_hash": "c6c92851d39bfb95b4fb883c3fb3a740bfb630803143d103f51cccf0b6729504",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "ade5d4a7bc3434a1ef488b174adc3aff21a31c4bcd53f467d7f6f1b69b43c857",
+        "task_id": "ho-cjson-state-list-tail-invariant",
+        "input_hash": "4caeece4358eca46285af4db8440ed0a001132f031c3a91405581b1cb59877e8",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "af6475b5918ae8553b35f411a8ca6cbf87aed5b7aac30d60bf927390a6608c91",
+        "task_id": "ho-cjson-refuse-ebpf-verifier",
+        "input_hash": "e46759e04f2c0a378a4483d41c994cc32c7112104d81eb7ce8d70b888fcb9cde",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "b0e02e6dc6aef2f4db026af84d82b7b35659876b4448bd3c96c90ad50fe115bb",
+        "task_id": "ho-cjson-refuse-rust-borrow",
+        "input_hash": "bfbfbf965f184b88e3adabef6babdb8e2cbc7413814daef49f92e11654fdbad4",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "b2d6250b970ab95932ac708d1f1a5925501415c32e4f0ee1177b2d8b6350e5ca",
+        "task_id": "ho-cjson-state-list-tail-invariant",
+        "input_hash": "1e53357abbe92c8ab56e3c4b464232d3795ebbda4d163313ceb2fd1616eb528e",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "b3d248ec8bab8b1f136d1f73a127a68e87254a90d46439007e865ed0835c7589",
+        "task_id": "ho-cjson-error-find-pointer-ownership",
+        "input_hash": "3c1353300e05afce3718a0bb1f7a5121d033d915d886024f001bab42a1883d2e",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "b4dbee54e76ebc0868298a2668a2cef871c00c3b13d9c0a8c6f02c649ad43d06",
+        "task_id": "ho-cjson-cond-pointer-array-index",
+        "input_hash": "1320975701c405c005b81b20e3fdf835fa147306cbffa4cb36a4ab01348dc897",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E3",
+            "source_ref": "cJSON_Utils.c#L348-L351",
+            "path": "cJSON_Utils.c",
+            "line_start": 348,
+            "line_end": 351,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E37",
+                "lines": "274-323",
+                "text_hash": "ea6ab5f9cc8374ffc6c0c7fa49ccf395661611784b47c72fc5dc43658d414acb"
+              }
+            ]
+          },
+          {
+            "tag": "E36",
+            "source_ref": "cJSON_Utils.c",
+            "path": "cJSON_Utils.c",
+            "line_start": 301,
+            "line_end": 356,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E37",
+                "lines": "274-323",
+                "text_hash": "ea6ab5f9cc8374ffc6c0c7fa49ccf395661611784b47c72fc5dc43658d414acb"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "b5ce3ea369cb0523e90830b4ff945d68648770008e38fdb900bf2036d677876b",
+        "task_id": "ho-cjson-error-string-array-cleanup",
+        "input_hash": "f526d6bcbba0da87c9535a9c0600287263c814f925aca8c2f2f4089aebfcef6a",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "b5fb36ce9712a8cdebdb18f0581f237e428854fb004682b060cba86a7aab2c9b",
+        "task_id": "ho-cjson-flow-json-pointer-walk",
+        "input_hash": "557930e124ea84be51bb1e303f3ceca36c987f73c7fe1f284d32b6253690c96c",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "b62177cbd5802ebde81520a54071bd07dd8c2c5947fac1e87c4480e47699a407",
+        "task_id": "ho-cjson-error-convenience-add",
+        "input_hash": "88cd55d7c7c7a812c5e0d9bea96d9ced44279cdfba48b0607fdfbefc3e603777",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E31",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 2082,
+            "line_end": 2128,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E33",
+                "lines": "2210-2220",
+                "text_hash": "e383ae63680f8aba2503c34e3f46ebc0f95eaa8851c86cdbad3e1db5e59609c4"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "b69c0c0fd4a29ca0dc556e5361d26fe0c7a3405df30823f1d8da9c899f11b4c4",
+        "task_id": "ho-cjson-error-string-array-cleanup",
+        "input_hash": "5c57d413a626f4b0f90c6c6e27109f03f05f4ec7f4f07c0381e3a163cb8ce7a0",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E3",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 253,
+            "line_end": 276,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E36",
+                "lines": "2741-2779",
+                "text_hash": "ae17af8e01b26f7d2e4164b0131abd9b25ab2fd186323f4e0db4a331376c4b3c"
+              }
+            ]
+          },
+          {
+            "tag": "E14",
+            "source_ref": "cJSON.c#L1999-L2003",
+            "path": "cJSON.c",
+            "line_start": 1999,
+            "line_end": 2003,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E36",
+                "lines": "2741-2779",
+                "text_hash": "ae17af8e01b26f7d2e4164b0131abd9b25ab2fd186323f4e0db4a331376c4b3c"
+              }
+            ]
+          },
+          {
+            "tag": "E35",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 1988,
+            "line_end": 2010,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E36",
+                "lines": "2741-2779",
+                "text_hash": "ae17af8e01b26f7d2e4164b0131abd9b25ab2fd186323f4e0db4a331376c4b3c"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "b7691f583c91cfb43db2f9859666c16eebda327f96dd0bde3da71252b93754de",
+        "task_id": "ho-cjson-error-string-array-cleanup",
+        "input_hash": "43de2059a94eb71a32791fe8e8bed138bbfdc6aa77a8826a90010e2ef6425963",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E35",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 1988,
+            "line_end": 2008,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E37",
+                "lines": "2741-2779",
+                "text_hash": "ae17af8e01b26f7d2e4164b0131abd9b25ab2fd186323f4e0db4a331376c4b3c"
+              }
+            ]
+          },
+          {
+            "tag": "E36",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 253,
+            "line_end": 276,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E37",
+                "lines": "2741-2779",
+                "text_hash": "ae17af8e01b26f7d2e4164b0131abd9b25ab2fd186323f4e0db4a331376c4b3c"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "b891ab1200c02545b352b0b04edf8e29640fd70a15e69d16c5a49c6591656a76",
+        "task_id": "ho-cjson-refuse-ebpf-verifier",
+        "input_hash": "e938f002e178222522e0bbb95e80ad7fad9cd5a43826b53c6a2aa395d2526306",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "ba285b29dc9a32f38b836387242a85c667528a3b828e4921395eeeae5a171218",
+        "task_id": "ho-cjson-cond-reference-alias",
+        "input_hash": "ec301b1afba0a3140dc264a36a50c0da8a70c2f3649f2de5ba411e950697c86d",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "ba47971ce28a8307254b0674411eea60355a03d045d4d5829ccb301e3e3f3667",
+        "task_id": "ho-cjson-state-sort-mutation",
+        "input_hash": "b75a16f3aeade72ce384508f11d113bb584a088c07e27f39a078c14e461bfe09",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "bae30752d7f4d27b31e782bf69206eab2124911b3efdddfeca744b1368c7c578",
+        "task_id": "ho-cjson-state-hooks-realloc",
+        "input_hash": "0769e675466f673b9acfbb8bbbefdc712f639791066e12b12946ab8f98abfdbe",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "bd154d380c0af782d7cb6cf54221f8173a218d89bda0fc306b56d0627f80f6bd",
+        "task_id": "ho-cjson-refuse-ebpf-verifier",
+        "input_hash": "9acc58efb648f6b0031df8dd84fd8588de1e83bfee1a61891568764d5231df78",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "bd79c9e3959653dbd4d17abcb8a595c25810b0e94662e16fadd9bd62f9f420d9",
+        "task_id": "ho-cjson-cond-reference-alias",
+        "input_hash": "a3db8b9281ea997a110cda233a7940a20e2053bce6566ea4c4601d273d3c32af",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "bdeb92e75be03ed4f99f5f0e987fcfade61d3835d374d58f90f7f7b75fd91c70",
+        "task_id": "ho-cjson-cond-array-insert-boundaries",
+        "input_hash": "c97a59f71b7de6f71624ea434179f26316e8fb74f9e4a16c59402629cf79b930",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "be90b1265468fc4de8ad2fce0166fa8a5ef4e4431fd2a3a0755dfcd946120901",
+        "task_id": "ho-cjson-state-number-saturation",
+        "input_hash": "3b7b1bbe8771b10b6957cacee20f254aad87a2efded6c1479e1a8d154d362f19",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "bfda8dd2613aa8e859bf5380db8dcbdf3523971f39de16b94edf3b1d9d7053b2",
+        "task_id": "ho-cjson-refuse-rust-borrow",
+        "input_hash": "c7bb4c213cb53e5d2ec55a3c1e8e2ce065427217d81a392423ca4b7f54dcd6a2",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "c01f5ed9855171c68190be0c1902ab2e047a14af790cfe4618ccd6b7f4dd7784",
+        "task_id": "ho-cjson-error-find-pointer-ownership",
+        "input_hash": "29b3a1d0bf7d43b4658416bdb320e1fe097fc27ad70e7acfdd57a9d714a14044",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E3",
+            "source_ref": "cJSON_Utils.c",
+            "path": "cJSON_Utils.c",
+            "line_start": 173,
+            "line_end": 196,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E32",
+                "lines": "198-259",
+                "text_hash": "809d0c180fce2f45dc02d07864c7a44609fd97848559e275eb8daa56894f6c3b"
+              }
+            ]
+          },
+          {
+            "tag": "E30",
+            "source_ref": "cJSON_Utils.c",
+            "path": "cJSON_Utils.c",
+            "line_start": 173,
+            "line_end": 270,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E32",
+                "lines": "198-259",
+                "text_hash": "809d0c180fce2f45dc02d07864c7a44609fd97848559e275eb8daa56894f6c3b"
+              }
+            ]
+          },
+          {
+            "tag": "E31",
+            "source_ref": "cJSON_Utils.c",
+            "path": "cJSON_Utils.c",
+            "line_start": 240,
+            "line_end": 270,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E32",
+                "lines": "198-259",
+                "text_hash": "809d0c180fce2f45dc02d07864c7a44609fd97848559e275eb8daa56894f6c3b"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "c18035c63585c9969a75a39f330d0abd35951bc5980bba8f28309af2b69ba921",
+        "task_id": "ho-cjson-state-hooks-realloc",
+        "input_hash": "6b0e5f4fbbfc03c9bd2323a7664f1a23547d2948cd81f14d2d94ae8b3dab73fc",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "c47cc22202a9188f3cbd42f9e949fb32b9c4f4841cffb40bb26a4d90f96ec578",
+        "task_id": "ho-cjson-flow-merge-patch",
+        "input_hash": "b7474a6f5d2643dd88366947d96883dc9f8fb0a641ebc6335d2e55099d03a120",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "c54997c38ea0206a45f79d222657dc60f7387bf46b8abfaba32d402e698e3734",
+        "task_id": "ho-cjson-refuse-react-concurrent",
+        "input_hash": "10fe3e15f03c60aeea556009e1cc0cb51812b6e4d5c2a793d10ab8373f541382",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "c5fc827e654b9d209471d0cceda3ac275d96bd0deddbfe68a8d579c4169f404f",
+        "task_id": "ho-cjson-flow-merge-patch",
+        "input_hash": "86cf8c5a043d30e64ae4b74e95ec3871960b3ac8dfc450de94288d51682e83e9",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "c67f47c85cf8e62b21fb5652d4c4683b9b3c83557b9ea6ff7554cb4c97c11723",
+        "task_id": "ho-cjson-refuse-sqlite-wal",
+        "input_hash": "3c537a5b8d92ed996270f3e0677dd2d26bfaa14b76de4c8bd697a1567f4f4025",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "c6e093d27299d8251f5c5e9da6c58ff6be9ecc74848d53d9b551aad5f2fe5f7b",
+        "task_id": "ho-cjson-flow-detach-list-rewire",
+        "input_hash": "b4d4a927e59dc19a9adcf2662cb481dfad664a9e6934de616ab9e2dd9e99a5d8",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "c71924ce13850f41fcfc3bea5d3983afa9b4d00ffd68a9b8f0a3892b1f8d2c98",
+        "task_id": "ho-cjson-state-hooks-realloc",
+        "input_hash": "568dbb6044198bfc95dcda8c4598e5288b1ad1482b4d6715881a9f7c19a70b63",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "c7afaefd41fcd65dee433482a7d326b0a429564e0b88e4d8c3caaf4b4b56ea37",
+        "task_id": "ho-cjson-error-find-pointer-ownership",
+        "input_hash": "37d4f82da2c6db923143d1116d64523611334a26b99abf50e71a7a24e241e63a",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "c8e74c0b5f1ae4ccc2cc1e4977da7e12be92efa782b8191c006102419688da5c",
+        "task_id": "ho-cjson-cond-array-size-structural",
+        "input_hash": "237f4ea2c7877c60538c376ab1314756c05d668049293dbd98c08f323c20cf30",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E8",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 2609,
+            "line_end": 2618,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E34",
+                "lines": "1899-1920",
+                "text_hash": "6d70812d2fad07d10cc95bc0120e7371426ea4ce0dd4c193914cd5dbf1edd0a6"
+              }
+            ]
+          },
+          {
+            "tag": "E9",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 2119,
+            "line_end": 2122,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E34",
+                "lines": "1899-1920",
+                "text_hash": "6d70812d2fad07d10cc95bc0120e7371426ea4ce0dd4c193914cd5dbf1edd0a6"
+              }
+            ]
+          },
+          {
+            "tag": "E10",
+            "source_ref": "tests/cjson_add.c",
+            "path": "tests/cjson_add.c",
+            "line_start": 355,
+            "line_end": 365,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E12",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 2598,
+            "line_end": 2607,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E34",
+                "lines": "1899-1920",
+                "text_hash": "6d70812d2fad07d10cc95bc0120e7371426ea4ce0dd4c193914cd5dbf1edd0a6"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "cc8e423396ef31cab646b919bbdeb9b7ccb382327171bb73267c6c1da236b58f",
+        "task_id": "ho-cjson-cond-array-size-structural",
+        "input_hash": "4b98f32b11359ede0306c627ab7ec1a55f9a3bdb5afed7e611d471a6d1ac4316",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "ccac9797591c5a73970a8858e8fe2cf2f450058d3ca7214cdbc4be9765e2eea0",
+        "task_id": "ho-cjson-error-generate-merge-null",
+        "input_hash": "65c6e1c479556de715ad2a42030042cf7f5752c9a2d0838c3e8790b423e31b99",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E9",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 2609,
+            "line_end": 2618,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E13",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 2784,
+            "line_end": 2787,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E32",
+            "source_ref": "cJSON_Utils.c",
+            "path": "cJSON_Utils.c",
+            "line_start": 1391,
+            "line_end": 1481,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E33",
+                "lines": "1391-1476",
+                "text_hash": "79898353fe025a7d2c054b196e0368eaf7b766bd102deea5668642aea22308a2"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "cdbed2b1cef7c0bc6ca754d96fc5d0760a27837e0f4ff0a50673dfbef8b4a1f2",
+        "task_id": "ho-cjson-error-string-array-cleanup",
+        "input_hash": "2091a15c7fd64e042796bd8887e77675cbd27220cf0638333a81457b97bb01a7",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E3",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 253,
+            "line_end": 276,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E36",
+                "lines": "2741-2779",
+                "text_hash": "ae17af8e01b26f7d2e4164b0131abd9b25ab2fd186323f4e0db4a331376c4b3c"
+              }
+            ]
+          },
+          {
+            "tag": "E14",
+            "source_ref": "cJSON.c#L1999-L2003",
+            "path": "cJSON.c",
+            "line_start": 1999,
+            "line_end": 2003,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E36",
+                "lines": "2741-2779",
+                "text_hash": "ae17af8e01b26f7d2e4164b0131abd9b25ab2fd186323f4e0db4a331376c4b3c"
+              }
+            ]
+          },
+          {
+            "tag": "E35",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 1999,
+            "line_end": 2003,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E36",
+                "lines": "2741-2779",
+                "text_hash": "ae17af8e01b26f7d2e4164b0131abd9b25ab2fd186323f4e0db4a331376c4b3c"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "ce03c30ca20f6dbe7d2e5c502afeb774f251cf8ed5f038003ee712a310f5de97",
+        "task_id": "ho-cjson-state-string-reference",
+        "input_hash": "1c014ff6ce7c33c9824feb40408b77b49cd0c36b407258275cac6e122aacde6c",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "ce75a7a7821b734d1a9ba15e4688edbdfbbd63b7ab4dbc70d326b9ace6860cfa",
+        "task_id": "ho-cjson-refuse-rust-borrow",
+        "input_hash": "8725cc84509aa4a783024df40a6d511e43b569cfecfa8af642564a9361fc7d9e",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "d022c54c4b385a2e5e42b77e75282cf4c186c9bc18e62fd3d1dfdbd0c7ca58e1",
+        "task_id": "ho-cjson-error-convenience-add",
+        "input_hash": "0b761ba6cd1803e8ed15f7bd1142caa294a6e7b3e5179e42db581b30a8a84bb5",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E12",
+            "source_ref": "cJSON.c#L2082-L2117",
+            "path": "cJSON.c",
+            "line_start": 2082,
+            "line_end": 2117,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E34",
+                "lines": "2210-2220",
+                "text_hash": "e383ae63680f8aba2503c34e3f46ebc0f95eaa8851c86cdbad3e1db5e59609c4"
+              }
+            ]
+          },
+          {
+            "tag": "E20",
+            "source_ref": "cJSON.c#L2027-L2058",
+            "path": "cJSON.c",
+            "line_start": 2027,
+            "line_end": 2058,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E34",
+                "lines": "2210-2220",
+                "text_hash": "e383ae63680f8aba2503c34e3f46ebc0f95eaa8851c86cdbad3e1db5e59609c4"
+              }
+            ]
+          },
+          {
+            "tag": "E33",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 2027,
+            "line_end": 2076,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E34",
+                "lines": "2210-2220",
+                "text_hash": "e383ae63680f8aba2503c34e3f46ebc0f95eaa8851c86cdbad3e1db5e59609c4"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "d1fda3cafe65afb089b5d3bc33e3529add846c25e8c9ac0ea6bdec8199effb79",
+        "task_id": "ho-cjson-flow-json-pointer-walk",
+        "input_hash": "e34cca18ef8ac121e50999b8fb28cc265f9de8ae9ef120745bb5b5f27a630dce",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "d25cf1d937440e3c2441f16ac2c1e0fb27ad796fa73c189ccebcb4cfe1f2b90f",
+        "task_id": "ho-cjson-error-convenience-add",
+        "input_hash": "e1a4c7e0d1f46fb0fd8281ffa2eeaf1a74d244778f55ee54226772c87274ae1f",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E12",
+            "source_ref": "cJSON.c#L2082-L2117",
+            "path": "cJSON.c",
+            "line_start": 2082,
+            "line_end": 2117,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E33",
+                "lines": "2210-2220",
+                "text_hash": "e383ae63680f8aba2503c34e3f46ebc0f95eaa8851c86cdbad3e1db5e59609c4"
+              }
+            ]
+          },
+          {
+            "tag": "E20",
+            "source_ref": "cJSON.c#L2027-L2058",
+            "path": "cJSON.c",
+            "line_start": 2027,
+            "line_end": 2058,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E33",
+                "lines": "2210-2220",
+                "text_hash": "e383ae63680f8aba2503c34e3f46ebc0f95eaa8851c86cdbad3e1db5e59609c4"
+              }
+            ]
+          },
+          {
+            "tag": "E32",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 2050,
+            "line_end": 2120,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E33",
+                "lines": "2210-2220",
+                "text_hash": "e383ae63680f8aba2503c34e3f46ebc0f95eaa8851c86cdbad3e1db5e59609c4"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "d2ef4c3e1eb3ef3696eb75429fded0c232b53cf42cd9c189380a5c91e06ed91c",
+        "task_id": "ho-cjson-cond-reference-alias",
+        "input_hash": "4eabc828b95a584b9de0448b105270f5843d79826a9f6288f7cced8eb2328fa8",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "d40a7a3e0e30a54bb0a585e2858811066e77be95d72de8ac683d08db775d1a25",
+        "task_id": "ho-cjson-refuse-ebpf-verifier",
+        "input_hash": "46bba5733b8fe6438dd19dcba8fe28fbf04daeafa2c4d372c5cb867ea1705922",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "d5f1172d68c6a369e29e23ddbaec3fda373039a89784c3160e5d2bf0a0d2dcc9",
+        "task_id": "ho-cjson-flow-detach-list-rewire",
+        "input_hash": "89b8835092c1d3419d1886016b1a7ed855505d2f899092660dfc013ef2b4fe2c",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "d6dcf53644aa9963b650f8e388df25cb4c2a2ce836ab8465b14470c77751e595",
+        "task_id": "ho-cjson-state-hooks-realloc",
+        "input_hash": "a2fcd51c23416c7356b80b3c173ee94b0de68d0a95f927a12334f3b06797d149",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "d8b173214bfa297d26ed98667ba69ab5780e530bef387d3427f89a5f9b151788",
+        "task_id": "ho-cjson-flow-minify-inplace",
+        "input_hash": "d1f02cd10d7385df9283903d59a158c34c01e7db80e5ab0ab354a2acd8bdfc6e",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "db1410eed18a022e435b11dd0e6f3ab5efdf289726fd96d11f1dd6e2812200df",
+        "task_id": "ho-cjson-state-string-reference",
+        "input_hash": "c5875db6df242998cb08bb6a9fa064455d39b3a0dc0c124069a32ce2cab4d5f8",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "db963e5614a8801d60c5c7b151445c62bbedbf9458677613dbfe9b016814225a",
+        "task_id": "ho-cjson-cond-array-insert-boundaries",
+        "input_hash": "d47a53cfd9a60ff60ba5e358a41f3807d6aedd04a165289bfe167fe114c59a27",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "dd0015554e523a692891662c43eb26a581393f757512d4dd7c31f6bb865f7883",
+        "task_id": "ho-cjson-flow-merge-patch",
+        "input_hash": "aa2b8a14f729959aeaf40bb3ef6847813237bc99c6d579d9e5a26addbe38bfe2",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E2",
+            "source_ref": "cJSON_Utils.c#L1386-L1389",
+            "path": "cJSON_Utils.c",
+            "line_start": 1386,
+            "line_end": 1389,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E28",
+                "lines": "1321-1384",
+                "text_hash": "576ba6cc117bc0c501b0f0f1f1953e25c79ee75031d511d30ca0fb918960f396"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "df2252bcc48347a8ffb0d50348373e24c5c8749edf17b32f901d122cbff6528f",
+        "task_id": "ho-cjson-cond-reference-alias",
+        "input_hash": "2c107660c70677f2264a24d2f00f64c291bd072a35fef3d805edf879ae7db393",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "df40ef71ec80c168c011351caf9925be9bad0157e08a2c50e54684f94f5ba27c",
+        "task_id": "ho-cjson-cond-pointer-array-index",
+        "input_hash": "353c8c284005cdcadd86b000aea8f3a020ccba35349fdd2b5a1f47cd941b973e",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E2",
+            "source_ref": "cJSON_Utils.c#L301-L346",
+            "path": "cJSON_Utils.c",
+            "line_start": 301,
+            "line_end": 346,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E37",
+                "lines": "274-323",
+                "text_hash": "ea6ab5f9cc8374ffc6c0c7fa49ccf395661611784b47c72fc5dc43658d414acb"
+              }
+            ]
+          },
+          {
+            "tag": "E3",
+            "source_ref": "cJSON_Utils.c#L348-L351",
+            "path": "cJSON_Utils.c",
+            "line_start": 348,
+            "line_end": 351,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E37",
+                "lines": "274-323",
+                "text_hash": "ea6ab5f9cc8374ffc6c0c7fa49ccf395661611784b47c72fc5dc43658d414acb"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "dfa87d29f9a668a46d5ad085281ab3bc939f9719facaab4f8b5297bbc668813d",
+        "task_id": "ho-cjson-cond-pointer-array-index",
+        "input_hash": "9e6939e21f1014f4889fdab03d7c7fe81dfbf54469d328594d1b76f7d10ea575",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "e03ea32b50f01f1f1c013f2bae15ce9f6a056c740ec3c7a60fc0f55a4514ff91",
+        "task_id": "ho-cjson-error-convenience-add",
+        "input_hash": "f38935b50c0ca071a6fe46faa9e44a7d2ca791fa38431b562760d4c151a59827",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E12",
+            "source_ref": "cJSON.c#L2082-L2117",
+            "path": "cJSON.c",
+            "line_start": 2082,
+            "line_end": 2117,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E33",
+                "lines": "2210-2220",
+                "text_hash": "e383ae63680f8aba2503c34e3f46ebc0f95eaa8851c86cdbad3e1db5e59609c4"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "e048ecb76692318821e377973f784bbf403c738b3e8f39ace8d543cb5eb7750a",
+        "task_id": "ho-cjson-flow-merge-patch",
+        "input_hash": "bc04db35c16f5fe6490342a373c1d18036cc3ce53d33df23c071489392668370",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "e08abb68eed27885783fb9352a9135a9f74a35ac7c532bad65a7f9708e24848a",
+        "task_id": "ho-cjson-error-generate-merge-null",
+        "input_hash": "3debdcf415a23879a91694d88096283095d2fbcad88d13c16935a0543dbc3b79",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E9",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 2609,
+            "line_end": 2618,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E13",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 2784,
+            "line_end": 2787,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E14",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 2461,
+            "line_end": 2470,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "e128a7d9ad2483b49b3c2c100c5de76759c6e4d772d4b057bb018c7ccf3d6b9e",
+        "task_id": "ho-cjson-cond-set-valuestring",
+        "input_hash": "937ad11811b040ab8184353d0658e1ce7a062914cdeb6e1b2408e487a9ee693e",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "e3152d5e590f4c749b0e7423740173810b3bd873eedbc5f8ab0ed208eec56ae2",
+        "task_id": "ho-cjson-state-sort-mutation",
+        "input_hash": "6781a4c0daf712393ef300c75ecbb6a2e7a1a807117e200a2252d4b0169f8332",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E33",
+            "source_ref": "cJSON_Utils.c",
+            "path": "cJSON_Utils.c",
+            "line_start": 1298,
+            "line_end": 1325,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E35",
+                "lines": "484-602,1311-1319",
+                "text_hash": "b4f0c3cac3445ba2d77c72ae55f592ab54843a28e4801cb9ef4aefcc25b44937"
+              }
+            ]
+          },
+          {
+            "tag": "E34",
+            "source_ref": "cJSON_Utils.c",
+            "path": "cJSON_Utils.c",
+            "line_start": 590,
+            "line_end": 620,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E35",
+                "lines": "484-602,1311-1319",
+                "text_hash": "b4f0c3cac3445ba2d77c72ae55f592ab54843a28e4801cb9ef4aefcc25b44937"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "e368a54ba42e4989367e0b82b369ad4d8e7ae300c9e3820309e45e2c99fead86",
+        "task_id": "ho-cjson-cond-pointer-array-index",
+        "input_hash": "03a29c3293c39253a034f20ab2ff515011315d0291ddd7e5ecd230fb273e72b0",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "e65cd41fd6ff67dfdbbb43d857e1ee54b7191cace3521ed1201e2377a3c99a22",
+        "task_id": "ho-cjson-flow-detach-list-rewire",
+        "input_hash": "f8871eb7da965b0d51c377d5cbe6759a143cdceafd41765e3e3ab4f27ff439ce",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "e6edc940255bc322767aa0517a5048a0c97dd48de83b45e19ec7993c5a0916d4",
+        "task_id": "ho-cjson-cond-pointer-array-index",
+        "input_hash": "adac2507e829b7a9aaf921971b2c8c2fc235c8d28d5975bf10e6711979ffdf89",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "e7b3d1dbe9b4a4e9d0f71654a062105392aef342d62e69e1a082b632644138cc",
+        "task_id": "ho-cjson-state-number-saturation",
+        "input_hash": "e039245a01b726c1683ac26efb84c96e5a397ad8675864733e09b6ac8c6daaa2",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "e89df87d04becd762d87caeecdd7a127094ee6ecf03a6cfd4e7af69e8fe5e312",
+        "task_id": "ho-cjson-refuse-sqlite-wal",
+        "input_hash": "2ee4731b15345c01fcb66903d27e755916f28790d01310ec2def64cdbda2b857",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "ea6a6b2f70dd44f5fb83088cf9085cfbb5f963199ec078a35d85da3a0090d195",
+        "task_id": "ho-cjson-refuse-react-concurrent",
+        "input_hash": "a7e2feaf93ca4f2b1d78603b7850dc446dfc22f12af36a332190114e50c9c125",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "ebaa547fabf722bb0038b2ee7bfda19aa2a652b11573cd20d7cdfae86dc67820",
+        "task_id": "ho-cjson-flow-merge-patch",
+        "input_hash": "22c220cad0310876c4a17fb77055e33866ad10debaac95ac6913f4036f20b623",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E27",
+            "source_ref": "cJSON_Utils.c",
+            "path": "cJSON_Utils.c",
+            "line_start": 1321,
+            "line_end": 1389,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E28",
+                "lines": "1321-1384",
+                "text_hash": "576ba6cc117bc0c501b0f0f1f1953e25c79ee75031d511d30ca0fb918960f396"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "ee658c13a4354791e7e0ef9f84a918a7fc1a3445062b2c379151dfff38210189",
+        "task_id": "ho-cjson-refuse-react-concurrent",
+        "input_hash": "2e5f35f14602bb9099166ed77484ff586db7975e185e976d60f5f4a04381f02a",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "ef77f2bfe6852f021588b28b57ac9a00dd29d52daaedb4f0af8b2b4ed44b91bc",
+        "task_id": "ho-cjson-refuse-sqlite-wal",
+        "input_hash": "600bae6e1b35333fffe36dfd8fd53cefd17ad744b4a0634fc6978563066e2258",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "efe905fb09951441a29da73c28e3a63ed32376f6efdf29918e4f3a6a1c867a34",
+        "task_id": "ho-cjson-cond-array-size-structural",
+        "input_hash": "215e287ec709e310ef61cd78af78464a3eee2f5ef29403be3ee17b7032c2b9ec",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "eff9f1b2bed4b4c6f6129b629ed5768c48fab5169657f8f35cca86308a6d169b",
+        "task_id": "ho-cjson-error-generate-merge-null",
+        "input_hash": "e7603db5618b5d4b5d343071197e4df4070dc15c5f93500f95921fa7f1774a65",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "f13e57fa7c07ac15c6ca1f59350895229c3b53e73a0175e98196dca247bf4a73",
+        "task_id": "ho-cjson-error-generate-merge-null",
+        "input_hash": "8059d6f5dbfca8294918ad3db9d5e025746d3fabc7229f387cb409bd2c1b9d4a",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E32",
+            "source_ref": "cJSON_Utils.c",
+            "path": "cJSON_Utils.c",
+            "line_start": 1391,
+            "line_end": 1481,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E33",
+                "lines": "1391-1476",
+                "text_hash": "79898353fe025a7d2c054b196e0368eaf7b766bd102deea5668642aea22308a2"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "f36ac4697ba3a8999eeb8448c5f7ec244ab8f8f3bda3e286b63977d90c7c88ab",
+        "task_id": "ho-cjson-cond-reference-alias",
+        "input_hash": "23d80b88e56b59f50c6f36f4c1589dc22a151cdda7b73e764ec2533389b5b577",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "f88a83cf74362da905d4cc8257d8249a4731a8f1347c66e27ad0995ad5ca10e7",
+        "task_id": "ho-cjson-cond-set-valuestring",
+        "input_hash": "58fe7e3af27865db729f7f915a84950d2edfeee1337c74d6da99d2b41c1b51ea",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E3",
+            "source_ref": "tests/misc_tests.c#L492-L508",
+            "path": "tests/misc_tests.c",
+            "line_start": 492,
+            "line_end": 508,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "f9c1832db8d1fd71d16223420ced7d465d2c9a06424bb0eee3ae685e7ed3fb16",
+        "task_id": "ho-cjson-cond-array-insert-boundaries",
+        "input_hash": "f54bddbcd3878272a9097aee81c6ec9ab3826dc989ec68fe45aab538a4521ca9",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E12",
+            "source_ref": "cJSON.c#L1922-L1939",
+            "path": "cJSON.c",
+            "line_start": 1922,
+            "line_end": 1939,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E31",
+                "lines": "1922-1938,2027-2058,2334-2366",
+                "text_hash": "7fe4b9ccb526deba7c2180034ac77b50a2ba157ec5cbcac7dd6dd791e3a0e54d"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "fa7fb02b05ead06c115ec6fc35893a87468d0389127c167b753f43b8295d00f1",
+        "task_id": "ho-cjson-flow-replace-object-item",
+        "input_hash": "4e650c0fd1d1f5a670f8fa534b902cbdd8e5de9178327332cf3943c59c190cdc",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "fb9341e5c02c987abbf0ab8ac5015dfd4829d171863bbecc11a4f12356bd7d74",
+        "task_id": "ho-cjson-error-string-array-cleanup",
+        "input_hash": "0d6bee955a74be0562cf764be69ad8973331c1aac749d9bd3328ed36dd17c413",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E3",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 253,
+            "line_end": 276,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E36",
+                "lines": "2741-2779",
+                "text_hash": "ae17af8e01b26f7d2e4164b0131abd9b25ab2fd186323f4e0db4a331376c4b3c"
+              }
+            ]
+          },
+          {
+            "tag": "E14",
+            "source_ref": "cJSON.c#L1999-L2003",
+            "path": "cJSON.c",
+            "line_start": 1999,
+            "line_end": 2003,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E36",
+                "lines": "2741-2779",
+                "text_hash": "ae17af8e01b26f7d2e4164b0131abd9b25ab2fd186323f4e0db4a331376c4b3c"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "fd22888c157750d28ec959b99195dfe3100b49000e00552c0b6011d80299cd21",
+        "task_id": "ho-cjson-flow-merge-patch",
+        "input_hash": "eedfd5c1623c5d2208019b56824f56814082d0477f4890900eb9949e46a23c27",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "fdd43a27023c2e3b2da8c94d6ade90e3ae35293ab1fbeecd47de809f85dab940",
+        "task_id": "ho-cjson-refuse-sqlite-wal",
+        "input_hash": "00b185805c502006e660168c935c274e87820fbc244ca950347bff2ab494feff",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E1",
+            "source_ref": "tests/readme_examples.c#L169-L215",
+            "path": "tests/readme_examples.c",
+            "line_start": 169,
+            "line_end": 215,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E3",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 253,
+            "line_end": 276,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E5",
+            "source_ref": "cJSON.c",
+            "path": "cJSON.c",
+            "line_start": 1227,
+            "line_end": 1230,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E32",
+            "source_ref": "repo",
+            "path": null,
+            "line_start": null,
+            "line_end": null,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "ff308f67c62de8db92c5eebbdc3cba60c2ad980699544a0ee8b09e1ff618f7f2",
+        "task_id": "ho-cjson-refuse-ebpf-verifier",
+        "input_hash": "3e2451a27e0a297858c8b146f0fad847ae795c22981b481d58025ea700bbf3f7",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "ffd4033e217c7fca5c48e5aaad6fe0b51832a8db758c650c59db744489d427a6",
+        "task_id": "ho-cjson-flow-json-pointer-walk",
+        "input_hash": "4e082f656f32921b35312e96768f60fb9be72b5f287fd1a0844bb63d6a2e612f",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      }
+    ],
+    "trial_count": 216,
+    "mapping_changed_trials": 0,
+    "range_review_required_trials": 62,
+    "boundary": "Range completeness is a conservative evidence-input gate, not answer correctness."
+  },
+  "trace_restoration": {
+    "base_packet_hash": "d0186d8fb786e75c13143e63bbd39f5ed0b29c1ec3cbbb58ff8ebaa3e16b6638",
+    "entries": [
+      {
+        "trial_id": "05eacf054608804b47e1d925ed44073a4e2735dea264397dbf87bc8c40b21909",
+        "tag": "E33",
+        "body_hash": "a801639558b9b795a25a59952e3f2ec9ff01ecd1990e63555ba85bc1fab34d25"
+      },
+      {
+        "trial_id": "1a1e79f846365c69b33696fab2f3f4b21a087093364c295a2ae39d836ae1c390",
+        "tag": "E29",
+        "body_hash": "2ef1c4527a235cee253eaf9a7b9b227b69c3a1a628369f3676c32c6101d56174"
+      },
+      {
+        "trial_id": "1cf6949bbfda7f4046f23f6dc6a47877b37da023b17089fc295714d5109e47c9",
+        "tag": "E29",
+        "body_hash": "2ef1c4527a235cee253eaf9a7b9b227b69c3a1a628369f3676c32c6101d56174"
+      },
+      {
+        "trial_id": "1f5a019ba0c79c7d2a723bb33969a9cc77269414f3c8db486584471b2ff40727",
+        "tag": "E1",
+        "body_hash": "b8a2251218efbe3e07e1c5030a7aaf9d9f1725136ea973feaa1c9aef346564e7"
+      },
+      {
+        "trial_id": "3c0bfdc4fe66f4ecdb4a32703f6996c14cdb47ef56c5e034fdab917f0c487991",
+        "tag": "E30",
+        "body_hash": "631008af3b3b2f6ddbe3d6cd930d9c38a35ca9e0503a342c9d353b166d55c687"
+      },
+      {
+        "trial_id": "565309dc693b1df7de74b17f299b1ed7d1199bbe3b037fba5c9e9077fbcb7c9e",
+        "tag": "E1",
+        "body_hash": "b8a2251218efbe3e07e1c5030a7aaf9d9f1725136ea973feaa1c9aef346564e7"
+      },
+      {
+        "trial_id": "565309dc693b1df7de74b17f299b1ed7d1199bbe3b037fba5c9e9077fbcb7c9e",
+        "tag": "E30",
+        "body_hash": "7f2957675d9fb05e92296f6ee42194a82051067241211e3adb4997c18c94e67b"
+      },
+      {
+        "trial_id": "630e443744fae1cb1d801aa1146696fd285de005df9295c915f3c3e4cf06dc9e",
+        "tag": "E29",
+        "body_hash": "2ef1c4527a235cee253eaf9a7b9b227b69c3a1a628369f3676c32c6101d56174"
+      },
+      {
+        "trial_id": "668ab27fe5706283fc5d2e328ba7e5d04577c8f2196ab6568da6daf7bd42a756",
+        "tag": "E32",
+        "body_hash": "35b9cf51bd3f9d148a3676c0d9409771a6cfa40cbc19728ab96b536b4e082f32"
+      },
+      {
+        "trial_id": "67f02e2fe18eae4c166d185f4d3fffd308e0338e1bc763510573acba6a8e4994",
+        "tag": "E2",
+        "body_hash": "a801639558b9b795a25a59952e3f2ec9ff01ecd1990e63555ba85bc1fab34d25"
+      },
+      {
+        "trial_id": "683da8ce8395b83125e7d6d1b45847a39a5461baa838ce2a5dbd34e021da55df",
+        "tag": "E1",
+        "body_hash": "969fd61250640862c40c6c78011974ea49350d8beae1486a6cd020bc00757fa7"
+      },
+      {
+        "trial_id": "6f103f8be11c74279c36b06cc9883d69d69a2aa737fe340e7a83ffadc8ba850f",
+        "tag": "E1",
+        "body_hash": "631008af3b3b2f6ddbe3d6cd930d9c38a35ca9e0503a342c9d353b166d55c687"
+      },
+      {
+        "trial_id": "70b9658d87fbd1f36dd0c27c475fea1837b8dddf08ccdcd935f4d342f7a8ccc3",
+        "tag": "E1",
+        "body_hash": "35b9cf51bd3f9d148a3676c0d9409771a6cfa40cbc19728ab96b536b4e082f32"
+      },
+      {
+        "trial_id": "786c6124bd5fab7375d69173618ff064ae7271210f4dbfd755c13234943643a8",
+        "tag": "E30",
+        "body_hash": "2ef1c4527a235cee253eaf9a7b9b227b69c3a1a628369f3676c32c6101d56174"
+      },
+      {
+        "trial_id": "8f29016706ba15d63238b2e21a8dc3e9cf891f6ee14d057e3c4e215ad2162d96",
+        "tag": "E1",
+        "body_hash": "969fd61250640862c40c6c78011974ea49350d8beae1486a6cd020bc00757fa7"
+      },
+      {
+        "trial_id": "8f699c9151441e2e3c60948cfa722d50b6c93b41a8848d9db0077492e75f5c56",
+        "tag": "E34",
+        "body_hash": "6dfe6f5d215811a768ede86ce13476c7b5241b61e749c97de46619d27209a6f5"
+      },
+      {
+        "trial_id": "8f699c9151441e2e3c60948cfa722d50b6c93b41a8848d9db0077492e75f5c56",
+        "tag": "E35",
+        "body_hash": "587aaea7b9275c77af79900712857ebf92800e3dbead5ac5eb6e9866bb69c303"
+      },
+      {
+        "trial_id": "8f699c9151441e2e3c60948cfa722d50b6c93b41a8848d9db0077492e75f5c56",
+        "tag": "E36",
+        "body_hash": "35b9cf51bd3f9d148a3676c0d9409771a6cfa40cbc19728ab96b536b4e082f32"
+      },
+      {
+        "trial_id": "961b4163a107f5f414e95c1c3ed82d1b6b8b2e1221ecd3098919862034de9ed7",
+        "tag": "E2",
+        "body_hash": "32fab387e3a7acc37113fecb073b7a78e73e59ca84e370d46855c926512e1f9c"
+      },
+      {
+        "trial_id": "97c2717eae882a733f015926a3a9b20eaad44e364c04e7654c47b806c927dbdc",
+        "tag": "E31",
+        "body_hash": "60b1c642a9b2d6c95a186b51c91c5304cbcc6257740f454ac83f9d7c33cd42a4"
+      },
+      {
+        "trial_id": "99f70e6022547f2edf422306f6537a250834c07b6cbb356e6bb76810d443072c",
+        "tag": "E35",
+        "body_hash": "587aaea7b9275c77af79900712857ebf92800e3dbead5ac5eb6e9866bb69c303"
+      },
+      {
+        "trial_id": "a5cf525708ae88520128eb5ed9fcbe1e6570f5b71d6854fa084f9eb54b47b31a",
+        "tag": "E1",
+        "body_hash": "1e59fe4d2fd3352420d3a9742f223f91eee673c7e48a12a5799f92b4cb7c8f1d"
+      },
+      {
+        "trial_id": "ac736c532e5e56e178a5ba2f1973a9d452e09914e3bad107bc57278cb5ca0b7f",
+        "tag": "E29",
+        "body_hash": "0f6879d30bea2629b83f5279fbc2e9b9a8ebcf2983addca565ba7722619ee2d6"
+      },
+      {
+        "trial_id": "ac736c532e5e56e178a5ba2f1973a9d452e09914e3bad107bc57278cb5ca0b7f",
+        "tag": "E30",
+        "body_hash": "725c353b2b6adb1314ff2948757fc24dc4b24ebfb5f7eec53c543d0660fcc9c1"
+      },
+      {
+        "trial_id": "ac8cd0aa02676d4e8ab76af85f7fa6ef31c1c0162ef495e50658c5afada526bc",
+        "tag": "E1",
+        "body_hash": "969fd61250640862c40c6c78011974ea49350d8beae1486a6cd020bc00757fa7"
+      },
+      {
+        "trial_id": "b2d6250b970ab95932ac708d1f1a5925501415c32e4f0ee1177b2d8b6350e5ca",
+        "tag": "E1",
+        "body_hash": "35b9cf51bd3f9d148a3676c0d9409771a6cfa40cbc19728ab96b536b4e082f32"
+      },
+      {
+        "trial_id": "b3d248ec8bab8b1f136d1f73a127a68e87254a90d46439007e865ed0835c7589",
+        "tag": "E31",
+        "body_hash": "4dc636b55e4f4514a892b10865a1309ea5a42f535d72a57c6a6b55d2dde4eb42"
+      },
+      {
+        "trial_id": "b4dbee54e76ebc0868298a2668a2cef871c00c3b13d9c0a8c6f02c649ad43d06",
+        "tag": "E35",
+        "body_hash": "1e59fe4d2fd3352420d3a9742f223f91eee673c7e48a12a5799f92b4cb7c8f1d"
+      },
+      {
+        "trial_id": "b7691f583c91cfb43db2f9859666c16eebda327f96dd0bde3da71252b93754de",
+        "tag": "E34",
+        "body_hash": "084291aee0050d93b0d772121b304e5887a2771f91fea4b1c5c0ba615a697e61"
+      },
+      {
+        "trial_id": "ba285b29dc9a32f38b836387242a85c667528a3b828e4921395eeeae5a171218",
+        "tag": "E1",
+        "body_hash": "587aaea7b9275c77af79900712857ebf92800e3dbead5ac5eb6e9866bb69c303"
+      },
+      {
+        "trial_id": "bd79c9e3959653dbd4d17abcb8a595c25810b0e94662e16fadd9bd62f9f420d9",
+        "tag": "E34",
+        "body_hash": "587aaea7b9275c77af79900712857ebf92800e3dbead5ac5eb6e9866bb69c303"
+      },
+      {
+        "trial_id": "bd79c9e3959653dbd4d17abcb8a595c25810b0e94662e16fadd9bd62f9f420d9",
+        "tag": "E35",
+        "body_hash": "6dfe6f5d215811a768ede86ce13476c7b5241b61e749c97de46619d27209a6f5"
+      },
+      {
+        "trial_id": "bd79c9e3959653dbd4d17abcb8a595c25810b0e94662e16fadd9bd62f9f420d9",
+        "tag": "E36",
+        "body_hash": "35b9cf51bd3f9d148a3676c0d9409771a6cfa40cbc19728ab96b536b4e082f32"
+      },
+      {
+        "trial_id": "cc8e423396ef31cab646b919bbdeb9b7ccb382327171bb73267c6c1da236b58f",
+        "tag": "E1",
+        "body_hash": "969fd61250640862c40c6c78011974ea49350d8beae1486a6cd020bc00757fa7"
+      },
+      {
+        "trial_id": "d1fda3cafe65afb089b5d3bc33e3529add846c25e8c9ac0ea6bdec8199effb79",
+        "tag": "E2",
+        "body_hash": "32fab387e3a7acc37113fecb073b7a78e73e59ca84e370d46855c926512e1f9c"
+      },
+      {
+        "trial_id": "df2252bcc48347a8ffb0d50348373e24c5c8749edf17b32f901d122cbff6528f",
+        "tag": "E34",
+        "body_hash": "6dfe6f5d215811a768ede86ce13476c7b5241b61e749c97de46619d27209a6f5"
+      },
+      {
+        "trial_id": "df2252bcc48347a8ffb0d50348373e24c5c8749edf17b32f901d122cbff6528f",
+        "tag": "E35",
+        "body_hash": "587aaea7b9275c77af79900712857ebf92800e3dbead5ac5eb6e9866bb69c303"
+      },
+      {
+        "trial_id": "df2252bcc48347a8ffb0d50348373e24c5c8749edf17b32f901d122cbff6528f",
+        "tag": "E36",
+        "body_hash": "35b9cf51bd3f9d148a3676c0d9409771a6cfa40cbc19728ab96b536b4e082f32"
+      },
+      {
+        "trial_id": "e7b3d1dbe9b4a4e9d0f71654a062105392aef342d62e69e1a082b632644138cc",
+        "tag": "E1",
+        "body_hash": "c648acdeccdd3f32951e1022ae8a89419da97dcd0edf7f2bd66899c7d54b57a7"
+      },
+      {
+        "trial_id": "fa7fb02b05ead06c115ec6fc35893a87468d0389127c167b753f43b8295d00f1",
+        "tag": "E2",
+        "body_hash": "e2b436d8a095769b323e01e62211cbc8bb5379e468236d03c9d07e86e203a064"
+      },
+      {
+        "trial_id": "fdd43a27023c2e3b2da8c94d6ade90e3ae35293ab1fbeecd47de809f85dab940",
+        "tag": "E32",
+        "body_hash": "db090c5c7423c5b96542ee984da9a13029fcb37c0eab818aad23b0ab83ed3a8b"
+      }
+    ],
+    "boundary": "Original tool-output bytes only; unresolved source bodies are not invented; no scores changed."
+  },
+  "model_requests": 0,
+  "rescored": false,
+  "boundary": "The historical aggregate is withheld pending claim-level evidence audit. Range gaps and restored bodies are not counts of incorrect answers. No frozen answer, gold, score or model request was changed.",
+  "audit_hash": "72e22c290a7a35c0192cd75e5cdc8a5aeb7dfc5c8fae2d4a1de1bc24515c734a"
+}

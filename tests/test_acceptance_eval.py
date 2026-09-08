@@ -199,6 +199,31 @@ def test_reviewed_negative_result_completes_experiment_without_claiming_gain(
     assert regressed["claims"][0]["state"] == "regressed"
 
 
+def test_review_invalidation_notice_is_bound_to_raw_run_and_report(tmp_path):
+    from codeatlas.contracts import digest
+    report = {"run_hash": "frozen-answer-run"}
+    report_path = tmp_path / "report.json"
+    report_path.write_text(json.dumps(report))
+    notice = {"schema_version": 1, "scope": "review_only", "status": "invalid_review",
+              "run_hash": report["run_hash"], "reason": "citation_remap",
+              "historical_report_sha256": digest(report_path.read_bytes())}
+    notice["audit_hash"] = digest(notice)
+    notice_path = tmp_path / "audit.json"
+    notice_path.write_text(json.dumps(notice))
+    spec = {"review_validity": "audit.json"}
+    assert acceptance_eval._review_validity_notice(spec, tmp_path, report, report_path)["status"] == "invalid_review"
+    notice["status"] = "pending_evidence_audit"
+    notice["audit_hash"] = digest({k: v for k, v in notice.items() if k != "audit_hash"})
+    notice_path.write_text(json.dumps(notice))
+    assert acceptance_eval._review_validity_notice(spec, tmp_path, report, report_path)["status"] == "pending_evidence_audit"
+    notice["status"] = "valid"
+    notice_path.write_text(json.dumps(notice))
+    with pytest.raises(ValueError, match="notice"):
+        acceptance_eval._review_validity_notice(spec, tmp_path, report, report_path)
+    with pytest.raises(acceptance_eval.AcceptanceEvalError):
+        acceptance_eval._review_validity_notice({"review_validity": "missing.json"}, tmp_path, report, report_path)
+
+
 def test_detached_curated_review_keeps_frozen_answers_valid_after_runtime_moves(
         tmp_path: Path, monkeypatch):
     from codeatlas.contracts import digest
@@ -254,6 +279,22 @@ def test_detached_curated_review_keeps_frozen_answers_valid_after_runtime_moves(
     assert item["runtime_identity_ok"] is False
     assert item["detached_review_identity_ok"] is True
     assert result["experiments_complete"] is True
+
+    # A later transport audit invalidates scores, not the frozen answer run.
+    notice = {"schema_version": 1, "scope": "review_only", "status": "invalid_review",
+              "run_hash": report["run_hash"], "reason": "citation_remap",
+              "historical_report_sha256": acceptance_eval._sha256(tmp_path / "docs/detached.json")}
+    notice["audit_hash"] = digest(notice)
+    (tmp_path / "docs/audit.json").write_text(json.dumps(notice))
+    manifest["experiments"][0]["review_validity"] = "docs/audit.json"
+    manifest_path.write_text(yaml.safe_dump(manifest))
+    result = acceptance_eval.proof_status(manifest_path, project_root=tmp_path)
+    assert result["experiments_complete"] is True
+    assert result["items"][0]["status"] == "invalid_review"
+    assert result["items"][0]["claim_evidence"] == {}
+    assert result["claims"][0]["state"] == "unresolved"
+    assert result["reviews_complete"] is False
+    assert result["claims_complete"] is False
 
 
 def test_judge_qualification_report_is_hash_and_policy_bound(tmp_path: Path):

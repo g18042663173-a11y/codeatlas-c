@@ -65,6 +65,33 @@ def test_packet_has_question_frozen_payload_and_separate_neutral_map():
     assert "variant" not in item
 
 
+def test_neutral_citations_preserve_sparse_e_tags_and_material_semantics():
+    trial = {"answer": "guard [E2], harness [E6], result [E8], summary [M1].",
+             "citations": [{"tag": tag, "text": body} for tag, body in
+                           (("E2", "guard"), ("E6", "harness"),
+                            ("E8", "result"), ("M1", "summary"))]}
+    rows, mapping, answer = rubric._neutral_evidence(trial, [{"text": "gold"}])
+    assert answer == "guard [E1], harness [E2], result [E3], summary [E4]."
+    assert {r["tag"]: r["text"] for r in rows}["E2"] == "harness"
+    assert mapping == {"E1": "E2", "E2": "E6", "E3": "E8", "E4": "M1"}
+    assert trial["answer"].startswith("guard [E2]")
+
+
+def test_neutral_citations_cannot_turn_unknown_e_tag_into_real_evidence():
+    trial = {"answer": "fabricated [E1], known [A1], unknown [T9].",
+             "citations": [{"tag": "A1", "text": "source"}]}
+    rows, mapping, answer = rubric._neutral_evidence(trial, [{"tag": "T9", "text": "gold"}])
+    assert mapping == {"E2": "A1"}
+    assert answer == "fabricated [E1], known [E2], unknown [T9]."
+    assert "E1" not in {row["tag"] for row in rows}
+
+
+def test_duplicate_candidate_citation_tags_are_rejected():
+    with pytest.raises(ValueError, match="ambiguous"):
+        rubric._neutral_evidence({"answer": "[E1]", "citations": [
+            {"tag": "E1", "text": "first"}, {"tag": "E1", "text": "other"}]}, [])
+
+
 @pytest.mark.parametrize("field,value", [
     ("answer", "wrong [A1]"), ("refused", True), ("events", []), ("final_safe", False),
     ("verification", {"citation_valid": False}), ("execution_mode", "rule"),

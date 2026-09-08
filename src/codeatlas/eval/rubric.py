@@ -626,12 +626,23 @@ def _task_details(report):
 def _neutral_evidence(trial, extra):
     rows, mapping = [], {}
     evidence = list(trial.get("citations", [])) + list(extra or [])
-    for index, citation in enumerate(evidence, 1):
+    answer = trial.get("answer") or ""
+    original_tags = {c.get("tag") for c in trial.get("citations", []) if isinstance(c, dict)} - {None}
+    # Never give an invented candidate tag the identity of a real source while
+    # anonymizing. Replacements run once so E2 -> E1 cannot cascade into E1 -> E3.
+    unknown_tags = set(re.findall(r"\[([A-Za-z]+\d+)\]", answer)) - original_tags
+    index = 0
+    for offset, citation in enumerate(evidence):
         if not isinstance(citation, dict):
             citation = {"source_reference": citation}
+        index += 1
+        while f"E{index}" in unknown_tags:
+            index += 1
         neutral = f"E{index}"
-        original = citation.get("tag")
+        original = citation.get("tag") if offset < len(trial.get("citations", [])) else None
         if original:
+            if original in mapping.values():
+                raise ValueError("ambiguous duplicate candidate citation tag")
             mapping[neutral] = original
         # Keep source material and version, not the A/B/C authority cue or title.
         row = {"tag": neutral, **{k: copy.deepcopy(v) for k, v in citation.items()
@@ -642,8 +653,51 @@ def _neutral_evidence(trial, extra):
         row["payload_hash"] = digest(row)
         rows.append(row)
     reverse = {v: k for k, v in mapping.items()}
-    answer = re.sub(r"\[([ABC]\d+)\]", lambda m: f"[{reverse.get(m[1], m[1])}]", trial.get("answer") or "")
+    answer = re.sub(r"\[([A-Za-z]+\d+)\]", lambda m: f"[{reverse.get(m[1], m[1])}]", answer)
     return rows, mapping, answer if trial.get("answer") is not None else None
+
+
+def _reuse_review_trial(report, row, trial, variant):
+    """Restore cited bodies from frozen inputs, never from today's working tree.
+
+    Historical reuse trials retained citation metadata but omitted source text.
+    The frozen report contains the exact material/attachments the candidate saw.
+    Enrichment belongs only to a new blind packet; the raw trial stays immutable.
+    """
+    if report.get("report_kind") != "knowledge_reuse":
+        return trial
+    # A budget stop can leave an unsent slot with no material identity yet.
+    # Keep that slot as not-run; it has no answer/evidence to rehydrate.
+    if trial.get("answer") is None and not trial.get("citations"):
+        return trial
+    case_id = trial.get("case_id") or row.get("case_id")
+    case = next((c for c in (report.get("materials") or {}).get("cases", [])
+                 if c.get("case_id") == case_id), None)
+    if case is None:
+        if trial.get("citations"):
+            raise ValueError("reuse review missing frozen source case")
+        return trial
+    material = case["materials"][variant]
+    if (digest(material["text"]) != material["content_hash"]
+            or trial.get("material_hash") != material["content_hash"]
+            or trial.get("source_digest") != case["source_digest"]
+            or trial.get("attachments_digest") != case["attachments_digest"]):
+        raise ValueError("reuse frozen evidence identity changed")
+    registry = {a["tag"]: a for a in case["attachments"]}
+    enriched = copy.deepcopy(trial)
+    for citation in enriched.get("citations", []):
+        tag = citation.get("tag")
+        if tag == "M1":
+            citation.update(text=material["text"], content_hash=material["content_hash"])
+            continue
+        source = registry.get(tag)
+        if source is None or any(citation.get(k) != source.get(k) for k in
+                                 ("path", "file_sha256", "line_start", "line_end", "content_hash")):
+            raise ValueError("reuse citation does not match frozen attachment")
+        if digest(source["text"]) != source["content_hash"]:
+            raise ValueError("reuse frozen attachment text changed")
+        citation["text"] = source["text"]
+    return enriched
 
 
 def blind_packet(report):
@@ -663,7 +717,8 @@ def blind_packet(report):
                 task = details.get(row["id"], {})
                 gold = report.get("answer_key", {}).get("tasks", {}).get(row["id"])
                 extra = task.get("evidence_payload") or (gold or {}).get("evidence_payload") or []
-                evidence, mapping, answer = _neutral_evidence(trial, extra)
+                evidence, mapping, answer = _neutral_evidence(
+                    _reuse_review_trial(report, row, trial, variant), extra)
                 maps[trial_id] = mapping
                 question = row.get("question") or task.get("question") or (gold or {}).get("question")
                 item = {"trial_id": trial_id, "task_id": row["id"], "task_type": row["type"],
@@ -674,11 +729,15 @@ def blind_packet(report):
                 item["input_hash"] = digest(item)
                 items.append(item)
     packet = {"identity": report["identity"], "rubric": RUBRIC, "run_hash": run_hash,
+              "citation_projection_version": "neutral-citations-v2",
               "evaluation_hash": report.get("evaluation_hash"),
               "items": sorted(items, key=lambda item: item["trial_id"]),
               "audit_only_citation_map": maps,
               "boundary": "Send only each item to judges; the audit map can reveal source classes."}
     packet["packet_hash"] = digest(packet)
+    if report.get("review_evidence"):
+        from .evidence_repair import apply_patch_to_packet
+        packet = apply_patch_to_packet(report, packet, report["review_evidence"])
     return packet
 
 

@@ -519,6 +519,30 @@ def _close_number(left, right, tolerance=1e-8):
             and abs(float(left) - float(right)) <= tolerance)
 
 
+def _review_validity_notice(spec, root, report, report_path):
+    """Bind a later defect finding to its exact historical report and raw run.
+
+    An invalidation never grants effect eligibility, nor does it edit the old
+    scores. A missing/tampered notice must not silently restore their authority.
+    """
+    notice_path = spec.get("review_validity")
+    if not notice_path:
+        return None
+    notice = _read_json(_resolve(root, notice_path))
+    payload = {k: v for k, v in notice.items() if k != "audit_hash"}
+    if (notice.get("audit_hash") != digest(payload)
+            or notice.get("schema_version") != 1
+            or notice.get("status") not in {"invalid_review", "pending_evidence_audit"}
+            or notice.get("scope") != "review_only"
+            or notice.get("historical_report_sha256") != _sha256(report_path)
+            or notice.get("run_hash") != report.get("run_hash")):
+        raise ValueError("review validity notice does not match historical report")
+    return {"report": notice_path, "status": notice["status"],
+            "reason": notice.get("reason"), "audit_hash": notice["audit_hash"],
+            "mapping_broken_trials": notice.get("mapping_broken_trials"),
+            "trial_count": notice.get("trial_count")}
+
+
 def _verify_curated_effect_report(report: dict[str, Any]) -> dict[str, Any]:
     """Recompute public outcome metrics without committing bulky answers.
 
@@ -821,6 +845,10 @@ def proof_status(manifest_path: str | Path, *, project_root: str | Path) -> dict
                 claim_supported = bool(
                     proof_integrity_ok and state == "completed"
                     and acceptance.get("effect_observed"))
+            review_validity = _review_validity_notice(spec, root, report, report_path)
+            if review_validity:
+                state, review_status = review_validity["status"], "unresolved"
+                proof_integrity_ok, claim_supported = False, False
             primary = acceptance.get("primary_contrast") or {}
             baselines = primary.get("baselines") or []
             primary_comparison = (
@@ -830,11 +858,15 @@ def proof_status(manifest_path: str | Path, *, project_root: str | Path) -> dict
             items.append({
                 **base, "status": state, "identity_ok": identity_ok,
                 "review_status": review_status,
+                "review_validity": review_validity,
+                "invalidated_review_count": (report.get("executed_trial_count", 0)
+                    if review_validity and review_validity["status"] == "invalid_review" else 0),
+                "withheld_review_count": report.get("executed_trial_count", 0) if review_validity else 0,
                 "effect_observed": claim_supported, "claim_supported": claim_supported,
                 "proof_integrity_ok": proof_integrity_ok,
                 "execution_complete": bool(execution_complete),
                 "execution_integrity_ok": execution_integrity_ok,
-                "claim_evidence": {
+                "claim_evidence": {} if review_validity else {
                     "primary_contrast": primary,
                     "accuracy": primary_comparison.get("accuracy"),
                     "answer_completeness": primary_comparison.get("answer_completeness"),
@@ -1495,11 +1527,12 @@ def render_markdown(result: dict[str, Any]) -> str:
                     and isinstance(item.get("executed_trial_count"), int)]
     scored_total = sum(item["executed_trial_count"] for item in scored_items)
     scored_terminal = scored_total - sum(
-        int(item.get("unresolved_trial_count") or 0) for item in scored_items)
+        int(item.get("executed_trial_count") or 0) if item.get("review_validity")
+        else int(item.get("unresolved_trial_count") or 0) for item in scored_items)
     lines.extend(["", "## 三类价值证明", "",
                   f"- 工程底座：`{'passed' if result.get('engineer_pass') else 'not_ready'}`",
                   f"- 预登记实验执行：`{'completed' if proof.get('experiments_complete') else 'not_completed'}`",
-                  f"- 双审／独立真值复核：`{scored_terminal}/{scored_total} 终局`"
+                  f"- 可用于效果汇总的复核终局：`{scored_terminal}/{scored_total}`（待证据审计不等于判错）"
                   if scored_total else "- 双审／独立真值复核：`not_run`",
                   f"- 正式知识卡人工发布：`{'completed' if result.get('human_release') else 'not_completed'}`",
                   f"- 可选人工答案复核：`{'completed' if proof.get('human_review_done') else 'not_run'}`（不冒充 AI 双审）",
@@ -1508,6 +1541,9 @@ def render_markdown(result: dict[str, Any]) -> str:
                   f"- 公开复现：`{'completed' if result.get('public_repro') else 'not_completed'}`", ""])
     for item in proof.get("items", []):
         lines.append(f"- `{item['id']}`：`{item['status']}`；复核 `{item.get('review_status') or 'not_reviewed'}`。")
+        if item.get("review_validity"):
+            lines.append("  评分输入存在引用映射或正文完整性问题，原语义数字暂不用于效果判断；见 "
+                         f"`{item['review_validity']['report']}`。")
     for claim in proof.get("claims", []):
         lines.append(f"- 主张 `{claim['id']}`：`{claim['state']}`。")
     combined = proof.get("wiki_combined_effect") or {}

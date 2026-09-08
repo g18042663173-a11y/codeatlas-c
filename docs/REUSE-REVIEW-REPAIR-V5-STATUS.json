@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "status": "partial_review",
+  "attempt": "closeout-v2.reuse-evidence-repair",
+  "batch_id": "3e097994f6eba7ff96c7ed84934165143de2869a35be6d389216a84d1a86dfee",
+  "result_hash": "b069873f3fae8fdd9436037a86e0a8c498d38b8e963de6c9361764a8dacc4687",
+  "run_hash": "606fb74d35b7cdf4810ff312ba9fdb992f0e61b455ddc03394a23869fe9e7d1b",
+  "review_packet_hash": "58d6a807a9a6b20d70c1e37fc89b7452be8eda85fee77b95713e402e66d5552d",
+  "review_protocol_hash": "6a86b34c42c37db58b7a78c398b7cf62791e8e491735b3a539d7798fd7df0ed3",
+  "reviewed_answers": 53,
+  "planned_answers": 54,
+  "disagreements_resolved": 23,
+  "judge_model": "gpt-5.6-sol",
+  "qualification_passed": true,
+  "new_requests": 143,
+  "answer_regenerations": 0,
+  "gold_changes": 0,
+  "verdict_counts": {
+    "raw_session": {
+      "trial_count": 18,
+      "verdicts": {
+        "incomplete": 8,
+        "incorrect": 5,
+        "correct": 5
+      },
+      "correct_count": 5
+    },
+    "generic_summary": {
+      "trial_count": 18,
+      "verdicts": {
+        "incomplete": 5,
+        "incorrect": 6,
+        "unresolved": 1,
+        "correct": 6
+      },
+      "correct_count": 6
+    },
+    "structured_card": {
+      "trial_count": 18,
+      "verdicts": {
+        "incomplete": 8,
+        "incorrect": 3,
+        "correct": 7
+      },
+      "correct_count": 7
+    }
+  },
+  "unresolved_calls": [
+    {
+      "role": "judge-a",
+      "trial_id": "802cb127778ba3d407a3b21574a0df1488016928ac34e07a23ddd1a329fd6f05",
+      "state": "unresolved",
+      "error_type": "TimeoutError",
+      "request_hash": "ed23944b30f481d51d88a4915affc4828ba34a8bb5a20963ec87a00315f5c427",
+      "retry_policy": "unknown_result_not_resent"
+    },
+    {
+      "role": "judge-b",
+      "trial_id": "802cb127778ba3d407a3b21574a0df1488016928ac34e07a23ddd1a329fd6f05",
+      "state": "unresolved",
+      "error_type": "TimeoutError",
+      "request_hash": "ed23944b30f481d51d88a4915affc4828ba34a8bb5a20963ec87a00315f5c427",
+      "retry_policy": "unknown_result_not_resent"
+    }
+  ],
+  "effect_claim": "not_established",
+  "public_repro": false,
+  "boundary": "Descriptive counts from 53 resolved reviews and one unknown transport result. Not a complete or statistically supported gain report; historical V4 retained. Two short synthetic cases only.",
+  "status_hash": "d02f6105a1fca288eb56cf7db55c849a443450f12c13f890aeea45694b1f7019"
+}

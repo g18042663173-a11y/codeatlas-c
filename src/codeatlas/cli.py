@@ -179,8 +179,35 @@ def proof_review(campaign_dir: str = typer.Option(..., "--campaign"),
                  judge_model: str | None = typer.Option(None, "--judge-model"),
                  calibration: str | None = typer.Option(None, "--calibration"),
                  calibration_only: bool = typer.Option(False, "--calibration-only"),
-                 transport_retries: int | None = typer.Option(None, "--transport-retries")):
+                 transport_retries: int | None = typer.Option(None, "--transport-retries"),
+                 job: list[str] | None = typer.Option(None, "--job"),
+                 base_attempt: str | None = typer.Option(None, "--base-attempt"),
+                 selection_manifest: str | None = typer.Option(None, "--selection-manifest"),
+                 budget_scope: str | None = typer.Option(None, "--budget-scope")):
     """校准并运行双 Agent 盲审；结果始终标记为 AI review。"""
+    if job or base_attempt or selection_manifest:
+        from .eval.campaign_review import review
+        if not budget_scope:
+            raise typer.BadParameter("selective review requires --budget-scope with a frozen scope JSON")
+        scope = json.loads(Path(budget_scope).read_text(encoding="utf-8"))
+        if not isinstance(scope, dict) or set(scope) != {"scope_id", "max_requests", "manifest_hash"}:
+            raise typer.BadParameter("invalid frozen budget scope JSON")
+        if out:
+            from .eval.protocol import ensure_new_outputs
+            ensure_new_outputs(out)
+        result = review(campaign_dir, resume=resume, attempt_id=attempt, workers=workers,
+                        judge_model=judge_model, calibration_path=calibration,
+                        calibration_only=calibration_only, transport_retries=transport_retries,
+                        job_ids=job, base_attempt_id=base_attempt, selection_manifest=selection_manifest,
+                        budget_scope=scope)
+        if out:
+            from .publication import atomic_text
+            atomic_text(Path(out), json.dumps(result, ensure_ascii=False, indent=2))
+        console.print_json(data={k: v for k, v in result.items()
+                                if k not in {"reviews", "reviewed_reports", "calibration_runs", "raw_calls"}})
+        return
+    if budget_scope:
+        raise typer.BadParameter("--budget-scope must accompany a frozen selective review")
     return campaign_review(campaign_dir, resume, out, attempt, workers, judge_model,
                            calibration, calibration_only, transport_retries)
 
@@ -191,12 +218,14 @@ def proof_export_review(campaign_dir: str = typer.Option(..., "--campaign"),
                         experiments: str = typer.Option(
                             "eval/experiments.yaml", "--experiments"),
                         allow_terminal_unresolved: bool = typer.Option(
-                            False, "--allow-terminal-unresolved")):
+                            False, "--allow-terminal-unresolved"),
+                        job: list[str] | None = typer.Option(None, "--job")):
     """导出精简评审；语义未决必须显式允许且技术调用已完整。"""
     from .eval.campaign_review import export_reviewed_reports
     result = export_reviewed_reports(campaign_dir, attempt_id=attempt,
                                      experiments_path=experiments,
-                                     allow_terminal_unresolved=allow_terminal_unresolved)
+                                     allow_terminal_unresolved=allow_terminal_unresolved,
+                                     job_ids=job)
     console.print_json(data=result)
 
 
@@ -225,6 +254,14 @@ def proof_report(campaign_dir: str = typer.Option(..., "--campaign"),
                  out: str | None = None, job: str | None = None):
     """读取或导出不可变试次；不会重新执行模型请求。"""
     return campaign_report(campaign_dir, out, job)
+
+
+@proof_app.command("closeout")
+def proof_closeout(campaign_dir: str = typer.Option(..., "--campaign"),
+                   out_dir: str = typer.Option("data/proof/closeout-v1", "--out-dir")):
+    """冻结只读证据预检；额外证据缺口未解决前禁止模型派发。"""
+    from .eval.closeout import prepare
+    console.print_json(data=prepare(campaign_dir, out_dir=out_dir))
 
 
 @snapshot_app.command("status")

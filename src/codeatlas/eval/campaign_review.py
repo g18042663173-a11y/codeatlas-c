@@ -247,6 +247,12 @@ def _judge_item(item, projection_version=None):
     """Return a judge-visible representation; the neutral source item stays bound."""
     if projection_version == SEMANTIC_REVIEW_PROJECTION:
         return _semantic_review_item(item)
+    from .evidence_repair import PROJECTION, judge_view
+    if projection_version == PROJECTION:
+        return judge_view(item)
+    from .wiki_review_projection import VERSION as WIKI_PROJECTION, view as wiki_view
+    if projection_version == WIKI_PROJECTION:
+        return wiki_view(item)
     value = copy.deepcopy(item)
     if value.get("citations") == value.get("evidence_payload") and isinstance(value.get("citations"), list):
         value["citations"] = {"$ref": "#/evidence_payload"}
@@ -507,6 +513,17 @@ def _arbiter_view(score):
     }
 
 
+def _peer_view(score, projection_version=None):
+    value = _arbiter_view(score)
+    from .evidence_repair import PROJECTION
+    from .wiki_review_projection import VERSION as WIKI_PROJECTION
+    if projection_version in {PROJECTION, WIKI_PROJECTION}:
+        # Complete matrices are shown; full rationale stays hash-bound in the
+        # ledger. Do not repeat two potentially long source narratives.
+        value.pop("note", None)
+    return value
+
+
 def _finish(ledger, batch, result):
     with ledger.connect() as conn:
         rows = conn.execute("SELECT * FROM campaign_review_calls WHERE batch_id=? ORDER BY started_at,id", (batch,)).fetchall()
@@ -527,7 +544,8 @@ def _finish(ledger, batch, result):
 def review(directory, *, resume=False, calibration_path=None, client_factory=None,
            attempt_id=None, workers=1, judge_model=None, calibration_only=False,
            transport_retries=None, global_max_requests=None, projection_version=None,
-           qualification_attestation=None, qualification_batch_id=None):
+           qualification_attestation=None, qualification_batch_id=None,
+           job_ids=None, base_attempt_id=None, selection_manifest=None, budget_scope=None):
     """Calibrate two judges, score independently, calibrate/use a third on disputes."""
     if type(workers) is not int or not 1 <= workers <= 16:
         raise campaign.CampaignError("review workers must be an integer from 1 to 16")
@@ -551,7 +569,9 @@ def review(directory, *, resume=False, calibration_path=None, client_factory=Non
         raise campaign.CampaignError("judge model must be a nonempty model id")
     if judge_model is not None and attempt_id is None:
         raise campaign.CampaignError("a judge model override requires a new versioned attempt")
-    if projection_version not in {None, SEMANTIC_REVIEW_PROJECTION}:
+    from .evidence_repair import PROJECTION
+    from .wiki_review_projection import VERSION as WIKI_PROJECTION
+    if projection_version not in {None, SEMANTIC_REVIEW_PROJECTION, PROJECTION, WIKI_PROJECTION}:
         raise campaign.CampaignError("unknown review input projection")
     if qualification_attestation is not None:
         reviews = qualification_attestation.get("review_runs") or []
@@ -578,12 +598,78 @@ def review(directory, *, resume=False, calibration_path=None, client_factory=Non
               or source_bundle["uncertain_trial_ids"]):
             raise campaign.CampaignError("detached scoring requires a complete immutable answer collection")
         source_reports = source_bundle["reports"]
+        selection_binding = None
+        selected_trials = None
+        inherited_groups, inheritance_audit = {}, None
+        if job_ids is not None or base_attempt_id is not None or selection_manifest is not None:
+            if not attempt_id or not base_attempt_id or not selection_manifest:
+                raise campaign.CampaignError("selective review needs new attempt, base attempt and selection manifest")
+            if attempt_id == base_attempt_id:
+                raise campaign.CampaignError("selective review cannot reuse its base attempt name")
+            if budget_scope is None:
+                raise campaign.CampaignError("selective review requires a frozen budget scope")
+            from .review_recovery import _stored_batch
+            base_id, base_binding, base_result = _stored_batch(ledger, base_attempt_id)
+            selection_path = Path(selection_manifest).resolve()
+            selection = json.loads(selection_path.read_text(encoding="utf-8"))
+            payload = {k: v for k, v in selection.items() if k != "selection_hash"}
+            selected_jobs = sorted(set(job_ids or selection.get("jobs") or []))
+            if (selection.get("selection_hash") != digest(payload)
+                    or selection.get("base_batch_id") != base_id
+                    or selected_jobs != sorted(selection.get("jobs") or [])
+                    or not selected_jobs
+                    or any(key not in source_reports for key in selected_jobs)):
+                raise campaign.CampaignError("invalid frozen review selection")
+            if selection.get("projection_version") not in (None, projection_version):
+                raise campaign.CampaignError("selection projection changed")
+            if selection.get("source_repair_runtime_hash"):
+                from . import evidence_repair
+                if selection["source_repair_runtime_hash"] != digest(Path(evidence_repair.__file__).read_bytes()):
+                    raise campaign.CampaignError("frozen evidence repair runtime changed")
+            if selection.get("calibration_sha256") and selection["calibration_sha256"] != digest(calibration_path.read_bytes()):
+                raise campaign.CampaignError("frozen qualification changed")
+            base_reports = base_result.get("reviewed_reports") or {}
+            if any(key not in base_reports or protocol.run_hash(base_reports[key]) !=
+                   protocol.run_hash(source_reports[key]) or selection.get("run_hashes", {}).get(key) !=
+                   protocol.run_hash(source_reports[key]) for key in selected_jobs):
+                raise campaign.CampaignError("selected source answers differ from base attempt")
+            source_reports = {key: source_reports[key] for key in selected_jobs}
+            if selection.get("trial_ids") is not None:
+                by_job = selection["trial_ids"]
+                if (not isinstance(by_job, dict) or set(by_job) != set(selected_jobs)
+                        or any(not isinstance(ids, list) or not ids or len(ids) != len(set(ids))
+                               for ids in by_job.values())):
+                    raise campaign.CampaignError("invalid frozen trial selection")
+                selected_trials = {i for ids in by_job.values() for i in ids}
+                repairs = selection.get("evidence_repairs") or {}
+                if set(repairs) != set(selected_jobs):
+                    raise campaign.CampaignError("selected Wiki jobs lack frozen evidence descriptors")
+                for key, spec in repairs.items():
+                    if sorted(spec.get("selected_trial_ids", [])) != sorted(by_job[key]):
+                        raise campaign.CampaignError("repair and score selections differ")
+                    source_reports[key]["review_evidence"] = copy.deepcopy(spec)
+                from . import wiki_review_projection
+                if (projection_version != WIKI_PROJECTION or selection.get("wiki_projection_runtime_hash") !=
+                        digest(Path(wiki_review_projection.__file__).read_bytes())):
+                    raise campaign.CampaignError("Wiki projection runtime changed")
+            selection_binding = {"manifest_hash": digest(selection), "base_batch_id": base_id,
+                                 "base_attempt_id": base_attempt_id, "jobs": selected_jobs,
+                                 "boundary": "Only selected jobs are reviewed; no implicit inheritance of other scores."}
         packets = {key: rubric.blind_packet(value) for key, value in source_reports.items()
                    if value.get("executed_trial_count")
                    and value.get("proof_scope") != "development_smoke"}
         if not packets:
             return {"status": "not_run", "reason": "no_completed_answer_trials", "human_reviewed": False,
                     "ledger": ledger.summary()}
+        if selected_trials is not None:
+            from .review_inheritance import validate_inheritance
+            inherited_groups, inheritance_audit = validate_inheritance(
+                ledger, base_id, base_binding, base_result, packets, selected_trials)
+            if inheritance_audit["audit_hash"] != selection.get("inheritance_audit_hash"):
+                raise campaign.CampaignError("historical score inheritance changed")
+            selection_binding.update(inheritance_audit_hash=inheritance_audit["audit_hash"],
+                selected_trial_count=len(selected_trials), inherited_trial_count=inheritance_audit["inherited_trial_count"],
+                boundary="Selected trials use repaired inputs; inherited scores retain their original actual requests and qualifications.")
         calibration = rubric.load_calibration(calibration_path)
         if not calibration["eligible"]:
             return {"status": "unresolved", "reason": "calibration_gold_not_eligible", "human_reviewed": False,
@@ -597,10 +683,19 @@ def review(directory, *, resume=False, calibration_path=None, client_factory=Non
             "judge_guidance_hash": digest(JUDGE_GUIDANCE),
             "provider": "opencode-go" if urlsplit(plan["base_url"]).hostname == "opencode.ai"
                          else "openai-compatible:" + str(urlsplit(plan["base_url"]).hostname)}
+        if selection_binding:
+            expected_packets = selection.get("packet_hashes") or {}
+            if {k: p["packet_hash"] for k, p in packets.items()} != expected_packets:
+                raise campaign.CampaignError("selected review packets changed after freeze")
+            protocol_binding["selection"] = selection_binding
+        if budget_scope:
+            protocol_binding["budget_scope"] = copy.deepcopy(budget_scope)
         if projection_version:
             sizes = []
             for packet in packets.values():
                 for item in packet["items"]:
+                    if selected_trials is not None and item["trial_id"] not in selected_trials:
+                        continue
                     payload = {"item": _judge_item(item, projection_version),
                                "rubric": {**rubric.RUBRIC,
                                 "judge_guidance": JUDGE_GUIDANCE,
@@ -644,6 +739,12 @@ def review(directory, *, resume=False, calibration_path=None, client_factory=Non
                     request_hash TEXT NOT NULL, state TEXT NOT NULL, started_at REAL NOT NULL,
                     result_json TEXT, result_hash TEXT);
             """)
+            conn.execute("BEGIN IMMEDIATE")
+            if attempt_id is not None:
+                named = [row["id"] for row in conn.execute("SELECT id,binding_json FROM campaign_review_batches")
+                         if json.loads(row["binding_json"]).get("attempt_id") == attempt_id]
+                if named and named != [batch]:
+                    raise campaign.CampaignError("attempt name is already frozen to another binding; use a new attempt")
             existing = conn.execute("SELECT * FROM campaign_review_batches WHERE id=?", (batch,)).fetchone()
             if existing and not resume:
                 raise campaign.CampaignError("review batch already exists; use --resume, never overwrite scores")
@@ -652,6 +753,8 @@ def review(directory, *, resume=False, calibration_path=None, client_factory=Non
             conn.execute("INSERT OR IGNORE INTO campaign_review_batches(id,binding_json) VALUES(?,?)",
                          (batch, json.dumps(binding, sort_keys=True)))
             conn.execute("UPDATE campaign_review_calls SET state='uncertain' WHERE batch_id=? AND state='running'", (batch,))
+        if budget_scope is not None:
+            ledger.bind_scope(**budget_scope)
         clients = {}
         def build_client(role):
             obj = (client_factory or get_client)(ledger=ledger, session_id=binding["sessions"][role],
@@ -704,14 +807,15 @@ def review(directory, *, resume=False, calibration_path=None, client_factory=Non
                              "judge_guidance": JUDGE_GUIDANCE, "response_schema": ANSWER_SCHEMA}},
                             lambda answer: _validate(answer, item))
                     return _score_record(binding, role, item["input_hash"], call)
-                work = [(item, role) for item in packet["items"] for role in ("judge-a", "judge-b")]
+                fresh_items = [item for item in packet["items"] if selected_trials is None or item["trial_id"] in selected_trials]
+                work = [(item, role) for item in fresh_items for role in ("judge-a", "judge-b")]
                 if workers == 1:
                     flat_scores = [score(row) for row in work]
                 else:
                     with ThreadPoolExecutor(max_workers=workers) as pool:
                         flat_scores = list(pool.map(score, work))
-                groups[job_id] = []
-                for offset, item in enumerate(packet["items"]):
+                groups[job_id] = copy.deepcopy(inherited_groups.get(job_id, []))
+                for offset, item in enumerate(fresh_items):
                     scores = flat_scores[offset * 2:offset * 2 + 2]
                     group = {"trial_id": item["trial_id"], "reviewer_kind": "agent", "independent_reviews": scores}
                     groups[job_id].append(group)
@@ -750,7 +854,7 @@ def review(directory, *, resume=False, calibration_path=None, client_factory=Non
                             item, group = pair
                             original = group["independent_reviews"]
                             arbiter_hash = digest({"packet_input_hash": item["input_hash"], "independent_reviews": original})
-                            peer_view = [_arbiter_view(row) for row in original]
+                            peer_view = [_peer_view(row, projection_version) for row in original]
                             call = _call(ledger, batch, "arbiter", item["trial_id"], client_for_call("arbiter"),
                                 {"item": _judge_item(item, projection_version), "rubric": {**rubric.RUBRIC,
                                  "judge_guidance": JUDGE_GUIDANCE, "response_schema": ANSWER_SCHEMA},
@@ -772,6 +876,8 @@ def review(directory, *, resume=False, calibration_path=None, client_factory=Non
                 submission = {key: packet[key] for key in ("identity", "evaluation_hash", "run_hash", "packet_hash")}
                 submission.update(items=groups[job_id], judge_calibration=attestation,
                                   review_protocol=binding)
+                if inheritance_audit:
+                    submission["inherited_reviews"] = inheritance_audit
                 submissions[job_id] = submission
                 by_id = {item["trial_id"]: item for item in packet["items"]}
                 unresolved += sum(protocol.review_origin(group, by_id[group["trial_id"]]["input_hash"])["review_status"]
@@ -784,6 +890,7 @@ def review(directory, *, resume=False, calibration_path=None, client_factory=Non
                 "unresolved_trial_count": unresolved, "disagreement_count": len(disputes),
                 "calibration_runs": calibrations, "judge_calibration": attestation,
                 "reviews": submissions, "reviewed_reports": reviewed,
+                "inheritance_audit": inheritance_audit,
                 "boundary": "AI reviews only. Distinct sessions are not independent models; partial collections remain ineligible."})
         except ReviewPaused:
             return _finish(ledger, batch, {"status": "partial_budget", "binding": binding,
@@ -876,7 +983,7 @@ def _compact_curated_report(report):
                     "selected_review_hash": digest(selected) if selected else None,
                 })
     omitted = {"raw_trials", "blind_review", "review_history", "answer_key",
-               "task_manifest", "curated_report_hash"}
+               "task_manifest", "curated_report_hash", "review_evidence"}
     result = {key: copy.deepcopy(value) for key, value in report.items()
               if key not in omitted}
     protocol_value = copy.deepcopy(result.get("protocol") or {})
@@ -886,6 +993,8 @@ def _compact_curated_report(report):
     calibration.pop("review_runs", None)
     result["judge_calibration"] = calibration
     result["trial_results"] = trial_results
+    if report.get("review_evidence"):
+        result["evidence_repair_hash"] = digest(report["review_evidence"])
     result["curated_projection"] = {
         "schema_version": 1,
         "full_local_report_hash": digest(report),
@@ -905,7 +1014,7 @@ def _compact_curated_report(report):
 
 
 def export_reviewed_reports(directory, *, attempt_id, experiments_path="eval/experiments.yaml",
-                            allow_terminal_unresolved=False):
+                            allow_terminal_unresolved=False, job_ids=None):
     """Export resolved or explicitly terminal reviews; never prompts/raw responses."""
     target, _plan, ledger = campaign._load(directory)
     with ledger.connect() as conn:
@@ -940,8 +1049,12 @@ def export_reviewed_reports(directory, *, attempt_id, experiments_path="eval/exp
         manifest_path = root / manifest_path
     specs = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))["experiments"]
     outputs = {}
+    if job_ids is not None and (not job_ids or set(job_ids) - {s["id"] for s in specs}):
+        raise campaign.CampaignError("unknown or empty export job selection")
     for spec in specs:
         job_id = spec["id"]
+        if job_ids is not None and job_id not in job_ids:
+            continue
         if spec.get("kind") == "maintenance":
             continue
         if job_id not in reviewed:

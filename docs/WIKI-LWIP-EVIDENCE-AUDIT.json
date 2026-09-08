@@ -1,0 +1,4456 @@
+{
+  "schema_version": 1,
+  "scope": "review_only",
+  "status": "pending_evidence_audit",
+  "reason": "cited_body_omitted_from_review_input",
+  "run_hash": "79ff17fd9893328e097fb85466d2006b7cd06edf2b6359a5734cfbad96e5ad81",
+  "historical_report_sha256": "ccf9ac5712b01647c2ae13ac2de4cc7bd0e470b83b94853e17604ec1ee93ee2e",
+  "trial_count": 216,
+  "mapping_broken_trials": 0,
+  "range_review_required_trials": 72,
+  "restorable_trace_body_trials": 48,
+  "restorable_trace_citations": 76,
+  "restored_packet_hash": "f363817e8157aa65a8dd835e9d21da2ed2366e12774ffb8013b50e0353e108d5",
+  "range_audit": {
+    "run_hash": "79ff17fd9893328e097fb85466d2006b7cd06edf2b6359a5734cfbad96e5ad81",
+    "trials": [
+      {
+        "trial_id": "039fc5b13df08e6da6d114918210f7d0dd789e37baf22a7c1b15e744a5956cf0",
+        "task_id": "ho-lwip-error-dhcp-start-cleanup",
+        "input_hash": "f13f1ce330820c149ebe02c06241590d189c29df9dd9d729affab0aef8cf5d71",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "03d2d3f328145e6c901454b62962ef22e9ae5e6adb4d63b9dd92134d92ca6382",
+        "task_id": "ho-lwip-error-ip4-reassembly-cap",
+        "input_hash": "b6bb5e8f7dccdb5c198794ded795c3e744bbfe4ca5a9cf4fdd2b366ea8cd444c",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E30",
+            "source_ref": "src/core/ipv4/ip4_frag.c",
+            "path": "src/core/ipv4/ip4_frag.c",
+            "line_start": 653,
+            "line_end": 720,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E33",
+                "lines": "504-694",
+                "text_hash": "8c156e2abce2314f1090c7faff26b93fa1c36bb2e80e18a793d35c9659eb8cd1"
+              }
+            ]
+          },
+          {
+            "tag": "E31",
+            "source_ref": "src/core/ipv4/ip4_frag.c",
+            "path": "src/core/ipv4/ip4_frag.c",
+            "line_start": 228,
+            "line_end": 496,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E33",
+                "lines": "504-694",
+                "text_hash": "8c156e2abce2314f1090c7faff26b93fa1c36bb2e80e18a793d35c9659eb8cd1"
+              }
+            ]
+          },
+          {
+            "tag": "E32",
+            "source_ref": "src/core/ipv4/ip4_frag.c",
+            "path": "src/core/ipv4/ip4_frag.c",
+            "line_start": 345,
+            "line_end": 496,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E33",
+                "lines": "504-694",
+                "text_hash": "8c156e2abce2314f1090c7faff26b93fa1c36bb2e80e18a793d35c9659eb8cd1"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "04f170deca8c1518f78ba19836f0a6a6b762e65e08d3750fa1ba4b28467b0ddb",
+        "task_id": "ho-lwip-refuse-android-lifecycle",
+        "input_hash": "20e1780ff85ab551b64a3a09b3ed5f1e8ae0e55f2e327fffa4e3df82140ef22c",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "060b0bd1758807bfd709ab16e969d8f293ce0b27e7a298145bfcd40f2cf1ef47",
+        "task_id": "ho-lwip-flow-dns-resolution",
+        "input_hash": "bc7390e98237aacac61a6b23eae2f52554cdff23d69f2fd0d141864429ae9fc5",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "0662edbe15bc53ac9e8e2f09ed17bba21c20cfa884ee7977bacb07658bbb3cb3",
+        "task_id": "ho-lwip-flow-timeout-dispatch",
+        "input_hash": "364f3ed38eceff0983bb782e83851b9330a44fabf3ee4a6b2d2b04c1c4a2c464",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E2",
+            "source_ref": "src/core/timeouts.c#L289-L306",
+            "path": "src/core/timeouts.c",
+            "line_start": 289,
+            "line_end": 306,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E37",
+                "lines": "185-220,289-305,354-401",
+                "text_hash": "8fd46fafbffef9b98e19e3124e5adf3a25dbd9593b4e988307f62545dfebd15f"
+              }
+            ]
+          },
+          {
+            "tag": "E35",
+            "source_ref": "src/core/timeouts.c",
+            "path": "src/core/timeouts.c",
+            "line_start": 179,
+            "line_end": 221,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E37",
+                "lines": "185-220,289-305,354-401",
+                "text_hash": "8fd46fafbffef9b98e19e3124e5adf3a25dbd9593b4e988307f62545dfebd15f"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "075b4cc4cdfc5d35115395ccd532ec251b7c725dfc7688b1120ae6d96270427d",
+        "task_id": "ho-lwip-refuse-docker-overlay",
+        "input_hash": "027b18fbdf68320a2621023d2e768bc3cad72663a1153365d922123307f7f515",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "09abd4edbc95dfd4adfec9373cae7b3bc8cfd85a96c762fd8425348e34feba39",
+        "task_id": "ho-lwip-cond-tcp-bind-state",
+        "input_hash": "98bf464270c3e431bcf4655242d8a925682e2e29a0cf4fb62320c8436e00065b",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "09d27ea1205da68f8a6cbf369d23dcebd7762bea0d84ae563408196c2031a791",
+        "task_id": "ho-lwip-flow-udp-send-pipeline",
+        "input_hash": "66e150eb2af36db2e67c6877919c379841d1015a8d71bd53cbf30fb7a33394a2",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "0a9e6bebaad3ea7f6da3e67379adb43da5056ae6a817da5e8df97f609fa6f7d3",
+        "task_id": "ho-lwip-state-udp-pcb-lifecycle",
+        "input_hash": "df0abd156e609837705340ded8dca6f48a4ecbfca9a0816e0ba9bbe16d3e2daa",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "0af293c446c8ea86ded19836f0134fae134b9559b9d4de34a15f750ad5ea3a2f",
+        "task_id": "ho-lwip-cond-ip4-route-selection",
+        "input_hash": "9f6358db6c60950aa84ed0dd98c3ede0ed2db0b4962656400a27e6d23f126e09",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "0c652f0153bcbce3d89a5117223c1581df9d4c2bdef14eb82eeb079032bc7259",
+        "task_id": "ho-lwip-cond-pbuf-header-force",
+        "input_hash": "a14e15975e121f860101371aa807968d1fa9441c587b53028e0debb88043bc3f",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "11d9d154d91dca4dda0d6c50ed12cc9ca720a80688bdf2394b8a5cb9232a5022",
+        "task_id": "ho-lwip-error-dhcp-start-cleanup",
+        "input_hash": "8aed5658286aab4f8ddda0b9694423a5737dbe9c84e76becf72bfba2a12415c7",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "14d8496ed4b737f92fdbbc0d639aa336ed840da06e551f4d5994612ec35b6117",
+        "task_id": "ho-lwip-error-dns-enqueue-capacity",
+        "input_hash": "09837aadd569096288051195cfc4a3cfb1a71afa9d44ca4e5825bdaf92ac4ff0",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "158ad94004d1a7df7d40adc9805c09f12622540f9a0b9eeac4da87dd811119de",
+        "task_id": "ho-lwip-cond-udp-bind-conflict",
+        "input_hash": "e96cac51f28e29515afe1abc23c9d5049aba15a27652c79af6648c4cf963854a",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "16239a68160f6d105fdf03dd975412a2d72d86d890e0e5520a64a6b2b26c909f",
+        "task_id": "ho-lwip-state-udp-connect-disconnect",
+        "input_hash": "46a352a5f5c57206118677b6e116c6d278d35ea1a5e1bed55634113f945b1038",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "16e7e2298f816520ebf0480001e7ea8773ce12678db29fcbe9aefe74eeb65d8a",
+        "task_id": "ho-lwip-error-tcp-alloc-reclaim",
+        "input_hash": "d59d2dee4da05572fa53f97d513f8dbbd28f8dbdddf2f0962a40371ce05c0067",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "17e68ac9c2174118db5e5bfba20cc33b22f915572596f25bed7f67ad60dabe4d",
+        "task_id": "ho-lwip-error-dhcp-start-cleanup",
+        "input_hash": "2561382ed680b4b4941a77c8040b9eee5c47da9827c3cb621d7daf67c7e09cd6",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "1a22cc10e9a08fa14ed01c5cfccf04e53436eaf1e1dcd1e4c46f4efd7b7fae01",
+        "task_id": "ho-lwip-state-timeout-ordering",
+        "input_hash": "7c014251f71d713d7f42aff30ef88b9ec20dc0aa05dc3dda03f946f92de15c80",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E31",
+            "source_ref": "src/core/timeouts.c",
+            "path": "src/core/timeouts.c",
+            "line_start": 289,
+            "line_end": 306,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E34",
+                "lines": "185-220,316-341",
+                "text_hash": "dcc4556167c822a0a8f0170ee820279a81bab53dfa39602e60c5fa46371cf69a"
+              }
+            ]
+          },
+          {
+            "tag": "E32",
+            "source_ref": "src/core/timeouts.c",
+            "path": "src/core/timeouts.c",
+            "line_start": 179,
+            "line_end": 221,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E34",
+                "lines": "185-220,316-341",
+                "text_hash": "dcc4556167c822a0a8f0170ee820279a81bab53dfa39602e60c5fa46371cf69a"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "1a731ec77d87e2493b8269bee8651f4c01499aaa9839a0f2c47d47984061704f",
+        "task_id": "ho-lwip-error-dhcp-start-cleanup",
+        "input_hash": "ece4799e9c10592163be8ad5b78dc21db98a965d75d3e9ba2212bcfa31ed2b59",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "1ab845000ee012c726e7914ce5e24edee2d35effcfe9467792269bb787dc1d35",
+        "task_id": "ho-lwip-refuse-python-gil",
+        "input_hash": "297d70e746142279bf9b85204b8e9731ed7f52e81628c4b943104229b0872e4a",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E1",
+            "source_ref": "src/core/pbuf.c#L728-L804",
+            "path": "src/core/pbuf.c",
+            "line_start": 728,
+            "line_end": 804,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E6",
+            "source_ref": "src/core/tcp.c",
+            "path": "src/core/tcp.c",
+            "line_start": 1626,
+            "line_end": 1638,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E10",
+            "source_ref": "src/core/pbuf.c#L832-L840",
+            "path": "src/core/pbuf.c",
+            "line_start": 832,
+            "line_end": 840,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E29",
+            "source_ref": "src/api/sockets.c#L632-L650",
+            "path": "src/api/sockets.c",
+            "line_start": 632,
+            "line_end": 650,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "1bd961a73ed4d8aa2f05444e1dd003cf40d197a2a66a320fd271e06d36898dca",
+        "task_id": "ho-lwip-state-timeout-ordering",
+        "input_hash": "64d416b05e0a56ea2552b0e974ee4d1d19d66ea0149d34074955b60263229aa2",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E31",
+            "source_ref": "src/core/timeouts.c",
+            "path": "src/core/timeouts.c",
+            "line_start": 289,
+            "line_end": 341,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E33",
+                "lines": "185-220,316-341",
+                "text_hash": "dcc4556167c822a0a8f0170ee820279a81bab53dfa39602e60c5fa46371cf69a"
+              }
+            ]
+          },
+          {
+            "tag": "E32",
+            "source_ref": "src/core/timeouts.c",
+            "path": "src/core/timeouts.c",
+            "line_start": 179,
+            "line_end": 221,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E33",
+                "lines": "185-220,316-341",
+                "text_hash": "dcc4556167c822a0a8f0170ee820279a81bab53dfa39602e60c5fa46371cf69a"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "1e62e35be12e9b2608f970f0d22fa37e332d7a2946ce519790173ada570c8847",
+        "task_id": "ho-lwip-error-dns-enqueue-capacity",
+        "input_hash": "7e34c18230dabeb6a2723e6b8b9176230121c8ebc934f400156b0907adf7485c",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "1fa12a7fa0fc997ab0b24e88e34fa83baf722b163881039fb23b639419488706",
+        "task_id": "ho-lwip-state-udp-connect-disconnect",
+        "input_hash": "de449a9aca826f83dff3c9f87d55f136b04c7e918a29f3578cd726c9850d6ce1",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "225f8a85a85ecd31daad5c3115e38a72444a9499d59724b5a85f8a62db1f9693",
+        "task_id": "ho-lwip-flow-udp-send-pipeline",
+        "input_hash": "6c3aba1a1ce4fb7a339f294088dd507b9be7c389f81cfcd4478efcac74856c81",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E3",
+            "source_ref": "src/core/udp.c#L1074-L1120",
+            "path": "src/core/udp.c",
+            "line_start": 1074,
+            "line_end": 1120,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E29",
+                "lines": "466-908",
+                "text_hash": "b49dc1256789eb60a5dff3280ad108f19e8f9ba6e51b1527ed3db3268d46585f"
+              }
+            ]
+          },
+          {
+            "tag": "E6",
+            "source_ref": "src/core/udp.c#L707-L909",
+            "path": "src/core/udp.c",
+            "line_start": 707,
+            "line_end": 909,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E29",
+                "lines": "466-908",
+                "text_hash": "b49dc1256789eb60a5dff3280ad108f19e8f9ba6e51b1527ed3db3268d46585f"
+              }
+            ]
+          },
+          {
+            "tag": "E13",
+            "source_ref": "src/core/def.c",
+            "path": "src/core/def.c",
+            "line_start": 75,
+            "line_end": 79,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E14",
+            "source_ref": "src/core/inet_chksum.c",
+            "path": "src/core/inet_chksum.c",
+            "line_start": 378,
+            "line_end": 395,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E17",
+            "source_ref": "src/core/ipv6/ip6.c",
+            "path": "src/core/ipv6/ip6.c",
+            "line_start": 1173,
+            "line_end": 1271,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E18",
+            "source_ref": "src/core/ipv4/ip4.c",
+            "path": "src/core/ipv4/ip4.c",
+            "line_start": 860,
+            "line_end": 867,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E19",
+            "source_ref": "src/core/pbuf.c",
+            "path": "src/core/pbuf.c",
+            "line_start": 899,
+            "line_end": 906,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E20",
+            "source_ref": "src/core/inet_chksum.c",
+            "path": "src/core/inet_chksum.c",
+            "line_start": 525,
+            "line_end": 542,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E23",
+            "source_ref": "src/core/netif.c",
+            "path": "src/core/netif.c",
+            "line_start": 1731,
+            "line_end": 1747,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E28",
+            "source_ref": "src/core/udp.c",
+            "path": "src/core/udp.c",
+            "line_start": 779,
+            "line_end": 909,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E29",
+                "lines": "466-908",
+                "text_hash": "b49dc1256789eb60a5dff3280ad108f19e8f9ba6e51b1527ed3db3268d46585f"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "241f31da5aeaef4584aea0ed672f77db0f238cd2903e3a921ef0769a54d51e64",
+        "task_id": "ho-lwip-refuse-kafka-rebalance",
+        "input_hash": "29adb8b975d36d5da775705354fb084609afdfdc684c1f79a2f5c047d118ed4a",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E1",
+            "source_ref": "src/core/ipv6/mld6.c#L226-L297",
+            "path": "src/core/ipv6/mld6.c",
+            "line_start": 226,
+            "line_end": 297,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E2",
+            "source_ref": "src/core/ipv6/mld6.c#L346-L389",
+            "path": "src/core/ipv6/mld6.c",
+            "line_start": 346,
+            "line_end": 389,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E3",
+            "source_ref": "src/core/ipv6/mld6.c#L562-L624",
+            "path": "src/core/ipv6/mld6.c",
+            "line_start": 562,
+            "line_end": 624,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "24590a3b03ad47188645029492c82956ecc11f13a912e382b7600b0bda762169",
+        "task_id": "ho-lwip-error-dhcp-start-cleanup",
+        "input_hash": "ef69f80fa06fbcbe5c210fc22386dfe8e4dca130dfdec4a036bc82f9b253de9c",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "270905424d804dcca238862a3dc1bb75486c6d37ca2080e07836635bd5a8851b",
+        "task_id": "ho-lwip-refuse-kafka-rebalance",
+        "input_hash": "b2ae229c9702c9a76aec0498577af37b18142816be39ccc9255158e3a31cd6bc",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "27333b2418fd9e785ab20ac7416c5574cb7ffd5f08f2f459b1f473081bdecc9c",
+        "task_id": "ho-lwip-error-dns-enqueue-capacity",
+        "input_hash": "c9f9c50d9cc6c7adefca8df9a25242742c288923e2cc2ac7c655d3f93557a618",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "2991374c147f86cd7b6c2a7dcfb8e9bd6fae660c8a27d0ed10c9703e70e9556a",
+        "task_id": "ho-lwip-state-udp-pcb-lifecycle",
+        "input_hash": "7834b5121fb50d2e5c419aac7a606bedbaa881cfdfef63e91640ae1c76ebdb19",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E38",
+            "source_ref": "src/core/udp.c",
+            "path": "src/core/udp.c",
+            "line_start": 931,
+            "line_end": 1105,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E39",
+                "lines": "931-1031,1074-1120,1182-1278",
+                "text_hash": "4bb178774edf29c9399f00ea3f6090dd74bbfa07c917be5f647e6a4a79c03ddc"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "2a028e4fa9d5b158d790d620ed8b1a1c3eecc87c7ad249766491137d3246b0ce",
+        "task_id": "ho-lwip-flow-dns-resolution",
+        "input_hash": "96c12f8f3bb1ef1086d8f4b8d1ff2e818c17272e3cc07c1c1c0fb73b0d9aa788",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "2bdebf005defefaa785458b7851783ba0b9b9c2b3fab62c7e16e727332e350ca",
+        "task_id": "ho-lwip-state-timeout-ordering",
+        "input_hash": "2ef0c83e8ae56ae34a409cfb77da4409a92c591be9edada27df188075f3e31de",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E30",
+            "source_ref": "src/core/timeouts.c",
+            "path": "src/core/timeouts.c",
+            "line_start": 179,
+            "line_end": 341,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E32",
+                "lines": "185-220,316-341",
+                "text_hash": "dcc4556167c822a0a8f0170ee820279a81bab53dfa39602e60c5fa46371cf69a"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "2da4f52ef71eca65bceb24241eb8f5bf1e2d957927988d4c58a09888b7ab51bd",
+        "task_id": "ho-lwip-state-mem-heap",
+        "input_hash": "2010e8400902cd037459f2800ec2077d7c90ea79c53ed2e37e8e9ba5a94488f2",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E32",
+            "source_ref": "files/src__core__mem.c",
+            "path": null,
+            "line_start": null,
+            "line_end": null,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "2dba60c230efe24666a263a782e3e1e746d59250dceb045c80c136f1022c1b45",
+        "task_id": "ho-lwip-state-timeout-ordering",
+        "input_hash": "b01d6efcb71a581ac54cdd9e7e03c4195e0f6844ea5a9fc5771a3d990701f1f1",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E30",
+            "source_ref": "src/core/timeouts.c",
+            "path": "src/core/timeouts.c",
+            "line_start": 179,
+            "line_end": 341,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E32",
+                "lines": "185-220,316-341",
+                "text_hash": "dcc4556167c822a0a8f0170ee820279a81bab53dfa39602e60c5fa46371cf69a"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "2dbbfb5b4d0b9c4f1f69e6e78d72e29fc5d4abac14ed5fecd99231354794f321",
+        "task_id": "ho-lwip-state-udp-pcb-lifecycle",
+        "input_hash": "9528cbd124ddebbf38eed8db7624263d64f62ece5267a1bab2d5f6071e8a0f72",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E36",
+            "source_ref": "src/core/udp.c",
+            "path": "src/core/udp.c",
+            "line_start": 1120,
+            "line_end": 1285,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E39",
+                "lines": "931-1031,1074-1120,1182-1278",
+                "text_hash": "4bb178774edf29c9399f00ea3f6090dd74bbfa07c917be5f647e6a4a79c03ddc"
+              }
+            ]
+          },
+          {
+            "tag": "E37",
+            "source_ref": "src/core/udp.c",
+            "path": "src/core/udp.c",
+            "line_start": 1222,
+            "line_end": 1300,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E39",
+                "lines": "931-1031,1074-1120,1182-1278",
+                "text_hash": "4bb178774edf29c9399f00ea3f6090dd74bbfa07c917be5f647e6a4a79c03ddc"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "2ec3aa6e3f5c499c3c5ba6588a4b161bfdf1ef09d4a04660deba93c57394395c",
+        "task_id": "ho-lwip-state-udp-pcb-lifecycle",
+        "input_hash": "b4e6df9114fecbc893d44ca5f3f53fc631ad2391410cec07b4c0ca33c636c2b4",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "3078300a9f41c82b5dcc0ff16035814a5746055b40dd6b833fb9b15a7daf1f26",
+        "task_id": "ho-lwip-error-netbuf-reallocation",
+        "input_hash": "cd6a01fd592acee864778c86b404c8fa37c07b728de5d1e9bca46a0aa4281a92",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "314fec706e64fd3bb9cb3a1e9de3f370bcbcf7692cd384a1533d8b1a6874768e",
+        "task_id": "ho-lwip-refuse-android-lifecycle",
+        "input_hash": "1cdfe1fac59e9014e45405267362f353f16038d1e8685b3b0b8c316a210459f6",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "31b1b54443ec30d1db0a9ad99114452a65d96d6aaab98ced771d1395e46efe8f",
+        "task_id": "ho-lwip-flow-timeout-dispatch",
+        "input_hash": "c9b96c601fae942c9b2f57c0fba95ab95cccc16de77ffd26a5fb04e4d7fedd89",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E2",
+            "source_ref": "src/core/timeouts.c#L289-L306",
+            "path": "src/core/timeouts.c",
+            "line_start": 289,
+            "line_end": 306,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E37",
+                "lines": "185-220,289-305,354-401",
+                "text_hash": "8fd46fafbffef9b98e19e3124e5adf3a25dbd9593b4e988307f62545dfebd15f"
+              }
+            ]
+          },
+          {
+            "tag": "E34",
+            "source_ref": "src/core/timeouts.c",
+            "path": "src/core/timeouts.c",
+            "line_start": 179,
+            "line_end": 401,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E37",
+                "lines": "185-220,289-305,354-401",
+                "text_hash": "8fd46fafbffef9b98e19e3124e5adf3a25dbd9593b4e988307f62545dfebd15f"
+              }
+            ]
+          },
+          {
+            "tag": "E36",
+            "source_ref": "src/core/timeouts.c",
+            "path": "src/core/timeouts.c",
+            "line_start": 280,
+            "line_end": 315,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E37",
+                "lines": "185-220,289-305,354-401",
+                "text_hash": "8fd46fafbffef9b98e19e3124e5adf3a25dbd9593b4e988307f62545dfebd15f"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "31d1709bef10d358307511f5f86e13c2fe0bc693a07d534126c772db01fcadcd",
+        "task_id": "ho-lwip-refuse-kafka-rebalance",
+        "input_hash": "38fcd46154864b205141a0ea5d5c6d57e3a0283a556d468a7bbe146d92ca87e6",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E1",
+            "source_ref": "src/core/ipv6/mld6.c#L226-L297",
+            "path": "src/core/ipv6/mld6.c",
+            "line_start": 226,
+            "line_end": 297,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E2",
+            "source_ref": "src/core/ipv6/mld6.c#L346-L389",
+            "path": "src/core/ipv6/mld6.c",
+            "line_start": 346,
+            "line_end": 389,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E3",
+            "source_ref": "src/core/ipv6/mld6.c#L562-L624",
+            "path": "src/core/ipv6/mld6.c",
+            "line_start": 562,
+            "line_end": 624,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E4",
+            "source_ref": "src/core/ipv4/igmp.c#L243-L286",
+            "path": "src/core/ipv4/igmp.c",
+            "line_start": 243,
+            "line_end": 286,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E5",
+            "source_ref": "src/core/ipv6/mld6.c#L436-L486",
+            "path": "src/core/ipv6/mld6.c",
+            "line_start": 436,
+            "line_end": 486,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E6",
+            "source_ref": "src/core/ipv6/mld6.c#L167-L185",
+            "path": "src/core/ipv6/mld6.c",
+            "line_start": 167,
+            "line_end": 185,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E7",
+            "source_ref": "src/core/ipv6/mld6.c#L495-L518",
+            "path": "src/core/ipv6/mld6.c",
+            "line_start": 495,
+            "line_end": 518,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E8",
+            "source_ref": "src/core/pbuf.c",
+            "path": "src/core/pbuf.c",
+            "line_start": 728,
+            "line_end": 804,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E9",
+            "source_ref": "src/core/def.c",
+            "path": "src/core/def.c",
+            "line_start": 75,
+            "line_end": 79,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E10",
+            "source_ref": "src/core/ipv6/mld6.c",
+            "path": "src/core/ipv6/mld6.c",
+            "line_start": 143,
+            "line_end": 156,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E11",
+            "source_ref": "src/core/ipv6/mld6.c",
+            "path": "src/core/ipv6/mld6.c",
+            "line_start": 527,
+            "line_end": 551,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E12",
+            "source_ref": "src/core/ipv6/icmp6.c",
+            "path": "src/core/ipv6/icmp6.c",
+            "line_start": 82,
+            "line_end": 206,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E13",
+            "source_ref": "src/core/pbuf.c",
+            "path": "src/core/pbuf.c",
+            "line_start": 225,
+            "line_end": 302,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E14",
+            "source_ref": "src/core/pbuf.c",
+            "path": "src/core/pbuf.c",
+            "line_start": 586,
+            "line_end": 618,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E15",
+            "source_ref": "src/core/ipv6/mld6.c",
+            "path": "src/core/ipv6/mld6.c",
+            "line_start": 314,
+            "line_end": 335,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E16",
+            "source_ref": "src/core/ipv6/nd6.c",
+            "path": "src/core/ipv6/nd6.c",
+            "line_start": 2447,
+            "line_end": 2470,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E17",
+            "source_ref": "src/core/ipv6/ip6.c",
+            "path": "src/core/ipv6/ip6.c",
+            "line_start": 1149,
+            "line_end": 1167,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E18",
+            "source_ref": "src/core/inet_chksum.c",
+            "path": "src/core/inet_chksum.c",
+            "line_start": 342,
+            "line_end": 363,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E19",
+            "source_ref": "src/apps/mdns/mdns.c",
+            "path": "src/apps/mdns/mdns.c",
+            "line_start": 2371,
+            "line_end": 2424,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E20",
+            "source_ref": "src/api/api_msg.c",
+            "path": "src/api/api_msg.c",
+            "line_start": 2063,
+            "line_end": 2111,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E21",
+            "source_ref": "src/api/sockets.c",
+            "path": "src/api/sockets.c",
+            "line_start": 3393,
+            "line_end": 3824,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E22",
+            "source_ref": "src/core/ipv4/igmp.c",
+            "path": "src/core/ipv4/igmp.c",
+            "line_start": 217,
+            "line_end": 233,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E23",
+            "source_ref": "src/core/ipv6/ip6.c",
+            "path": "src/core/ipv6/ip6.c",
+            "line_start": 1405,
+            "line_end": 1446,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E24",
+            "source_ref": "src/core/ipv4/igmp.c",
+            "path": "src/core/ipv4/igmp.c",
+            "line_start": 127,
+            "line_end": 152,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "32fdec81951b5d68df676c6f13cc70cd84fb5960938b4311880e0505b4e86dd6",
+        "task_id": "ho-lwip-error-tcp-alloc-reclaim",
+        "input_hash": "62b59857e6567aad5504181970dcf79e5b6fc349fa026428978581fdc32347b3",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "33f807839e20821bcb3172df6e79e541bc9b85452f215afb4c52a9b328aaf4f5",
+        "task_id": "ho-lwip-cond-pbuf-header-force",
+        "input_hash": "ff190eaf5cdc5946cc0bccda6da025a4fff9bdfa04f39b3663d63550a389ec4b",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "352430e51da8c6ef0f37ad11283655cc64279f9d4585a6433451e9d99418f997",
+        "task_id": "ho-lwip-error-netbuf-reallocation",
+        "input_hash": "f7a67e0933ae1707269cd16fba6c922e71961a0ae3366c0b4b5619ae3597b224",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "38b6144c4f305565307e07dd21c1ff8ebc6fece6e8e6d9a9098e76aa7f6637d4",
+        "task_id": "ho-lwip-flow-udp-send-pipeline",
+        "input_hash": "dd658d518b052b2dab61ea6fac9a5cf5da60c2ccbe6fc0b48c8b0e0d8d94a2a7",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "38db53704f8aef1928d9351497e56190d7dca9bc436a2537196817f464f351b8",
+        "task_id": "ho-lwip-error-dns-enqueue-capacity",
+        "input_hash": "e4bb53053044f19d554352526f1b569738bdbc4595285504e9b671f0352c0aa1",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "392a1ef159d4728e92ffecada03893ce63e5c5b9f11ed0aa9715e7a45cf5c65c",
+        "task_id": "ho-lwip-state-ip4-reassembly-config",
+        "input_hash": "b48fd4b357c907eea814822cd9de2c734d5c60c56704fd242e51a2452a4b05f1",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "3b5ec42dcce2ab913d4286ed44f0f10f7d921ba28999517434be05964235514a",
+        "task_id": "ho-lwip-state-udp-connect-disconnect",
+        "input_hash": "46382176f9b5e303e5ad3844f44adc88b66c6da01cf879e7eea74bdce018cce1",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E33",
+            "source_ref": "src/core/udp.c",
+            "path": "src/core/udp.c",
+            "line_start": 931,
+            "line_end": 1031,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E35",
+                "lines": "1074-1208",
+                "text_hash": "35f2248084e9e401978fe508ebaada7f19aefe2e88593db098c81c6f5749e74c"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "3c7708c5204b5f7790d6bad6006f32723b5163832ed9eadf2d5c36ea805169f5",
+        "task_id": "ho-lwip-flow-ethernet-demux",
+        "input_hash": "8e3fa57f7a0b4a9190766ae2e7ffcd83b8263935197a54fa8303a465b1e3d33d",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E31",
+            "source_ref": "src/netif/ethernet.c",
+            "path": "src/netif/ethernet.c",
+            "line_start": 219,
+            "line_end": 280,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E32",
+                "lines": "80-253",
+                "text_hash": "83c6877b74f52002331c958734b214588a9277cae7cfaa61979f1eccee3f5b5d"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "3d6625e2d78ac4be4a5070bd00c84d354feaf21c8cece13589eddff6ad20d408",
+        "task_id": "ho-lwip-state-udp-pcb-lifecycle",
+        "input_hash": "bcdd8aca462e409cac9e25ef91f4d5b99484a368e2757aefa553f19b8541c6a1",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "3e663083b8e8ebff1d10a85ef5d5459a78338827dc815973d1cdf1220c5e2dec",
+        "task_id": "ho-lwip-refuse-kafka-rebalance",
+        "input_hash": "d822c4b840c8a73a84d8d46c7d518678065722bbdbf93ab4d5f9ec2ab725ef49",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E1",
+            "source_ref": "src/core/ipv6/mld6.c#L226-L297",
+            "path": "src/core/ipv6/mld6.c",
+            "line_start": 226,
+            "line_end": 297,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E2",
+            "source_ref": "src/core/ipv6/mld6.c#L346-L389",
+            "path": "src/core/ipv6/mld6.c",
+            "line_start": 346,
+            "line_end": 389,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E3",
+            "source_ref": "src/core/ipv6/mld6.c#L562-L624",
+            "path": "src/core/ipv6/mld6.c",
+            "line_start": 562,
+            "line_end": 624,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E4",
+            "source_ref": "src/core/ipv4/igmp.c#L243-L286",
+            "path": "src/core/ipv4/igmp.c",
+            "line_start": 243,
+            "line_end": 286,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E8",
+            "source_ref": "src/core/pbuf.c",
+            "path": "src/core/pbuf.c",
+            "line_start": 728,
+            "line_end": 804,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E24",
+            "source_ref": "src/core/ipv4/igmp.c",
+            "path": "src/core/ipv4/igmp.c",
+            "line_start": 127,
+            "line_end": 152,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "3e696e460bedf808abfeb47c9bf6ed716ad94a8a491f487d426f1e5baefc2a5e",
+        "task_id": "ho-lwip-flow-udp-send-pipeline",
+        "input_hash": "301377437f2b93485606237c6e44933ee9b83ca8305bb273f6986fe160305d12",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "3eac71372e21831e2c47ac8a096c3e0805df9d67ccfbcc9d35787f2c2787dcf5",
+        "task_id": "ho-lwip-cond-pbuf-header-force",
+        "input_hash": "92f32fbacbd4407856e149e7190e17548687a22c2e0e0f148eb27c11ddcd552c",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "3eb426f0b21976b081138a61a06c91effb41dd249789e7a5bbf0d3818db76eba",
+        "task_id": "ho-lwip-cond-udp-bind-conflict",
+        "input_hash": "1bd3d8b6a9f565d8111eae8e2dab8d993c271cad46ebe318f6f9462cb90664c6",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "3f787479ece40067ee07eb041ee545beac05ed2536125c124e2d0a4d73da2b4e",
+        "task_id": "ho-lwip-error-dns-enqueue-capacity",
+        "input_hash": "55c820a16b54833534bf401573b46955f0b56a6ee1575abfdec1be8d506d40b0",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "40e53662400b1eed2e11eb7497cb9e87b48a5c15896f6365cd2f162b3faf7471",
+        "task_id": "ho-lwip-error-ip4-reassembly-cap",
+        "input_hash": "e892395bb5a913aa6ac70d84959f27592aeb7097b92446c76be2804541bb7052",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E30",
+            "source_ref": "src/core/ipv4/ip4_frag.c",
+            "path": "src/core/ipv4/ip4_frag.c",
+            "line_start": 650,
+            "line_end": 740,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E33",
+                "lines": "504-694",
+                "text_hash": "8c156e2abce2314f1090c7faff26b93fa1c36bb2e80e18a793d35c9659eb8cd1"
+              }
+            ]
+          },
+          {
+            "tag": "E31",
+            "source_ref": "src/core/ipv4/ip4_frag.c",
+            "path": "src/core/ipv4/ip4_frag.c",
+            "line_start": 228,
+            "line_end": 496,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E33",
+                "lines": "504-694",
+                "text_hash": "8c156e2abce2314f1090c7faff26b93fa1c36bb2e80e18a793d35c9659eb8cd1"
+              }
+            ]
+          },
+          {
+            "tag": "E32",
+            "source_ref": "src/core/ipv4/ip4_frag.c",
+            "path": "src/core/ipv4/ip4_frag.c",
+            "line_start": 345,
+            "line_end": 496,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E33",
+                "lines": "504-694",
+                "text_hash": "8c156e2abce2314f1090c7faff26b93fa1c36bb2e80e18a793d35c9659eb8cd1"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "41d2ddca531fe607acb03e800509d009f836c66f3d48123335a6a6ba809629dc",
+        "task_id": "ho-lwip-flow-dhcp-start-discover",
+        "input_hash": "b4b952a0e8cda37be115d4c7b8d09b4e4800b7076d7ff22af59f011a1cbf004b",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "454218e0a3d5453bc3751d740b67db0a10b5761f3706024d4604aaad5907d877",
+        "task_id": "ho-lwip-flow-dns-resolution",
+        "input_hash": "5ea8919b85206dd576a62fe036e15d908537b83aa03bb1e98072086f606fe260",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "4567f52ce550c809bd5ff97a81b2c612e67590dc7f3be37a8dac921440ca117a",
+        "task_id": "ho-lwip-flow-udp-send-pipeline",
+        "input_hash": "936ed2710733fcc78aa7c68e5ea478e6f1c6b2299f68bef753ea55a21225a8d7",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "48a8416592d58adc471185ac2ee1dde5da2aaa0a1acda3cb5a2c5be19113caed",
+        "task_id": "ho-lwip-error-netbuf-reallocation",
+        "input_hash": "65f3b9ab795b5b92973ccbf22ff5c52ad4bc02a06ef65bdc6201fe127f6db832",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "48d63504a18895916213c5ecc9c7562dad5d2b657b547cf23aa113a271e16d47",
+        "task_id": "ho-lwip-flow-ethernet-demux",
+        "input_hash": "616dd92e055a3bdc9ea004bf4e4f2290a1b1306bed80139dad82e24542fed7ad",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "49cbceab281c27f4631cfccae5289c5c7080ad8dc09d80e6d37c37a6ace23460",
+        "task_id": "ho-lwip-refuse-docker-overlay",
+        "input_hash": "9a1a1f7dd9fe028094ff677c4f86788c3a730e4cbe81e28daa360453b8d123e7",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "4a378dc8df68ebee0ed0fc398dd7359b6ba4b53ff06dd7fa03ae5a8f5a2e3833",
+        "task_id": "ho-lwip-refuse-python-gil",
+        "input_hash": "7f54d57a04b7ec7b1ed1586208e476ff41e8024debddd12b7da03343df160694",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E1",
+            "source_ref": "src/core/pbuf.c#L728-L804",
+            "path": "src/core/pbuf.c",
+            "line_start": 728,
+            "line_end": 804,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E10",
+            "source_ref": "src/core/pbuf.c#L832-L840",
+            "path": "src/core/pbuf.c",
+            "line_start": 832,
+            "line_end": 840,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "4e77d22289b01519664e649717f24f1ef9c359e05f394fd414f628f59ed21ddf",
+        "task_id": "ho-lwip-cond-tcp-bind-state",
+        "input_hash": "318fd6a390ab3f4a220aecd5c9d67876b26e41a06f284117522d8800945f9f1c",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "4eb6e4702001ca5c0d9a469eebe073e759d6cc0694be40465b8afe05f21a3e37",
+        "task_id": "ho-lwip-cond-dns-sync-result",
+        "input_hash": "021bfbc157090bb50ad7d42e9d05374323c9410ed72a58bf3e77fc701f43118f",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E32",
+            "source_ref": "src/core/dns.c",
+            "path": "src/core/dns.c",
+            "line_start": 1393,
+            "line_end": 1526,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E33",
+                "lines": "1569-1655",
+                "text_hash": "7b3503e968d600e6c6b01feb8f04cea3134a436577a74885468a4a79e0c0e395"
+              },
+              {
+                "tag": "E34",
+                "lines": "1457-1510",
+                "text_hash": "f860ad4d36b226c76a1dc7c72fd0283307079d4c457e4b45b1509f910b7082b9"
+              },
+              {
+                "tag": "E35",
+                "lines": "1636-1650",
+                "text_hash": "a4dee045946a39a71c5bf8bcbadc7125dd7e5bf87f79fd6e37298ae94c0786fc"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "4ed80a04872127c2a47cafcb5ceb81312c43aeba5c38f05be054870331840902",
+        "task_id": "ho-lwip-cond-tcp-bind-state",
+        "input_hash": "14434bf32977df8d173b560f5b2b98d822e7f2f0a893eebcbfc937c88784cadc",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E28",
+            "source_ref": "src/core/tcp.c",
+            "path": "src/core/tcp.c",
+            "line_start": 709,
+            "line_end": 765,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E29",
+                "lines": "661-751",
+                "text_hash": "33fb4372e6df1ab2a724b921d32b263f8aa6d2c3a53a11fd3d0a3f42083ac3dc"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "4f3d4f744ccb60f2ae77f9aeb51543a4afdbede291b0da1b95066f2dc43c4300",
+        "task_id": "ho-lwip-cond-ip4-route-selection",
+        "input_hash": "0d5e7acbdc93dc6b8eed0d5ec407090f66269f5044fc1ae6f65b41a09a32f98b",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "527940614ec7ed286ba1c367216c926e64fbf54dece4edf843cd95126c69bbf0",
+        "task_id": "ho-lwip-cond-dns-sync-result",
+        "input_hash": "a174bd7349a8769bbfb43639dfd077f930d49a7b01192fd5a94903444bc1233c",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E31",
+            "source_ref": "src/core/dns.c",
+            "path": "src/core/dns.c",
+            "line_start": 1540,
+            "line_end": 1657,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E35",
+                "lines": "1569-1655",
+                "text_hash": "7b3503e968d600e6c6b01feb8f04cea3134a436577a74885468a4a79e0c0e395"
+              },
+              {
+                "tag": "E36",
+                "lines": "1457-1510",
+                "text_hash": "f860ad4d36b226c76a1dc7c72fd0283307079d4c457e4b45b1509f910b7082b9"
+              },
+              {
+                "tag": "E37",
+                "lines": "1636-1650",
+                "text_hash": "a4dee045946a39a71c5bf8bcbadc7125dd7e5bf87f79fd6e37298ae94c0786fc"
+              }
+            ]
+          },
+          {
+            "tag": "E32",
+            "source_ref": "src/core/dns.c",
+            "path": "src/core/dns.c",
+            "line_start": 1605,
+            "line_end": 1657,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E35",
+                "lines": "1569-1655",
+                "text_hash": "7b3503e968d600e6c6b01feb8f04cea3134a436577a74885468a4a79e0c0e395"
+              },
+              {
+                "tag": "E36",
+                "lines": "1457-1510",
+                "text_hash": "f860ad4d36b226c76a1dc7c72fd0283307079d4c457e4b45b1509f910b7082b9"
+              },
+              {
+                "tag": "E37",
+                "lines": "1636-1650",
+                "text_hash": "a4dee045946a39a71c5bf8bcbadc7125dd7e5bf87f79fd6e37298ae94c0786fc"
+              }
+            ]
+          },
+          {
+            "tag": "E34",
+            "source_ref": "src/core/dns.c",
+            "path": "src/core/dns.c",
+            "line_start": 1470,
+            "line_end": 1538,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E35",
+                "lines": "1569-1655",
+                "text_hash": "7b3503e968d600e6c6b01feb8f04cea3134a436577a74885468a4a79e0c0e395"
+              },
+              {
+                "tag": "E36",
+                "lines": "1457-1510",
+                "text_hash": "f860ad4d36b226c76a1dc7c72fd0283307079d4c457e4b45b1509f910b7082b9"
+              },
+              {
+                "tag": "E37",
+                "lines": "1636-1650",
+                "text_hash": "a4dee045946a39a71c5bf8bcbadc7125dd7e5bf87f79fd6e37298ae94c0786fc"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "52e54329471b6d2ada51b52efd03850b7c08d131fcac7b818f08713d21fd038e",
+        "task_id": "ho-lwip-cond-tcp-bind-state",
+        "input_hash": "eca7f04a0073fbdd7d30932fb10262f6353f18deea0293fba204be2e8ebe7908",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "53cf476a18a274ee276585e3440b7d75c089f3541c831f926d6ea7ebec5fe327",
+        "task_id": "ho-lwip-flow-timeout-dispatch",
+        "input_hash": "d91cdc79780756cb656892c13aa27d800648dfcf4f576799e5f38fc6ea9b2864",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E2",
+            "source_ref": "src/core/timeouts.c#L289-L306",
+            "path": "src/core/timeouts.c",
+            "line_start": 289,
+            "line_end": 306,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E37",
+                "lines": "185-220,289-305,354-401",
+                "text_hash": "8fd46fafbffef9b98e19e3124e5adf3a25dbd9593b4e988307f62545dfebd15f"
+              }
+            ]
+          },
+          {
+            "tag": "E34",
+            "source_ref": "src/core/timeouts.c",
+            "path": "src/core/timeouts.c",
+            "line_start": 179,
+            "line_end": 401,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E37",
+                "lines": "185-220,289-305,354-401",
+                "text_hash": "8fd46fafbffef9b98e19e3124e5adf3a25dbd9593b4e988307f62545dfebd15f"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "5408b91e01fb70818c4818ecec70841eb44fb45a33388f068b50507d509b10f6",
+        "task_id": "ho-lwip-refuse-android-lifecycle",
+        "input_hash": "7b9401ad4bb01b31dc0f3d005d1fdd9883fd163e05096c1178da3751b2d81113",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "5459522bdcddb07f00e7cf3226f16c168b321d1503cc5eb2cec317e9103050d8",
+        "task_id": "ho-lwip-cond-ip4-route-selection",
+        "input_hash": "5b339adfde4b21bfb80108370e09509674d9f9f39eb647b2e9ddb241c39553ff",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "54c427dbe00a054530055b318dfd65a89174a379abdc073da151f3d4260a0d49",
+        "task_id": "ho-lwip-flow-dhcp-start-discover",
+        "input_hash": "d401441d555ea99226604fb7c469fedaf8303047f1e76738b47b86eda9fb2360",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "5843269f9add494300eaf92b115181e65e3c05cebceb84364ae61d48c385f080",
+        "task_id": "ho-lwip-flow-dns-resolution",
+        "input_hash": "918d5b33411137505d72e41c94be652b4a0c81f4bbbb58beccc67a00e5985f34",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "584f6bdd71e1f10d9dad1a8c4b700141df9fc757fee2b057f54c5b0006e27788",
+        "task_id": "ho-lwip-cond-ip4-route-selection",
+        "input_hash": "1702051ae0fd84bab092776f782152298affc8b97b4041f43cc5845c26eaa10f",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "58c24c2c00b1c8411db0f53a4dc1fa9a5aeedfcaf9a366de0dced6837c5f6254",
+        "task_id": "ho-lwip-state-mem-heap",
+        "input_hash": "567ffc77d58dc33eef163f218dabaa1ccea0d61b7063dbe71ba455e21178f651",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "59ad10e04f23ac36e3f7ee7ba07a491af02dd29f17cca83abbafec9262e237e6",
+        "task_id": "ho-lwip-cond-dns-sync-result",
+        "input_hash": "ec3fb3bdbf9df0ed94c44e64ff61747d1383325374c8545025def461cedaf53a",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "59bd4f0f19b76ff554b297ec98951efcb5c4a92abd8f6095c294c4dd961fe8e2",
+        "task_id": "ho-lwip-refuse-docker-overlay",
+        "input_hash": "815f541f812c40db6bc76dbeabd9efd814de8459fcda64ce01795cb7aad255b1",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "59ea0f05d978a26f2b187d77212a322dcb5177b90754ea03ca2dbd7a7e9fc5fb",
+        "task_id": "ho-lwip-error-tcp-alloc-reclaim",
+        "input_hash": "4b46c1aec9357c6f10f52a45f1bd79ae43e27e5e778f8a72be8d58b7b5ed1085",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E26",
+            "source_ref": "src/core/tcp.c",
+            "path": "src/core/tcp.c",
+            "line_start": 1700,
+            "line_end": 1985,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E30",
+                "lines": "1709-1807",
+                "text_hash": "801ceea493fbfc318c5e361c1d98568e761d92af169d3323b464ebcea3f1e0ac"
+              },
+              {
+                "tag": "E31",
+                "lines": "1814-1935",
+                "text_hash": "872d6c6126ad29562892611d494ba5fcae62dbc5c8c9700f8c5c14d9768243a4"
+              }
+            ]
+          },
+          {
+            "tag": "E27",
+            "source_ref": "src/core/tcp.c",
+            "path": "src/core/tcp.c",
+            "line_start": 1787,
+            "line_end": 1950,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E30",
+                "lines": "1709-1807",
+                "text_hash": "801ceea493fbfc318c5e361c1d98568e761d92af169d3323b464ebcea3f1e0ac"
+              },
+              {
+                "tag": "E31",
+                "lines": "1814-1935",
+                "text_hash": "872d6c6126ad29562892611d494ba5fcae62dbc5c8c9700f8c5c14d9768243a4"
+              }
+            ]
+          },
+          {
+            "tag": "E28",
+            "source_ref": "src/core/tcp.c",
+            "path": "src/core/tcp.c",
+            "line_start": 1860,
+            "line_end": 1940,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E30",
+                "lines": "1709-1807",
+                "text_hash": "801ceea493fbfc318c5e361c1d98568e761d92af169d3323b464ebcea3f1e0ac"
+              },
+              {
+                "tag": "E31",
+                "lines": "1814-1935",
+                "text_hash": "872d6c6126ad29562892611d494ba5fcae62dbc5c8c9700f8c5c14d9768243a4"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "5b764ac7bc1989ac3defd6a6fc4db6f45781b9c9f3c72b2dddd918957d9c9d6b",
+        "task_id": "ho-lwip-flow-timeout-dispatch",
+        "input_hash": "45303d1a3b060d4a75f66b046f4392d529f43678f57acdcbc1d9b1fa792886ef",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "5c88daa30601bec973088a71768c26bb1776d7effed653322ef585be69e98b97",
+        "task_id": "ho-lwip-cond-dns-sync-result",
+        "input_hash": "d52d6ad6b3336623fb86ef81e93aa97abadaf617816afea68423a254b707ab3b",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "5cd27143b670300715589e416312e7181c9f921620204bb2b6aed82c520294ec",
+        "task_id": "ho-lwip-state-ip4-reassembly-config",
+        "input_hash": "3c9176cb39751794d2aea9696a268b50c6f2e20445954c8863e80c09a70688eb",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "5f1e2eccb94cf69e2c3b3cfc7bc5fc19015157b6e87d5e45e70a4b6ccafe8a3a",
+        "task_id": "ho-lwip-state-udp-connect-disconnect",
+        "input_hash": "11fcfaaae5d8f7bde218bfa1881622b981968863a762f6b7b054242619af19ac",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E5",
+            "source_ref": "src/core/udp.c",
+            "path": "src/core/udp.c",
+            "line_start": 931,
+            "line_end": 1031,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E33",
+                "lines": "1074-1208",
+                "text_hash": "35f2248084e9e401978fe508ebaada7f19aefe2e88593db098c81c6f5749e74c"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "60c74ebd9fab959b5a76badf56d6ad2105b5c6cc2af793070b0d7fcea8dd57f9",
+        "task_id": "ho-lwip-refuse-android-lifecycle",
+        "input_hash": "44ad078c1699fd649772f915e4bfe0e038dc85fdea5b51eed0c4e6d600b72e04",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "618f120523e23b95df3795d03c453057917b79729c9189ba85a1d7bd52165b0f",
+        "task_id": "ho-lwip-cond-dns-sync-result",
+        "input_hash": "baada5368b15c30566875f5616253f5bd760b3b84c94f56ff6cb2cb7f5134285",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "62d7c5be4b37c7134e0c17b1fccd3fc23c1b582fb1a9098c0e15bf793c955cf6",
+        "task_id": "ho-lwip-refuse-docker-overlay",
+        "input_hash": "6eeada534c240681bd80d789cd4f7bf194b627c096836616b132308e3bee6086",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "66340669b582dbf8dd00d32d92b558f5936220461035d92b3d0672d07d1ddedf",
+        "task_id": "ho-lwip-cond-dns-sync-result",
+        "input_hash": "4d1f5ce1daa294679a63d212d5443a00350c58469b232ae7cd57a10ea2632293",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "6745b8ecfd1210fb9cce135180e52a6f9dc27a092a110b6adbefea99cf0ed506",
+        "task_id": "ho-lwip-flow-dhcp-start-discover",
+        "input_hash": "40b82cec237b890d76a9f6b8a05159a66f37accfd590f283f5b33f942e8dc06b",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "676577cbbb225c9477071f0e26a7f1338b51307570433699d56aeea09333b706",
+        "task_id": "ho-lwip-state-udp-connect-disconnect",
+        "input_hash": "e770cd8980665373de5fc978588f52a0f1b2f8484c8a6aaea44cbdfe403a6006",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "6dc22c590fcbba498256f097a5af8967e413ccb695623c9d6115c4c2124fec8b",
+        "task_id": "ho-lwip-refuse-kafka-rebalance",
+        "input_hash": "679e7e937907f82a85cb8bfeb4150f831f6d3c6882007ec87d1f1bccb486d79f",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E1",
+            "source_ref": "src/core/ipv6/mld6.c#L226-L297",
+            "path": "src/core/ipv6/mld6.c",
+            "line_start": 226,
+            "line_end": 297,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E4",
+            "source_ref": "src/core/ipv4/igmp.c#L243-L286",
+            "path": "src/core/ipv4/igmp.c",
+            "line_start": 243,
+            "line_end": 286,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E5",
+            "source_ref": "src/core/ipv6/mld6.c#L436-L486",
+            "path": "src/core/ipv6/mld6.c",
+            "line_start": 436,
+            "line_end": 486,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "6de0993a90bc4ad870d9b68dcbbd4050a6229e66d411e7ce49ef3409610cc828",
+        "task_id": "ho-lwip-cond-udp-bind-conflict",
+        "input_hash": "92b205abcb6bb4c33d839ab0c7f68899451897e18e8dbeab6bd333932d8940e3",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "70f1cbb8348da7b37b373c5d6c419c7820b13697d4603c0ecc22f43795b16616",
+        "task_id": "ho-lwip-flow-dhcp-start-discover",
+        "input_hash": "a8eb636c19acef3b265fe2637d14de3bcf4035e7d46218af710c33398122ff42",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "726fdfdbd5f1a3149cb3377786c7cc33d2d70d7d40ab5888acd3c61dbf3b8e96",
+        "task_id": "ho-lwip-state-timeout-ordering",
+        "input_hash": "f7e5f1a56030abb2b19d974ecaac34acf393014f4b5bd98b5751896bb3a6fe6d",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E24",
+            "source_ref": "src/core/timeouts.c#L289-L306",
+            "path": "src/core/timeouts.c",
+            "line_start": 289,
+            "line_end": 306,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E32",
+                "lines": "185-220,316-341",
+                "text_hash": "dcc4556167c822a0a8f0170ee820279a81bab53dfa39602e60c5fa46371cf69a"
+              }
+            ]
+          },
+          {
+            "tag": "E30",
+            "source_ref": "src/core/timeouts.c",
+            "path": "src/core/timeouts.c",
+            "line_start": 179,
+            "line_end": 341,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E32",
+                "lines": "185-220,316-341",
+                "text_hash": "dcc4556167c822a0a8f0170ee820279a81bab53dfa39602e60c5fa46371cf69a"
+              }
+            ]
+          },
+          {
+            "tag": "E31",
+            "source_ref": "src/core/timeouts.c",
+            "path": "src/core/timeouts.c",
+            "line_start": 289,
+            "line_end": 341,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E32",
+                "lines": "185-220,316-341",
+                "text_hash": "dcc4556167c822a0a8f0170ee820279a81bab53dfa39602e60c5fa46371cf69a"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "73ac60c0aafda1c7e31656501cacf22e4569fa4ae49e44a282a8d0eb6df4c494",
+        "task_id": "ho-lwip-state-ip4-reassembly-config",
+        "input_hash": "f4c6773b7054eaedfa1bc446e18e59011ad64741d8017cfd990401753fb61952",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "73f6e0ce4b6358d5e3737b22d488d23cf911a26938d311763b7a2f5e59953cd3",
+        "task_id": "ho-lwip-flow-timeout-dispatch",
+        "input_hash": "89240d1b9f400f28ce962a11480ee26a3f98f04999281c3694cefa39fdd785ea",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E2",
+            "source_ref": "src/core/timeouts.c#L289-L306",
+            "path": "src/core/timeouts.c",
+            "line_start": 289,
+            "line_end": 306,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E36",
+                "lines": "185-220,289-305,354-401",
+                "text_hash": "8fd46fafbffef9b98e19e3124e5adf3a25dbd9593b4e988307f62545dfebd15f"
+              }
+            ]
+          },
+          {
+            "tag": "E26",
+            "source_ref": "src/core/timeouts.c",
+            "path": "src/core/timeouts.c",
+            "line_start": 179,
+            "line_end": 221,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E36",
+                "lines": "185-220,289-305,354-401",
+                "text_hash": "8fd46fafbffef9b98e19e3124e5adf3a25dbd9593b4e988307f62545dfebd15f"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "755ec09ae6d554fd43a5d5cda2a595a329f3c0a08a063d1c1960951d3a4752c6",
+        "task_id": "ho-lwip-error-netbuf-reallocation",
+        "input_hash": "8ecb90e68899bf80ff962d48c18da211da20b8f9fd2ee4b6584d409aa0747c46",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "75ec11db5350d120e2db27df0115cb41de85eb5573dd0f3db3ce580efdf19afa",
+        "task_id": "ho-lwip-error-dns-enqueue-capacity",
+        "input_hash": "65dd49294c2f54df2aecae3a2d8fcd7c0dc1072982066e30a27b12eb229c8015",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "762173c8b6572a4d5a11ad7de043065f6f31ed9f3ce5cace66a14a1b44f1c8ca",
+        "task_id": "ho-lwip-flow-ethernet-demux",
+        "input_hash": "1f498084fd126da332829a34797be4f2ee0fcd748357259846d25f677d6659cd",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "763e6543f5ac279e6ff2be50151c6502d8596e8d69ab8cec913b971d1a4c5c84",
+        "task_id": "ho-lwip-refuse-kafka-rebalance",
+        "input_hash": "a0c77b09b0aa1849fd1885e1254376c56d3857e12ed3b57ed63abdc220520c37",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "772f37a89d3007b440526e1d3ca4b369cb25129929e7b4410fa6634981b5fc03",
+        "task_id": "ho-lwip-error-dhcp-start-cleanup",
+        "input_hash": "eb11711ff53509ae2f3cabb8ee13e49b86337d761f98a0524f01cfe8e76f5b31",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "7737c43c50a8f3bc4ee4e6baac279d010d86d31dc6231237de3a21cb0abdbc70",
+        "task_id": "ho-lwip-flow-timeout-dispatch",
+        "input_hash": "b5686aafe6b1306823d8b35cf9efed300f3e39856a98b98eeb2fba99124bbc19",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E2",
+            "source_ref": "src/core/timeouts.c#L289-L306",
+            "path": "src/core/timeouts.c",
+            "line_start": 289,
+            "line_end": 306,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E37",
+                "lines": "185-220,289-305,354-401",
+                "text_hash": "8fd46fafbffef9b98e19e3124e5adf3a25dbd9593b4e988307f62545dfebd15f"
+              }
+            ]
+          },
+          {
+            "tag": "E34",
+            "source_ref": "files/src__core__timeouts.c",
+            "path": null,
+            "line_start": null,
+            "line_end": null,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E35",
+            "source_ref": "src/core/timeouts.c",
+            "path": "src/core/timeouts.c",
+            "line_start": 179,
+            "line_end": 401,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E37",
+                "lines": "185-220,289-305,354-401",
+                "text_hash": "8fd46fafbffef9b98e19e3124e5adf3a25dbd9593b4e988307f62545dfebd15f"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "79b27d84cde25e570d3dcfe3c913ed494b1222991be79e9b106786c90da4cb62",
+        "task_id": "ho-lwip-state-timeout-ordering",
+        "input_hash": "7d834f065b3414cda66dac1d477fac0afe96cb0f2c4d809dae7c6ebbbf806cb3",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E30",
+            "source_ref": "src/core/timeouts.c",
+            "path": "src/core/timeouts.c",
+            "line_start": 179,
+            "line_end": 341,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E32",
+                "lines": "185-220,316-341",
+                "text_hash": "dcc4556167c822a0a8f0170ee820279a81bab53dfa39602e60c5fa46371cf69a"
+              }
+            ]
+          },
+          {
+            "tag": "E31",
+            "source_ref": "src/core/timeouts.c",
+            "path": "src/core/timeouts.c",
+            "line_start": 289,
+            "line_end": 341,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E32",
+                "lines": "185-220,316-341",
+                "text_hash": "dcc4556167c822a0a8f0170ee820279a81bab53dfa39602e60c5fa46371cf69a"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "79ec5ff67242415cbf9696a83cc0814ca46df50dae135659e1c50dfd7c4b02f5",
+        "task_id": "ho-lwip-flow-ethernet-demux",
+        "input_hash": "79b4e55bfb48b8fbd10527875ae3d0f03a742239f0e1be015d1e8b90edf16192",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "7aeb1959e1af2f05755c27e1c206b35ffef6442ef6acb3513cc950d5f8ff6345",
+        "task_id": "ho-lwip-state-ip4-reassembly-config",
+        "input_hash": "0ff281861d5e1403e7cad944d2bbe7178ae82994348844dfd015759d80002b7d",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "7c3711e9fea610f5ce3c8c71c871b9b5497dbb6a308eb802fd42cc15114f37a0",
+        "task_id": "ho-lwip-flow-timeout-dispatch",
+        "input_hash": "9dea2369da85c79e99e053730266da6e5a210c36cd27a42d94f557c056656c30",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E34",
+            "source_ref": "files/src__core__timeouts.c",
+            "path": null,
+            "line_start": null,
+            "line_end": null,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E35",
+            "source_ref": "src/core/timeouts.c",
+            "path": "src/core/timeouts.c",
+            "line_start": 179,
+            "line_end": 401,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E37",
+                "lines": "185-220,289-305,354-401",
+                "text_hash": "8fd46fafbffef9b98e19e3124e5adf3a25dbd9593b4e988307f62545dfebd15f"
+              }
+            ]
+          },
+          {
+            "tag": "E36",
+            "source_ref": "src/core/timeouts.c",
+            "path": "src/core/timeouts.c",
+            "line_start": 354,
+            "line_end": 449,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E37",
+                "lines": "185-220,289-305,354-401",
+                "text_hash": "8fd46fafbffef9b98e19e3124e5adf3a25dbd9593b4e988307f62545dfebd15f"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "7c99b4a3ce2f2bcccc702b5fc341539a1ed86e4b180de310e47eb3987aa7940d",
+        "task_id": "ho-lwip-state-udp-connect-disconnect",
+        "input_hash": "c27eb262dffe78869cd35763eb741797a11e2b460c6a59237915d4131c266e02",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "7ca4eb7d2d489b29ff484260d5e6f2b895615f56a9d7e0fc4f230972fc458973",
+        "task_id": "ho-lwip-cond-dns-sync-result",
+        "input_hash": "54273666eabe2e7363606c684a0b2f5cd1e89c2f4f97780db934ab2e0ff69dd8",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E7",
+            "source_ref": "src/core/dns.c",
+            "path": "src/core/dns.c",
+            "line_start": 1393,
+            "line_end": 1526,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E34",
+                "lines": "1569-1655",
+                "text_hash": "7b3503e968d600e6c6b01feb8f04cea3134a436577a74885468a4a79e0c0e395"
+              },
+              {
+                "tag": "E35",
+                "lines": "1457-1510",
+                "text_hash": "f860ad4d36b226c76a1dc7c72fd0283307079d4c457e4b45b1509f910b7082b9"
+              },
+              {
+                "tag": "E36",
+                "lines": "1636-1650",
+                "text_hash": "a4dee045946a39a71c5bf8bcbadc7125dd7e5bf87f79fd6e37298ae94c0786fc"
+              }
+            ]
+          },
+          {
+            "tag": "E33",
+            "source_ref": "src/core/dns.c",
+            "path": "src/core/dns.c",
+            "line_start": 1619,
+            "line_end": 1657,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E34",
+                "lines": "1569-1655",
+                "text_hash": "7b3503e968d600e6c6b01feb8f04cea3134a436577a74885468a4a79e0c0e395"
+              },
+              {
+                "tag": "E35",
+                "lines": "1457-1510",
+                "text_hash": "f860ad4d36b226c76a1dc7c72fd0283307079d4c457e4b45b1509f910b7082b9"
+              },
+              {
+                "tag": "E36",
+                "lines": "1636-1650",
+                "text_hash": "a4dee045946a39a71c5bf8bcbadc7125dd7e5bf87f79fd6e37298ae94c0786fc"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "7e05421bdbdccbf8ce98fd6b10a6cfab08c28ac774902f58556bfb9d7719891d",
+        "task_id": "ho-lwip-cond-tcp-bind-state",
+        "input_hash": "924100be10802f736f7a54964f5092e6f662869b72de9193dc310824743c3de1",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "7f7863c296bdf849109b20b6250d2bdc86cf56358310300c0ed377b7ecf7dbdc",
+        "task_id": "ho-lwip-state-udp-connect-disconnect",
+        "input_hash": "cd76450343f88bdbf178e411606df64f862b2e159453fa74563701e8198a989f",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "8022a4ab19b2d3af910e96b02f412da02aa6a03f2ec54d644463c6f3a06bdabf",
+        "task_id": "ho-lwip-cond-pbuf-header-force",
+        "input_hash": "3acd72849bb5f3c52740cbbfb7607ca8cf56f957c550aee81eff0423a0461f0f",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E10",
+            "source_ref": "src/core/pbuf.c#L328-L343",
+            "path": "src/core/pbuf.c",
+            "line_start": 328,
+            "line_end": 343,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E31",
+                "lines": "477-664",
+                "text_hash": "fe30bba60b90c366bb05beaac154e8fb00609fb8558bbeb5a6164ac696991288"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "804ecd26ea9a42da3087a5f9754cfaf52bef5cdae7559e85a3f015abc032b92e",
+        "task_id": "ho-lwip-cond-ip4-route-selection",
+        "input_hash": "450bc76f336fbc139924200400e529fc822641eef724bad14cf23e6328b9fb74",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "816ec961f4a65217e13e0fe313a9de86734e1ef5fe17424e1e10903904274262",
+        "task_id": "ho-lwip-error-netbuf-reallocation",
+        "input_hash": "556adfb49a367ac8eb976a6d61684d3e719bc58cd50bbbe486ed25545dbb7115",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E28",
+            "source_ref": "src/api/netbuf.c",
+            "path": "src/api/netbuf.c",
+            "line_start": 70,
+            "line_end": 95,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E29",
+                "lines": "80-118",
+                "text_hash": "54f41d6ddcc678bb39de6da6da95f3cd19d2d46c17347c060d8006c1f83d771a"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "83322d5c00f8e5e126c45210d976be9086960aed52126fc469130d773dc0ada7",
+        "task_id": "ho-lwip-cond-dns-sync-result",
+        "input_hash": "e858f60a382687730184c0c57e4a959d82bc6c610908c36c9c6927c94c77f17c",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E33",
+            "source_ref": "src/core/dns.c",
+            "path": "src/core/dns.c",
+            "line_start": 1520,
+            "line_end": 1568,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E34",
+                "lines": "1569-1655",
+                "text_hash": "7b3503e968d600e6c6b01feb8f04cea3134a436577a74885468a4a79e0c0e395"
+              },
+              {
+                "tag": "E35",
+                "lines": "1457-1510",
+                "text_hash": "f860ad4d36b226c76a1dc7c72fd0283307079d4c457e4b45b1509f910b7082b9"
+              },
+              {
+                "tag": "E36",
+                "lines": "1636-1650",
+                "text_hash": "a4dee045946a39a71c5bf8bcbadc7125dd7e5bf87f79fd6e37298ae94c0786fc"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "83fde508de0fb4cf251b601f1cc66282eb22feba5264c94439db3e2684404638",
+        "task_id": "ho-lwip-state-mem-heap",
+        "input_hash": "412af1711d72c2ce16d264195d4043189d8f2661b10065cf3084622ffda74075",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E35",
+            "source_ref": "src/core/mem.c",
+            "path": "src/core/mem.c",
+            "line_start": 450,
+            "line_end": 505,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E36",
+                "lines": "603-673,817-963",
+                "text_hash": "1485c49f31e581653c420329ce149f6a4abf1faac60d4dc21e7d7442e44ca461"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "8431a2f468d02591c04f387efab5133cdd2ac7383cdb8c0a846ccb52de4f1d27",
+        "task_id": "ho-lwip-error-tcp-alloc-reclaim",
+        "input_hash": "b4b47c06cff8f0eac0e52a1e8c2b48dadc8c729adbc5e27d873b00569206fb72",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E28",
+            "source_ref": "src/core/tcp.c",
+            "path": "src/core/tcp.c",
+            "line_start": 1783,
+            "line_end": 1836,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E29",
+                "lines": "1709-1807",
+                "text_hash": "801ceea493fbfc318c5e361c1d98568e761d92af169d3323b464ebcea3f1e0ac"
+              },
+              {
+                "tag": "E30",
+                "lines": "1814-1935",
+                "text_hash": "872d6c6126ad29562892611d494ba5fcae62dbc5c8c9700f8c5c14d9768243a4"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "85ded166e97a0b4dfe8f77b52c8c00bdc19d813ab8aefcc2fa9469bf24b60f85",
+        "task_id": "ho-lwip-error-tcp-alloc-reclaim",
+        "input_hash": "e4ebe7c3e8c5454ad672dc936fd0d61d9a453a89110c24412328e09031b7c57d",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E26",
+            "source_ref": "src/core/tcp.c",
+            "path": "src/core/tcp.c",
+            "line_start": 1700,
+            "line_end": 1990,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E29",
+                "lines": "1709-1807",
+                "text_hash": "801ceea493fbfc318c5e361c1d98568e761d92af169d3323b464ebcea3f1e0ac"
+              },
+              {
+                "tag": "E30",
+                "lines": "1814-1935",
+                "text_hash": "872d6c6126ad29562892611d494ba5fcae62dbc5c8c9700f8c5c14d9768243a4"
+              }
+            ]
+          },
+          {
+            "tag": "E28",
+            "source_ref": "src/core/tcp.c",
+            "path": "src/core/tcp.c",
+            "line_start": 1783,
+            "line_end": 1836,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E29",
+                "lines": "1709-1807",
+                "text_hash": "801ceea493fbfc318c5e361c1d98568e761d92af169d3323b464ebcea3f1e0ac"
+              },
+              {
+                "tag": "E30",
+                "lines": "1814-1935",
+                "text_hash": "872d6c6126ad29562892611d494ba5fcae62dbc5c8c9700f8c5c14d9768243a4"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "86736ea5f1eb77687cc26d633e38f535773101810349a2c5d094063485b8e6db",
+        "task_id": "ho-lwip-state-udp-pcb-lifecycle",
+        "input_hash": "f23beb9123099678d647f234d8202e7269fa8c420f3aec724d152404a218064e",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "88db136bced708ac8b39cc525bf4b7bee7c19e27870a7321f88aa9844a6d19bf",
+        "task_id": "ho-lwip-state-udp-connect-disconnect",
+        "input_hash": "4ae11fbb30440bff4f0a1ac724ff012061111e1c78c68ecc1b98bf0e8a4d9f60",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "8ac47abaa42142af76b4099fe4ca50498117e72db8ca2d84b2b4896cb9766669",
+        "task_id": "ho-lwip-error-ip4-reassembly-cap",
+        "input_hash": "be6d36e06539f06ae05cba685560fbcda984d5f8c2a50bc7d0d1bed221ce047b",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "8c848d41fbfb1ecb0a4c53fa4c813d7f4d0480f29fad1990dbef8c592e6a7b90",
+        "task_id": "ho-lwip-flow-dns-resolution",
+        "input_hash": "79159292f57351fa72b359412bb835fcfaaa01bf32ca00645fbc91c147549239",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "8d99b74699f8182e706df79660e16241a1bc1a98000a94318e88213213b65ed5",
+        "task_id": "ho-lwip-flow-ethernet-demux",
+        "input_hash": "f801317778b0bdef131f8c90861c2863b8a2c26e46c555d0a09af0a264be5cfa",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "8e54404e3a8e3d54a7036796682c5b0aa3ccac28e48f8b7a713e8b0f9d41d419",
+        "task_id": "ho-lwip-flow-ethernet-demux",
+        "input_hash": "f832037056a33724f2e59bddbeacb55bb2f825039b88ead31a45e13842e77e1c",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "8f0b8195b8b0aae1e429c84d35eecf68d2fcdbc2f29d6524634ab7f0e497809f",
+        "task_id": "ho-lwip-refuse-docker-overlay",
+        "input_hash": "ec002c7fbf0ac9f8baef430defd66dd181f0a980e6215ea1b15453ba1ae84319",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "9223b3ea8decd739d711f9f8fdf106d88cf74a2a59153c156e0a8918651c47bc",
+        "task_id": "ho-lwip-state-ip4-reassembly-config",
+        "input_hash": "affa25ef883cc00aa5ddede490cd58a6f367407eb0990e7d5cce26e679f2abdb",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E3",
+            "source_ref": "src/core/ipv4/ip4_frag.c#L163-L216",
+            "path": "src/core/ipv4/ip4_frag.c",
+            "line_start": 163,
+            "line_end": 216,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E32",
+                "lines": "54-70",
+                "text_hash": "55db9721e763d768214b7b5fdd816e4a928e94bd9400ab64c6033ea94279d7fd"
+              },
+              {
+                "tag": "E33",
+                "lines": "335-496",
+                "text_hash": "b9a30284d74fc43c5ce7f2b1a9722a0d8f64a271e4673654605e11c1ac3ef3b6"
+              },
+              {
+                "tag": "E34",
+                "lines": "504-695",
+                "text_hash": "8b05bb3eecfcf0ef6e8db0d1bbf1b8a1e93445ac65980fa35cd15fe394ae8efc"
+              }
+            ]
+          },
+          {
+            "tag": "E11",
+            "source_ref": "src/core/ipv4/ip4_frag.c#L228-L270",
+            "path": "src/core/ipv4/ip4_frag.c",
+            "line_start": 228,
+            "line_end": 270,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E32",
+                "lines": "54-70",
+                "text_hash": "55db9721e763d768214b7b5fdd816e4a928e94bd9400ab64c6033ea94279d7fd"
+              },
+              {
+                "tag": "E33",
+                "lines": "335-496",
+                "text_hash": "b9a30284d74fc43c5ce7f2b1a9722a0d8f64a271e4673654605e11c1ac3ef3b6"
+              },
+              {
+                "tag": "E34",
+                "lines": "504-695",
+                "text_hash": "8b05bb3eecfcf0ef6e8db0d1bbf1b8a1e93445ac65980fa35cd15fe394ae8efc"
+              }
+            ]
+          },
+          {
+            "tag": "E30",
+            "source_ref": "src/core/ipv4/ip4_frag.c",
+            "path": "src/core/ipv4/ip4_frag.c",
+            "line_start": 340,
+            "line_end": 620,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E32",
+                "lines": "54-70",
+                "text_hash": "55db9721e763d768214b7b5fdd816e4a928e94bd9400ab64c6033ea94279d7fd"
+              },
+              {
+                "tag": "E33",
+                "lines": "335-496",
+                "text_hash": "b9a30284d74fc43c5ce7f2b1a9722a0d8f64a271e4673654605e11c1ac3ef3b6"
+              },
+              {
+                "tag": "E34",
+                "lines": "504-695",
+                "text_hash": "8b05bb3eecfcf0ef6e8db0d1bbf1b8a1e93445ac65980fa35cd15fe394ae8efc"
+              }
+            ]
+          },
+          {
+            "tag": "E31",
+            "source_ref": "src/core/ipv4/ip4_frag.c",
+            "path": "src/core/ipv4/ip4_frag.c",
+            "line_start": 412,
+            "line_end": 560,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E32",
+                "lines": "54-70",
+                "text_hash": "55db9721e763d768214b7b5fdd816e4a928e94bd9400ab64c6033ea94279d7fd"
+              },
+              {
+                "tag": "E33",
+                "lines": "335-496",
+                "text_hash": "b9a30284d74fc43c5ce7f2b1a9722a0d8f64a271e4673654605e11c1ac3ef3b6"
+              },
+              {
+                "tag": "E34",
+                "lines": "504-695",
+                "text_hash": "8b05bb3eecfcf0ef6e8db0d1bbf1b8a1e93445ac65980fa35cd15fe394ae8efc"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "965302b61481b340731c5fefc0526eb22504f787c5eafd5c39be8928ea436e37",
+        "task_id": "ho-lwip-refuse-python-gil",
+        "input_hash": "fa546438acd0aac7e5b8be641b2c95efebb63969c74f5964a27024ee39069bed",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E1",
+            "source_ref": "src/core/pbuf.c#L728-L804",
+            "path": "src/core/pbuf.c",
+            "line_start": 728,
+            "line_end": 804,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E5",
+            "source_ref": "src/netif/ppp/fsm.c",
+            "path": "src/netif/ppp/fsm.c",
+            "line_start": 706,
+            "line_end": 762,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E10",
+            "source_ref": "src/core/pbuf.c#L832-L840",
+            "path": "src/core/pbuf.c",
+            "line_start": 832,
+            "line_end": 840,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E13",
+            "source_ref": "src/api/api_msg.c",
+            "path": "src/api/api_msg.c",
+            "line_start": 830,
+            "line_end": 892,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E29",
+            "source_ref": "src/api/sockets.c#L632-L650",
+            "path": "src/api/sockets.c",
+            "line_start": 632,
+            "line_end": 650,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "9aae9c48d46cba935ad6a9a69f605f39eb75867e60084e92f20d312a9caaa571",
+        "task_id": "ho-lwip-state-timeout-ordering",
+        "input_hash": "df6f90d7974a89ef77cd430166a4849be0126f07563b1080d6bb1eb911e435ce",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E24",
+            "source_ref": "src/core/timeouts.c#L289-L306",
+            "path": "src/core/timeouts.c",
+            "line_start": 289,
+            "line_end": 306,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E31",
+                "lines": "185-220,316-341",
+                "text_hash": "dcc4556167c822a0a8f0170ee820279a81bab53dfa39602e60c5fa46371cf69a"
+              }
+            ]
+          },
+          {
+            "tag": "E28",
+            "source_ref": "src/core/timeouts.c#L179-L221",
+            "path": "src/core/timeouts.c",
+            "line_start": 179,
+            "line_end": 221,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E31",
+                "lines": "185-220,316-341",
+                "text_hash": "dcc4556167c822a0a8f0170ee820279a81bab53dfa39602e60c5fa46371cf69a"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "9b55880d79e4399cc960dd2c1f35aa2215ce6227321eae4532ac4f418d722c0d",
+        "task_id": "ho-lwip-cond-pbuf-header-force",
+        "input_hash": "56ab1311b010136517eef8fe703314d31dce830bbf7f8eb8d2858815d6a8d94b",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "9b62777af0da1daa592105ed311c62faa53a7c8b5e4ff94d3fe3aa72c02c2826",
+        "task_id": "ho-lwip-error-netbuf-reallocation",
+        "input_hash": "ccfb9bf71eb196e07d714fc9af7124c0a62a5d2c584db15fb64cd3c22b4fd795",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E27",
+            "source_ref": "src/api/netbuf.c",
+            "path": "src/api/netbuf.c",
+            "line_start": 80,
+            "line_end": 125,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E28",
+                "lines": "80-118",
+                "text_hash": "54f41d6ddcc678bb39de6da6da95f3cd19d2d46c17347c060d8006c1f83d771a"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "9d12ae60c025318ac7ec5f11eceb543d9970c079a802c807de1d75a564ef450f",
+        "task_id": "ho-lwip-refuse-kafka-rebalance",
+        "input_hash": "e072217b8eda4ba844398fb741bbf533ac89827015c44b47d98dbdd33054bdf0",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E1",
+            "source_ref": "src/core/ipv6/mld6.c#L226-L297",
+            "path": "src/core/ipv6/mld6.c",
+            "line_start": 226,
+            "line_end": 297,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E2",
+            "source_ref": "src/core/ipv6/mld6.c#L346-L389",
+            "path": "src/core/ipv6/mld6.c",
+            "line_start": 346,
+            "line_end": 389,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E4",
+            "source_ref": "src/core/ipv4/igmp.c#L243-L286",
+            "path": "src/core/ipv4/igmp.c",
+            "line_start": 243,
+            "line_end": 286,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "9dcfe08988532adbda4321d18acb2b94792a5837752b33600889c0035c74fc3c",
+        "task_id": "ho-lwip-error-dhcp-start-cleanup",
+        "input_hash": "1491819f3b60160ebdec9139bfac91ace57018388168aaabc82f8a4a263f11fe",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "9fe0103194e2f50a0b9d2b7b044b1036b7ffaf2ad1610673688dae9edd56df48",
+        "task_id": "ho-lwip-error-tcp-alloc-reclaim",
+        "input_hash": "8c199056b7c2bcd46e42fb4951d632a75eb1522692c2cc1193d834e2b03117c2",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "a1a492a75e20c28d2e3c95a8b69ef56800cc4a194dd48084ebbc6045494f9f96",
+        "task_id": "ho-lwip-error-ip4-reassembly-cap",
+        "input_hash": "e5eabe72ff306328a6e191c3ddcde924297b9a0ae4644401e17aca90608f4924",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "a2713102d9725dd3af57e0af11578676e1f1e5873f547a63cf3ecde70d5481df",
+        "task_id": "ho-lwip-state-udp-connect-disconnect",
+        "input_hash": "15feacd69bdbec6d472c46070ee02b8109e7e00d85713ba799d060a0f3c72a28",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "a3b24e0199d93bec499163618a2e2328f934f96966d544b4562c823d69f9945a",
+        "task_id": "ho-lwip-flow-dhcp-start-discover",
+        "input_hash": "bf7b7400967177eabf27c9abd3b5497564cd993faa5f648af63f27c5a51256ba",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "a44f0c71da9318da04b261d82f2b6e550c82767d3b7e4baf503a4cfd3d730da9",
+        "task_id": "ho-lwip-refuse-docker-overlay",
+        "input_hash": "6d947b0c9658cd7dee99f44adac4c3757f88b3f62c8e285d41fc2dbbb2f3ffa9",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "a50f0e2dc5eba8789ff1c7b1f566d381fd78be56dd15a59f2d0193141f37daca",
+        "task_id": "ho-lwip-error-dns-enqueue-capacity",
+        "input_hash": "31cf89d4a754e456af42db6bfa6b21e77269719f8d9bdddb90c1d9d265680c6b",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E2",
+            "source_ref": "src/core/dns.c#L918-L949",
+            "path": "src/core/dns.c",
+            "line_start": 918,
+            "line_end": 949,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E28",
+                "lines": "1393-1526",
+                "text_hash": "fe90aba69326e6c0784f54a12df92e73b18a7702ba5d1cc983a124d9e5d482d2"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "a6e03edead3677a2c0748fe75dce9cdb389b88250b518bf23b07696ec48d5efd",
+        "task_id": "ho-lwip-flow-dns-resolution",
+        "input_hash": "bad482c1507fb860bc9ef59f9cd4885e592c9f7d17fe70ac6cf79e9bd24bcc8e",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "aa8acf2b13b596017b0b860892d0129efcd343d78eef9e034958dde36d5b3ce9",
+        "task_id": "ho-lwip-state-mem-heap",
+        "input_hash": "4184699781a64c38349b8a3923a87cef52455d972623218d4b3006527a5e5e8d",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "aacc812d670c29cab95e26103cb303873c5a9bdac8a045842bbe242bd8c12e99",
+        "task_id": "ho-lwip-state-mem-heap",
+        "input_hash": "3c4afc260f2c2bf3861cfd76ccf687d8ae2eeb01ec3e1fa42e360448dcc4b9f0",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "ab3bec43173d87da85601a8138a304de204b24d804ea81fd73eb5ffbb60b7e60",
+        "task_id": "ho-lwip-refuse-docker-overlay",
+        "input_hash": "78c93c00bca30ccbc7e41468213c85352214766d874755f3111673c57281d2af",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "abe0e75dfa19af49d0783c66f35959b3f7bb37a4f1fae78f2c00c8cb7b48f772",
+        "task_id": "ho-lwip-error-ip4-reassembly-cap",
+        "input_hash": "0f8bb99a88d1583e4edee06d18d00ff33301b32c8bb8d921fd471abcd9f5b13f",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E30",
+            "source_ref": "src/core/ipv4/ip4_frag.c",
+            "path": "src/core/ipv4/ip4_frag.c",
+            "line_start": 660,
+            "line_end": 730,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E33",
+                "lines": "504-694",
+                "text_hash": "8c156e2abce2314f1090c7faff26b93fa1c36bb2e80e18a793d35c9659eb8cd1"
+              }
+            ]
+          },
+          {
+            "tag": "E31",
+            "source_ref": "src/core/ipv4/ip4_frag.c",
+            "path": "src/core/ipv4/ip4_frag.c",
+            "line_start": 228,
+            "line_end": 496,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E33",
+                "lines": "504-694",
+                "text_hash": "8c156e2abce2314f1090c7faff26b93fa1c36bb2e80e18a793d35c9659eb8cd1"
+              }
+            ]
+          },
+          {
+            "tag": "E32",
+            "source_ref": "src/core/ipv4/ip4_frag.c",
+            "path": "src/core/ipv4/ip4_frag.c",
+            "line_start": 345,
+            "line_end": 496,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E33",
+                "lines": "504-694",
+                "text_hash": "8c156e2abce2314f1090c7faff26b93fa1c36bb2e80e18a793d35c9659eb8cd1"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "ac34deaac4ccccf0acce994fd5de82a2803d5381aa3bf5780e10fbefc2ed707b",
+        "task_id": "ho-lwip-error-tcp-alloc-reclaim",
+        "input_hash": "d5b725d2ab5bbba6bfbcbaa9758a840c7dfe71f12174f0225f20632517831587",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E26",
+            "source_ref": "src/core/tcp.c",
+            "path": "src/core/tcp.c",
+            "line_start": 1700,
+            "line_end": 1985,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E30",
+                "lines": "1709-1807",
+                "text_hash": "801ceea493fbfc318c5e361c1d98568e761d92af169d3323b464ebcea3f1e0ac"
+              },
+              {
+                "tag": "E31",
+                "lines": "1814-1935",
+                "text_hash": "872d6c6126ad29562892611d494ba5fcae62dbc5c8c9700f8c5c14d9768243a4"
+              }
+            ]
+          },
+          {
+            "tag": "E28",
+            "source_ref": "src/core/tcp.c",
+            "path": "src/core/tcp.c",
+            "line_start": 1787,
+            "line_end": 1836,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E30",
+                "lines": "1709-1807",
+                "text_hash": "801ceea493fbfc318c5e361c1d98568e761d92af169d3323b464ebcea3f1e0ac"
+              },
+              {
+                "tag": "E31",
+                "lines": "1814-1935",
+                "text_hash": "872d6c6126ad29562892611d494ba5fcae62dbc5c8c9700f8c5c14d9768243a4"
+              }
+            ]
+          },
+          {
+            "tag": "E29",
+            "source_ref": "src/core/tcp.c",
+            "path": "src/core/tcp.c",
+            "line_start": 1930,
+            "line_end": 1950,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E30",
+                "lines": "1709-1807",
+                "text_hash": "801ceea493fbfc318c5e361c1d98568e761d92af169d3323b464ebcea3f1e0ac"
+              },
+              {
+                "tag": "E31",
+                "lines": "1814-1935",
+                "text_hash": "872d6c6126ad29562892611d494ba5fcae62dbc5c8c9700f8c5c14d9768243a4"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "ae2ec3b129098b8c8751236b5dac5838ce9da5579ab496b8fc492db8cff99751",
+        "task_id": "ho-lwip-cond-pbuf-header-force",
+        "input_hash": "fa01ef1d1b044c532ed09cb3a6b718766c57ef43c01c0e9f044a3757b85e45be",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "ae32930588fb01ec8d840295463521fd50e2b57da6392d58fcb6708d38556c02",
+        "task_id": "ho-lwip-state-ip4-reassembly-config",
+        "input_hash": "2a9c0c47d6b7aa49023260f9006bfbfa7cc20bb2b446ba3c7a99f50f8e585aac",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E30",
+            "source_ref": "repo",
+            "path": null,
+            "line_start": null,
+            "line_end": null,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E31",
+            "source_ref": "src/core/ipv4/ip4_frag.c",
+            "path": "src/core/ipv4/ip4_frag.c",
+            "line_start": 270,
+            "line_end": 520,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E34",
+                "lines": "54-70",
+                "text_hash": "55db9721e763d768214b7b5fdd816e4a928e94bd9400ab64c6033ea94279d7fd"
+              },
+              {
+                "tag": "E35",
+                "lines": "335-496",
+                "text_hash": "b9a30284d74fc43c5ce7f2b1a9722a0d8f64a271e4673654605e11c1ac3ef3b6"
+              },
+              {
+                "tag": "E36",
+                "lines": "504-695",
+                "text_hash": "8b05bb3eecfcf0ef6e8db0d1bbf1b8a1e93445ac65980fa35cd15fe394ae8efc"
+              }
+            ]
+          },
+          {
+            "tag": "E32",
+            "source_ref": "src/core/ipv4/ip4_frag.c",
+            "path": "src/core/ipv4/ip4_frag.c",
+            "line_start": 345,
+            "line_end": 520,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E34",
+                "lines": "54-70",
+                "text_hash": "55db9721e763d768214b7b5fdd816e4a928e94bd9400ab64c6033ea94279d7fd"
+              },
+              {
+                "tag": "E35",
+                "lines": "335-496",
+                "text_hash": "b9a30284d74fc43c5ce7f2b1a9722a0d8f64a271e4673654605e11c1ac3ef3b6"
+              },
+              {
+                "tag": "E36",
+                "lines": "504-695",
+                "text_hash": "8b05bb3eecfcf0ef6e8db0d1bbf1b8a1e93445ac65980fa35cd15fe394ae8efc"
+              }
+            ]
+          },
+          {
+            "tag": "E33",
+            "source_ref": "src/core/ipv4/ip4_frag.c",
+            "path": "src/core/ipv4/ip4_frag.c",
+            "line_start": 420,
+            "line_end": 620,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E34",
+                "lines": "54-70",
+                "text_hash": "55db9721e763d768214b7b5fdd816e4a928e94bd9400ab64c6033ea94279d7fd"
+              },
+              {
+                "tag": "E35",
+                "lines": "335-496",
+                "text_hash": "b9a30284d74fc43c5ce7f2b1a9722a0d8f64a271e4673654605e11c1ac3ef3b6"
+              },
+              {
+                "tag": "E36",
+                "lines": "504-695",
+                "text_hash": "8b05bb3eecfcf0ef6e8db0d1bbf1b8a1e93445ac65980fa35cd15fe394ae8efc"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "aeb23a2b8b9664a6c57d74beb0eed037d29979fe99e3518a99b7c645b732836b",
+        "task_id": "ho-lwip-flow-udp-send-pipeline",
+        "input_hash": "73f0bc24c5726217203ec7a53754728f44b1d095b379e8092b61af5986b464c9",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "aee3549dbbe9fd84e7140036457fe889d2e4678036321e92e699036a0b46c945",
+        "task_id": "ho-lwip-flow-timeout-dispatch",
+        "input_hash": "08e3dd42e23056acf9de6e8472470e2510cde49610046f4be1c844f035233fb5",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E2",
+            "source_ref": "src/core/timeouts.c#L289-L306",
+            "path": "src/core/timeouts.c",
+            "line_start": 289,
+            "line_end": 306,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E37",
+                "lines": "185-220,289-305,354-401",
+                "text_hash": "8fd46fafbffef9b98e19e3124e5adf3a25dbd9593b4e988307f62545dfebd15f"
+              }
+            ]
+          },
+          {
+            "tag": "E35",
+            "source_ref": "src/core/timeouts.c",
+            "path": "src/core/timeouts.c",
+            "line_start": 170,
+            "line_end": 245,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E37",
+                "lines": "185-220,289-305,354-401",
+                "text_hash": "8fd46fafbffef9b98e19e3124e5adf3a25dbd9593b4e988307f62545dfebd15f"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "b087b66839858422c6556a1eab7095339f0c0a42f307624dc8345e13f6180b3a",
+        "task_id": "ho-lwip-refuse-android-lifecycle",
+        "input_hash": "3551c7ebb60546753ea87ebe0f721d8a59d59128792a8c1ff4ed6a85b75cbe2f",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "b1253cb8eb78a79692e650c4ff1aebeabf17b795b2ec5b45b585ea27e3078af8",
+        "task_id": "ho-lwip-error-ip4-reassembly-cap",
+        "input_hash": "90afc6d78173d6a53944243992a080bf2f432383aa4da69dc62ca2f1e97c85fa",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "b149fc0faad094e3bd6efa52e1ef6a929b4d5b42cd504a4f5bd0b4a4b0214e91",
+        "task_id": "ho-lwip-refuse-python-gil",
+        "input_hash": "5931c4b35d2ece050f760830c7900f610d5478f93101bd126ef3833997792d6d",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E1",
+            "source_ref": "src/core/pbuf.c#L728-L804",
+            "path": "src/core/pbuf.c",
+            "line_start": 728,
+            "line_end": 804,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E10",
+            "source_ref": "src/core/pbuf.c#L832-L840",
+            "path": "src/core/pbuf.c",
+            "line_start": 832,
+            "line_end": 840,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "b1a2312cc9aa570ce875165aa8592abaa6d0e3543ef8a92936971ecb0400f542",
+        "task_id": "ho-lwip-cond-udp-bind-conflict",
+        "input_hash": "cb8e5b56d75b1c59908fc97e8873c0a0408d476e2e4f971702363421b6e94998",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "b28a83e00b0a73a6dd172be02742c8e298c707e826389e01570f16c4f3843322",
+        "task_id": "ho-lwip-cond-tcp-bind-state",
+        "input_hash": "215883d9df839dcc993bded0b1e347d4d5a85a9459f9422dc26dc45bd29cb685",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "b2edc4cf40d1d82c3317760dc1ae19e254c6a56370273b67716d0c6b3986758c",
+        "task_id": "ho-lwip-error-dns-enqueue-capacity",
+        "input_hash": "70c9545360fc92c48aae77d3c033e11b0e14885a58b3b8a729c10fc438abefcc",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "b4dbc4b9820ff06375b9969725b85d3a58260fa397ee9b042406ce26655dfa27",
+        "task_id": "ho-lwip-error-dhcp-start-cleanup",
+        "input_hash": "20d7b34f2e5c9db45ce5c293ef22e9b637611d2c231257870585a9ee012cc669",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "b572c2dc66cad62d62c4bbb9d89899ad5af0d2919ecec5476366dfdd1ac7820f",
+        "task_id": "ho-lwip-cond-ip4-route-selection",
+        "input_hash": "8eac943a763e969cc30e512a282d2dfae67087d1332d7c042b44fd1294cf5852",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "b5a390654119ed28480b6b9fb7092adfac2ee96b3772ad673f7d43bccd752cf3",
+        "task_id": "ho-lwip-state-timeout-ordering",
+        "input_hash": "c0928658d80b978394af92eeae2cd7b8a9616dd1362ccf541c2f618ed41a5276",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E30",
+            "source_ref": "src/core/timeouts.c",
+            "path": "src/core/timeouts.c",
+            "line_start": 170,
+            "line_end": 345,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E32",
+                "lines": "185-220,316-341",
+                "text_hash": "dcc4556167c822a0a8f0170ee820279a81bab53dfa39602e60c5fa46371cf69a"
+              }
+            ]
+          },
+          {
+            "tag": "E31",
+            "source_ref": "src/core/timeouts.c",
+            "path": "src/core/timeouts.c",
+            "line_start": 289,
+            "line_end": 345,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E32",
+                "lines": "185-220,316-341",
+                "text_hash": "dcc4556167c822a0a8f0170ee820279a81bab53dfa39602e60c5fa46371cf69a"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "b802347b5e907a5ea9c0321b66e6c7ceb9e2c2f7c50ddb0fa2677cfec3791630",
+        "task_id": "ho-lwip-flow-dhcp-start-discover",
+        "input_hash": "f4e2b241bbaa20d2c97cdd7bec03c17fcde0295b19accbcfed8fc11a6f7346e5",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "bda56a818ae941dfb695c438f4d3e968ffc5393bff285f8a96f5297ab05266d9",
+        "task_id": "ho-lwip-refuse-python-gil",
+        "input_hash": "4783f2b01e0a9a3fec08490b95430bb092671dd1a0366ddc80ce2fd5861224b0",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E1",
+            "source_ref": "src/core/pbuf.c#L728-L804",
+            "path": "src/core/pbuf.c",
+            "line_start": 728,
+            "line_end": 804,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E10",
+            "source_ref": "src/core/pbuf.c#L832-L840",
+            "path": "src/core/pbuf.c",
+            "line_start": 832,
+            "line_end": 840,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E29",
+            "source_ref": "src/api/sockets.c#L632-L650",
+            "path": "src/api/sockets.c",
+            "line_start": 632,
+            "line_end": 650,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "bdd8304844eead794fb861c50940b996ccafbf3915008a26abce4ed173d5b3b4",
+        "task_id": "ho-lwip-cond-udp-bind-conflict",
+        "input_hash": "20377f846134946e0a68a0a13a0bc0f91797fb246d0b4d558a5f62a606f557c0",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "c00aa93a8c7864787077ac06e133201e6fd755802a5b5db7f43361e22f4e6bb2",
+        "task_id": "ho-lwip-refuse-android-lifecycle",
+        "input_hash": "b124e566fc6543fde89cafcbc9c6a5b3e292920eda4b224500000c7b3d1053d3",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E1",
+            "source_ref": "src/core/ipv6/ip6_frag.c#L273-L686",
+            "path": "src/core/ipv6/ip6_frag.c",
+            "line_start": 273,
+            "line_end": 686,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "c19ecffc2c33eccb33b4fa6b23d475dace2d80513f178592ce0fe9cf8c25a5ff",
+        "task_id": "ho-lwip-cond-pbuf-header-force",
+        "input_hash": "93b8d009c339e48fb6138a6944fca8127dbe393c169b75e85066cbda670e2d9d",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "c20bb3f151a2b094221f7ce990d556bbdce698b3a53bf22708e50cc7d2c358ec",
+        "task_id": "ho-lwip-refuse-python-gil",
+        "input_hash": "659ea2c06e42c3666487b71c11f2b2104054eb59e37653ef37eca56509d4b3a8",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E1",
+            "source_ref": "src/core/pbuf.c#L728-L804",
+            "path": "src/core/pbuf.c",
+            "line_start": 728,
+            "line_end": 804,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E10",
+            "source_ref": "src/core/pbuf.c#L832-L840",
+            "path": "src/core/pbuf.c",
+            "line_start": 832,
+            "line_end": 840,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "c23fdc04904b5b54ecc1d6d008b3a05bd4aa001cfb13354174d7dd69551846bd",
+        "task_id": "ho-lwip-state-ip4-reassembly-config",
+        "input_hash": "17c014c4dd2c2539f17f6eb19ec015b1f83cbb8799c02b729f0cbae2ce6a7541",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "c49128efbc110029027eca696587e1f86f3dd3de0936217ea1d010865de2106a",
+        "task_id": "ho-lwip-refuse-python-gil",
+        "input_hash": "dcdce8aaa40094356da2222393bbe4205eb289b3e23dfe7ee508ca58a514267a",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E1",
+            "source_ref": "src/core/pbuf.c#L728-L804",
+            "path": "src/core/pbuf.c",
+            "line_start": 728,
+            "line_end": 804,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E6",
+            "source_ref": "src/core/tcp.c",
+            "path": "src/core/tcp.c",
+            "line_start": 1626,
+            "line_end": 1638,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E10",
+            "source_ref": "src/core/pbuf.c#L832-L840",
+            "path": "src/core/pbuf.c",
+            "line_start": 832,
+            "line_end": 840,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E16",
+            "source_ref": "src/core/ipv4/ip4_frag.c",
+            "path": "src/core/ipv4/ip4_frag.c",
+            "line_start": 741,
+            "line_end": 893,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E21",
+            "source_ref": "src/apps/http/httpd.c",
+            "path": "src/apps/http/httpd.c",
+            "line_start": 2573,
+            "line_end": 2653,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "c740f344b32e49cb7f65f7554015ec1445d5e9870af3b03fb1db5a0201482a94",
+        "task_id": "ho-lwip-state-mem-heap",
+        "input_hash": "858d0e44c1aac671e742f8b4a447d6a38ae2d221bf9dbc6ad51476b0481027e8",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "c771282915754b59ad25f5d80be32f940b26b3a9c954bfa862aa7cf40124ab29",
+        "task_id": "ho-lwip-cond-tcp-bind-state",
+        "input_hash": "5b596da8e58b92ed6c33f4826410ebc6a95e954f8ba280ec818a5d6f354de7ac",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "c7afb44fd65808416e84659ca25ebe43f6ae4ce4129710e34ab31fa2c14a00b9",
+        "task_id": "ho-lwip-cond-udp-bind-conflict",
+        "input_hash": "4d99958670d235638cf9fc545359ad1fd58bf9bebfd5fb5dc18128ff12cce4a1",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "c7ddc61745f2119d2cee6ef4b86d54bd0dbefe94d4548431a218d766aea9d88c",
+        "task_id": "ho-lwip-state-udp-pcb-lifecycle",
+        "input_hash": "af0a285ae1112d03ed5e9c0478293f7bdee3cdbbacae96b49553d80954dc4cbf",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E38",
+            "source_ref": "src/core/udp.c",
+            "path": "src/core/udp.c",
+            "line_start": 931,
+            "line_end": 1050,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E40",
+                "lines": "931-1031,1074-1120,1182-1278",
+                "text_hash": "4bb178774edf29c9399f00ea3f6090dd74bbfa07c917be5f647e6a4a79c03ddc"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "c913f64629d27045573e6083742214da08f67c81131e33eb2bd027cbbb74988c",
+        "task_id": "ho-lwip-cond-ip4-route-selection",
+        "input_hash": "1abd8d5063796d5c337a0afb3f1c567e0842ebabdf4edf7c939cbaef2a6fd40e",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "c91a294295fe1c34f8926c5709edd4808744fc3689cc9d7740fc8f3fdf04603c",
+        "task_id": "ho-lwip-flow-udp-send-pipeline",
+        "input_hash": "dbe5b4a0cfc850ac832a7104d3c04ce9beca82bcec142a4658d403318fd4f93d",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "c9d726c0e63ea16d8a08a2c90fb50e966bd01f1b557e454cc7c23cf718812edc",
+        "task_id": "ho-lwip-error-netbuf-reallocation",
+        "input_hash": "3791b8a356090c22aef683f0aaf8e3cd83cc320088123835f9e46edd8bda472c",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "ca45857a5d7aec014ae343efd24307b0f5e1c999aa82885e5a98ac18345fc332",
+        "task_id": "ho-lwip-state-ip4-reassembly-config",
+        "input_hash": "98e8152fda9e2b0d77cd50cff5334d4c714aeb840135261bd92223cf9a1cbc53",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "ca8524a7decfc688947643358049f49247058622a9f3699405bbf8549cf9e5d5",
+        "task_id": "ho-lwip-flow-dns-resolution",
+        "input_hash": "d36188cbb7960527e910766943eed1ec4b8700870d566d18538a36ccf07f09f2",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "cbf551e1ebd8cc1148137944a27d4230beb8d09d8dd75e2c50d7c9d08cb3beb5",
+        "task_id": "ho-lwip-flow-timeout-dispatch",
+        "input_hash": "3036108d9604a7b7350e9894029f309ccf13043bb81ca78a7d1bbed3ed4b8f36",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E2",
+            "source_ref": "src/core/timeouts.c#L289-L306",
+            "path": "src/core/timeouts.c",
+            "line_start": 289,
+            "line_end": 306,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E37",
+                "lines": "185-220,289-305,354-401",
+                "text_hash": "8fd46fafbffef9b98e19e3124e5adf3a25dbd9593b4e988307f62545dfebd15f"
+              }
+            ]
+          },
+          {
+            "tag": "E36",
+            "source_ref": "src/core/timeouts.c",
+            "path": "src/core/timeouts.c",
+            "line_start": 179,
+            "line_end": 221,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E37",
+                "lines": "185-220,289-305,354-401",
+                "text_hash": "8fd46fafbffef9b98e19e3124e5adf3a25dbd9593b4e988307f62545dfebd15f"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "cc559c5a9f5b88237528403bc7acd6e237c82d12004498c54b63704d632afbaf",
+        "task_id": "ho-lwip-flow-dhcp-start-discover",
+        "input_hash": "815b86314108865957d096eb01862a59d28d01e61c078885deece74c7c0b3eed",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E3",
+            "source_ref": "src/core/ipv4/dhcp.c#L938-L967",
+            "path": "src/core/ipv4/dhcp.c",
+            "line_start": 938,
+            "line_end": 967,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E28",
+                "lines": "806-882,1019-1075,1883-1961",
+                "text_hash": "def97e7adaa9f2bbdb8956932d9cd46971c245c1e8396181fa4a8d1f71d8aad6"
+              }
+            ]
+          },
+          {
+            "tag": "E25",
+            "source_ref": "files/src__core__ipv4__dhcp.c",
+            "path": null,
+            "line_start": null,
+            "line_end": null,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "cdabfe12e3e940ac90243aa1906f303ed9f933ad3180eb27ab3ed5e5d8af859d",
+        "task_id": "ho-lwip-refuse-docker-overlay",
+        "input_hash": "732a309f0676422e4ddff25f20799793dddc4acbdb8cd5d5851a667575b8d26c",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "cdf218d699f6e5f5ed91be67e683378aa99af3377babd6738a693c32db28bea6",
+        "task_id": "ho-lwip-flow-ethernet-demux",
+        "input_hash": "200e9c83c33874b1540d0eec462df9b2264776de90561a15fb62558b4403598b",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "ce0f66f5bfe8d294a9317204556e4af640c2230ffa0d9823c6a79c2b96209a55",
+        "task_id": "ho-lwip-cond-dns-sync-result",
+        "input_hash": "39a733704db93d3508aec55f272aa8b5038f23e74c772d7d4849c10420d95129",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "cf1512bd1e78e0155763daa11ba4c63691f3205a8b678e0badbd2e398771b613",
+        "task_id": "ho-lwip-error-dhcp-start-cleanup",
+        "input_hash": "f04db18250d47dbbaa5406166992235e9cdf53c3be93263a53b3d35b94db67f6",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "d07d742dfca6bc3e2fd2e40ef058f2284d1a54351e9ef41622d3056070ca3f44",
+        "task_id": "ho-lwip-cond-pbuf-header-force",
+        "input_hash": "124d4fb4c2cfcd51c33ad80315edb0fb136a4413172a7fbacd23ca6cb40ef1f5",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "d115edadd4b383cd893c80bfcb16f0391553e8f635e11933a43b1ebcd4f328f3",
+        "task_id": "ho-lwip-state-timeout-ordering",
+        "input_hash": "937b59f57e1a8548f69b135bbc216716b95afa9464f9ca75c5058d8b75b6ba10",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E30",
+            "source_ref": "src/core/timeouts.c",
+            "path": "src/core/timeouts.c",
+            "line_start": 179,
+            "line_end": 341,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E32",
+                "lines": "185-220,316-341",
+                "text_hash": "dcc4556167c822a0a8f0170ee820279a81bab53dfa39602e60c5fa46371cf69a"
+              }
+            ]
+          },
+          {
+            "tag": "E31",
+            "source_ref": "src/core/timeouts.c",
+            "path": "src/core/timeouts.c",
+            "line_start": 316,
+            "line_end": 360,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E32",
+                "lines": "185-220,316-341",
+                "text_hash": "dcc4556167c822a0a8f0170ee820279a81bab53dfa39602e60c5fa46371cf69a"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "d34983fd1ed7fcd080d0ef1981013a95e027309024f112e953329f3916d12005",
+        "task_id": "ho-lwip-flow-udp-send-pipeline",
+        "input_hash": "4d6e453200907432226cd698e87799011703e81f49a608f07de0a3f9d9c7c8c9",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E6",
+            "source_ref": "src/core/udp.c#L707-L909",
+            "path": "src/core/udp.c",
+            "line_start": 707,
+            "line_end": 909,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E30",
+                "lines": "466-908",
+                "text_hash": "b49dc1256789eb60a5dff3280ad108f19e8f9ba6e51b1527ed3db3268d46585f"
+              }
+            ]
+          },
+          {
+            "tag": "E12",
+            "source_ref": "src/core/pbuf.c",
+            "path": "src/core/pbuf.c",
+            "line_start": 555,
+            "line_end": 559,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E13",
+            "source_ref": "src/core/def.c",
+            "path": "src/core/def.c",
+            "line_start": 75,
+            "line_end": 79,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E14",
+            "source_ref": "src/core/inet_chksum.c",
+            "path": "src/core/inet_chksum.c",
+            "line_start": 378,
+            "line_end": 395,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E16",
+            "source_ref": "src/core/ipv4/ip4.c",
+            "path": "src/core/ipv4/ip4.c",
+            "line_start": 151,
+            "line_end": 228,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E17",
+            "source_ref": "src/core/ipv6/ip6.c",
+            "path": "src/core/ipv6/ip6.c",
+            "line_start": 1173,
+            "line_end": 1271,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E18",
+            "source_ref": "src/core/ipv4/ip4.c",
+            "path": "src/core/ipv4/ip4.c",
+            "line_start": 860,
+            "line_end": 867,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E19",
+            "source_ref": "src/core/pbuf.c",
+            "path": "src/core/pbuf.c",
+            "line_start": 899,
+            "line_end": 906,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E20",
+            "source_ref": "src/core/inet_chksum.c",
+            "path": "src/core/inet_chksum.c",
+            "line_start": 525,
+            "line_end": 542,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E23",
+            "source_ref": "src/core/netif.c",
+            "path": "src/core/netif.c",
+            "line_start": 1731,
+            "line_end": 1747,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "d36f3cbecdafcf0cc96f082c2cff9de18387112300f4ad508f4de5c18ebb1176",
+        "task_id": "ho-lwip-cond-tcp-bind-state",
+        "input_hash": "a6df9d059612d51ab7446252f2b74d956468fde2e03338a482bdd88b718e312d",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "d3ad7a72ef41a6b4353ded9391b41409c3fcab286ff8707e07f18a4b6231fc6f",
+        "task_id": "ho-lwip-flow-ethernet-demux",
+        "input_hash": "0da1e864d1ec028d0fe9ce411e2140d4e36c7579d246dcf8c47c5419bcabde64",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "d3b0784444d4d4db8e0d1a40d6b01bb316f764b42088a064a1aa05dd531b2bcd",
+        "task_id": "ho-lwip-cond-tcp-bind-state",
+        "input_hash": "502d49027b3db3d840d92ffd666404d5e8197dcbf3a920bb433438f5209d7c02",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "d6d84f8558204743afac314f3d27d98cbf9d0212b08ed94629387256b945e67d",
+        "task_id": "ho-lwip-cond-udp-bind-conflict",
+        "input_hash": "52848e3dc60ae0c633125d55033fa07ef24cb3b6688d04c3563743d3dea054bc",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "d838aa9b218ee5c0a62c76d6aa0767cf8b5f6fb5ca7a424b3353cca01d2bdcb7",
+        "task_id": "ho-lwip-error-netbuf-reallocation",
+        "input_hash": "885e0576785c2f4ab5869c3dec6a8f701a5aeb0ea716d50108e92cbbe477d507",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "d859dc38bef0d84a047792f389d6ea42ecc2cb479b1914ad60ef24d1b7c389e3",
+        "task_id": "ho-lwip-flow-dns-resolution",
+        "input_hash": "e8d2d4ca4892a05532b14494541881989dc86536070bfc495e5b797a31dc38c1",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "db3295c990d08a5d9f48bdafea020b7d6cdd522a109fa9f7cd26437b69637835",
+        "task_id": "ho-lwip-refuse-python-gil",
+        "input_hash": "35e201d58469aaaaf5a27c9cae2906ffe9a6819b33512682f78de477c6a3dfaf",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "dd0a6907d5e1917d5e9ee6cc36b72443fa3e32690ab12fc3779a6ddce9b7ae8d",
+        "task_id": "ho-lwip-state-ip4-reassembly-config",
+        "input_hash": "9cc809aabe9ca6413e481ee6b5d43994f4e5de85003e5fd7b26891c0a423b440",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "ddb00e6df4ac9fb4f80f61d78f9f216df8c13d9a6925e69ed0342fa2a029d205",
+        "task_id": "ho-lwip-error-ip4-reassembly-cap",
+        "input_hash": "4b6892abd8e91337b07e3c14ebf228293d7c544dc501eeaec00bf9bd5234b4ea",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E20",
+            "source_ref": "src/core/pbuf.c#L728-L804",
+            "path": "src/core/pbuf.c",
+            "line_start": 728,
+            "line_end": 804,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "df458cfd777663da31acd28e61b1271972bca8a7091142c8e81899b18d06f432",
+        "task_id": "ho-lwip-error-tcp-alloc-reclaim",
+        "input_hash": "5dd68b25b2ee3c4c766709aecc7fefbd05dca8f5c86192794074bedf95e43d68",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "e06cb24a73d0e9d048c8ac7e735ee554d52ec92127b5f1a7e257119c33b5b3fc",
+        "task_id": "ho-lwip-cond-udp-bind-conflict",
+        "input_hash": "045b13d47a44cd5fc9f606375caf39cf78a2de2c3a321f36822386e170edeb02",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "e0bb4b3bbfb25df0ae767415f1f2baceaa0a9921f180920df523e93ad2c1d1c4",
+        "task_id": "ho-lwip-refuse-android-lifecycle",
+        "input_hash": "3a7c4db69df5def3698c98defc2e049859142c94ecff3552b1ca5fefbce13878",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E1",
+            "source_ref": "src/core/ipv6/ip6_frag.c#L273-L686",
+            "path": "src/core/ipv6/ip6_frag.c",
+            "line_start": 273,
+            "line_end": 686,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E20",
+            "source_ref": "src/core/ipv6/ip6.c",
+            "path": "src/core/ipv6/ip6.c",
+            "line_start": 508,
+            "line_end": 1120,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "e10db4884de45a592f5849ff0ee9c84258891ec75e43e739370b02df20ea73ef",
+        "task_id": "ho-lwip-flow-dhcp-start-discover",
+        "input_hash": "bc95270490daac6f49e3f4c2f4e127b26f01d623dd3d0d8e35cbaca4763c91f6",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E3",
+            "source_ref": "src/core/ipv4/dhcp.c#L938-L967",
+            "path": "src/core/ipv4/dhcp.c",
+            "line_start": 938,
+            "line_end": 967,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E27",
+                "lines": "806-882,1019-1075,1883-1961",
+                "text_hash": "def97e7adaa9f2bbdb8956932d9cd46971c245c1e8396181fa4a8d1f71d8aad6"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "e1f631b5a84061c66a94b887d17f2c818360bca462ec9bec9bfe8909902fbbc7",
+        "task_id": "ho-lwip-error-tcp-alloc-reclaim",
+        "input_hash": "791199e1a14b5316d23c46194939844a820ffd5dd05c65787480a77b4908655d",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E26",
+            "source_ref": "src/core/tcp.c",
+            "path": "src/core/tcp.c",
+            "line_start": 1700,
+            "line_end": 1940,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E30",
+                "lines": "1709-1807",
+                "text_hash": "801ceea493fbfc318c5e361c1d98568e761d92af169d3323b464ebcea3f1e0ac"
+              },
+              {
+                "tag": "E31",
+                "lines": "1814-1935",
+                "text_hash": "872d6c6126ad29562892611d494ba5fcae62dbc5c8c9700f8c5c14d9768243a4"
+              }
+            ]
+          },
+          {
+            "tag": "E27",
+            "source_ref": "src/core/tcp.c",
+            "path": "src/core/tcp.c",
+            "line_start": 1783,
+            "line_end": 1960,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E30",
+                "lines": "1709-1807",
+                "text_hash": "801ceea493fbfc318c5e361c1d98568e761d92af169d3323b464ebcea3f1e0ac"
+              },
+              {
+                "tag": "E31",
+                "lines": "1814-1935",
+                "text_hash": "872d6c6126ad29562892611d494ba5fcae62dbc5c8c9700f8c5c14d9768243a4"
+              }
+            ]
+          },
+          {
+            "tag": "E29",
+            "source_ref": "src/core/tcp.c",
+            "path": "src/core/tcp.c",
+            "line_start": 1930,
+            "line_end": 1960,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E30",
+                "lines": "1709-1807",
+                "text_hash": "801ceea493fbfc318c5e361c1d98568e761d92af169d3323b464ebcea3f1e0ac"
+              },
+              {
+                "tag": "E31",
+                "lines": "1814-1935",
+                "text_hash": "872d6c6126ad29562892611d494ba5fcae62dbc5c8c9700f8c5c14d9768243a4"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "e389dac1ecbb23b173b88d93c38da33b987d295f00a58f61f97bfa916d534663",
+        "task_id": "ho-lwip-flow-dns-resolution",
+        "input_hash": "b24289734c2ad71df5a7630d8460c965ad97b2cfc30af32cff7ba3f371cfb990",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "e3b4f9f18ec5126a7f650ee268106f02f97de7d65e0fca1531c4d01f16a45b2d",
+        "task_id": "ho-lwip-state-udp-pcb-lifecycle",
+        "input_hash": "1035a959ef6c26caafa15ed2871caa21e1827adcc9c8fef841ab0b1452f936d8",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "e527006109ab10627b972fbe09760226b9b07fae96052d4250a45160ec31d41f",
+        "task_id": "ho-lwip-flow-udp-send-pipeline",
+        "input_hash": "723e154d28e3ef42caf84c0183c820d293c02fba31f1b15d10d527dad29f0e90",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "e66dae9273f5f75529de3378450d4a021553662f199dd1e3385574a15a40f8ee",
+        "task_id": "ho-lwip-state-mem-heap",
+        "input_hash": "0cdf6a4885f057b31095aad16484c7d8a235c620c242bca1c3bcde131ec4faef",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "e67ef45e99bea6d33d8dcc295403e663c03af8f92a391e4e472a79cff9007730",
+        "task_id": "ho-lwip-state-mem-heap",
+        "input_hash": "70e653b671dded27a6b8d138cf4037ea8901120d955526de7b7fec688f673c26",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E15",
+            "source_ref": "src/core/mem.c",
+            "path": "src/core/mem.c",
+            "line_start": 460,
+            "line_end": 497,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E35",
+                "lines": "603-673,817-963",
+                "text_hash": "1485c49f31e581653c420329ce149f6a4abf1faac60d4dc21e7d7442e44ca461"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "e704a25079531fb496e41bc961d1752185809780eefa2dc94a18b61132e2b64e",
+        "task_id": "ho-lwip-cond-ip4-route-selection",
+        "input_hash": "722425ace2b2a6ed3aab065b3a2dd314663d919a547293f26ae2367bc029e2f9",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "e7c8e34e204c97093d1c6b9576644ce6ae8e17180aa49ffc3b026308ca89bc99",
+        "task_id": "ho-lwip-refuse-android-lifecycle",
+        "input_hash": "4beeda1045e3111cc96ac66702e6bf0df01e885a7fddbdd2e86707fdda86a690",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E1",
+            "source_ref": "src/core/ipv6/ip6_frag.c#L273-L686",
+            "path": "src/core/ipv6/ip6_frag.c",
+            "line_start": 273,
+            "line_end": 686,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "e7d8cf056cbce3a30ca6df21f3a4705129c0cc36aabd2d20d8e08aa72969718a",
+        "task_id": "ho-lwip-flow-dhcp-start-discover",
+        "input_hash": "50b7d8962534dad431e344058b40a10290d50faeb992c9110cd899feff47c33b",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "ebaa09a5b1a8ecb6f5d4b3ca6481a8d1b6b75a0d7766afb47d13d6211c91068a",
+        "task_id": "ho-lwip-refuse-python-gil",
+        "input_hash": "2a2cf9a9562d2c981cd6db9ac3e7a966b0b0f30814ac6bc0f0e90149aa0e69d2",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E1",
+            "source_ref": "src/core/pbuf.c#L728-L804",
+            "path": "src/core/pbuf.c",
+            "line_start": 728,
+            "line_end": 804,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E10",
+            "source_ref": "src/core/pbuf.c#L832-L840",
+            "path": "src/core/pbuf.c",
+            "line_start": 832,
+            "line_end": 840,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E16",
+            "source_ref": "src/core/ipv4/ip4_frag.c",
+            "path": "src/core/ipv4/ip4_frag.c",
+            "line_start": 741,
+            "line_end": 893,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E22",
+            "source_ref": "src/netif/ppp/ppp.c",
+            "path": "src/netif/ppp/ppp.c",
+            "line_start": 779,
+            "line_end": 992,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E30",
+            "source_ref": "repo",
+            "path": null,
+            "line_start": null,
+            "line_end": null,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "ec560259cc5047aff4ad5d9d35ee6041c1522393a8e6b214bbf209ab585a0626",
+        "task_id": "ho-lwip-cond-pbuf-header-force",
+        "input_hash": "8cbc2c2d638f488dea12b5df113d2acb17cc4be2dbffe9185d01373f0d99e668",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E10",
+            "source_ref": "src/core/pbuf.c#L328-L343",
+            "path": "src/core/pbuf.c",
+            "line_start": 328,
+            "line_end": 343,
+            "coverage": "absent",
+            "pinned_excerpts": [
+              {
+                "tag": "E31",
+                "lines": "477-664",
+                "text_hash": "fe30bba60b90c366bb05beaac154e8fb00609fb8558bbeb5a6164ac696991288"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "ef77ada4deabeecc501f59581fc28030958cbe2ae8d4bff777a4e443e26d3ebe",
+        "task_id": "ho-lwip-cond-ip4-route-selection",
+        "input_hash": "b050dc0888f9f63a5b42634b8bbb2ab9f2c14f9cceec1a6fe9504136d0cd19c8",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "efd5b57db2e06b423a6714d340e7a4f418f64e8d1d4ac3b769a5b6b1448907c5",
+        "task_id": "ho-lwip-flow-ethernet-demux",
+        "input_hash": "fda6f25d4539d32c13e4ffb3bc61d89af7b60a65d1e2fa80cdd67ca6bf0b74eb",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E31",
+            "source_ref": "src/netif/ethernet.c",
+            "path": "src/netif/ethernet.c",
+            "line_start": 219,
+            "line_end": 280,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E32",
+                "lines": "80-253",
+                "text_hash": "83c6877b74f52002331c958734b214588a9277cae7cfaa61979f1eccee3f5b5d"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "f107e8d491145ed9404046e076256e5bb240e755634be1612b6e50453c1c9289",
+        "task_id": "ho-lwip-refuse-kafka-rebalance",
+        "input_hash": "237a545705c25b3c97dad4252a0d2028ec842e114da1c56d4706fa1ca6af9256",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E1",
+            "source_ref": "src/core/ipv6/mld6.c#L226-L297",
+            "path": "src/core/ipv6/mld6.c",
+            "line_start": 226,
+            "line_end": 297,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          },
+          {
+            "tag": "E8",
+            "source_ref": "src/core/pbuf.c",
+            "path": "src/core/pbuf.c",
+            "line_start": 728,
+            "line_end": 804,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "f2ef44cc41ec0b427343aa39633500d213d2a75b6ad00030e2f712c4cc5b0d4d",
+        "task_id": "ho-lwip-error-netbuf-reallocation",
+        "input_hash": "2b9e92e9384ee1e601ede2fc08c01ea9c8778f42ba2e178814177401cc785a3e",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E27",
+            "source_ref": "src/api/netbuf.c",
+            "path": "src/api/netbuf.c",
+            "line_start": 80,
+            "line_end": 125,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E28",
+                "lines": "80-118",
+                "text_hash": "54f41d6ddcc678bb39de6da6da95f3cd19d2d46c17347c060d8006c1f83d771a"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "f49dd89c51ba416b69561b30b0602321c80e1860d31029215d8d94db5a802160",
+        "task_id": "ho-lwip-error-ip4-reassembly-cap",
+        "input_hash": "d0a8a0c33a2aee5ce36a3974a3385eb7a59c015d85671fb16abe879cba92ccbe",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "f66332faa42434c9b167df7a102e6cde42b480ca6619fcc9162a00d87ffa30ed",
+        "task_id": "ho-lwip-refuse-kafka-rebalance",
+        "input_hash": "63adc34e4f789599939267724f7882400a32eb0bd857bdeede2ed46578727f7d",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "f7989dab15be625f0816fab5177515f8afceb566de5616eb533865973656c94f",
+        "task_id": "ho-lwip-state-mem-heap",
+        "input_hash": "56f08ed5a7c830efa9a5fead4c8a5180ad81fe318a19af09ecffc3601523ff99",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "f8aa1597bdf8662465f02e353003043b5c2c0ef1a42ec757aa9eb36076aebed9",
+        "task_id": "ho-lwip-refuse-android-lifecycle",
+        "input_hash": "1c83814233e180b0dc3ba3bd9833ff37c3f1428ff133acc5e2b67fc477077cdf",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E1",
+            "source_ref": "src/core/ipv6/ip6_frag.c#L273-L686",
+            "path": "src/core/ipv6/ip6_frag.c",
+            "line_start": 273,
+            "line_end": 686,
+            "coverage": "absent",
+            "pinned_excerpts": []
+          }
+        ]
+      },
+      {
+        "trial_id": "fb290c2cceaaf4a5edf8ec6ae89a9c6e94835c8dfe907023a67c8d593dcb559d",
+        "task_id": "ho-lwip-state-udp-pcb-lifecycle",
+        "input_hash": "0bb928d44180b38c9cff70334ed00f55a7a08591606707fd3f4da1d040f6e6ca",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": [
+          {
+            "tag": "E37",
+            "source_ref": "src/core/udp.c",
+            "path": "src/core/udp.c",
+            "line_start": 931,
+            "line_end": 1120,
+            "coverage": "partial",
+            "pinned_excerpts": [
+              {
+                "tag": "E38",
+                "lines": "931-1031,1074-1120,1182-1278",
+                "text_hash": "4bb178774edf29c9399f00ea3f6090dd74bbfa07c917be5f647e6a4a79c03ddc"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "trial_id": "fbbf3e3523f0ec46a5ce306fc6ff077bdf961591e30c1ddfb8e12b428366d017",
+        "task_id": "ho-lwip-refuse-docker-overlay",
+        "input_hash": "f5b977bc704fd31c435490ea70cabb1b5a0eb24bc75802e22c2097618a4f7607",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "fcf4ca36764c4f5d4588ade744aae23e5a9981bbe66e35054c1dcca2e47c21bc",
+        "task_id": "ho-lwip-cond-udp-bind-conflict",
+        "input_hash": "0e4955837b13839d591407b50af699201f81f91de996de526b381ae3dc39c75d",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "fd354db4612da028e1d44152e6e864443550bbb7a3136f169eb6109b68f0e40a",
+        "task_id": "ho-lwip-error-dns-enqueue-capacity",
+        "input_hash": "d668af55002a94016a1213bc2538b216460dba4a966212bb7bbbb5ed540eba90",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      },
+      {
+        "trial_id": "fe1b18a70581dcd5bd96b9d8f5cc2befaccc6a39b816a0484d0b1d42164890d5",
+        "task_id": "ho-lwip-error-ip4-reassembly-cap",
+        "input_hash": "9bfd7fed8803f6a13ee49115596bcdc0868adc77ffd27d6f3acb4f7d79f55cb2",
+        "mapping_unchanged": true,
+        "incomplete_cited_ranges": []
+      }
+    ],
+    "trial_count": 216,
+    "mapping_changed_trials": 0,
+    "range_review_required_trials": 72,
+    "boundary": "Range completeness is a conservative evidence-input gate, not answer correctness."
+  },
+  "trace_restoration": {
+    "base_packet_hash": "7f4af9d64966736634b155c9590bda4b58d02082f7222fe950ce92d317de214c",
+    "entries": [
+      {
+        "trial_id": "039fc5b13df08e6da6d114918210f7d0dd789e37baf22a7c1b15e744a5956cf0",
+        "tag": "E1",
+        "body_hash": "43ef229431b30fb7d808d89b34c2f239f8e45fb448da570aeac063a613c13c51"
+      },
+      {
+        "trial_id": "03d2d3f328145e6c901454b62962ef22e9ae5e6adb4d63b9dd92134d92ca6382",
+        "tag": "E1",
+        "body_hash": "0e54ad1c416a965f845c07c8c190aaf5b2716e68805c1b2a3698fa2f7d0fa35f"
+      },
+      {
+        "trial_id": "0a9e6bebaad3ea7f6da3e67379adb43da5056ae6a817da5e8df97f609fa6f7d3",
+        "tag": "E1",
+        "body_hash": "329adacc8125310ea791abd7da4267d38f74b74b786b25345daaea1f1914e91a"
+      },
+      {
+        "trial_id": "0a9e6bebaad3ea7f6da3e67379adb43da5056ae6a817da5e8df97f609fa6f7d3",
+        "tag": "E2",
+        "body_hash": "8267178ce4c0104f1b613e43876282ce492395f2123f0d5b3d4a1a3e64d7c294"
+      },
+      {
+        "trial_id": "0a9e6bebaad3ea7f6da3e67379adb43da5056ae6a817da5e8df97f609fa6f7d3",
+        "tag": "E3",
+        "body_hash": "ffdce699eaffab95b30c4e4db977ac15bad04ead1958bdbd4053ee4ee6f8105e"
+      },
+      {
+        "trial_id": "0a9e6bebaad3ea7f6da3e67379adb43da5056ae6a817da5e8df97f609fa6f7d3",
+        "tag": "E39",
+        "body_hash": "52170ea4a572bce9b2e4bd79d332855ef17be64845bd85d3334f9ad54fdd7ffc"
+      },
+      {
+        "trial_id": "158ad94004d1a7df7d40adc9805c09f12622540f9a0b9eeac4da87dd811119de",
+        "tag": "E29",
+        "body_hash": "52170ea4a572bce9b2e4bd79d332855ef17be64845bd85d3334f9ad54fdd7ffc"
+      },
+      {
+        "trial_id": "16239a68160f6d105fdf03dd975412a2d72d86d890e0e5520a64a6b2b26c909f",
+        "tag": "E33",
+        "body_hash": "b627749bc46690e921ec6f5a947101d9b512b0057407257fc0c9a0330db66657"
+      },
+      {
+        "trial_id": "16239a68160f6d105fdf03dd975412a2d72d86d890e0e5520a64a6b2b26c909f",
+        "tag": "E34",
+        "body_hash": "1bcae1a151a1d15a793e7e02e86edaa68222741cd15edc4ca0adf8f734223d71"
+      },
+      {
+        "trial_id": "1a22cc10e9a08fa14ed01c5cfccf04e53436eaf1e1dcd1e4c46f4efd7b7fae01",
+        "tag": "E31",
+        "body_hash": "e155d36866a2546c351e6145bde6cb24e4d5947ceb7a188361a4ed5680751976"
+      },
+      {
+        "trial_id": "1a22cc10e9a08fa14ed01c5cfccf04e53436eaf1e1dcd1e4c46f4efd7b7fae01",
+        "tag": "E33",
+        "body_hash": "ac7936ed9dc1b11a16ba38700eb0b8eabc882617b9c38a4809d193f67265b0be"
+      },
+      {
+        "trial_id": "1e62e35be12e9b2608f970f0d22fa37e332d7a2946ce519790173ada570c8847",
+        "tag": "E1",
+        "body_hash": "74d185a494aa26fc43b1eab630bea35fd5e182a18ebf09b7cbf1d8b3841cbcdf"
+      },
+      {
+        "trial_id": "225f8a85a85ecd31daad5c3115e38a72444a9499d59724b5a85f8a62db1f9693",
+        "tag": "E1",
+        "body_hash": "871799aaf1de5499961139d219299edbca4c5372bd184f7acb25ce50986935fb"
+      },
+      {
+        "trial_id": "225f8a85a85ecd31daad5c3115e38a72444a9499d59724b5a85f8a62db1f9693",
+        "tag": "E5",
+        "body_hash": "6135eb6ce525ce734db582e96cd12c4ec237f53a60ce1501c62dfbb9acf557c4"
+      },
+      {
+        "trial_id": "225f8a85a85ecd31daad5c3115e38a72444a9499d59724b5a85f8a62db1f9693",
+        "tag": "E6",
+        "body_hash": "674fb4e8abcb2bede5beb2beab69099c638d80551d8781d3d9197deb4f0816b5"
+      },
+      {
+        "trial_id": "24590a3b03ad47188645029492c82956ecc11f13a912e382b7600b0bda762169",
+        "tag": "E1",
+        "body_hash": "43ef229431b30fb7d808d89b34c2f239f8e45fb448da570aeac063a613c13c51"
+      },
+      {
+        "trial_id": "2da4f52ef71eca65bceb24241eb8f5bf1e2d957927988d4c58a09888b7ab51bd",
+        "tag": "E32",
+        "body_hash": "0401e4ceba9c1de1146c307024a9980438f4a692ada7850aeca992ff40c4a1ba"
+      },
+      {
+        "trial_id": "31b1b54443ec30d1db0a9ad99114452a65d96d6aaab98ced771d1395e46efe8f",
+        "tag": "E35",
+        "body_hash": "3feeea6c8520a74661d7a45611ca35d53e0d818c94dda86ff4e7c82efefc5f6b"
+      },
+      {
+        "trial_id": "352430e51da8c6ef0f37ad11283655cc64279f9d4585a6433451e9d99418f997",
+        "tag": "E27",
+        "body_hash": "7fd230e6ae2c2ca94dfd5ee01c5e5d2503a1d4c6c4f6d61033a0b4e7608bd745"
+      },
+      {
+        "trial_id": "352430e51da8c6ef0f37ad11283655cc64279f9d4585a6433451e9d99418f997",
+        "tag": "E28",
+        "body_hash": "275a089757d9a4b2f1ba9d5b770b37471c86187dd4189de42f22bb35373819d0"
+      },
+      {
+        "trial_id": "3f787479ece40067ee07eb041ee545beac05ed2536125c124e2d0a4d73da2b4e",
+        "tag": "E27",
+        "body_hash": "74d185a494aa26fc43b1eab630bea35fd5e182a18ebf09b7cbf1d8b3841cbcdf"
+      },
+      {
+        "trial_id": "48a8416592d58adc471185ac2ee1dde5da2aaa0a1acda3cb5a2c5be19113caed",
+        "tag": "E27",
+        "body_hash": "7fd230e6ae2c2ca94dfd5ee01c5e5d2503a1d4c6c4f6d61033a0b4e7608bd745"
+      },
+      {
+        "trial_id": "48a8416592d58adc471185ac2ee1dde5da2aaa0a1acda3cb5a2c5be19113caed",
+        "tag": "E28",
+        "body_hash": "275a089757d9a4b2f1ba9d5b770b37471c86187dd4189de42f22bb35373819d0"
+      },
+      {
+        "trial_id": "48d63504a18895916213c5ecc9c7562dad5d2b657b547cf23aa113a271e16d47",
+        "tag": "E29",
+        "body_hash": "cba895d4c03fc114499175e3d904a521238c0e13f28d050b971a7bf96efee128"
+      },
+      {
+        "trial_id": "4ed80a04872127c2a47cafcb5ceb81312c43aeba5c38f05be054870331840902",
+        "tag": "E27",
+        "body_hash": "da1f48b3c64d1e6a83870be6b0d893b8b03a6497382e9506cad51f0f4be28916"
+      },
+      {
+        "trial_id": "5459522bdcddb07f00e7cf3226f16c168b321d1503cc5eb2cec317e9103050d8",
+        "tag": "E27",
+        "body_hash": "38c256384cb4352cd206841b34bda459fac31bf93f2128f84b93b23d5a428b1d"
+      },
+      {
+        "trial_id": "59ea0f05d978a26f2b187d77212a322dcb5177b90754ea03ca2dbd7a7e9fc5fb",
+        "tag": "E1",
+        "body_hash": "d4470682cca083185faeafe80fa1067a8a57e95c7531f27f9054056196767de3"
+      },
+      {
+        "trial_id": "59ea0f05d978a26f2b187d77212a322dcb5177b90754ea03ca2dbd7a7e9fc5fb",
+        "tag": "E29",
+        "body_hash": "d4470682cca083185faeafe80fa1067a8a57e95c7531f27f9054056196767de3"
+      },
+      {
+        "trial_id": "676577cbbb225c9477071f0e26a7f1338b51307570433699d56aeea09333b706",
+        "tag": "E33",
+        "body_hash": "b627749bc46690e921ec6f5a947101d9b512b0057407257fc0c9a0330db66657"
+      },
+      {
+        "trial_id": "676577cbbb225c9477071f0e26a7f1338b51307570433699d56aeea09333b706",
+        "tag": "E34",
+        "body_hash": "1bcae1a151a1d15a793e7e02e86edaa68222741cd15edc4ca0adf8f734223d71"
+      },
+      {
+        "trial_id": "6de0993a90bc4ad870d9b68dcbbd4050a6229e66d411e7ce49ef3409610cc828",
+        "tag": "E1",
+        "body_hash": "52170ea4a572bce9b2e4bd79d332855ef17be64845bd85d3334f9ad54fdd7ffc"
+      },
+      {
+        "trial_id": "6de0993a90bc4ad870d9b68dcbbd4050a6229e66d411e7ce49ef3409610cc828",
+        "tag": "E29",
+        "body_hash": "52170ea4a572bce9b2e4bd79d332855ef17be64845bd85d3334f9ad54fdd7ffc"
+      },
+      {
+        "trial_id": "73f6e0ce4b6358d5e3737b22d488d23cf911a26938d311763b7a2f5e59953cd3",
+        "tag": "E1",
+        "body_hash": "3feeea6c8520a74661d7a45611ca35d53e0d818c94dda86ff4e7c82efefc5f6b"
+      },
+      {
+        "trial_id": "75ec11db5350d120e2db27df0115cb41de85eb5573dd0f3db3ce580efdf19afa",
+        "tag": "E26",
+        "body_hash": "74d185a494aa26fc43b1eab630bea35fd5e182a18ebf09b7cbf1d8b3841cbcdf"
+      },
+      {
+        "trial_id": "772f37a89d3007b440526e1d3ca4b369cb25129929e7b4410fa6634981b5fc03",
+        "tag": "E1",
+        "body_hash": "43ef229431b30fb7d808d89b34c2f239f8e45fb448da570aeac063a613c13c51"
+      },
+      {
+        "trial_id": "7737c43c50a8f3bc4ee4e6baac279d010d86d31dc6231237de3a21cb0abdbc70",
+        "tag": "E34",
+        "body_hash": "e1c6eafbcdb1fb7ea18afd3182df7afc478e58f871def4145fcd9806657c4887"
+      },
+      {
+        "trial_id": "79ec5ff67242415cbf9696a83cc0814ca46df50dae135659e1c50dfd7c4b02f5",
+        "tag": "E29",
+        "body_hash": "cba895d4c03fc114499175e3d904a521238c0e13f28d050b971a7bf96efee128"
+      },
+      {
+        "trial_id": "7c3711e9fea610f5ce3c8c71c871b9b5497dbb6a308eb802fd42cc15114f37a0",
+        "tag": "E34",
+        "body_hash": "e1c6eafbcdb1fb7ea18afd3182df7afc478e58f871def4145fcd9806657c4887"
+      },
+      {
+        "trial_id": "7c99b4a3ce2f2bcccc702b5fc341539a1ed86e4b180de310e47eb3987aa7940d",
+        "tag": "E32",
+        "body_hash": "b627749bc46690e921ec6f5a947101d9b512b0057407257fc0c9a0330db66657"
+      },
+      {
+        "trial_id": "7c99b4a3ce2f2bcccc702b5fc341539a1ed86e4b180de310e47eb3987aa7940d",
+        "tag": "E33",
+        "body_hash": "1bcae1a151a1d15a793e7e02e86edaa68222741cd15edc4ca0adf8f734223d71"
+      },
+      {
+        "trial_id": "816ec961f4a65217e13e0fe313a9de86734e1ef5fe17424e1e10903904274262",
+        "tag": "E27",
+        "body_hash": "7fd230e6ae2c2ca94dfd5ee01c5e5d2503a1d4c6c4f6d61033a0b4e7608bd745"
+      },
+      {
+        "trial_id": "83fde508de0fb4cf251b601f1cc66282eb22feba5264c94439db3e2684404638",
+        "tag": "E32",
+        "body_hash": "dfc695e39c242138f16eefd4c7d6d1dae9e5ebc6601dd414b2f89ce78878485b"
+      },
+      {
+        "trial_id": "83fde508de0fb4cf251b601f1cc66282eb22feba5264c94439db3e2684404638",
+        "tag": "E33",
+        "body_hash": "94f11c51d28be45ea8aa02b48c6c434c1f31a915087cea5797fdbadaa095421b"
+      },
+      {
+        "trial_id": "8431a2f468d02591c04f387efab5133cdd2ac7383cdb8c0a846ccb52de4f1d27",
+        "tag": "E1",
+        "body_hash": "d4470682cca083185faeafe80fa1067a8a57e95c7531f27f9054056196767de3"
+      },
+      {
+        "trial_id": "88db136bced708ac8b39cc525bf4b7bee7c19e27870a7321f88aa9844a6d19bf",
+        "tag": "E33",
+        "body_hash": "b627749bc46690e921ec6f5a947101d9b512b0057407257fc0c9a0330db66657"
+      },
+      {
+        "trial_id": "88db136bced708ac8b39cc525bf4b7bee7c19e27870a7321f88aa9844a6d19bf",
+        "tag": "E34",
+        "body_hash": "1bcae1a151a1d15a793e7e02e86edaa68222741cd15edc4ca0adf8f734223d71"
+      },
+      {
+        "trial_id": "8c848d41fbfb1ecb0a4c53fa4c813d7f4d0480f29fad1990dbef8c592e6a7b90",
+        "tag": "E2",
+        "body_hash": "e1442bd9cbd9ff98b2903bb790f47c278cd8a5cf0dc683a3f8c7c0ccba0276d5"
+      },
+      {
+        "trial_id": "8c848d41fbfb1ecb0a4c53fa4c813d7f4d0480f29fad1990dbef8c592e6a7b90",
+        "tag": "E3",
+        "body_hash": "74d185a494aa26fc43b1eab630bea35fd5e182a18ebf09b7cbf1d8b3841cbcdf"
+      },
+      {
+        "trial_id": "8c848d41fbfb1ecb0a4c53fa4c813d7f4d0480f29fad1990dbef8c592e6a7b90",
+        "tag": "E29",
+        "body_hash": "0f83313fb7c7f7f10d6c77d24161fb2dd0ad0b2888e7ccb370620304927b1673"
+      },
+      {
+        "trial_id": "a50f0e2dc5eba8789ff1c7b1f566d381fd78be56dd15a59f2d0193141f37daca",
+        "tag": "E1",
+        "body_hash": "74d185a494aa26fc43b1eab630bea35fd5e182a18ebf09b7cbf1d8b3841cbcdf"
+      },
+      {
+        "trial_id": "aacc812d670c29cab95e26103cb303873c5a9bdac8a045842bbe242bd8c12e99",
+        "tag": "E2",
+        "body_hash": "dfc695e39c242138f16eefd4c7d6d1dae9e5ebc6601dd414b2f89ce78878485b"
+      },
+      {
+        "trial_id": "aacc812d670c29cab95e26103cb303873c5a9bdac8a045842bbe242bd8c12e99",
+        "tag": "E34",
+        "body_hash": "94f11c51d28be45ea8aa02b48c6c434c1f31a915087cea5797fdbadaa095421b"
+      },
+      {
+        "trial_id": "ac34deaac4ccccf0acce994fd5de82a2803d5381aa3bf5780e10fbefc2ed707b",
+        "tag": "E27",
+        "body_hash": "d4470682cca083185faeafe80fa1067a8a57e95c7531f27f9054056196767de3"
+      },
+      {
+        "trial_id": "ae2ec3b129098b8c8751236b5dac5838ce9da5579ab496b8fc492db8cff99751",
+        "tag": "E29",
+        "body_hash": "dc4ff9b3fcc23ed20e0f6acd0a0a108005a6c6a880e8177fb3a1f8c4ff44fb3b"
+      },
+      {
+        "trial_id": "ae2ec3b129098b8c8751236b5dac5838ce9da5579ab496b8fc492db8cff99751",
+        "tag": "E30",
+        "body_hash": "342d23159a680cf921f6c847549ff05041c3df29093f911a4f3e85df2bae23c0"
+      },
+      {
+        "trial_id": "ae2ec3b129098b8c8751236b5dac5838ce9da5579ab496b8fc492db8cff99751",
+        "tag": "E31",
+        "body_hash": "0b78bda469cc72b8db50b4751adfa8631ee8370e09ca4e9a65d1a579baaa430b"
+      },
+      {
+        "trial_id": "ae2ec3b129098b8c8751236b5dac5838ce9da5579ab496b8fc492db8cff99751",
+        "tag": "E32",
+        "body_hash": "c3fcf3e5de57472fb509797583b04528a0152913ed0afcf2b8b70339f07399e9"
+      },
+      {
+        "trial_id": "ae2ec3b129098b8c8751236b5dac5838ce9da5579ab496b8fc492db8cff99751",
+        "tag": "E33",
+        "body_hash": "2477f464414f6a6418c807bc67fe81a9b3ed84409529bf836c8e32998803d002"
+      },
+      {
+        "trial_id": "ae32930588fb01ec8d840295463521fd50e2b57da6392d58fcb6708d38556c02",
+        "tag": "E30",
+        "body_hash": "1445d90a9031a31f574442eafbc1c35884a0af7f674de65cc976e0009d4c3775"
+      },
+      {
+        "trial_id": "b572c2dc66cad62d62c4bbb9d89899ad5af0d2919ecec5476366dfdd1ac7820f",
+        "tag": "E27",
+        "body_hash": "38c256384cb4352cd206841b34bda459fac31bf93f2128f84b93b23d5a428b1d"
+      },
+      {
+        "trial_id": "c913f64629d27045573e6083742214da08f67c81131e33eb2bd027cbbb74988c",
+        "tag": "E27",
+        "body_hash": "38c256384cb4352cd206841b34bda459fac31bf93f2128f84b93b23d5a428b1d"
+      },
+      {
+        "trial_id": "ca8524a7decfc688947643358049f49247058622a9f3699405bbf8549cf9e5d5",
+        "tag": "E3",
+        "body_hash": "74d185a494aa26fc43b1eab630bea35fd5e182a18ebf09b7cbf1d8b3841cbcdf"
+      },
+      {
+        "trial_id": "cc559c5a9f5b88237528403bc7acd6e237c82d12004498c54b63704d632afbaf",
+        "tag": "E1",
+        "body_hash": "4a031b70b1fbdda8e940fe4a12a8749623d3d631163e7672140c11a917f17ac8"
+      },
+      {
+        "trial_id": "cc559c5a9f5b88237528403bc7acd6e237c82d12004498c54b63704d632afbaf",
+        "tag": "E2",
+        "body_hash": "43ef229431b30fb7d808d89b34c2f239f8e45fb448da570aeac063a613c13c51"
+      },
+      {
+        "trial_id": "cc559c5a9f5b88237528403bc7acd6e237c82d12004498c54b63704d632afbaf",
+        "tag": "E25",
+        "body_hash": "50f96ee6dd0346b5385c17b298cc2d257bfadf0fe627e70950ee1adbce1af4c1"
+      },
+      {
+        "trial_id": "d34983fd1ed7fcd080d0ef1981013a95e027309024f112e953329f3916d12005",
+        "tag": "E2",
+        "body_hash": "735265a11d250694efebec4330561f77e6a97254d469109d7b965642714e974b"
+      },
+      {
+        "trial_id": "d859dc38bef0d84a047792f389d6ea42ecc2cb479b1914ad60ef24d1b7c389e3",
+        "tag": "E2",
+        "body_hash": "e1442bd9cbd9ff98b2903bb790f47c278cd8a5cf0dc683a3f8c7c0ccba0276d5"
+      },
+      {
+        "trial_id": "d859dc38bef0d84a047792f389d6ea42ecc2cb479b1914ad60ef24d1b7c389e3",
+        "tag": "E27",
+        "body_hash": "74d185a494aa26fc43b1eab630bea35fd5e182a18ebf09b7cbf1d8b3841cbcdf"
+      },
+      {
+        "trial_id": "d859dc38bef0d84a047792f389d6ea42ecc2cb479b1914ad60ef24d1b7c389e3",
+        "tag": "E28",
+        "body_hash": "0f83313fb7c7f7f10d6c77d24161fb2dd0ad0b2888e7ccb370620304927b1673"
+      },
+      {
+        "trial_id": "e06cb24a73d0e9d048c8ac7e735ee554d52ec92127b5f1a7e257119c33b5b3fc",
+        "tag": "E29",
+        "body_hash": "52170ea4a572bce9b2e4bd79d332855ef17be64845bd85d3334f9ad54fdd7ffc"
+      },
+      {
+        "trial_id": "e67ef45e99bea6d33d8dcc295403e663c03af8f92a391e4e472a79cff9007730",
+        "tag": "E2",
+        "body_hash": "dfc695e39c242138f16eefd4c7d6d1dae9e5ebc6601dd414b2f89ce78878485b"
+      },
+      {
+        "trial_id": "e67ef45e99bea6d33d8dcc295403e663c03af8f92a391e4e472a79cff9007730",
+        "tag": "E34",
+        "body_hash": "94f11c51d28be45ea8aa02b48c6c434c1f31a915087cea5797fdbadaa095421b"
+      },
+      {
+        "trial_id": "ebaa09a5b1a8ecb6f5d4b3ca6481a8d1b6b75a0d7766afb47d13d6211c91068a",
+        "tag": "E30",
+        "body_hash": "ee2b99b5488821c1513bf32b42db5fd22dcd44e9010e8ffcb2e329437ee30e65"
+      },
+      {
+        "trial_id": "ef77ada4deabeecc501f59581fc28030958cbe2ae8d4bff777a4e443e26d3ebe",
+        "tag": "E27",
+        "body_hash": "38c256384cb4352cd206841b34bda459fac31bf93f2128f84b93b23d5a428b1d"
+      },
+      {
+        "trial_id": "f7989dab15be625f0816fab5177515f8afceb566de5616eb533865973656c94f",
+        "tag": "E33",
+        "body_hash": "dfc695e39c242138f16eefd4c7d6d1dae9e5ebc6601dd414b2f89ce78878485b"
+      },
+      {
+        "trial_id": "f7989dab15be625f0816fab5177515f8afceb566de5616eb533865973656c94f",
+        "tag": "E34",
+        "body_hash": "94f11c51d28be45ea8aa02b48c6c434c1f31a915087cea5797fdbadaa095421b"
+      }
+    ],
+    "boundary": "Original tool-output bytes only; unresolved source bodies are not invented; no scores changed."
+  },
+  "model_requests": 0,
+  "rescored": false,
+  "boundary": "The historical aggregate is withheld pending claim-level evidence audit. Range gaps and restored bodies are not counts of incorrect answers. No frozen answer, gold, score or model request was changed.",
+  "audit_hash": "15444dc36272985091e691e4c470deaa5abdd9b5b98a72bc95f412905060dbfd"
+}

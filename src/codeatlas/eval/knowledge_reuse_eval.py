@@ -194,13 +194,20 @@ def prepare(manifest_path=None, *, project_root=None, generated_artifact=None):
                 product = products.get((case["case_id"], arm))
                 if product is None:
                     raise ValueError("reviewed model material set is incomplete")
+                # Tn is production provenance, not a source the answering model
+                # can resolve: it receives only M1 and the common En attachments.
+                # Cite the visible material for turn-derived statements. Preserve
+                # the frozen product and its hash, and hash the rendered view too.
+                rendered = re.sub(r"\[T\d+\]", "[M1]", product["text"])
                 case["materials"][arm].update(
-                    text=product["text"], content_hash=digest(product["text"]),
+                    text=rendered, content_hash=digest(rendered),
                     production={
                         "method": "model_generated_dual_reviewed",
                         "model": product["model"],
                         "session_id": product["session_id"],
                         "artifact_hash": artifact["artifact_hash"],
+                        "product_text_hash": digest(product["text"]),
+                        "render_version": "visible-material-citations-v2",
                     },
                 )
         prepared.update(

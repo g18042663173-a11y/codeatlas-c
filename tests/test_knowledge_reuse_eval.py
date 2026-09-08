@@ -6,7 +6,7 @@ import pytest
 import yaml
 
 from codeatlas.contracts import digest
-from codeatlas.eval import knowledge_production, knowledge_reuse_eval as reuse, protocol
+from codeatlas.eval import knowledge_production, knowledge_reuse_eval as reuse, protocol, rubric
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -314,6 +314,34 @@ def test_model_material_production_is_isolated_from_questions_and_requires_dual_
                "model_generated_dual_reviewed"
                for case in prepared["cases"]
                for arm in ("generic_summary", "structured_card"))
+    for case in prepared["cases"]:
+        for arm in ("generic_summary", "structured_card"):
+            text = case["materials"][arm]["text"]
+            assert "[T1]" not in text and "[M1]" in text and "[E1]" in text
+            assert case["materials"][arm]["content_hash"] == digest(text)
+    assert all("[T1]" in product["text"] for product in frozen["products"])
+
+
+def test_blind_packet_rehydrates_exact_reuse_body_without_mutating_raw_answers(material_manifest):
+    import copy
+    path, root, _ = material_manifest
+    report = reuse.evaluate(path, project_root=root, client=MaterialClient(), runs=1)
+    before = copy.deepcopy(report["raw_trials"])
+    original_hash = protocol.run_hash(report)
+    packet = rubric.blind_packet(report)
+    assert report["raw_trials"] == before
+    assert packet["run_hash"] == original_hash
+    for item in packet["items"]:
+        mapping = packet["audit_only_citation_map"][item["trial_id"]]
+        reverse = {original: neutral for neutral, original in mapping.items()}
+        citations = {citation["tag"]: citation for citation in item["citations"]}
+        assert f"[{reverse['E4']}]" in item["answer"]
+        assert citations[reverse['E4']]["text"] == "result=ok\n"
+        assert citations[reverse['M1']]["text"]
+    # No filesystem reload can silently replace the frozen source body.
+    report["materials"]["cases"][0]["attachments"][3]["text"] = "result=changed\n"
+    with pytest.raises(ValueError, match="attachment text changed"):
+        rubric.blind_packet(report)
 
 
 def test_model_material_disagreement_stays_unusable(material_manifest, tmp_path):

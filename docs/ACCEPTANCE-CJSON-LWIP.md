@@ -4,9 +4,9 @@
 
 ## 可复现身份
 
-- CodeAtlas：`57c9db65e87f093fd9bf5ade5aa5d49c60ae3e24`；branch `feat/portfolio-core-evidence`；dirty=True
-- 实现内容哈希：`350b078b72eb0f4a36d271aa0896efde5620a24344a591db0a19bf58828bbadd`
-- 生成时间：`2026-09-07T17:51:59+00:00`
+- CodeAtlas：`e31071601c26d4f4d3ec2491e20c79b4c26a5e82`；branch `feat/portfolio-core-evidence`；dirty=True
+- 实现内容哈希：`9043b96c551291ed0a4c05d5c5bac99e8145fed641a6bebee109b987f2beb1d3`
+- 生成时间：`2026-09-08T04:36:02+00:00`
 
 ## 双语料矩阵
 
@@ -50,19 +50,21 @@
 
 - 工程底座：`passed`
 - 预登记实验执行：`completed`
-- 双审／独立真值复核：`485/486 终局`
+- 可用于效果汇总的复核终局：`216/486`（待证据审计不等于判错）
 - 正式知识卡人工发布：`completed`
 - 可选人工答案复核：`not_run`（不冒充 AI 双审）
-- 所有主张均有终态：`true`
+- 所有主张均有终态：`false`
 - 所有预登记收益均得到支持：`false`（不作为作品集就绪的硬门槛）
 - 公开复现：`not_completed`
 
-- `wiki-cjson`：`pending_review`；复核 `unresolved`。
-- `wiki-lwip`：`completed`；复核 `ai_reviewed`。
-- `knowledge-reuse`：`completed`；复核 `ai_reviewed`。
+- `wiki-cjson`：`completed`；复核 `ai_reviewed`。
+- `wiki-lwip`：`pending_evidence_audit`；复核 `unresolved`。
+  评分输入存在引用映射或正文完整性问题，原语义数字暂不用于效果判断；见 `docs/WIKI-LWIP-EVIDENCE-AUDIT.json`。
+- `knowledge-reuse`：`invalid_review`；复核 `unresolved`。
+  评分输入存在引用映射或正文完整性问题，原语义数字暂不用于效果判断；见 `docs/REUSE-EVIDENCE-AUDIT.json`。
 - `maintenance`：`completed`；复核 `deterministic_oracle`。
 - 主张 `wiki-cjson`：`insufficient_evidence`。
-- 主张 `wiki-lwip`：`insufficient_evidence`。
-- 主张 `knowledge-reuse`：`insufficient_evidence`。
+- 主张 `wiki-lwip`：`unresolved`。
+- 主张 `knowledge-reuse`：`unresolved`。
 - 主张 `maintenance`：`insufficient_evidence`。
 - Wiki 主对照（两仓库等权）：`not_measured`；模型答案与复核未完整时不显示差值。

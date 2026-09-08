@@ -151,6 +151,78 @@ def test_calibrated_dual_reviews_use_isolated_sessions_and_preserve_raw_trials(t
         review.review(directory, client_factory=factory)
 
 
+def test_frozen_job_selection_does_not_rescore_other_jobs(tmp_path, fake_http):
+    directory = tmp_path / "campaign"
+    campaign.prepare(directory, project_root=ROOT,
+                     jobs=[REUSE[0], {**REUSE[0], "id": "other"}], runs=1,
+                     smoke_trials=3, max_requests=400)
+    campaign.run(directory, mode="full", client_factory=factory)
+    base = review.review(directory, attempt_id="base", client_factory=factory)
+    report = campaign.report(directory)["reports"]["reuse"]
+    packet = rubric.blind_packet(report)
+    selection = {"jobs": ["reuse"], "base_batch_id": base["batch_id"],
+                 "run_hashes": {"reuse": report["run_hash"]},
+                 "packet_hashes": {"reuse": packet["packet_hash"]}}
+    selection["selection_hash"] = digest(selection)
+    path = tmp_path / "selection.json"
+    path.write_text(json.dumps(selection), encoding="utf-8")
+    before = len(fake_http["requests"])
+    scope = dict(scope_id="bounded", max_requests=60, manifest_hash="f" * 64)
+    with pytest.raises(campaign.CampaignError, match="budget scope"):
+        review.review(directory, attempt_id="missing-scope", base_attempt_id="base",
+                      job_ids=["reuse"], selection_manifest=path, client_factory=factory)
+    with pytest.raises(campaign.CampaignError, match="reuse its base"):
+        review.review(directory, attempt_id="base", base_attempt_id="base",
+                      job_ids=["reuse"], selection_manifest=path, budget_scope=scope, client_factory=factory)
+    assert len(fake_http["requests"]) == before
+    result = review.review(directory, attempt_id="repair", base_attempt_id="base",
+                           job_ids=["reuse"], selection_manifest=path,
+                           budget_scope=scope, client_factory=factory)
+    assert set(result["reviewed_reports"]) == {"reuse"}
+    assert result["binding"]["selection"]["base_batch_id"] == base["batch_id"]
+    assert len(fake_http["requests"]) - before == 24 + 36
+    after = len(fake_http["requests"])
+    review.review(directory, attempt_id="repair", base_attempt_id="base", resume=True,
+                  job_ids=["reuse"], selection_manifest=path,
+                  budget_scope=scope, client_factory=factory)
+    assert len(fake_http["requests"]) == after
+    with pytest.raises(campaign.CampaignError, match="already frozen"):
+        review.review(directory, attempt_id="repair", base_attempt_id="base", resume=True,
+                      job_ids=["reuse"], selection_manifest=path,
+                      budget_scope={**scope, "max_requests": 61}, client_factory=factory)
+    selection["purpose"] = "changed selection identity"
+    selection["selection_hash"] = digest({k: v for k, v in selection.items() if k != "selection_hash"})
+    path.write_text(json.dumps(selection), encoding="utf-8")
+    with pytest.raises(campaign.CampaignError, match="already frozen"):
+        review.review(directory, attempt_id="repair", base_attempt_id="base", resume=True,
+                      job_ids=["reuse"], selection_manifest=path,
+                      budget_scope=scope, client_factory=factory)
+    assert len(fake_http["requests"]) == after
+    selection["packet_hashes"]["reuse"] = "a" * 64
+    selection["selection_hash"] = digest({k: v for k, v in selection.items() if k != "selection_hash"})
+    path.write_text(json.dumps(selection), encoding="utf-8")
+    with pytest.raises(campaign.CampaignError, match="packets changed"):
+        review.review(directory, attempt_id="tamper", base_attempt_id="base",
+                      job_ids=["reuse"], selection_manifest=path,
+                      budget_scope=scope, client_factory=factory)
+    assert len(fake_http["requests"]) == after
+
+
+def test_selective_review_cli_requires_and_passes_explicit_scope(tmp_path, monkeypatch):
+    from codeatlas.cli import app
+    seen = []
+    monkeypatch.setattr(review, "review", lambda *args, **kwargs: seen.append(kwargs) or {"status": "not_run"})
+    args = ["eval", "proof", "review", "--campaign", str(tmp_path), "--job", "reuse",
+            "--base-attempt", "base", "--attempt", "repair", "--selection-manifest", "selection.json"]
+    response = CliRunner().invoke(app, args)
+    assert response.exit_code != 0 and not seen
+    scope = dict(scope_id="bounded", max_requests=800, manifest_hash="f" * 64)
+    scope_path = tmp_path / "scope.json"
+    scope_path.write_text(json.dumps(scope), encoding="utf-8")
+    response = CliRunner().invoke(app, [*args, "--budget-scope", str(scope_path)])
+    assert response.exit_code == 0 and seen[0]["budget_scope"] == scope
+
+
 def test_review_export_is_git_sized_and_keeps_trial_hashes(tmp_path, fake_http):
     directory = collected(tmp_path)
     result = review.review(directory, client_factory=factory)
@@ -504,3 +576,47 @@ def test_partial_smoke_reviews_are_saved_but_not_applied_as_full_proof(tmp_path,
     result = review.review(directory, client_factory=factory)
     assert len(result["reviews"]["reuse"]["items"]) == 3
     assert result["reviewed_reports"] == {} and not result["human_reviewed"]
+
+
+def test_trial_selection_calls_only_selected_and_preserves_proved_old_scores(tmp_path, fake_http, monkeypatch):
+    from codeatlas.eval import wiki_review_projection as wiki
+    from codeatlas.eval.review_inheritance import validate_inheritance
+    directory = collected(tmp_path)
+    base = review.review(directory, attempt_id="trial-base", client_factory=factory)
+    _, _, ledger = campaign._load(directory)
+    source = campaign.report(directory)["reports"]["reuse"]
+    packet = rubric.blind_packet(source)
+    chosen = packet["items"][0]["trial_id"]
+    old, audit = validate_inheritance(ledger, base["batch_id"], base["binding"], base, {"reuse": packet}, [chosen])
+    # This test covers scheduling, not source hydration (independently tested).
+    original_packet = rubric.blind_packet
+    def without_fixture_descriptor(report):
+        spec = report.pop("review_evidence", None)
+        try:
+            return original_packet(report)
+        finally:
+            if spec is not None:
+                report["review_evidence"] = spec
+    monkeypatch.setattr(rubric, "blind_packet", without_fixture_descriptor)
+    selection = {"base_batch_id": base["batch_id"], "jobs": ["reuse"],
+        "run_hashes": {"reuse": packet["run_hash"]}, "packet_hashes": {"reuse": packet["packet_hash"]},
+        "trial_ids": {"reuse": [chosen]}, "evidence_repairs": {"reuse": {"selected_trial_ids": [chosen]}},
+        "projection_version": wiki.VERSION, "wiki_projection_runtime_hash": digest(Path(wiki.__file__).read_bytes()),
+        "inheritance_audit_hash": audit["audit_hash"]}
+    selection["selection_hash"] = digest(selection)
+    path = tmp_path / "selection.json"
+    path.write_text(json.dumps(selection))
+    before = len(fake_http["requests"])
+    result = review.review(directory, attempt_id="trial-repair", client_factory=factory,
+        judge_model=GO_MODEL, qualification_attestation=base["judge_calibration"],
+        qualification_batch_id=base["batch_id"], projection_version=wiki.VERSION,
+        job_ids=["reuse"], base_attempt_id="trial-base", selection_manifest=path,
+        budget_scope={"scope_id": "test-scope", "max_requests": 100, "manifest_hash": digest(selection)})
+    calls = fake_http["requests"][before:]
+    assert len(calls) == 2 and all(c["payload"]["item"]["trial_id"] == chosen for c in calls)
+    assert result["status"] == "completed"
+    inherited = {g["trial_id"]: g for g in old["reuse"]}
+    for group in result["reviews"]["reuse"]["items"]:
+        if group["trial_id"] != chosen:
+            assert group == inherited[group["trial_id"]]
+    assert result["inheritance_audit"]["audit_hash"] == audit["audit_hash"]

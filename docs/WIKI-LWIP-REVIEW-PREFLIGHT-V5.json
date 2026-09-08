@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "status": "blocked_input_budget",
+  "job_id": "wiki-lwip",
+  "run_hash": "79ff17fd9893328e097fb85466d2006b7cd06edf2b6359a5734cfbad96e5ad81",
+  "selection_hash": "233bec2bc96f9fc7a2c4238bfdab2e2675ed9bcfca4418cbe556595153ed62ab",
+  "packet_hash": "4011f435b67c8196343504d24a875d70e6247e58e6356d6ffa136ae40682e970",
+  "inheritance_audit_hash": "3d50fc266483df48774506dbd56b67e34131d2a873efb2a4a89240cf2c18a490",
+  "selected_answers": 72,
+  "inherited_answers": 144,
+  "input_budget": 8000,
+  "max_estimated_arbitration_input": 12060,
+  "oversize_trials": {
+    "225f8a85a85ecd31daad5c3115e38a72444a9499d59724b5a85f8a62db1f9693": 11470,
+    "9223b3ea8decd739d711f9f8fdf106d88cf74a2a59153c156e0a8918651c47bc": 8136,
+    "ae32930588fb01ec8d840295463521fd50e2b57da6392d58fcb6708d38556c02": 8511,
+    "cc559c5a9f5b88237528403bc7acd6e237c82d12004498c54b63704d632afbaf": 8202,
+    "d34983fd1ed7fcd080d0ef1981013a95e027309024f112e953329f3916d12005": 12060
+  },
+  "projection_version": "complete-wiki-evidence-v2",
+  "model_requests": 0,
+  "answer_regenerations": 0,
+  "gold_changes": 0,
+  "boundary": "Frozen complete evidence exceeds the current judge input cap. No silent truncation, no paid dispatch, no effects inferred; pending explicit budget decision.",
+  "status_hash": "2b83167d90521323e8c0f3853193a1a50e569936bd756b7cfad6be41a5801df0"
+}

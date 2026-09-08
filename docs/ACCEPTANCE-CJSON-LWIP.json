@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
   "mode": "full",
-  "generated_at": "2026-09-07T17:51:59+00:00",
+  "generated_at": "2026-09-08T04:36:02+00:00",
   "codeatlas": {
-    "revision": "57c9db65e87f093fd9bf5ade5aa5d49c60ae3e24",
+    "revision": "e31071601c26d4f4d3ec2491e20c79b4c26a5e82",
     "branch": "feat/portfolio-core-evidence",
     "dirty": true,
-    "dirty_entries": 56,
+    "dirty_entries": 44,
     "origin": "https://github.com/g18042663173-a11y/codeatlas-c.git",
-    "implementation_hash": "350b078b72eb0f4a36d271aa0896efde5620a24344a591db0a19bf58828bbadd"
+    "implementation_hash": "9043b96c551291ed0a4c05d5c5bac99e8145fed641a6bebee109b987f2beb1d3"
   },
   "corpora_manifest_sha256": "b29d5655648b5b4125f43cd1a0f71e19b628439a0b42ca992ba848fe4b820b03",
   "claims_manifest_sha256": "853e7d5ab534da77df6cb2608f4dff07c896c068d0c7a4b6f3a54e80dfd34843",
@@ -883,12 +883,12 @@
       "tracked_reports": 4,
       "total_reports": 4,
       "codeatlas": {
-        "revision": "57c9db65e87f093fd9bf5ade5aa5d49c60ae3e24",
+        "revision": "e31071601c26d4f4d3ec2491e20c79b4c26a5e82",
         "branch": "feat/portfolio-core-evidence",
         "dirty": true,
-        "dirty_entries": 56,
+        "dirty_entries": 44,
         "origin": "https://github.com/g18042663173-a11y/codeatlas-c.git",
-        "implementation_hash": "350b078b72eb0f4a36d271aa0896efde5620a24344a591db0a19bf58828bbadd"
+        "implementation_hash": "9043b96c551291ed0a4c05d5c5bac99e8145fed641a6bebee109b987f2beb1d3"
       }
     }
   ],
@@ -903,12 +903,12 @@
     "tracked_reports": 4,
     "total_reports": 4,
     "codeatlas": {
-      "revision": "57c9db65e87f093fd9bf5ade5aa5d49c60ae3e24",
+      "revision": "e31071601c26d4f4d3ec2491e20c79b4c26a5e82",
       "branch": "feat/portfolio-core-evidence",
       "dirty": true,
-      "dirty_entries": 56,
+      "dirty_entries": 44,
       "origin": "https://github.com/g18042663173-a11y/codeatlas-c.git",
-      "implementation_hash": "350b078b72eb0f4a36d271aa0896efde5620a24344a591db0a19bf58828bbadd"
+      "implementation_hash": "9043b96c551291ed0a4c05d5c5bac99e8145fed641a6bebee109b987f2beb1d3"
     }
   },
   "model_abc": {
@@ -929,72 +929,21 @@
   },
   "proof": {
     "status": "completed",
-    "manifest_sha256": "c2e7b2b7fa5657decb935a4bdee67b99a089b374414d2e25b93d0f2d246dcb2e",
+    "manifest_sha256": "5cffa68f2626848a30eef041a50e6209485116d39eafb5d9f66d697d582248ee",
     "items": [
       {
         "id": "wiki-cjson",
         "kind": "wiki_knowledge",
         "manifest": "eval/holdout_cjson.yaml",
-        "report": "docs/runs/curated/PROOF-WIKI-CJSON-V4.json",
-        "required_for_effect": true,
-        "generated_artifact": null,
-        "status": "pending_review",
-        "identity_ok": true,
-        "review_status": "unresolved",
-        "effect_observed": false,
-        "claim_supported": false,
-        "proof_integrity_ok": false,
-        "execution_complete": true,
-        "execution_integrity_ok": true,
-        "claim_evidence": {
-          "primary_contrast": {
-            "treatment": "wiki_flat",
-            "baselines": [
-              "source_only"
-            ]
-          },
-          "accuracy": {
-            "delta_pt": null,
-            "ci95_pt": null
-          },
-          "answer_completeness": {
-            "delta_pt": null,
-            "ci95_pt": null
-          },
-          "input_token_reduction_pct": null,
-          "current_decisions_passed": null,
-          "oracle_independently_validated": null,
-          "unsafe_missed_invalidation": null,
-          "current_false_invalidation": null,
-          "maintenance_value_measured": null
-        },
-        "human_release_eligible": false,
-        "terminal_semantic_unresolved": true,
-        "executed_trial_count": 216,
-        "unresolved_trial_count": 1,
-        "unresolved_trials": [
-          {
-            "task_id": "ho-cjson-flow-detach-list-rewire",
-            "variant": "wiki_flat",
-            "repetition": 2,
-            "trial_id": "26e2b1dd369637454672cbc6b44a050d7c37c158bd978e3e4daac12780c3db20"
-          }
-        ],
-        "runtime_identity_ok": false,
-        "detached_review_identity_ok": true,
-        "manifest_sha256": "29558110537c4cf68f0ac950641173b326ee74b0a360fc020be3d3ccfb5cefad",
-        "report_sha256": "5b66794a770b7bf3807cba37032cc7d6a62d2049767cad28fa4c75448c432f2d"
-      },
-      {
-        "id": "wiki-lwip",
-        "kind": "wiki_knowledge",
-        "manifest": "eval/holdout_lwip.yaml",
-        "report": "docs/runs/curated/PROOF-WIKI-LWIP-V4.json",
+        "report": "docs/runs/curated/PROOF-WIKI-CJSON-V5.json",
         "required_for_effect": true,
         "generated_artifact": null,
         "status": "completed",
         "identity_ok": true,
         "review_status": "ai_reviewed",
+        "review_validity": null,
+        "invalidated_review_count": 0,
+        "withheld_review_count": 0,
         "effect_observed": false,
         "claim_supported": false,
         "proof_integrity_ok": true,
@@ -1009,64 +958,70 @@
           },
           "accuracy": {
             "task_count": 20,
-            "mechanism_count": 16,
-            "group_count": 16,
+            "mechanism_count": 19,
+            "group_count": 19,
             "group_unit": "mechanism",
-            "delta_pt": 6.25,
+            "delta_pt": 4.385964912280702,
             "ci95_pt": [
-              0.0,
-              13.541666666666664
+              -10.526315789473683,
+              18.42105263157895
             ],
             "unit": "paired_mechanism_mean",
             "bootstrap_seed": 17,
             "mechanisms": [
-              "lwip-dhcp-start-discover",
-              "lwip-dns-enqueue-capacity",
-              "lwip-dns-resolution-state-machine",
-              "lwip-ethernet-demux",
-              "lwip-ip4-reassembly-limits",
-              "lwip-ip4-route-selection",
-              "lwip-mem-heap-state",
-              "lwip-netbuf-reallocation",
-              "lwip-pbuf-header-adjust",
-              "lwip-tcp-bind-conflicts",
-              "lwip-tcp-pcb-allocation-reclaim",
-              "lwip-timeout-dispatch",
-              "lwip-udp-bind-conflicts",
-              "lwip-udp-connection-state",
-              "lwip-udp-pcb-lifecycle",
-              "lwip-udp-send-pipeline"
+              "cjson-allocator-hook-state",
+              "cjson-array-insert-boundaries",
+              "cjson-array-size-child-chain",
+              "cjson-array-tail-invariant",
+              "cjson-convenience-add-cleanup",
+              "cjson-deep-duplicate-failure",
+              "cjson-detach-list-rewire",
+              "cjson-find-pointer-ownership",
+              "cjson-generate-merge-patch-null-result",
+              "cjson-json-pointer-walk",
+              "cjson-minify-inplace",
+              "cjson-number-dual-representation",
+              "cjson-reference-alias-insertion",
+              "cjson-replace-object-item",
+              "cjson-rfc7396-merge",
+              "cjson-set-valuestring-guards",
+              "cjson-string-array-cleanup",
+              "cjson-string-reference-ownership",
+              "cjson-utils-sort-mutation"
             ]
           },
           "answer_completeness": {
             "task_count": 20,
-            "mechanism_count": 16,
-            "group_count": 16,
+            "mechanism_count": 19,
+            "group_count": 19,
             "group_unit": "mechanism",
-            "delta_pt": 10.416666666666666,
+            "delta_pt": 14.32748538011696,
             "ci95_pt": [
-              -2.083333333333333,
-              21.875
+              5.116959064327485,
+              22.63157894736842
             ],
             "unit": "paired_mechanism_mean",
             "bootstrap_seed": 17,
             "mechanisms": [
-              "lwip-dhcp-start-discover",
-              "lwip-dns-enqueue-capacity",
-              "lwip-dns-resolution-state-machine",
-              "lwip-ethernet-demux",
-              "lwip-ip4-reassembly-limits",
-              "lwip-ip4-route-selection",
-              "lwip-mem-heap-state",
-              "lwip-netbuf-reallocation",
-              "lwip-pbuf-header-adjust",
-              "lwip-tcp-bind-conflicts",
-              "lwip-tcp-pcb-allocation-reclaim",
-              "lwip-timeout-dispatch",
-              "lwip-udp-bind-conflicts",
-              "lwip-udp-connection-state",
-              "lwip-udp-pcb-lifecycle",
-              "lwip-udp-send-pipeline"
+              "cjson-allocator-hook-state",
+              "cjson-array-insert-boundaries",
+              "cjson-array-size-child-chain",
+              "cjson-array-tail-invariant",
+              "cjson-convenience-add-cleanup",
+              "cjson-deep-duplicate-failure",
+              "cjson-detach-list-rewire",
+              "cjson-find-pointer-ownership",
+              "cjson-generate-merge-patch-null-result",
+              "cjson-json-pointer-walk",
+              "cjson-minify-inplace",
+              "cjson-number-dual-representation",
+              "cjson-reference-alias-insertion",
+              "cjson-replace-object-item",
+              "cjson-rfc7396-merge",
+              "cjson-set-valuestring-guards",
+              "cjson-string-array-cleanup",
+              "cjson-string-reference-ownership",
+              "cjson-utils-sort-mutation"
             ]
           },
           "input_token_reduction_pct": null,
@@ -1076,6 +1031,42 @@
           "current_false_invalidation": null,
           "maintenance_value_measured": null
         },
+        "human_release_eligible": false,
+        "terminal_semantic_unresolved": false,
+        "executed_trial_count": 216,
+        "unresolved_trial_count": 0,
+        "unresolved_trials": [],
+        "runtime_identity_ok": false,
+        "detached_review_identity_ok": true,
+        "manifest_sha256": "29558110537c4cf68f0ac950641173b326ee74b0a360fc020be3d3ccfb5cefad",
+        "report_sha256": "d602d3e0959db0faacb930a5497005f747a1600b832e050a903e7e7e11545b5b"
+      },
+      {
+        "id": "wiki-lwip",
+        "kind": "wiki_knowledge",
+        "manifest": "eval/holdout_lwip.yaml",
+        "report": "docs/runs/curated/PROOF-WIKI-LWIP-V4.json",
+        "required_for_effect": true,
+        "generated_artifact": null,
+        "status": "pending_evidence_audit",
+        "identity_ok": true,
+        "review_status": "unresolved",
+        "review_validity": {
+          "report": "docs/WIKI-LWIP-EVIDENCE-AUDIT.json",
+          "status": "pending_evidence_audit",
+          "reason": "cited_body_omitted_from_review_input",
+          "audit_hash": "15444dc36272985091e691e4c470deaa5abdd9b5b98a72bc95f412905060dbfd",
+          "mapping_broken_trials": 0,
+          "trial_count": 216
+        },
+        "invalidated_review_count": 0,
+        "withheld_review_count": 216,
+        "effect_observed": false,
+        "claim_supported": false,
+        "proof_integrity_ok": false,
+        "execution_complete": true,
+        "execution_integrity_ok": true,
+        "claim_evidence": {},
         "human_release_eligible": false,
         "terminal_semantic_unresolved": false,
         "executed_trial_count": 216,
@@ -1093,63 +1084,25 @@
         "report": "docs/runs/curated/PROOF-KNOWLEDGE-REUSE-V4.json",
         "required_for_effect": true,
         "generated_artifact": "eval/frozen/knowledge_reuse-v4.json",
-        "status": "completed",
+        "status": "invalid_review",
         "identity_ok": true,
-        "review_status": "ai_reviewed",
+        "review_status": "unresolved",
+        "review_validity": {
+          "report": "docs/REUSE-EVIDENCE-AUDIT.json",
+          "status": "invalid_review",
+          "reason": "citation_remap_and_missing_source_bodies",
+          "audit_hash": "2744ffc39af5db7a733df7f79f03629de9ed4c895968c77517c8d0576ca53179",
+          "mapping_broken_trials": 52,
+          "trial_count": 54
+        },
+        "invalidated_review_count": 54,
+        "withheld_review_count": 54,
         "effect_observed": false,
         "claim_supported": false,
-        "proof_integrity_ok": true,
+        "proof_integrity_ok": false,
         "execution_complete": true,
         "execution_integrity_ok": true,
-        "claim_evidence": {
-          "primary_contrast": {
-            "treatment": "structured_card",
-            "baselines": [
-              "raw_session",
-              "generic_summary"
-            ]
-          },
-          "accuracy": {
-            "task_count": 6,
-            "mechanism_count": 2,
-            "group_count": 2,
-            "group_unit": "case",
-            "delta_pt": 0,
-            "ci95_pt": [
-              0,
-              0
-            ],
-            "unit": "paired_case_mean",
-            "bootstrap_seed": 17,
-            "mechanisms": [
-              "cjson-nesting",
-              "lwip-netif"
-            ]
-          },
-          "answer_completeness": {
-            "task_count": 6,
-            "mechanism_count": 2,
-            "group_count": 2,
-            "group_unit": "case",
-            "delta_pt": 0.8465608465608456,
-            "ci95_pt": [
-              -0.5291005291005307,
-              2.222222222222222
-            ],
-            "unit": "paired_case_mean",
-            "bootstrap_seed": 17,
-            "mechanisms": [
-              "cjson-nesting",
-              "lwip-netif"
-            ]
-          },
-          "input_token_reduction_pct": -5.702927358149612,
-          "current_decisions_passed": null,
-          "oracle_independently_validated": null,
-          "unsafe_missed_invalidation": null,
-          "current_false_invalidation": null,
-          "maintenance_value_measured": null
-        },
+        "claim_evidence": {},
         "human_release_eligible": false,
         "terminal_semantic_unresolved": false,
         "executed_trial_count": 54,
@@ -1170,6 +1123,9 @@
         "status": "completed",
         "identity_ok": true,
         "review_status": "deterministic_oracle",
+        "review_validity": null,
+        "invalidated_review_count": 0,
+        "withheld_review_count": 0,
         "effect_observed": false,
         "claim_supported": false,
         "proof_integrity_ok": true,
@@ -1199,43 +1155,13 @@
     ],
     "experiments_complete": true,
     "reviews_complete": false,
-    "claims_complete": true,
+    "claims_complete": false,
     "claims": [
       {
         "id": "wiki-cjson",
         "kind": "wiki_knowledge",
         "state": "insufficient_evidence",
-        "report": "docs/runs/curated/PROOF-WIKI-CJSON-V4.json",
-        "claim_supported": false,
-        "evidence": {
-          "primary_contrast": {
-            "treatment": "wiki_flat",
-            "baselines": [
-              "source_only"
-            ]
-          },
-          "accuracy": {
-            "delta_pt": null,
-            "ci95_pt": null
-          },
-          "answer_completeness": {
-            "delta_pt": null,
-            "ci95_pt": null
-          },
-          "input_token_reduction_pct": null,
-          "current_decisions_passed": null,
-          "oracle_independently_validated": null,
-          "unsafe_missed_invalidation": null,
-          "current_false_invalidation": null,
-          "maintenance_value_measured": null
-        },
-        "unresolved_trial_count": 1
-      },
-      {
-        "id": "wiki-lwip",
-        "kind": "wiki_knowledge",
-        "state": "insufficient_evidence",
-        "report": "docs/runs/curated/PROOF-WIKI-LWIP-V4.json",
+        "report": "docs/runs/curated/PROOF-WIKI-CJSON-V5.json",
         "claim_supported": false,
         "evidence": {
           "primary_contrast": {
@@ -1246,64 +1172,70 @@
           },
           "accuracy": {
             "task_count": 20,
-            "mechanism_count": 16,
-            "group_count": 16,
+            "mechanism_count": 19,
+            "group_count": 19,
             "group_unit": "mechanism",
-            "delta_pt": 6.25,
+            "delta_pt": 4.385964912280702,
             "ci95_pt": [
-              0.0,
-              13.541666666666664
+              -10.526315789473683,
+              18.42105263157895
             ],
             "unit": "paired_mechanism_mean",
             "bootstrap_seed": 17,
             "mechanisms": [
-              "lwip-dhcp-start-discover",
-              "lwip-dns-enqueue-capacity",
-              "lwip-dns-resolution-state-machine",
-              "lwip-ethernet-demux",
-              "lwip-ip4-reassembly-limits",
-              "lwip-ip4-route-selection",
-              "lwip-mem-heap-state",
-              "lwip-netbuf-reallocation",
-              "lwip-pbuf-header-adjust",
-              "lwip-tcp-bind-conflicts",
-              "lwip-tcp-pcb-allocation-reclaim",
-              "lwip-timeout-dispatch",
-              "lwip-udp-bind-conflicts",
-              "lwip-udp-connection-state",
-              "lwip-udp-pcb-lifecycle",
-              "lwip-udp-send-pipeline"
+              "cjson-allocator-hook-state",
+              "cjson-array-insert-boundaries",
+              "cjson-array-size-child-chain",
+              "cjson-array-tail-invariant",
+              "cjson-convenience-add-cleanup",
+              "cjson-deep-duplicate-failure",
+              "cjson-detach-list-rewire",
+              "cjson-find-pointer-ownership",
+              "cjson-generate-merge-patch-null-result",
+              "cjson-json-pointer-walk",
+              "cjson-minify-inplace",
+              "cjson-number-dual-representation",
+              "cjson-reference-alias-insertion",
+              "cjson-replace-object-item",
+              "cjson-rfc7396-merge",
+              "cjson-set-valuestring-guards",
+              "cjson-string-array-cleanup",
+              "cjson-string-reference-ownership",
+              "cjson-utils-sort-mutation"
             ]
           },
           "answer_completeness": {
             "task_count": 20,
-            "mechanism_count": 16,
-            "group_count": 16,
+            "mechanism_count": 19,
+            "group_count": 19,
             "group_unit": "mechanism",
-            "delta_pt": 10.416666666666666,
+            "delta_pt": 14.32748538011696,
             "ci95_pt": [
-              -2.083333333333333,
-              21.875
+              5.116959064327485,
+              22.63157894736842
             ],
             "unit": "paired_mechanism_mean",
             "bootstrap_seed": 17,
             "mechanisms": [
-              "lwip-dhcp-start-discover",
-              "lwip-dns-enqueue-capacity",
-              "lwip-dns-resolution-state-machine",
-              "lwip-ethernet-demux",
-              "lwip-ip4-reassembly-limits",
-              "lwip-ip4-route-selection",
-              "lwip-mem-heap-state",
-              "lwip-netbuf-reallocation",
-              "lwip-pbuf-header-adjust",
-              "lwip-tcp-bind-conflicts",
-              "lwip-tcp-pcb-allocation-reclaim",
-              "lwip-timeout-dispatch",
-              "lwip-udp-bind-conflicts",
-              "lwip-udp-connection-state",
-              "lwip-udp-pcb-lifecycle",
-              "lwip-udp-send-pipeline"
+              "cjson-allocator-hook-state",
+              "cjson-array-insert-boundaries",
+              "cjson-array-size-child-chain",
+              "cjson-array-tail-invariant",
+              "cjson-convenience-add-cleanup",
+              "cjson-deep-duplicate-failure",
+              "cjson-detach-list-rewire",
+              "cjson-find-pointer-ownership",
+              "cjson-generate-merge-patch-null-result",
+              "cjson-json-pointer-walk",
+              "cjson-minify-inplace",
+              "cjson-number-dual-representation",
+              "cjson-reference-alias-insertion",
+              "cjson-replace-object-item",
+              "cjson-rfc7396-merge",
+              "cjson-set-valuestring-guards",
+              "cjson-string-array-cleanup",
+              "cjson-string-reference-ownership",
+              "cjson-utils-sort-mutation"
             ]
           },
           "input_token_reduction_pct": null,
@@ -1316,60 +1248,21 @@
         "unresolved_trial_count": 0
       },
       {
+        "id": "wiki-lwip",
+        "kind": "wiki_knowledge",
+        "state": "unresolved",
+        "report": "docs/runs/curated/PROOF-WIKI-LWIP-V4.json",
+        "claim_supported": false,
+        "evidence": {},
+        "unresolved_trial_count": 0
+      },
+      {
         "id": "knowledge-reuse",
         "kind": "knowledge_reuse",
-        "state": "insufficient_evidence",
+        "state": "unresolved",
         "report": "docs/runs/curated/PROOF-KNOWLEDGE-REUSE-V4.json",
         "claim_supported": false,
-        "evidence": {
-          "primary_contrast": {
-            "treatment": "structured_card",
-            "baselines": [
-              "raw_session",
-              "generic_summary"
-            ]
-          },
-          "accuracy": {
-            "task_count": 6,
-            "mechanism_count": 2,
-            "group_count": 2,
-            "group_unit": "case",
-            "delta_pt": 0,
-            "ci95_pt": [
-              0,
-              0
-            ],
-            "unit": "paired_case_mean",
-            "bootstrap_seed": 17,
-            "mechanisms": [
-              "cjson-nesting",
-              "lwip-netif"
-            ]
-          },
-          "answer_completeness": {
-            "task_count": 6,
-            "mechanism_count": 2,
-            "group_count": 2,
-            "group_unit": "case",
-            "delta_pt": 0.8465608465608456,
-            "ci95_pt": [
-              -0.5291005291005307,
-              2.222222222222222
-            ],
-            "unit": "paired_case_mean",
-            "bootstrap_seed": 17,
-            "mechanisms": [
-              "cjson-nesting",
-              "lwip-netif"
-            ]
-          },
-          "input_token_reduction_pct": -5.702927358149612,
-          "current_decisions_passed": null,
-          "oracle_independently_validated": null,
-          "unsafe_missed_invalidation": null,
-          "current_false_invalidation": null,
-          "maintenance_value_measured": null
-        },
+        "evidence": {},
         "unresolved_trial_count": 0
       },
       {
@@ -1666,7 +1559,7 @@
   "effect_observed": false,
   "experiments_complete": true,
   "reviews_complete": false,
-  "claims_complete": true,
+  "claims_complete": false,
   "judge_qualification": {
     "schema_version": 1,
     "status": "unresolved",
