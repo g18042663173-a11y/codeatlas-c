@@ -45,7 +45,7 @@ compile_commands.json + 固定 Git revision
 ```
 
 - 代码事实：提取函数、类型、字段、全局变量，以及 `calls`、`includes`、`contains`、`type_use`、`field_access`、`global_ref`。能被编译器确认的关系标为 `certain`；函数指针、取地址和未解析调用保留为 `candidate`。
-- 分层知识：为每个纳入索引的 `.c/.h` 文件生成文件页，再汇总模块页和仓库页；页面覆盖职责、入口、certain 调用、显式分支/错误路径、类型/字段/全局引用与 candidate 边界。每次构建校验页面覆盖、Markdown 链接和 `sources` 回链，失去依赖的旧页会变成 `stale` 并退出检索。
+- 分层知识：为每个纳入索引的 C/C++ 源文件生成文件页，再汇总模块页和仓库页；页面覆盖职责、入口、certain 调用、显式分支/错误路径、类型/字段/全局引用与 candidate 边界。C++ 方法按函数入库，虚调用只保留静态绑定目标。每次构建校验页面覆盖、Markdown 链接和 `sources` 回链，失去依赖的旧页会变成 `stale` 并退出检索。
 - 版本化证据：A 级代码引用返回 repository、revision、USR、符号、文件范围和定义哈希；B 级只来自已审核且锚点仍有效的知识卡；C 级 Wiki 只能作为背景。
 - 经验治理：会话先设置目标，再确认候选。批准要求精确锚点、完整依赖、绑定当前材料哈希的 QA 和人工确认。Markdown 保存内容，发布日志保存提交事实；重建必须同时验证两者，不能把任意旧 Markdown 重新发布。回滚代码时仍应用当前审核、失效和替代状态。
 - 渐进 Agent：概念、功能和排障题只有在成功取得 Wiki 目录与完整章节后才算完成前置阅读，再用源码核验；空页、失败调用或破碎条件句不会解锁后续阶段。定位、调用链和影响题可直接走结构化工具。最多 6 次调用，只开放 `search_evidence`、`wiki_outline`、`wiki_section`、`resolve_symbol`、`code_read`、`analyze_impact`。工具契约同时生成提示词与本地校验；历史结果按完整 JSON 块取舍，不截断条件或引用。
@@ -146,7 +146,17 @@ codeatlas session import examples/conversations/cjson-nesting-review.json --db d
 codeatlas session assess cjson-nesting-review --db data/kb.db
 codeatlas agent run "审查 parse_value 的改动影响范围" \
   --session-id cjson-nesting-review --mode auto --db data/kb.db
+
+# 用 LangGraph 词表讲解同一条流水线；默认不依赖 langgraph 包
+codeatlas graph explain
+codeatlas graph run "cJSON_Delete 在哪里定义" --db data/kb.db
+
+# 已入库的文件 / 模块 / include / 跨文件调用（不重新解析）
+codeatlas map --db data/kb.db
+codeatlas map file cJSON.c --db data/kb.db
 ```
+
+对照表见 [框架词表](docs/design/FRAMEWORK-MAPPING.md)。本仓库 Python 模块怎么拆见 [CODEMAP](docs/CODEMAP.md)；追问边界见 [失败边界](docs/FAILURE-BOUNDARY.md)。可选 `pip install -e ".[langgraph]"` 后可用 `--backend langgraph` 编译同一张图；检索、拒答和快照仍走本地实现。
 
 真实证明实验使用 OpenAI-compatible 接口。下面只给出占位配置；Key 必须由运行者在当前终端临时设置，不写入仓库、报告、数据库或日志：
 

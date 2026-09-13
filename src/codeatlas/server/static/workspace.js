@@ -117,6 +117,7 @@ async function handleWorkspaceAction(button){
     case 'qa-review': await reviewQa(Number(d.id),d.verdict==='true'); break;
     case 'review': await reviewCard(d.id,d.verdict); break;
     case 'wiki': await openWiki(d.id); break;
+    case 'structure-file': await loadStructureFile(d.path); break;
     case 'wiki-source': await readEvidenceSource(d.path,d.start,d.end,d.set,$('#wikiSource')); break;
     case 'session': await openSession(d.id); break;
     case 'candidate': await decideCandidate(d.id,d.verdict); break;

@@ -170,8 +170,9 @@ def _code_read(conn: sqlite3.Connection, args: dict[str, Any]) -> dict[str, Any]
     else:
         rel, start, end = args["path"], args["line_start"], args["line_end"]
     target = (repo / rel).resolve()
-    if repo not in target.parents or target.suffix.lower() not in (".c", ".h"):
-        raise AgentError("code_read 只能读取当前仓库内的 C/H 源码")
+    from .parser.languages import is_readable_source
+    if repo not in target.parents or not is_readable_source(target):
+        raise AgentError("code_read 只能读取当前仓库内已解析的 C/C++ 源码")
     if not conn.execute("SELECT 1 FROM node WHERE kind='file' AND path=?", (rel,)).fetchone():
         raise AgentError("code_read 路径不属于当前解析快照")
     if end - start + 1 > 300:

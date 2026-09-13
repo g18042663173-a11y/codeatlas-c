@@ -2,7 +2,7 @@
 
 三级降级策略：
   1. 有 compile_commands.json  → 用真实编译上下文（最准）
-  2. 无，但给了 --include 目录 → 用手工 flags 扫描全部 .c
+  2. 无，但给了 --include 目录 → 用手工 flags 扫描 C/C++ 源文件
   3. 都没有                    → 裸解析，只带默认 include 路径
 """
 from __future__ import annotations
@@ -15,12 +15,13 @@ import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from .languages import SOURCE_EXT, scan_language_args, suffix_of
+
 log = logging.getLogger(__name__)
 _BUILTIN: list[str] = []
 
 # 需要剔除的参数：这些是"生成产物"相关的，libclang 不需要且可能报错
 _DROP_WITH_ARG = {"-o", "-MF", "-MT", "-MQ"}
-_SOURCE_EXT = {".c", ".cc", ".cpp", ".cxx", ".m"}
 
 
 def builtin_include_args() -> list[str]:
@@ -174,7 +175,7 @@ def from_scan(repo: str | Path, includes: list[str] | None = None,
 
     units: list[CompileUnit] = []
     for p in sorted(root.rglob("*")):
-        if p.suffix.lower() in _SOURCE_EXT and p.is_file():
+        if suffix_of(p) in SOURCE_EXT and p.is_file():
             # Judge ignored directories relative to the requested repository.  The old
             # absolute-path check silently rejected a valid repo whenever the repo itself
             # lived below a directory named `tests` (including our checked-in fixture).
@@ -183,7 +184,7 @@ def from_scan(repo: str | Path, includes: list[str] | None = None,
             if any(part in {"build", ".git", "test", "tests"} for part in relative_parts):
                 continue
             units.append(CompileUnit(source=str(p),
-                                     args=[*inc, *dfn, "-std=c11", *_BUILTIN],
+                                     args=[*inc, *dfn, *scan_language_args(p), *_BUILTIN],
                                      directory=str(root)))
     log.info("目录扫描发现 %d 个源文件（降级模式）", len(units))
     return units

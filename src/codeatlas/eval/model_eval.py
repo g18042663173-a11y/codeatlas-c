@@ -173,7 +173,7 @@ def evaluate(conn: sqlite3.Connection, tasks_path: str, *, client,
 def _direct_code_search(conn: sqlite3.Connection, question: str, *, limit: int = 8) -> list[dict[str, Any]]:
     """Dependency-free source baseline used only by the optional A/B/C comparison.
 
-    It reads public ``.c/.h`` files directly and does not use Wiki, graph, cards,
+    It reads public C/C++ sources directly and does not use Wiki, graph, cards,
     FTS or vectors.  This keeps A/B honest: the only difference between them is
     the fixed reasoning instruction, while C gets the CodeAtlas evidence layer.
     """
@@ -190,7 +190,8 @@ def _direct_code_search(conn: sqlite3.Connection, question: str, *, limit: int =
     if not terms or not repo.is_dir():
         return []
     scored: list[tuple[float, str, int, int, str]] = []
-    for path in sorted((*repo.rglob("*.c"), *repo.rglob("*.h"))):
+    from ..parser.languages import READABLE_EXT
+    for path in sorted(p for p in repo.rglob("*") if p.is_file() and p.suffix.lower() in READABLE_EXT):
         try:
             relative = path.resolve().relative_to(repo).as_posix()
             lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
@@ -229,8 +230,9 @@ def _baseline_code_read(conn: sqlite3.Connection, arguments: dict[str, Any]) -> 
         target.relative_to(repo)
     except ValueError as exc:
         raise ModelEvalError("code_read 路径越界") from exc
-    if target.suffix.lower() not in {".c", ".h"} or not target.is_file():
-        raise ModelEvalError("code_read 只允许当前仓库内的 .c/.h 文件")
+    from ..parser.languages import is_readable_source
+    if not is_readable_source(target) or not target.is_file():
+        raise ModelEvalError("code_read 只允许当前仓库内的 C/C++ 源码")
     try:
         line_start = max(1, int(arguments.get("line_start") or 1))
         line_end = int(arguments.get("line_end") or line_start + 89)

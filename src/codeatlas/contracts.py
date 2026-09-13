@@ -277,9 +277,10 @@ def citation_valid(conn, citation: dict) -> bool:
             return bool(row and row["line_start"] <= start <= end <= row["line_end"]
                         and (not p.get("definition_hash") or p["definition_hash"] == row["definition_hash"]))
         from pathlib import Path
+        from .parser.languages import is_readable_source
         root = Path(db.get_meta(conn, "repo", ".")).resolve()
         target = (root / (p.get("path") or "")).resolve()
-        return bool(root in target.parents and target.suffix in (".c", ".h") and target.is_file()
+        return bool(root in target.parents and is_readable_source(target) and target.is_file()
                     and conn.execute("SELECT 1 FROM node WHERE kind='file' AND path=?", (p.get("path"),)).fetchone()
                     and end <= len(target.read_bytes().splitlines()))
     uid = citation.get("uid", "")

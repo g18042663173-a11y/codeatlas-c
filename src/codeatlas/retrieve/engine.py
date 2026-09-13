@@ -24,7 +24,8 @@ from ..summary import head as head_mod
 log = logging.getLogger(__name__)
 
 RE_C_IDENT = re.compile(r"\b[a-z_][a-z0-9_]{3,}(?:_[a-z0-9]+)+\b", re.I)
-RE_FILE = re.compile(r"\b[\w/.-]+\.(?:c|h)\b", re.I)
+RE_CXX_QUAL = re.compile(r"\b[A-Za-z_]\w*::[A-Za-z_~]\w*")
+RE_FILE = re.compile(r"\b[\w/.-]+\.(?:c|cc|cpp|cxx|c\+\+|h|hh|hpp|hxx|inc)\b", re.I)
 RRF_K = 60
 
 # Small, auditable bilingual vocabulary for the two public C corpora used by the
@@ -103,7 +104,7 @@ def _query_identifier_parts(q: str) -> set[str]:
 # ------------------------------------------------------------------ 路由
 
 def route(q: str) -> str:
-    if RE_FILE.search(q) or RE_C_IDENT.search(q):
+    if RE_FILE.search(q) or RE_C_IDENT.search(q) or RE_CXX_QUAL.search(q):
         return "symbol"
     return "nl"
 
@@ -128,7 +129,8 @@ def recall_symbol(conn: sqlite3.Connection, q: str, limit: int = 30) -> list[int
     """符号精确召回：C 代码里同名符号必须精确命中，这是向量的弱项。"""
     names = {
         name for name in (
-            set(RE_C_IDENT.findall(q)) | set(re.findall(r"\b[A-Za-z_]\w{2,}\b", q))
+            set(RE_C_IDENT.findall(q)) | set(RE_CXX_QUAL.findall(q))
+            | set(re.findall(r"\b[A-Za-z_]\w{2,}\b", q))
         ) if name.lower() not in _IDENT_STOP
     }
     files = set(RE_FILE.findall(q))
@@ -146,8 +148,10 @@ def recall_symbol(conn: sqlite3.Connection, q: str, limit: int = 30) -> list[int
     for n in ordered_names:
         rows = conn.execute(
             """SELECT c.rowid FROM node nd JOIN chunk c ON c.node_id = nd.id
-                WHERE nd.name = ? AND c.visible = 1
-                ORDER BY nd.is_definition DESC, c.rowid LIMIT ?""", (n, limit)).fetchall()
+                WHERE (nd.name = ? OR (instr(?, '::') = 0 AND nd.name LIKE '%::' || ?))
+                  AND c.visible = 1
+                ORDER BY nd.is_definition DESC, c.rowid LIMIT ?""",
+            (n, n, n, limit)).fetchall()
         if rows:
             out.extend(r["rowid"] for r in rows)
         else:
@@ -253,13 +257,17 @@ def recall_reviewed_experience(conn: sqlite3.Connection, q: str,
 
 def _exact_symbol_rowids(conn: sqlite3.Connection, q: str, limit: int = 4) -> list[int]:
     """Return only exact function-name chunks explicitly written in the query."""
-    names = sorted(set(re.findall(r"\b[A-Za-z_]\w{2,}\b", q)), key=lambda x: -len(x))
+    names = sorted(
+        set(re.findall(r"\b[A-Za-z_]\w{2,}\b", q)) | set(RE_CXX_QUAL.findall(q)),
+        key=lambda x: -len(x),
+    )
     out: list[int] = []
     for name in names:
         rows = conn.execute(
             """SELECT c.rowid FROM node n JOIN chunk c ON c.node_id=n.id
-                 WHERE n.kind='function' AND n.is_definition=1 AND n.name=? AND c.visible=1
-                 ORDER BY c.rowid LIMIT ?""", (name, limit),
+                 WHERE n.kind='function' AND n.is_definition=1 AND c.visible=1
+                   AND (n.name=? OR (instr(?, '::') = 0 AND n.name LIKE '%::' || ?))
+                 ORDER BY c.rowid LIMIT ?""", (name, name, name, limit),
         ).fetchall()
         out.extend(row["rowid"] for row in rows)
     return list(dict.fromkeys(out))[:limit]

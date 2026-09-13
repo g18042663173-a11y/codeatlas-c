@@ -1,12 +1,43 @@
 # CodeAtlas 面试表达
 
+## 只能说 / 不能说
+
+能说：
+
+- cJSON / lwIP 人工检索 Recall@10 相对 BM25 分别 +10 / +20pt，拒答 100%，certain 影响 F1 为 1.0。
+- 24 个上游维护场景里，16 个语义变化决策全对（漏放 0、误失效 0）。
+- 两张正式知识卡当前验收 10/10；文件 include 和跨文件调用可以用 `codeatlas map` 打开。
+- 可以解析 C++ 翻译单元：类和方法会入库，方法按函数走检索和影响分析；虚调用只认静态声明目标。
+
+不能说：
+
+- 知识卡省 token、Wiki 正确率已经稳定赢过源码组。
+- 基于 LangGraph / LangChain，或和 seCall / ClangWiki 是同一套内核。
+- 文件图等于完整架构、控制流或数据流。
+- 已经覆盖完整 C++ 语义、模板实例化、动态派发，或基带 C++ 工程已经评测。
+
+旧 40 题是 30/40，剩下是历史 gold 冻结，不是检索挂了。更细的边界见 [FAILURE-BOUNDARY.md](FAILURE-BOUNDARY.md)；本仓库怎么拆见 [CODEMAP.md](CODEMAP.md)。
+
 ## 一句话定位
 
 CodeAtlas 是一个面向复杂 C 工程的可信 AI 研发辅助原型：先把源码变成可验证的工程知识，再让 Agent 按“先理解、后核验”的方式使用它，最后把人工确认的排障经验变成会随代码版本失效的知识资产。
 
 ## 60 秒讲法
 
-我想解决三个具体问题：模型看到的代码关系是否可靠，代码升级后经验是否过期，错误回答能否追到证据。我用 compile database 和 libclang 提取事实，区分确定关系与候选线索；生成三级 Wiki，供只读 Agent 先理解文档再核验源码。每次运行绑定一个源码快照；知识卡需要锚点、QA 和人工审核，过期后退出检索。旧回归保留 30/40，当前两张正式卡的新验收为 10/10；24 个维护场景中，16 个语义变化决策全部正确。我还完成了 486 个正式模型答案的复核：Wiki 组必要要点完整度多了 12.50pt，但正确率的差值区间跨零，不能说稳定提升。知识卡也没有测出压缩收益。我能证明可追溯的工程链路和这批任务的完整度观察，不把它包装成已经全面优于源码 Agent。
+我想解决三个具体问题：模型看到的代码关系是否可靠，代码升级后经验是否过期，错误回答能否追到证据。我用 compile database 和 libclang 提取事实，区分确定关系与候选线索；生成三级 Wiki，并把文件 include、模块归属和跨文件调用收成可查询的结构图。每次运行绑定一个源码快照；知识卡需要锚点、QA 和人工审核，过期后退出检索。旧回归保留 30/40，当前两张正式卡的新验收为 10/10；24 个维护场景中，16 个语义变化决策全部正确。我还完成了 486 个正式模型答案的复核：Wiki 组必要要点完整度多了 12.50pt，但正确率的差值区间跨零，不能说稳定提升。知识卡也没有测出压缩收益。我能证明可追溯的工程链路和这批任务的完整度观察，不把它包装成已经全面优于源码 Agent。
+
+## 5 分钟无 Key 演示
+
+库已建好时按这个顺序。不要现场连模型。
+
+```bash
+codeatlas ask "cJSON_Delete" --db data/kb.db
+codeatlas ask "如何配置 Kubernetes Ingress 的 TLS 证书轮换" --db data/kb.db
+codeatlas impact cJSON_Delete --db data/kb.db
+codeatlas map file cJSON.c --db data/kb.db
+```
+
+成功问要看到 A 级引用（函数、文件、行号、revision）。无关问必须出现「证据不足」。`map` 只打开 include 和跨文件 certain 调用，不把它讲成控制流。库不齐时先 `bash demo.sh cjson`，不要现场现拉网。
 
 ## STAR（3 分钟）
 
@@ -23,7 +54,7 @@ CodeAtlas 是一个面向复杂 C 工程的可信 AI 研发辅助原型：先把
 1. 我从 `compile_commands.json` 和 libclang 入手，保存 USR、定义范围、定义哈希、构建配置哈希，以及 calls/includes/contains/type_use/field_access/global_ref；只有 certain 调用进入影响分析。
 2. 我把 Wiki 做成文件、模块、仓库三级。所有 C/H 文件都有页面，零函数头文件也记录类型、宏和 include；模块调用严格限定作用域，构建后检查所有链接和源码回链。显式分支与错误返回只作为有范围引用的背景，不冒充完整控制流分析。
 3. 检索用符号、BM25、local-hash 向量和 certain 图扩展。Wiki 命中后可以沿已校验源码锚点回查 A 级定义；每条证据都携带 repository、revision、USR、文件范围和状态，没有 A/B 证据就在模型前拒答。
-4. 我把 Agent 分成 discover、understand、verify。概念/功能/排障题强制先读 Wiki，定位/调用链/影响题直接走结构化工具；`code_read` 只能读当前仓库 C/H 且最多 300 行，整个运行最多 6 次工具调用。
+4. 我把 Agent 分成 discover、understand、verify。概念/功能/排障题强制先读 Wiki，定位/调用链/影响题直接走结构化工具；`code_read` 只能读当前仓库已解析的 C/C++ 源码且最多 300 行，整个运行最多 6 次工具调用。
 5. 会话先经过公开来源、许可证、复现输入、验证步骤和敏感信息门禁，再设置沉淀目标并生成候选。候选要由人 accept/edit/correct/skip；卡片批准还要有精确主锚点、关系类型和一条通过的 QA。
 6. 我用不可变知识快照隔离构建与查询，一次 Agent 固定一个版本。卡片内容保存在 Markdown，发布日志决定是否提交；审核绑定内容、依赖、实验和 QA 的哈希。中断后可恢复，回滚旧源码不会复活已撤销卡。目前依赖采用全实体保守重验证，接受额外复审成本，不宣称能判定语义等价。
 7. 评测上，我把 117 道结构回归题、40 道人工任务、6 个安全闭环和可选真实模型 A/B/C 分开，避免拿同源自动题证明自然语言效果。
@@ -61,7 +92,11 @@ CodeAtlas 是一个面向复杂 C 工程的可信 AI 研发辅助原型：先把
 
 ### 为什么不是纯 RAG？
 
-RAG 擅长找相似内容，但“谁调用谁”“这个结论属于哪个 commit”需要结构化事实。CodeAtlas 让编译器负责事实、检索负责召回、模型负责规划和表达，最后仍回到当前源码。
+RAG 擅长找相似内容，但“谁调用谁”“这个结论属于哪个 commit”需要结构化事实。CodeAtlas 让编译器负责事实、检索负责召回、模型负责规划和表达，最后仍回到当前源码。文件 include 和跨文件调用用 `codeatlas map` 打开，和影响分析共用同一套模块名；include 不是调用，文件图也不是控制流。[失败边界](FAILURE-BOUNDARY.md)
+
+### 为什么不用 LangChain / LangGraph 重写？
+
+词表是对齐的：`route / retrieve / grade / act / generate / refuse` 就是 State、Node 和条件边；checkpoint 对应知识快照，不是对话 MemorySaver。实现仍是本地确定性流水线，因为默认 RAG 链留不住 certain-only 扩边、A/B 拒答和快照钉住。仓库里有一层可选门面：`codeatlas graph explain` 用他们的词画图，节点还是 `engine.ask` 和白名单工具。[对照表](design/FRAMEWORK-MAPPING.md)
 
 ### Wiki 会不会也是幻觉？
 

@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import sqlite3
 
+from .modules import module_of, repository_label
+
 # 正向：我调用了谁
 _FORWARD = """
 WITH RECURSIVE reach(id, hop) AS (
@@ -47,15 +49,19 @@ def neighbors(conn: sqlite3.Connection, node_id: str, *, direction: str = "out",
 
 
 def resolve_symbol(conn: sqlite3.Connection, name: str,
-                   kinds: tuple[str, ...] = ("function", "struct", "macro", "typedef",
+                   kinds: tuple[str, ...] = ("function", "struct", "class", "macro", "typedef",
                                              "enum", "global")) -> list[sqlite3.Row]:
-    """按名字找符号，定义优先于声明。同名符号全部返回，由调用方消歧。"""
+    """按名字找符号，定义优先于声明。同名符号全部返回，由调用方消歧。
+
+    未写限定名时也匹配 ``Class::name``，这样 C++ 方法能按短名检索。
+    """
     q = f"""
       SELECT * FROM node
-       WHERE name = ? AND kind IN ({','.join('?' * len(kinds))})
+       WHERE kind IN ({','.join('?' * len(kinds))})
+         AND (name = ? OR (instr(?, '::') = 0 AND name LIKE '%::' || ?))
        ORDER BY is_definition DESC, kind, path
     """
-    return conn.execute(q, (name, *kinds)).fetchall()
+    return conn.execute(q, (*kinds, name, name, name)).fetchall()
 
 
 def direct_edges(conn: sqlite3.Connection, node_id: str, *, direction: str = "out",
@@ -79,6 +85,7 @@ def impact(conn: sqlite3.Connection, node_id: str, max_hop: int = 3) -> dict:
     by_hop: dict[int, list[dict]] = {}
     files: set[str] = set()
     modules: set[str] = set()
+    repository = repository_label(conn)
 
     for nid_, hop in hops:
         row = conn.execute("SELECT * FROM node WHERE id = ?", (nid_,)).fetchone()
@@ -90,7 +97,7 @@ def impact(conn: sqlite3.Connection, node_id: str, max_hop: int = 3) -> dict:
         )
         if row["path"]:
             files.add(row["path"])
-            modules.add(row["path"].rsplit("/", 1)[0] if "/" in row["path"] else ".")
+            modules.add(module_of(row["path"], repository))
 
     # 受影响头文件：谁 include 了本符号所在文件
     self_row = conn.execute("SELECT * FROM node WHERE id = ?", (node_id,)).fetchone()

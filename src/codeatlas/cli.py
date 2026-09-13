@@ -17,11 +17,13 @@ from rich.table import Table
 
 from . import db as dbm
 
-app = typer.Typer(add_completion=False, help="大型 C 工程 AI 知识库")
+app = typer.Typer(add_completion=False, help="大型 C/C++ 工程 AI 知识库")
 exp_app = typer.Typer(help="专家经验库")
 session_app = typer.Typer(help="公开会话资产（仅审核，不进入检索）")
 card_app = typer.Typer(help="带精确源码锚点的知识卡")
 agent_app = typer.Typer(help="受约束的只读诊断 Agent")
+graph_app = typer.Typer(help="LangGraph 词表下的检索/拒答/工具图，节点仍调用现有 engine 与 agent")
+map_app = typer.Typer(help="已入库的文件/模块/include/跨文件调用关系", invoke_without_command=True)
 wiki_app = typer.Typer(help="分层代码 Wiki", invoke_without_command=True)
 eval_app = typer.Typer(help="离线消融与可选真实模型评测", invoke_without_command=True)
 campaign_app = typer.Typer(help="冻结证明试次与持久额度账本；断点续跑不覆盖结果")
@@ -34,6 +36,8 @@ app.add_typer(exp_app, name="exp")
 app.add_typer(session_app, name="session")
 app.add_typer(card_app, name="card")
 app.add_typer(agent_app, name="agent")
+app.add_typer(graph_app, name="graph")
+app.add_typer(map_app, name="map")
 app.add_typer(wiki_app, name="wiki")
 app.add_typer(eval_app, name="eval")
 console = Console()
@@ -638,7 +642,7 @@ def parse(repo: str, db: str = DEFAULT_DB, compile_db: str | None = None,
           define: list[str] = typer.Option([], "--define", "-D"),
           limit: int = 0, force: bool = False, incremental: bool = True,
           verbose: bool = False):
-    """解析 C 工程 → 节点 / 边（含 certain / candidate 双置信度）。
+    """解析 C/C++ 工程 → 节点 / 边（含 certain / candidate 双置信度）。
 
     默认增量：只重解析内容或编译参数发生变化的翻译单元。
     --force 强制全量重建。
@@ -890,6 +894,94 @@ def impact(symbol: str, db: str = DEFAULT_DB, depth: int = 3):
         for h in r["regression_hints"]:
             console.print(f"  · {h['title']}: {h['verification']}")
     console.print(f"\n[dim]确定影响面 {total} 个函数 / {len(r['affected_files'])} 个文件[/]")
+
+
+# --------------------------------------------------------------------- map
+
+
+@map_app.callback(invoke_without_command=True)
+def map_outline(ctx: typer.Context, db: str = DEFAULT_DB, as_json: bool = False):
+    """仓库大纲：模块、include、跨文件 certain 调用。"""
+    if ctx.invoked_subcommand:
+        return
+    from .graph import structure
+
+    outline = structure.repo_outline(dbm.query(db))
+    if as_json:
+        console.print_json(data=outline)
+        return
+    console.print(
+        f"[bold]{outline['repository']}[/]@{str(outline['revision'])[:12]}  "
+        f"{len(outline['modules'])} 个模块 / {len(outline['includes'])} 条 include / "
+        f"{len(outline['cross_file_calls'])} 组跨文件 certain 调用"
+    )
+    table = Table(title="模块")
+    table.add_column("模块")
+    table.add_column("文件", justify="right")
+    table.add_column("函数定义", justify="right")
+    table.add_column("路径")
+    for module in outline["modules"]:
+        table.add_row(
+            module["name"],
+            str(module["file_count"]),
+            str(module["functions"]),
+            ", ".join(item["path"] for item in module["files"][:6]),
+        )
+    console.print(table)
+    if outline["includes"][:12]:
+        inc = Table(title="include（certain，最多 12 条）")
+        inc.add_column("源文件")
+        inc.add_column("头文件")
+        for edge in outline["includes"][:12]:
+            inc.add_row(edge["src"], edge["dst"])
+        console.print(inc)
+    if outline["cross_file_calls"][:12]:
+        calls = Table(title="跨文件调用（certain，最多 12 组）")
+        calls.add_column("调用方文件")
+        calls.add_column("被调文件")
+        calls.add_column("条数", justify="right")
+        for edge in outline["cross_file_calls"][:12]:
+            calls.add_row(edge["src"], edge["dst"], str(edge["count"]))
+        console.print(calls)
+
+
+@map_app.command("file")
+def map_file(path: str, db: str = DEFAULT_DB, as_json: bool = False):
+    """单文件关系卡：contains、include、跨文件 certain 调用。"""
+    from .graph import structure
+
+    try:
+        card = structure.file_card(dbm.query(db), path)
+    except KeyError as exc:
+        console.print(f"[red]{exc}[/]")
+        raise typer.Exit(2) from exc
+    if as_json:
+        console.print_json(data=card)
+        return
+    console.print(f"[bold]{card['path']}[/]  模块 {card['module']}  @{str(card['revision'])[:12]}")
+    symbols = Table(title="本文件符号")
+    symbols.add_column("类")
+    symbols.add_column("名称")
+    symbols.add_column("行")
+    for item in card["symbols"][:20]:
+        symbols.add_row(item["kind"], item["name"], str(item["line_start"] or ""))
+    console.print(symbols)
+    console.print("include 出去: " + ("、".join(card["includes_out"]) or "无"))
+    console.print("被谁 include: " + ("、".join(card["includes_in"]) or "无"))
+    if card.get("inherits"):
+        console.print("继承: " + ", ".join(
+            f"{item['src']} → {item['dst']}" for item in card["inherits"][:12]
+        ))
+    if card["calls_out"]:
+        console.print("跨文件调用: " + ", ".join(
+            f"{item['callee']}@{item['dst']}×{item['count']}" for item in card["calls_out"][:12]
+        ))
+    if card["calls_in"]:
+        console.print("跨文件被调: " + ", ".join(
+            f"{item['caller']}@{item['src']}×{item['count']}" for item in card["calls_in"][:12]
+        ))
+    if card["candidate_calls"]:
+        console.print(f"[yellow]candidate 调用线索 {card['candidate_calls']} 条，不计入上面的确定关系[/]")
 
 
 # -------------------------------------------------------------------- wiki
@@ -1280,6 +1372,73 @@ def agent_run(question: str, db: str = DEFAULT_DB, data_dir: str = "data",
     console.print("[yellow]拒答[/]" if result["evidence"]["refused"] else "[green]证据包已生成[/]")
     if result["draft_preview"]:
         console.print(f"知识卡草稿：{result['draft_id'] or '预览（使用 --save-draft 持久化）'}")
+
+
+# -------------------------------------------------------------------- graph
+
+
+@graph_app.command("explain")
+def graph_explain(as_json: bool = False):
+    """用 State / Node / Edge / checkpoint 讲清现有流水线，不改检索与拒答。"""
+    from .compat.graph_spec import ATLAS_GRAPH, mermaid
+
+    if as_json:
+        console.print_json(data=ATLAS_GRAPH)
+        return
+    console.print("[bold]CodeAtlas graph[/]  （节点实现仍是 engine.ask / agent 工具，不是 LangChain 默认链）\n")
+    console.print(mermaid())
+    table = Table(title="面试词表对照")
+    table.add_column("节点")
+    table.add_column("LangChain / LangGraph")
+    table.add_column("本仓库实现")
+    table.add_column("一句话")
+    for node in ATLAS_GRAPH["nodes"]:
+        table.add_row(node["id"], node["langchain"], node["impl"], node["says"])
+    console.print(table)
+    checkpoint = ATLAS_GRAPH["checkpoint"]
+    console.print(
+        f"\ncheckpoint：面试说 {checkpoint['langgraph']}，"
+        f"这里对应 {checkpoint['codeatlas']}。{checkpoint['says']}"
+    )
+
+
+@graph_app.command("run")
+def graph_run(question: str, db: str = DEFAULT_DB, data_dir: str = "data",
+              backend: str = "native"):
+    """按图拓扑跑一遍。默认 native walker；--backend langgraph 需要可选依赖。"""
+    from .compat.runtime import compile_optional_langgraph, run_atlas_graph
+    from .indexer.build import get_embedder
+
+    conn = dbm.query(db)
+    embedder = get_embedder("tfidf", data_dir)
+    if backend == "langgraph":
+        compiled = compile_optional_langgraph(conn, embedder=embedder, data_dir=data_dir)
+        if compiled is None:
+            console.print("[red]未安装 langgraph。可执行：pip install -e '.[langgraph]'[/]")
+            raise typer.Exit(2)
+        result = compiled.invoke({"query": question, "trace": []})
+    elif backend == "native":
+        result = run_atlas_graph(conn, question, embedder=embedder, data_dir=data_dir)
+    else:
+        console.print("[red]backend 只能是 native 或 langgraph[/]")
+        raise typer.Exit(2)
+
+    table = Table(title=f"graph {backend}")
+    table.add_column("项")
+    table.add_column("值")
+    table.add_row("trace", " → ".join(result.get("trace") or []))
+    table.add_row("route", str(result.get("route")))
+    table.add_row("decision", str(result.get("decision")))
+    evidence = result.get("evidence") or {}
+    table.add_row("refused", str(evidence.get("refused")))
+    table.add_row("ab_evidence", str(evidence.get("ab_evidence")))
+    events = result.get("events") or []
+    if events:
+        table.add_row("tools", ", ".join(f"{e['phase']}:{e['tool']}" for e in events))
+    console.print(table)
+    if result.get("answer"):
+        text = result["answer"]
+        console.print(text if len(text) < 2000 else text[:2000] + "\n…")
 
 
 # -------------------------------------------------------------------- eval

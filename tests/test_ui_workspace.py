@@ -8,6 +8,8 @@ def test_workspace_local_assets_and_safe_static_mount():
     client = TestClient(app)
     html = client.get('/').text
     assert 'id="workspaceForm"' in html and 'data-tab="review"' in html
+    assert 'data-tab="structure"' in html and 'id="structureTree"' in html
+    assert "r.inherits" in html
     assert 'expected_bundle_hash' in html and 'save_draft:false' in html
     assert 'data-action="review"' in html and 'aria-current="page"' in html
     assert '30 / 40（保留历史结果）' in html

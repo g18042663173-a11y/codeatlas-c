@@ -27,15 +27,17 @@ codeatlas serve --db data/kb.db --data-dir data
 
 1. **总览（20 秒）**：指出固定 commit、函数数、certain/candidate、三级 Wiki 和当前模型状态。强调正式解析来自 compile database，严重编译诊断为 0。
 2. **证据检索（30 秒）**：查询 `cJSON_Delete` 或 `parse_value`，展示 A 级引用的 repository、revision、USR、源码范围和定义哈希；再输入 Kubernetes TLS 问题展示拒答。
-3. **Agent（45 秒）**：先问概念题，展示 Wiki-first 的 discover/understand/verify 时间线；再问影响题，展示结构化直接路由。
-4. **知识卡（45 秒）**：设置沉淀目标、确认候选；保存后仍是 `pending`。从 A 级证据选 USR、关系类型，补一条 QA 和审核意见后才能批准。
-5. **失效与替代（20 秒）**：解释 parse 后 definition hash 变化会让卡片 `stale`；新卡只有在批准后才把旧卡标为 `superseded`。
-6. **评测（20 秒）**：展示 cJSON/lwIP 各 15/20、人工开发检索各 10/10、相对 BM25 的 +10/+20pt、十道经验题的审核阻塞，以及 6 场景门禁。
+3. **文件结构（20 秒）**：`codeatlas map file cJSON.c`，或工作台「文件结构」。指出 include 与跨文件 certain 调用分开列，candidate 不进确定关系。
+4. **Agent（45 秒）**：先问概念题，展示 Wiki-first 的 discover/understand/verify 时间线；再问影响题，展示结构化直接路由。
+5. **知识卡（45 秒）**：设置沉淀目标、确认候选；保存后仍是 `pending`。从 A 级证据选 USR、关系类型，补一条 QA 和审核意见后才能批准。
+6. **失效与替代（20 秒）**：解释 parse 后 definition hash 变化会让卡片 `stale`；新卡只有在批准后才把旧卡标为 `superseded`。
+7. **评测（20 秒）**：展示 cJSON/lwIP 各 15/20、人工开发检索各 10/10、相对 BM25 的 +10/+20pt、十道经验题的审核阻塞，以及 6 场景门禁。
 
 网页不会执行评测或改源码，只读取本地生成且与当前 repository/revision 匹配的 JSON sidecar。真实模型报告不存在时显示“尚未运行”。
 
 ## 面试中要主动说明的边界
 
+- C++ 翻译单元可以入库，方法按函数检索；虚调用只认静态绑定，不是运行时 override，也没有 C++ 语料评测数字；
 - 这是按企业研发约束设计的本地原型，不是已部署的多租户平台；
 - `type_use / field_access / global_ref` 是编译器引用事实，不是完整数据流；
 - 模型是可选主路径，不能批准知识卡、改代码或绕过引用校验；

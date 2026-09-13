@@ -1,4 +1,4 @@
-"""libclang AST 遍历：把 C 工程抽成 node / edge。
+"""libclang AST 遍历：把 C/C++ 翻译单元抽成 node / edge。
 
 【本文件是全项目的地基，两个关键设计写在这里】
 
@@ -12,7 +12,7 @@ D1 事实与推断分离
     基带这类代码里函数指针极多，如果混进 certain，影响分析会给出错误的回归范围。
 
 USR 全局去重
-    一个 .h 会被 N 个 .c include，同一个函数声明会被遍历 N 次。
+    一个头文件会被 N 个翻译单元 include，同一个函数声明会被遍历 N 次。
     clang 的 USR (Unified Symbol Resolution) 对同一符号跨 TU 稳定，
     所以 node.id = sha1(USR)。static 函数的 USR 自带文件路径，天然不会串。
 """
@@ -35,6 +35,18 @@ _ROOT = ContextVar("codeatlas_parser_root", default=None)
 _CONFIG = ContextVar("codeatlas_parser_config", default="unknown")
 
 
+def _ck(*names: str) -> tuple:
+    return tuple(kind for name in names if (kind := getattr(CK, name, None)) is not None)
+
+
+_CALLABLE_KINDS = _ck(
+    "FUNCTION_DECL", "CXX_METHOD", "CONSTRUCTOR", "DESTRUCTOR", "CONVERSION_FUNCTION",
+)
+_RECORD_KINDS = _ck("STRUCT_DECL", "UNION_DECL", "CLASS_DECL", "CLASS_TEMPLATE")
+_TYPE_KINDS = _RECORD_KINDS + _ck("ENUM_DECL", "TYPEDEF_DECL")
+_NAMESPACE_PARENTS = _ck("TRANSLATION_UNIT", "NAMESPACE", "LINKAGE_SPEC")
+
+
 def _identity_path(path):
     root = _ROOT.get()
     return repo_relpath(path, root) if root else os.path.abspath(path)
@@ -50,6 +62,8 @@ _KIND_MAP = {
     CK.MACRO_DEFINITION: "macro",
     CK.FIELD_DECL: "field",
 }
+if hasattr(CK, "CLASS_DECL"):
+    _KIND_MAP[CK.CLASS_DECL] = "class"
 
 
 def nid(*parts: str) -> str:
@@ -214,19 +228,23 @@ class AstWalker:
 
             kind = _KIND_MAP.get(cur.kind)
 
-            if cur.kind == CK.FUNCTION_DECL:
+            if cur.kind in _CALLABLE_KINDS:
                 self._handle_function(cur, path)
             elif cur.kind == CK.VAR_DECL and self._is_global(cur):
                 self._add_decl(cur, "global", path)
             elif kind and cur.kind != CK.FIELD_DECL:
+                if cur.kind == getattr(CK, "CLASS_DECL", None) and not cur.spelling:
+                    continue
                 self._add_decl(cur, kind, path)
+                if cur.kind in _RECORD_KINDS:
+                    self._collect_bases(cur)
             elif cur.kind == CK.FIELD_DECL:
                 self._handle_field(cur, path)
 
     @staticmethod
     def _is_global(cur: cindex.Cursor) -> bool:
         parent = cur.semantic_parent
-        return parent is not None and parent.kind == CK.TRANSLATION_UNIT
+        return parent is not None and parent.kind in _NAMESPACE_PARENTS
 
     def _add_decl(self, cur: cindex.Cursor, kind: str, path: str) -> str:
         node = dict(
@@ -245,25 +263,72 @@ class AstWalker:
 
     def _handle_field(self, cur: cindex.Cursor, path: str) -> None:
         parent = cur.semantic_parent
-        if parent is None or parent.kind not in (CK.STRUCT_DECL, CK.UNION_DECL):
+        if parent is None or parent.kind not in _RECORD_KINDS:
             return
         fid = self._add_decl(cur, "field", path)
         self.result.add_edge(node_id_for(parent), fid, "contains", "certain",
                              reason="ast", tu=self._cur_tu)
 
+    def _collect_bases(self, derived: cindex.Cursor) -> None:
+        specifier = getattr(CK, "CXX_BASE_SPECIFIER", None)
+        if specifier is None:
+            return
+        for child in derived.get_children():
+            if child.kind != specifier:
+                continue
+            base = child.referenced
+            if base is None and child.type is not None:
+                try:
+                    base = child.type.get_declaration()
+                except (ValueError, AttributeError):
+                    base = None
+            if (base is None or base.kind not in _RECORD_KINDS
+                    or not self._in_repo(base.location.file.name if base.location.file else None)):
+                continue
+            self.result.add_edge(
+                node_id_for(derived), node_id_for(base), "inherits", "certain",
+                reason="ast", tu=self._cur_tu,
+            )
+
+    @staticmethod
+    def _callable_name(cur: cindex.Cursor) -> str:
+        name = cur.spelling or cur.displayname or "<anon>"
+        parent = cur.semantic_parent
+        if parent is None or parent.kind not in _RECORD_KINDS or not parent.spelling:
+            return name
+        if name.startswith(parent.spelling + "::"):
+            return name
+        return f"{parent.spelling}::{name}"
+
+    @staticmethod
+    def _skip_callable(cur: cindex.Cursor) -> bool:
+        parent = cur.semantic_parent
+        return bool(parent is not None and parent.kind in _RECORD_KINDS and not parent.spelling)
+
     def _handle_function(self, cur: cindex.Cursor, path: str) -> None:
+        if self._skip_callable(cur):
+            return
         is_static = cur.storage_class == cindex.StorageClass.STATIC
+        if hasattr(cur, "is_static_method") and cur.is_static_method():
+            is_static = True
+        extra = None
+        if cur.kind != CK.FUNCTION_DECL:
+            extra = f'{{"cxx_kind":"{cur.kind.name}"}}'
         node = dict(
-            id=node_id_for(cur), kind="function", name=cur.spelling,
+            id=node_id_for(cur), kind="function", name=self._callable_name(cur),
             usr=cur.get_usr() or None, repo=self.repo,
             path=repo_relpath(path, self.repo),
             line_start=cur.extent.start.line, line_end=cur.extent.end.line,
             signature=cur.type.spelling if cur.type else None,
-            is_definition=int(cur.is_definition()), is_static=int(is_static), extra=None,
+            is_definition=int(cur.is_definition()), is_static=int(is_static), extra=extra,
         )
         self.result.add_node(node)
         self.result.add_edge(self._ensure_file_node(path), node["id"], "contains", "certain",
                              reason="ast", tu=self._cur_tu)
+        parent = cur.semantic_parent
+        if parent is not None and parent.kind in _RECORD_KINDS and parent.spelling:
+            self.result.add_edge(node_id_for(parent), node["id"], "contains", "certain",
+                                 reason="ast", tu=self._cur_tu)
         self.result.stats["node_function"] += 1
         if cur.is_definition():
             self.result.stats["node_function_def"] += 1
@@ -350,8 +415,8 @@ class AstWalker:
         ref = cur.referenced
         ev = f'{{"file":"{rel}","line":{cur.location.line}}}'
 
-        if ref is not None and ref.kind == CK.FUNCTION_DECL:
-            # ✅ 编译器确认：能 resolve 到具体函数声明
+        if ref is not None and ref.kind in _CALLABLE_KINDS:
+            # ✅ 编译器确认：能 resolve 到具体函数/方法声明（含静态绑定的虚调用）
             self.result.add_edge(caller_id, node_id_for(ref), "calls", "certain",
                                  reason="ast", evidence=ev, tu=self._cur_tu)
             self.result.stats["call_certain"] += 1
@@ -407,6 +472,7 @@ class AstWalker:
                 CK.PARM_DECL: "param", CK.FIELD_DECL: "field",
                 CK.STRUCT_DECL: "struct", CK.UNION_DECL: "struct",
                 CK.ENUM_DECL: "enum", CK.TYPEDEF_DECL: "typedef",
+                **({CK.CLASS_DECL: "class"} if hasattr(CK, "CLASS_DECL") else {}),
             }.get(ref.kind, "local_var")
         self.result.add_node(dict(
             id=rid, kind=kind, name=ref.spelling or "<anon>", usr=ref.get_usr() or None,
@@ -421,7 +487,7 @@ class AstWalker:
         if ref is None or not self._in_repo(ref.location.file.name if ref.location.file else None):
             return
         evidence = f'{{"file":"{rel}","line":{cur.location.line}}}'
-        if ref.kind == CK.FUNCTION_DECL:
+        if ref.kind in _CALLABLE_KINDS:
             # A function name outside the callee position is an address-taken hint,
             # not proof that an indirect call reaches that function.
             self.result.add_edge(caller_id, node_id_for(ref), "calls", "candidate",
@@ -450,9 +516,7 @@ class AstWalker:
 
     def _classify_type_use(self, cur: cindex.Cursor, caller_id: str, rel: str) -> None:
         ref = cur.referenced
-        if ref is None or ref.kind not in (
-            CK.STRUCT_DECL, CK.UNION_DECL, CK.ENUM_DECL, CK.TYPEDEF_DECL,
-        ):
+        if ref is None or ref.kind not in _TYPE_KINDS:
             return
         if not self._in_repo(ref.location.file.name if ref.location.file else None):
             return

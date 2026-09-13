@@ -1,0 +1,18 @@
+# Shared file → module map. Match repository_id / repo meta by substring.
+# Longer prefixes win. nest_next takes the next path segment after prefix.
+corpora:
+  - match: cjson
+    root_if_flat: root
+    prefixes:
+      - {prefix: tests/, module: tests}
+      - {prefix: fuzzing/, module: fuzzing}
+  - match: lwip
+    prefixes:
+      - {prefix: src/core/ipv4/, module: core/ipv4}
+      - {prefix: src/core/ipv6/, module: core/ipv6}
+      - {prefix: src/core/, module: core}
+      - {prefix: src/api/, module: api}
+      - {prefix: src/netif/, module: netif}
+      - {prefix: src/apps/, module: apps, nest_next: true}
+      - {prefix: contrib/, module: contrib}
+      - {prefix: src/include/, module: include}

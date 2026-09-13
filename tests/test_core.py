@@ -415,4 +415,6 @@ def test_rrf_fusion_math():
 def test_route_detects_symbols():
     assert engine.route("nr_pusch_decode 是什么") == "symbol"
     assert engine.route("cJSON.c 里有什么") == "symbol"
+    assert engine.route("Widget::reset") == "symbol"
+    assert engine.route("driver.cpp 里有什么") == "symbol"
     assert engine.route("这个模块整体流程是怎样的") == "nl"

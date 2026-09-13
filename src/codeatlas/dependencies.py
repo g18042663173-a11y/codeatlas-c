@@ -12,6 +12,8 @@ import os
 import re
 from collections import deque
 from pathlib import Path
+
+from .parser.languages import READABLE_EXT
 from . import db
 from .contracts import digest
 
@@ -101,7 +103,7 @@ def _macro_definitions(root: Path, include_paths: set[str] | None = None) -> dic
         directories[:] = sorted(name for name in directories
                                 if name not in {".git", ".venv", "build", "dist", "node_modules"})
         source_paths.extend(Path(directory) / name for name in files
-                            if Path(name).suffix.lower() in {".c", ".h"})
+                            if Path(name).suffix.lower() in READABLE_EXT)
     for path in sorted(source_paths):
         relative = path.relative_to(root).as_posix()
         if include_paths is not None and relative not in include_paths:

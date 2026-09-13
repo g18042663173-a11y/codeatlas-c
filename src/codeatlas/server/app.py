@@ -16,7 +16,7 @@ from .. import db as dbm
 from .. import agent as agent_runner
 from .. import conversation
 from ..experience import store as exp_store
-from ..graph import traverse
+from ..graph import structure, traverse
 from ..indexer.build import get_embedder
 from ..llm.client import capabilities as llm_capabilities
 from ..llm.client import get_client
@@ -45,8 +45,9 @@ def prepare_database():
 async def pin_query_snapshot(request, call_next):
     _read_request.set(request.method == "GET")
     path = request.url.path
-    read = (path in ("/api/ask", "/api/stats", "/api/impact", "/api/source/read", "/api/evaluation/latest", "/api/capabilities")
-            or path.startswith(("/api/wiki/", "/api/symbol/", "/api/graph/")))
+    read = (path in ("/api/ask", "/api/stats", "/api/impact", "/api/source/read",
+                     "/api/evaluation/latest", "/api/capabilities", "/api/structure")
+            or path.startswith(("/api/wiki/", "/api/symbol/", "/api/graph/", "/api/structure/")))
     if not read:
         return await call_next(request)
     control = dbm.read_only(DB)
@@ -266,6 +267,19 @@ def api_impact(symbol: str, depth: int = Query(3, ge=1, le=6)):
     r["symbol"] = dict(rows[0]) if rows[0] else None
     r["by_hop"] = {str(k): v for k, v in r["by_hop"].items()}
     return r
+
+
+@app.get("/api/structure")
+def api_structure():
+    return structure.repo_outline(conn())
+
+
+@app.get("/api/structure/file")
+def api_structure_file(path: str):
+    try:
+        return structure.file_card(conn(), path)
+    except KeyError as exc:
+        raise HTTPException(404, str(exc)) from exc
 
 
 @app.get("/api/graph/callchain")

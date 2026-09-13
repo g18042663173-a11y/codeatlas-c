@@ -27,7 +27,7 @@ CodeAtlas 的 Agent 是本地、只读、可审计的代码诊断器；知识卡
 
 - 最多 6 次工具调用，事件阶段为 `discover / understand / verify`。
 - 白名单只有 `search_evidence`、`wiki_outline`、`wiki_section`、`resolve_symbol`、`code_read`、`analyze_impact`。
-- `code_read` 只能访问当前固定仓库内已解析的 `.c/.h`，单次最多 300 行；路径穿越、任意本地文件、shell、网络和源码写入都不可用。
+- `code_read` 只能访问当前固定仓库内已解析的 C/C++ 源码（`.c/.cc/.cpp/.h/.hpp` 等），单次最多 300 行；路径穿越、任意本地文件、shell、网络和源码写入都不可用。
 - 概念/功能/排障题必须 Wiki-first；没有当前 Wiki 时允许直接源码降级，并记录 `wiki_unavailable`。定位和结构题可以直接走符号或图。
 - 最终回答只能引用本轮注册的 A/B/C 标签；A/B 为 0 时在模型调用前拒答。模型无效 JSON、越权工具、伪造引用或超时都会记录 fallback reason。
 

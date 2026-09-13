@@ -18,6 +18,7 @@ from pathlib import Path
 
 from . import db
 from .contracts import digest
+from .parser.languages import READABLE_EXT
 
 _locks = {}
 _held = threading.local()
@@ -328,7 +329,7 @@ def build(control, repo: str, compile_db: str, *, activate_after=False, strict=T
                 if frozen not in link.resolve().parents:
                     raise SnapshotError(f"source symlink escapes repository: {link.relative_to(frozen)}")
         source_files = {str(p.relative_to(frozen)): digest(p.read_bytes()) for p in sorted(frozen.rglob("*"))
-                        if p.is_file() and p.suffix in (".c", ".h", ".inc")}
+                        if p.is_file() and p.suffix.lower() in READABLE_EXT}
         for rel, expected in source_files.items():
             if digest((source / rel).read_bytes()) != expected:
                 raise SnapshotError("source changed while freezing")

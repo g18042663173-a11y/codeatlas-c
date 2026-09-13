@@ -25,6 +25,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from .. import db as dbm
+from ..graph.modules import module_of
 from ..summary import head as head_mod
 
 log = logging.getLogger(__name__)
@@ -55,30 +56,8 @@ def _hash(*parts: str) -> str:
 
 
 def _module_of(path: str, repository: str = "") -> str:
-    """Stable public module map for the two pinned corpora, directory fallback elsewhere."""
-    rid = repository.lower()
-    if "cjson" in rid:
-        if "/" not in path:
-            return "root"
-        for prefix, module in (("tests/", "tests"), ("fuzzing/", "fuzzing")):
-            if path.startswith(prefix):
-                return module
-    if "lwip" in rid:
-        mappings = (
-            ("src/core/ipv4/", "core/ipv4"), ("src/core/ipv6/", "core/ipv6"),
-            ("src/core/", "core"), ("src/api/", "api"),
-            ("src/netif/", "netif"), ("src/apps/", "apps"),
-            ("contrib/", "contrib"),
-        )
-        for prefix, module in mappings:
-            if path.startswith(prefix):
-                if module == "apps":
-                    tail = path[len(prefix):].split("/", 1)[0]
-                    return f"apps/{tail}" if tail else module
-                return module
-        if path.startswith("src/include/"):
-            return "include"
-    return path.rsplit("/", 1)[0] if "/" in path else "root"
+    """Wiki pages use the same module map as impact and `codeatlas map`."""
+    return module_of(path, repository)
 
 
 # ---------------------------------------------------------------- 事实收集
@@ -220,7 +199,7 @@ def _file_facts(conn: sqlite3.Connection, file_row: sqlite3.Row) -> dict:
     ).fetchall()
     declarations = conn.execute(
         """SELECT id,kind,name,usr,line_start,line_end,signature,is_definition
-             FROM node WHERE path=? AND kind IN ('struct','enum','typedef','macro','global','field')
+             FROM node WHERE path=? AND kind IN ('struct','class','enum','typedef','macro','global','field')
             ORDER BY line_start,name""", (file_row["path"],),
     ).fetchall()
     branches = conn.execute(
@@ -472,7 +451,7 @@ def _render_repo(conn, modules: dict, stats: dict) -> str:
         """SELECT kind,COUNT(*) c FROM edge WHERE confidence='certain'
              AND kind IN ('type_use','field_access','global_ref') GROUP BY kind""").fetchall()
     L = ["# 仓库总览", "", "## 职责与边界", "",
-         f"固定构建快照覆盖 {stats['files']} 个 C/H 文件、{stats['functions']} 个函数定义、"
+         f"固定构建快照覆盖 {stats['files']} 个源文件、{stats['functions']} 个函数定义、"
          f"{len(modules)} 个模块。代码和构建配置是事实来源，Wiki 可重建。", "",
          "## 模块列表", "", "| 模块 | 文件数 |", "|---|---:|"]
     for module, files in sorted(modules.items(), key=lambda item: item[0]):
